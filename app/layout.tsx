@@ -2,10 +2,36 @@ import "./globals.css";
 import SiteHeader from "../components/SiteHeader";
 
 export const metadata = {
-  title: "MBBS Foundation",
-  description: "More than a book. A companion in medicine.",
+  title: "MBBS Foundation: Your First Book of Medicine",
+  description:
+    "A complete guide for MBBS students covering transition into medicine, CPR, first aid, ethics, communication, and hidden curriculum.",
+  keywords: [
+    "MBBS Foundation",
+    "MBBS book India",
+    "CPR training India",
+    "First aid book",
+    "Medical student guide",
+    "AETCOM",
+    "BLS CPR India",
+  ],
+  authors: [{ name: "Dr Lokesh Tiwari" }],
   icons: {
     icon: "/favicon.png",
+  },
+  openGraph: {
+    title: "MBBS Foundation",
+    description:
+      "Build the doctor within – CPR, first aid, ethics, and real-life medicine.",
+    url: "https://mbbsfoundation.com",
+    siteName: "MBBS Foundation",
+    images: [
+      {
+        url: "/book.png",
+        width: 800,
+        height: 1200,
+      },
+    ],
+    type: "website",
   },
 };
 
