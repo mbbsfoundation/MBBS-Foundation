@@ -13,7 +13,8 @@ export default function Home() {
 
           <p className="mt-6 text-lg text-slate-600">
             MBBS Foundation is more than a book. It is a complete ecosystem for medical students, young doctors, and future healers. As you step into medical college from school, this book invites you to pause 
-and learn at this threshold. It is a crossing-over: into responsibility, into compassion and into the lifelong identity of being a doctor. 
+and learn at this threshold. It is a crossing-over: into responsibility, into compassion and into the lifelong identity of being a doctor. It aligns with the competency-based curriculum, yet it offers far more 
+than a list can capture. It is built to reawaken the art in medical education, re-enforcing that while competencies define what we teach, humanity defines why we teach. 
 Step mindfully, and what lies beyond will shape not only your studies, but your life.
 Forever!
 
@@ -40,29 +41,29 @@ Forever!
 
       {/* FEATURES */}
       <section className="mx-auto max-w-6xl px-6 py-16 grid gap-6 md:grid-cols-3">
-
-        <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <h3 className="font-semibold text-xl">Transition to MBBS</h3>
-          <p className="mt-2 text-slate-600">
-            Guidance for the shift from school to medical college.
-          </p>
-        </div>
-
-        <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <h3 className="font-semibold text-xl">CPR & First Aid</h3>
-          <p className="mt-2 text-slate-600">
-            Life-saving skills for real-world readiness.
-          </p>
-        </div>
-
-        <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-          <h3 className="font-semibold text-xl">Soft Skills</h3>
-          <p className="mt-2 text-slate-600">
-            Communication, empathy, and professional growth.
-          </p>
-        </div>
-
-      </section>
+  {[
+    {
+      title: "Foundations of Understanding Medicine",
+      desc: "Understanding the science, systems, and structure of medicine, while developing professional identity and ethical foundation.",
+    },
+    {
+      title: "Foundations of Living Medicine",
+      desc: "Trains your hands and heart in CPR and first aid—so you can turn knowledge into action and take the first life-saving steps when every second matters.",
+    },
+    {
+      title: "Hidden Curriculum",
+      desc: "Transition from school to MBBS - The unwritten lessons and soft skills needed to survive and thrive in medicine—shaping real doctors beyond textbooks.",
+    },
+  ].map((item, i) => (
+    <div
+      key={i}
+      className="rounded-2xl border p-6 shadow-sm transition hover:shadow-lg hover:-translate-y-1"
+    >
+      <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+      <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+    </div>
+  ))}
+</section>
 
     <section className="mx-auto max-w-6xl px-6 py-16">
 

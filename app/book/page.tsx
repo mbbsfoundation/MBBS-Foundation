@@ -13,7 +13,7 @@ export default function BookPage() {
           </h1>
 
           <p className="mt-6 text-lg leading-8 text-slate-600">
-            A modern guide for MBBS students covering transition into medicine,
+            An uptodate guide for MBBS students covering transition into medicine,
             ethics, CPR, first aid, communication, soft skills, and the hidden
             curriculum of becoming a doctor.
           </p>
@@ -66,32 +66,54 @@ export default function BookPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 pb-20">
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-slate-200 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-            <h3 className="text-xl font-semibold">Transition into MBBS</h3>
-            <p className="mt-3 leading-7 text-slate-600">
-              Helps students navigate the emotional and academic shift into
-              medical college.
-            </p>
-          </div>
+  <div className="mb-10 max-w-3xl">
+    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-red-700">
+      Book Sections
+    </p>
+    <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+      Explore the architecture of the book
+    </h2>
+    <p className="mt-4 leading-8 text-slate-600">
+      Each section opens a new dimension of the medical journey. Click any
+      section to preview its threshold page.
+    </p>
+  </div>
 
-          <div className="rounded-2xl border border-slate-200 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-            <h3 className="text-xl font-semibold">CPR & First Aid</h3>
-            <p className="mt-3 leading-7 text-slate-600">
-              Brings life-saving skills and practical readiness into early
-              medical learning.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-            <h3 className="text-xl font-semibold">Soft Skills & Identity</h3>
-            <p className="mt-3 leading-7 text-slate-600">
-              Builds empathy, communication, resilience, and the mindset of a
-              doctor.
-            </p>
-          </div>
-        </div>
-      </section>
+  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+    {[
+      { title: "Threshold", img: "/sections/1_threshold.png" },
+      { title: "Inception", img: "/sections/2_inception.png" },
+      { title: "Genesis", img: "/sections/3_genesis.png" },
+      { title: "Synthesis", img: "/sections/4_synthesis.png" },
+      { title: "Matrix", img: "/sections/5_matrix.png" },
+      { title: "Covenant", img: "/sections/6_covenant.png" },
+      { title: "Crossroads", img: "/sections/7_crossroads.png" },
+      { title: "Revive", img: "/sections/8_revive.png" },
+      { title: "Rescue", img: "/sections/9_rescue.png" },
+      { title: "Impact", img: "/sections/10_impact.png" },
+      { title: "Tempest", img: "/sections/11_tempest.png" },
+      { title: "Illumination", img: "/sections/12_illumination.png" },
+      { title: "Resonance", img: "/sections/13_resonance.png" },
+      { title: "Hidden Curriculum", img: "/sections/14_hidden.png" },
+      { title: "Continuum", img: "/sections/15_continuum.png" },
+    ].map((section, i) => (
+      <a
+        key={i}
+        href={section.img}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-slate-400"
+      >
+        <h3 className="text-lg font-semibold text-slate-900 transition group-hover:text-red-700">
+          {section.title}
+        </h3>
+        <p className="mt-2 text-sm text-slate-500">
+          Click to view section page
+        </p>
+      </a>
+    ))}
+  </div>
+</section>
     <section className="mx-auto max-w-6xl px-6 py-16">
   <div className="mb-10 max-w-3xl">
     <p className="text-sm font-semibold uppercase tracking-[0.2em] text-red-700">
