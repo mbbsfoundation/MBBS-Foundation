@@ -2,36 +2,45 @@ import "./globals.css";
 import SiteHeader from "../components/SiteHeader";
 
 export const metadata = {
-  title: "MBBS Foundation: Your First Book of Medicine",
+  title: "MBBS Foundation: First Year Guide for Medical Students in India",
   description:
-    "A complete guide for MBBS students covering transition into medicine, CPR, first aid, ethics, communication, and hidden curriculum.",
+    "MBBS Foundation is a practical guide for first-year MBBS students covering transition, CPR, first aid, ethics, communication, and real-world medical learning.",
   keywords: [
     "MBBS Foundation",
+    "MBBS first year guide",
     "MBBS book India",
+    "book for MBBS students",
     "CPR training India",
-    "First aid book",
-    "Medical student guide",
+    "First aid for medical students",
     "AETCOM",
-    "BLS CPR India",
+    "medical student guide India",
   ],
   authors: [{ name: "Dr Lokesh Tiwari" }],
   icons: {
     icon: "/favicon.png",
   },
   openGraph: {
-    title: "MBBS Foundation",
+    title: "MBBS Foundation: Your First Book of Medicine",
     description:
-      "Build the doctor within – CPR, first aid, ethics, and real-life medicine.",
+      "A complete guide for MBBS students covering CPR, first aid, ethics, communication, and the hidden curriculum of becoming a doctor.",
     url: "https://mbbsfoundation.com",
     siteName: "MBBS Foundation",
     images: [
       {
-        url: "/book.png",
-        width: 800,
-        height: 1200,
+        url: "https://mbbsfoundation.com/book.png",
+        width: 886,
+        height: 1256,
+        alt: "MBBS Foundation Book Cover",
       },
     ],
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MBBS Foundation: First Year Guide for Medical Students in India",
+    description:
+      "A practical guide for first-year MBBS students covering transition, CPR, first aid, ethics, communication, and real-world medical learning.",
+    images: ["https://mbbsfoundation.com/book.png"],
   },
 };
 
