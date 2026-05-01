@@ -10,11 +10,15 @@ export default function Home() {
           <h1 className="text-5xl font-bold md:text-7xl">
             Build the doctor within
           </h1>
+          <p className="mt-4 text-xl font-medium text-red-700">
+  A complete guide for MBBS students in India
+</p>
 
           <p className="mt-6 text-lg text-slate-600">
-            MBBS Foundation is more than a book. It is a complete ecosystem for medical students, young doctors, and future healers. As you step into medical college from school, this book invites you to pause 
-and learn at this threshold. It is a crossing-over: into responsibility, into compassion and into the lifelong identity of being a doctor. It aligns with the competency-based curriculum, yet it offers far more 
-than a list can capture. It is built to reawaken the art in medical education, re-enforcing that while competencies define what we teach, humanity defines why we teach. 
+            MBBS Foundation is more than a book. It is a practical and evidence-based guide for first-year MBBS students. It helps you transition from school to medical college while building essential skills in 
+            CPR, first aid, communication, ethics, and real-world clinical thinking. Designed for Indian medical students, young doctors and other healthcare providers, it goes beyond textbooks to prepare you for the reality of becoming a doctor. 
+            As you step into medical college from school, this book invites you to pause and learn at this threshold. It is a crossing-over: into responsibility, into compassion and into the lifelong identity of being a doctor. 
+            It aligns with the competency-based curriculum, yet it offers far more than a list can capture. 
 Step mindfully, and what lies beyond will shape not only your studies, but your life.
 Forever!
 
@@ -31,11 +35,14 @@ Forever!
         </div>
 
         <div className="flex justify-center mt-10 md:mt-0">
-          <img
-            src="/book.png"
-            className="w-72 rounded-xl shadow-xl md:w-96"
-          />
-        </div>
+  <div className="w-80 md:w-[420px] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-200 bg-white">
+    <img
+      src="/book.png"
+      alt="MBBS Foundation Book"
+      className="w-full h-full object-cover transition duration-300 hover:scale-105"
+    />
+  </div>
+</div>
 
       </section>
 
