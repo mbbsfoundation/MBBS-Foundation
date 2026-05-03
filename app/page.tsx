@@ -44,7 +44,79 @@ Forever!
   </div>
 </div>
 
+
       </section>
+      <section className="w-full bg-gradient-to-r from-blue-50 to-slate-50 py-16 mt-16">
+  <div className="mx-auto max-w-6xl px-6 text-center">
+
+    <p className="text-lg md:text-xl font-semibold text-blue-700 uppercase tracking-[0.3em]">
+      NEET 2026 Special
+    </p>
+
+    <h2 className="mt-4 text-3xl md:text-4xl font-bold text-slate-900">
+      Just appeared for NEET?
+    </h2>
+
+    <p className="mt-4 text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+      The journey doesn’t end here—it begins. MBBS Foundation helps you take your first confident step into medical college with clarity, skills, and real-world understanding.
+    </p>
+
+    <p className="mt-4 text-base font-medium text-red-700">
+      🎓 Founder’s Circle Access available for early learners
+    </p>
+    <p className="mt-3 text-sm text-slate-500">
+  Trusted by early MBBS learners across India
+</p>
+
+    {/* Premium Choice Cards (Clickable) */}
+<div className="mt-8 grid gap-4 md:grid-cols-2 max-w-3xl mx-auto">
+
+  {/* STUDENT */}
+  <a
+    href="https://mbbsfoundation.com/book"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
+  >
+    <p className="font-semibold text-lg text-slate-900 group-hover:text-blue-700">
+      I am a NEET student
+    </p>
+    <p className="text-sm text-slate-500 mt-1">
+      Start MBBS with clarity and confidence
+    </p>
+  </a>
+
+  {/* PARENT */}
+  <a
+    href="https://mbbsfoundation.com/book"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
+  >
+    <p className="font-semibold text-lg text-slate-900 group-hover:text-blue-700">
+      I am a parent / mentor
+    </p>
+    <p className="text-sm text-slate-500 mt-1">
+      Guide your child’s medical journey
+    </p>
+  </a>
+
+</div>
+
+{/* CTA */}
+<div className="mt-10">
+  <a
+    href="https://mbbsfoundation.com/book"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-block rounded-xl bg-black px-8 py-4 text-lg text-white transition hover:bg-slate-800 hover:scale-105"
+  >
+    Start Your MBBS Journey →
+  </a>
+</div>
+
+  </div>
+</section>
 
       {/* FEATURES */}
       <section className="mx-auto max-w-6xl px-6 py-16 grid gap-6 md:grid-cols-3">
