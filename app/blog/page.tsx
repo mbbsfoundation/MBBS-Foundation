@@ -43,6 +43,14 @@ export default function BlogPage() {
     Step-by-step guide to NEET counselling, college selection, and admission.
   </p>
 </a>
+<a href="/blog/choose-medical-college" className="block rounded-xl border p-6 hover:shadow-lg">
+  <h2 className="text-xl font-semibold">
+    How to Choose the Right Medical College After NEET
+  </h2>
+  <p className="mt-2 text-slate-600">
+    A complete guide to selecting the best MBBS college based on rank, fees, and future goals.
+  </p>
+</a>
 
         </div>
 
