@@ -24,6 +24,9 @@ export default function NeetPage() {
         <p className="mt-4 text-lg text-slate-600">
   If you are wondering what to do after NEET, how to prepare for MBBS, or how to start your medical journey, this guide will help you take the right next step.
 </p>
+<p className="mt-4 text-lg text-slate-600">
+  This is a complete guide for students wondering how to start MBBS after NEET and how to prepare for first-year MBBS in India.
+</p>
 
         <p className="mt-4 text-lg leading-8 text-slate-600">
           MBBS is very different from school learning. It requires a new mindset,
@@ -42,6 +45,14 @@ export default function NeetPage() {
             the first steps toward patient care.
           </p>
         </div>
+        <section className="mt-12">
+  <h2 className="text-2xl font-semibold">
+    Guidance for parents after NEET
+  </h2>
+  <p className="mt-3 text-slate-600 leading-8">
+    Parents often look for the right guidance after NEET to support their child entering MBBS. A structured guide can help students build confidence, develop skills, and adapt to medical college effectively.
+  </p>
+</section>
         <section className="mt-12">
   <h2 className="text-2xl font-semibold">
     What to do after NEET exam?

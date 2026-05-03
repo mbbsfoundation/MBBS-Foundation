@@ -130,6 +130,12 @@ export default function BookPage() {
 
   <BookFlipPreview />
 </section>
+<p className="mt-4 text-sm text-blue-600">
+  Just appeared for NEET? Read the complete guide →
+  <a href="/neet" className="underline ml-1">
+    After NEET What Next
+  </a>
+</p>
 <section className="mx-auto max-w-4xl px-6 py-16 text-center">
 
   <p className="text-sm uppercase tracking-[0.2em] text-red-700 font-semibold">
