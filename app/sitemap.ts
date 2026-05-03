@@ -8,5 +8,9 @@ export default function sitemap() {
       url: "https://mbbsfoundation.com/book",
       lastModified: new Date(),
     },
+    {
+  url: "https://mbbsfoundation.com/neet",
+  lastModified: new Date(),
+},
   ];
 }
