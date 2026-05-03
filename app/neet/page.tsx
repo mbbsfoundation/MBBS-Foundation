@@ -12,15 +12,18 @@ export default function NeetPage() {
           NEET to MBBS
         </p>
 
-        <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-6xl">
-          After NEET, What Next?
-        </h1>
+        <h1 className="text-4xl md:text-6xl font-bold">
+  After NEET What Next? A Complete Guide for MBBS Students in India
+</h1>
 
         <p className="mt-6 text-lg leading-8 text-slate-600">
           Appearing for NEET is a major milestone, but it is not the end of the
           journey. For many students and parents, the period after NEET brings a
           new question: how should one prepare for MBBS and medical college?
         </p>
+        <p className="mt-4 text-lg text-slate-600">
+  If you are wondering what to do after NEET, how to prepare for MBBS, or how to start your medical journey, this guide will help you take the right next step.
+</p>
 
         <p className="mt-4 text-lg leading-8 text-slate-600">
           MBBS is very different from school learning. It requires a new mindset,
@@ -39,6 +42,14 @@ export default function NeetPage() {
             the first steps toward patient care.
           </p>
         </div>
+        <section className="mt-12">
+  <h2 className="text-2xl font-semibold">
+    What to do after NEET exam?
+  </h2>
+  <p className="mt-3 text-slate-600 leading-8">
+    After NEET, students should focus on understanding the MBBS curriculum, developing study habits, and preparing for the transition into medical college. This includes building conceptual clarity, learning basic clinical thinking, and gaining awareness of skills like CPR and first aid.
+  </p>
+</section>
 
         <div className="mt-12 space-y-10">
           <section>
