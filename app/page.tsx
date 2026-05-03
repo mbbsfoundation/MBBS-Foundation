@@ -269,6 +269,22 @@ Forever!
     </div>
 
   </div>
+  <div className="mt-16 text-center">
+  <p className="text-sm uppercase text-slate-500">
+    Learn & Explore
+  </p>
+
+  <h2 className="text-2xl font-semibold mt-2">
+    Start your journey into medicine
+  </h2>
+
+  <a
+    href="/blog"
+    className="mt-4 inline-block rounded-xl border px-6 py-3 hover:bg-slate-50"
+  >
+    Visit Blog →
+  </a>
+</div>
 
 </section>
 <section className="mx-auto max-w-6xl px-6 py-16">

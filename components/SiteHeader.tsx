@@ -49,6 +49,7 @@ export default function SiteHeader() {
 >
   Resources
 </a>
+<a href="/blog">Blog</a>
             <a
   href="/contact"
   className={`transition ${
