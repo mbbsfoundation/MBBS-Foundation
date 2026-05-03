@@ -35,6 +35,14 @@ export default function BlogPage() {
     A complete guide to prepare for MBBS after NEET with clarity and confidence.
   </p>
 </a>
+<a href="/blog/neet-counselling" className="block rounded-xl border p-6 hover:shadow-lg">
+  <h2 className="text-xl font-semibold">
+    NEET Counselling Process Explained
+  </h2>
+  <p className="mt-2 text-slate-600">
+    Step-by-step guide to NEET counselling, college selection, and admission.
+  </p>
+</a>
 
         </div>
 
