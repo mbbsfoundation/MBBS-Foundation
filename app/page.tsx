@@ -73,7 +73,7 @@ Forever!
 
   {/* STUDENT */}
   <a
-    href="https://mbbsfoundation.com/book"
+    href="neet"
     target="_blank"
     rel="noopener noreferrer"
     className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
@@ -88,7 +88,7 @@ Forever!
 
   {/* PARENT */}
   <a
-    href="https://mbbsfoundation.com/book"
+    href="neet"
     target="_blank"
     rel="noopener noreferrer"
     className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
@@ -106,7 +106,7 @@ Forever!
 {/* CTA */}
 <div className="mt-10">
   <a
-    href="https://mbbsfoundation.com/book"
+    href="neet"
     target="_blank"
     rel="noopener noreferrer"
     className="inline-block rounded-xl bg-black px-8 py-4 text-lg text-white transition hover:bg-slate-800 hover:scale-105"
