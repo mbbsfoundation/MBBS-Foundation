@@ -27,6 +27,14 @@ export default function BlogPage() {
               Learn how to transition from NEET to MBBS with clarity and confidence.
             </p>
           </a>
+          <a href="/blog/prepare-mbbs" className="block rounded-xl border p-6 hover:shadow-lg">
+  <h2 className="text-xl font-semibold">
+    How to Prepare for MBBS Before College Starts
+  </h2>
+  <p className="mt-2 text-slate-600">
+    A complete guide to prepare for MBBS after NEET with clarity and confidence.
+  </p>
+</a>
 
         </div>
 

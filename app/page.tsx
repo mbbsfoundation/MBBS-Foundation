@@ -309,7 +309,7 @@ Forever!
             just teach medicine—it prepares you for the journey."
           </p>
           <p className="mt-2 text-sm text-slate-500">
-            — Sanjil Maheshwari 2nd-year MBBS student
+            — Sanjil Maheshwari 3rd-year MBBS student
           </p>
         </div>
 
