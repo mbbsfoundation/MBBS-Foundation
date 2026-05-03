@@ -83,7 +83,28 @@ export default function PrepareMBBSPage() {
             Medicine is about people. Communication, empathy, and emotional
             resilience are as important as academic knowledge.
           </p>
+          <p className="mt-4 text-slate-600">
+  👉 Start here:
+  <a href="/neet" className="ml-1 text-blue-600 underline">
+    What to do after NEET
+  </a>
+</p>
+👉 Related:
+- <a href="/blog/neet-counselling">NEET Counselling Guide</a>
+- <a href="/blog/choose-medical-college">Choosing Medical College</a>
+- <a href="/blog/prepare-mbbs">Prepare for MBBS</a>
         </section>
+        <section className="mt-16">
+  <h2 className="text-2xl font-semibold">Frequently Asked Questions</h2>
+
+  <div className="mt-4 space-y-4 text-slate-600">
+    <p><strong>What should I do after NEET exam?</strong><br/>Start with counselling preparation and understanding your options.</p>
+
+    <p><strong>How do I choose the right MBBS college?</strong><br/>Consider rank, fees, location, and clinical exposure.</p>
+
+    <p><strong>Is MBBS difficult?</strong><br/>It is demanding but manageable with the right guidance and mindset.</p>
+  </div>
+</section>
 
         {/* CTA */}
         <div className="mt-16 rounded-2xl bg-slate-950 p-8 text-white">
