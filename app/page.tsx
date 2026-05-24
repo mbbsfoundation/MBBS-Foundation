@@ -374,6 +374,12 @@ Forever!
         name: "Dr Abhilash Agrawal",
         detail: "Senior Pediatrician, Vardan Clinic, Surajkund, Faridabad",
       },
+      {
+        role: "Mentor",
+        text: "Simple, practical, and informative — a great book for beginners in medicine.",
+        name: "Dr janarthanan Alwarsamy",
+        detail: "MD pediatrics, Chennai",
+      },
     ];
 
     return (
