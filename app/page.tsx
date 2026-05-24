@@ -11,7 +11,7 @@ export default function Home() {
             Build the doctor within
           </h1>
           <p className="mt-4 text-xl font-medium text-red-700">
-  A complete guide for MBBS students in India
+  A complete guide for NEET aspirants and MBBS students in India
 </p>
 
           <p className="mt-6 text-lg text-slate-600">
@@ -292,136 +292,150 @@ Forever!
     Voices from Students & Mentors
   </h2>
 
-  <div className="mt-10 grid gap-10 md:grid-cols-2">
-    
-    {/* Students Column */}
-    <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <h3 className="text-xl font-semibold text-red-700">
-        What Students Say
-      </h3>
+  <p className="mt-4 text-center text-slate-600">
+    Reflections from readers, students, parents, and mentors
+  </p>
 
-      <div className="mt-6 space-y-8 text-slate-600">
-        
-        <div>
-          <p className="text-yellow-500">★★★★★</p>
-          <p className="mt-2 italic">
-            "This is the book I wish I had on my first day of MBBS. It doesn’t
-            just teach medicine—it prepares you for the journey."
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            — Sanjil Maheshwari 3rd-year MBBS student
-          </p>
-        </div>
+  {(() => {
+    const reviews = [
+      {
+        role: "Student",
+        text: "This is the book I wish I had on my first day of MBBS. It doesn’t just teach medicine—it prepares you for the journey.",
+        name: "Sanjil Maheshwari",
+        detail: "3rd-year MBBS student",
+      },
+      {
+        role: "Student",
+        text: "A rare blend of practical guidance and emotional grounding. It helped me understand not just what to study, but how to survive and grow in MBBS.",
+        name: "Sowmya",
+        detail: "1st Year MBBS Student",
+      },
+      {
+        role: "Mentor",
+        text: "This book fills a critical gap in early medical education by addressing the transition from student to doctor with clarity, empathy, and structure.",
+        name: "Dr Ashish Jaiman",
+        detail:
+          "Director Professor, Orthopaedics, Safdarjung Hospital & VMMC, New Delhi",
+      },
+      {
+        role: "Mentor",
+        text: "An insightful and well-structured resource that goes beyond textbooks to shape clinical thinking, professional values, and resilience in young doctors.",
+        name: "Dr Manish Pathak",
+        detail: "Professor & Head, Pediatric Surgery, AIIMS Jodhpur",
+      },
+      {
+        role: "Mentor",
+        text: "Must read for every medico.",
+        name: "Dr Omprakash",
+        detail: "MD Physiology",
+      },
+      {
+        role: "Parent",
+        text: "Best book for the dedicated doctors.",
+        name: "Chandresh Goyal",
+        detail:
+          "Lecturer and mentor for school children and college students, Karauli",
+      },
+      {
+        role: "Other",
+        text: "Very informative and knowledgeable book for all batches of MBBS, particularly first-year students.",
+        name: "Md Salam",
+        detail: "Staff in Dean office, AIIMS Patna",
+      },
+      {
+        role: "Mentor",
+        text: "It provides basic concepts in a clear, concise, and easy-to-understand manner, which helps build a strong foundation.",
+        name: "Dr Mahendra Singh Punia",
+        detail:
+          "Senior Urologist & Renal Transplant Surgeon, Suvira Hospital Jaipur",
+      },
+      {
+        role: "Mentor",
+        text: "Excellent book to read for new medical students starting their medical journey. Based on author's vast clinical experience.",
+        name: "Dr Sunil Kumar Garg",
+        detail:
+          "Senior Consultant ENT and Skull Base Surgeon, Apex Hospital Malviya Nagar, Jaipur",
+      },
+      {
+        role: "Mentor",
+        text: "New innovative idea, will be very helpful to budding doctors.",
+        name: "Dr Mani Kant Srivastava",
+        detail: "Senior Pediatrician, Patna",
+      },
+      {
+        role: "Mentor",
+        text: "All good topics covered.",
+        name: "Dr Shivra Batra",
+        detail: "Microbiologist Jaipur",
+      },
+      {
+        role: "Mentor",
+        text: "A very comprehensive book covering all aspects; a must-have for MBBS students starting their medical career.",
+        name: "Dr Abhilash Agrawal",
+        detail: "Senior Pediatrician, Vardan Clinic, Surajkund, Faridabad",
+      },
+    ];
 
-        <div>
-          <p className="text-yellow-500">★★★★★</p>
-          <p className="mt-2 italic">
-            "A rare blend of practical guidance and emotional grounding. It
-            helped me understand not just what to study, but how to survive and
-            grow in MBBS."
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            — Sowmya, 1st Year MBBS Student
-          </p>
-        </div>
-        <div>
-          <p className="text-yellow-500">★★★★★</p>
-          <p className="mt-2 italic text-slate-400">
-            "Student testimonial will be added here."
-          </p>
-        </div>
+    return (
+      <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="review-track flex w-max gap-6">
+          {[...reviews, ...reviews].map((review, index) => (
+            <div
+              key={index}
+              className="w-[320px] shrink-0 rounded-2xl border border-slate-100 bg-slate-50 p-6"
+            >
+              <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
+                {review.role}
+              </p>
 
+              <p className="mt-3 text-yellow-500">★★★★★</p>
+
+              <p className="mt-3 italic text-slate-700">
+                “{review.text}”
+              </p>
+
+              <p className="mt-4 font-semibold text-slate-900">
+                — {review.name}
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {review.detail}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
+    );
+  })()}
+
+  <div className="mt-12 text-center">
+    <p className="text-sm uppercase tracking-[0.2em] text-red-700 font-semibold">
+      Share Your Experience
+    </p>
+
+    <h3 className="mt-3 text-2xl font-semibold">
+      Have you read MBBS Foundation: Your First Book of Medicine?
+    </h3>
+
+    <p className="mt-3 text-slate-600">
+      Your feedback helps guide future medical students.
+    </p>
+
+    <div className="mt-6">
+      <a
+        href="https://forms.gle/SQhXxBX9oMDLg5a36"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-xl bg-red-700 px-8 py-3 text-white text-lg transition hover:bg-red-800"
+      >
+        Submit Your Review
+      </a>
     </div>
 
-    {/* Mentors Column */}
-    <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <h3 className="text-xl font-semibold text-red-700">
-        What Mentors Say
-      </h3>
-
-      <div className="mt-6 space-y-8 text-slate-600">
-        
-        <div>
-          <p className="text-yellow-500">★★★★★</p>
-          <p className="mt-2 italic">
-            "This book fills a critical gap in early medical education by
-            addressing the transition from student to doctor with clarity,
-            empathy, and structure. It is a thoughtful guide for every aspiring
-            medical professional."
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            — Dr Ashish Jaiman <br />
-            Director Professor, Orthopaedics <br />
-            Safdarjung Hospital & VMMC, New Delhi
-          </p>
-        </div>
-
-        <div>
-          <p className="text-yellow-500">★★★★★</p>
-          <p className="mt-2 italic">
-            "An insightful and well-structured resource that goes beyond
-            textbooks to shape clinical thinking, professional values, and
-            resilience in young doctors."
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            — Dr Manish Pathak <br />
-            Professor & Head, Pediatric Surgery <br />
-            AIIMS Jodhpur
-          </p>
-        </div>
-
-        <div>
-          <p className="text-yellow-500">★★★★★</p>
-          <p className="mt-2 italic text-slate-400">
-            "Mentor testimonial will be added here."
-          </p>
-        </div>
-
-      </div>
-    </div>
-
+    <p className="mt-4 text-sm text-slate-500">
+      Takes less than 1 minute
+    </p>
   </div>
-</section>
-<section className="mx-auto max-w-4xl px-6 py-16 text-center">
-
-  <p className="text-sm uppercase tracking-[0.2em] text-red-700 font-semibold">
-    Share Your Experience
-  </p>
-
-  <h2 className="mt-3 text-3xl font-semibold">
-    Have you read MBBS Foundation: Your First Book of Medicine?
-  </h2>
-
-  <p className="mt-4 text-lg text-slate-600">
-    Your feedback helps guide future medical students and strengthens this learning ecosystem.
-  </p>
-
-  {/* Star Display */}
-  <div className="mt-6 text-3xl text-yellow-500">
-    ★★★★★
-  </div>
-
-  <p className="mt-2 text-sm text-slate-500">
-    Rate your experience and share your thoughts
-  </p>
-
-  {/* Button */}
-  <div className="mt-8">
-    <a
-      href="https://forms.gle/SQhXxBX9oMDLg5a36"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="rounded-xl bg-red-700 px-8 py-3 text-white text-lg transition hover:bg-red-800"
-    >
-      Submit Your Review
-    </a>
-  </div>
-
-  <p className="mt-4 text-sm text-slate-500">
-    Takes less than 1 minute
-  </p>
-
 </section>
 <section className="mx-auto max-w-6xl px-6 py-16">
 
