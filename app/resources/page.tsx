@@ -36,6 +36,22 @@ export default function ResourcesPage() {
               Communication, empathy, resilience, and professional identity.
             </p>
           </div>
+
+          <a
+            href="/pdfs/cadaver-as-our-first-teacher.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block rounded-2xl border border-red-100 bg-red-50 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+          >
+            <h2 className="text-xl font-semibold">
+              Cadaver as Our First Teacher
+            </h2>
+            <p className="mt-3 leading-7 text-slate-600">
+              A reflective chapter on respect, professionalism, confidentiality,
+              and dignity in the dissection hall.
+            </p>
+            <p className="mt-4 font-semibold text-red-700">Open PDF →</p>
+          </a>
         </div>
 
         <div className="mt-16 rounded-3xl bg-slate-50 p-8 md:p-10">
@@ -47,8 +63,8 @@ export default function ResourcesPage() {
           </h2>
           <p className="mt-4 max-w-3xl leading-8 text-slate-600">
             In future updates, this section will include articles, downloadable
-            resources, student guidance, CPR awareness content, and practical
-            tools designed for real medical journeys.
+            resources, student guidance, CPR awareness content, and practical tools
+            designed for real medical journeys.
           </p>
         </div>
       </section>
