@@ -1,5 +1,6 @@
 import "./globals.css";
 import SiteHeader from "../components/SiteHeader";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
   title: "MBBS Foundation: First Year Guide for Medical Students in India",
@@ -124,6 +125,7 @@ export default function RootLayout({
             </p>
           </div>
         </footer>
+        <SpeedInsights />
       </body>
     </html>
   );
