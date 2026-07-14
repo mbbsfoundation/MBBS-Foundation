@@ -1,0 +1,344 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SystemRole {
+  ADMINISTRATOR
+  NATIONAL_COORDINATOR
+  STATE_COORDINATOR
+  COURSE_COORDINATOR
+  CPR_INSTRUCTOR
+  CPR_CHAMPION
+  PARTICIPANT
+}
+
+enum RoleAssignmentStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+  EXPIRED
+}
+
+enum RoleScopeType {
+  GLOBAL
+  NATIONAL
+  STATE
+  COURSE
+  SELF
+}
+
+enum CourseStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ParticipantCategory {
+  SCHOOL_STUDENT
+  COLLEGE_STUDENT
+  TEACHER
+  HEALTHCARE_WORKER
+  POLICE_PERSONNEL
+  ARMED_FORCES
+  RWA_MEMBER
+  NGO_VOLUNTEER
+  CORPORATE_EMPLOYEE
+  COMMUNITY_MEMBER
+  IAP_MEMBER
+  OTHER
+}
+
+enum RegistrationSource {
+  PUBLIC_FORM
+  COORDINATOR_ENTRY
+  BULK_UPLOAD
+  ADMIN_ENTRY
+}
+
+enum RegistrationStatus {
+  REGISTERED
+  CANCELLED
+  DUPLICATE
+  REJECTED
+}
+
+enum AttendanceStatus {
+  NOT_MARKED
+  PRESENT
+  ABSENT
+}
+
+enum CompletionStatus {
+  NOT_ASSESSED
+  COMPLETED
+  NOT_COMPLETED
+}
+
+enum CertificateStatus {
+  NOT_ELIGIBLE
+  ELIGIBLE
+  GENERATED
+  DOWNLOADED
+  REVOKED
+}
+
+enum UploadBatchStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+}
+
+enum CourseTeamRole {
+  COURSE_COORDINATOR
+  CPR_INSTRUCTOR
+  CPR_CHAMPION
+}
+
+enum CourseTeamStatus {
+  INVITED
+  ACCEPTED
+  DECLINED
+  REMOVED
+}
+
+model User {
+  id               String    @id @default(cuid())
+  fullName         String
+  email            String?   @unique
+  mobileNumber     String?   @unique
+  passwordHash     String?
+  isActive         Boolean   @default(true)
+  emailVerifiedAt  DateTime?
+  mobileVerifiedAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  roleAssignments       UserRole[]         @relation("UserRoleOwner")
+  rolesApproved         UserRole[]         @relation("UserRoleApprover")
+  courseTeamMemberships CourseTeamMember[] @relation("CourseTeamUser")
+  courseTeamInvitations CourseTeamMember[] @relation("CourseTeamInviter")
+
+  @@index([fullName])
+  @@index([isActive])
+}
+
+model UserRole {
+  id               String               @id @default(cuid())
+  userId           String
+  role             SystemRole
+  scopeType        RoleScopeType
+  stateCode        String?
+  courseId         String?
+  status           RoleAssignmentStatus @default(PENDING)
+  approvedByUserId String?
+  approvedAt       DateTime?
+  validFrom        DateTime?
+  validUntil       DateTime?
+  notes            String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  user       User  @relation("UserRoleOwner", fields: [userId], references: [id], onDelete: Cascade)
+  approvedBy User? @relation("UserRoleApprover", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([role, status])
+  @@index([stateCode, role])
+  @@index([courseId, role])
+}
+
+model Course {
+  id          String       @id @default(cuid())
+  courseCode  String       @unique
+  title       String
+  description String?
+  status      CourseStatus @default(DRAFT)
+
+  courseDate DateTime
+  startTime  String?
+  endTime    String?
+
+  venueName    String
+  addressLine1 String?
+  addressLine2 String?
+  city         String
+  district     String
+  state        String
+  stateCode    String
+  postalCode   String?
+  venueId      String
+  metadata     Json?
+
+  expectedParticipants Int?
+  maximumParticipants  Int?
+
+  isPublicRegistrationOpen Boolean @default(false)
+
+  approvedByUserId String?
+  approvedAt       DateTime?
+  rejectionReason  String?
+
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  participants       CourseParticipant[]
+  participantUploads ParticipantUploadBatch[]
+  teamMembers        CourseTeamMember[]
+
+  @@index([stateCode, courseDate])
+  @@index([status])
+  @@index([courseDate])
+  @@index([venueId])
+}
+
+model Participant {
+  id String @id @default(cuid())
+
+  fullName       String
+  normalizedName String
+
+  mobileNumber     String?
+  normalizedMobile String?
+
+  email           String?
+  normalizedEmail String?
+
+  age                 Int?
+  gender              Gender?
+  participantCategory ParticipantCategory @default(COMMUNITY_MEMBER)
+
+  organisationName String?
+  designation      String?
+
+  city       String?
+  district   String?
+  state      String?
+  postalCode String?
+
+  emergencyContactName   String?
+  emergencyContactMobile String?
+
+  consentToParticipate    Boolean @default(false)
+  consentForPhoto         Boolean @default(false)
+  consentForCommunication Boolean @default(false)
+
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  courseRegistrations CourseParticipant[]
+
+  @@index([normalizedName, normalizedMobile])
+  @@index([normalizedName, normalizedEmail])
+  @@index([state, district])
+  @@index([participantCategory])
+}
+
+model CourseParticipant {
+  id            String @id @default(cuid())
+  courseId      String
+  participantId String
+
+  registrationSource RegistrationSource
+  registrationStatus RegistrationStatus @default(REGISTERED)
+
+  registeredAt DateTime @default(now())
+
+  attendanceStatus   AttendanceStatus @default(NOT_MARKED)
+  attendedAt         DateTime?
+  attendanceMarkedAt DateTime?
+
+  completionStatus   CompletionStatus @default(NOT_ASSESSED)
+  completionMarkedAt DateTime?
+
+  certificateStatus      CertificateStatus @default(NOT_ELIGIBLE)
+  certificateNumber      String?           @unique
+  certificateGeneratedAt DateTime?
+  certificateUrl         String?
+  sourceRowNumber        Int?
+  bulkUploadBatchId      String?
+  remarks                String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  participant     Participant             @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  bulkUploadBatch ParticipantUploadBatch? @relation(fields: [bulkUploadBatchId], references: [id], onDelete: SetNull)
+
+  @@unique([courseId, participantId])
+  @@index([courseId, attendanceStatus])
+  @@index([courseId, completionStatus])
+  @@index([courseId, certificateStatus])
+  @@index([participantId])
+}
+
+model ParticipantUploadBatch {
+  id       String @id @default(cuid())
+  courseId String
+
+  originalFileName String
+  storedFileUrl    String?
+
+  totalRows     Int @default(0)
+  validRows     Int @default(0)
+  importedRows  Int @default(0)
+  duplicateRows Int @default(0)
+  errorRows     Int @default(0)
+
+  status          UploadBatchStatus @default(PENDING)
+  errorReportUrl  String?
+  processingNotes String?
+
+  createdAt   DateTime  @default(now())
+  processedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  course        Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  registrations CourseParticipant[]
+
+  @@index([courseId])
+  @@index([status])
+}
+
+model CourseTeamMember {
+  id       String @id @default(cuid())
+  courseId String
+  userId   String
+
+  teamRole CourseTeamRole
+  status   CourseTeamStatus @default(INVITED)
+
+  invitedById String?
+  invitedAt   DateTime  @default(now())
+  respondedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  user User @relation("CourseTeamUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  invitedBy User? @relation("CourseTeamInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+
+  @@unique([courseId, userId, teamRole])
+  @@index([courseId, teamRole, status])
+  @@index([userId, status])
+}
