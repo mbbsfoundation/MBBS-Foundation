@@ -292,6 +292,7 @@ export async function POST(request: NextRequest) {
     const course = await prisma.course.create({
       data: {
         courseCode,
+        venueId: courseCode,
         title,
         description: normaliseText(body.description) || null,
 
