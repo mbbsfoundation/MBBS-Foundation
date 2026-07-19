@@ -35,16 +35,20 @@ export async function GET() {
       checkedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("CPR Day database health check failed:", error);
+  console.error("CPR Day database health check failed:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: "The CPR Day database connection failed.",
-      },
-      {
-        status: 500,
-      },
-    );
-  }
+  return NextResponse.json(
+    {
+      success: false,
+      message: "The CPR Day database connection failed.",
+      error:
+        error instanceof Error
+          ? error.message
+          : String(error),
+    },
+    {
+      status: 500,
+    },
+  );
+}
 }
