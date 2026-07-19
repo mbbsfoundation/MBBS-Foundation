@@ -121,14 +121,15 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error) {
-    console.error("Coordinator sign-up error:", error);
+  console.error("Coordinator signup failed:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Unable to create the account. Please try again.",
-      },
-      { status: 500 },
-    );
-  }
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Unable to create the account. Please try again.",
+      error: error instanceof Error ? error.message : String(error),
+    },
+    { status: 500 },
+  );
+}
 }
