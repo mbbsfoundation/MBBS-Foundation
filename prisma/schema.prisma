@@ -184,7 +184,6 @@ model Course {
   state        String
   stateCode    String
   postalCode   String?
-  venueId      String
   metadata     Json?
 
   expectedParticipants Int?
@@ -205,7 +204,6 @@ model Course {
   @@index([stateCode, courseDate])
   @@index([status])
   @@index([courseDate])
-  @@index([venueId])
 }
 
 model Participant {
@@ -295,6 +293,16 @@ model ParticipantUploadBatch {
 
   originalFileName String
   storedFileUrl    String?
+  googleDriveFileId String?
+
+  uploadedByCoordinatorId String
+  uploadSequence          Int
+
+  observerName        String
+  observerMobile      String
+  observerDesignation String
+  observerAffiliation String
+  observerEmail       String
 
   totalRows     Int @default(0)
   validRows     Int @default(0)
@@ -313,7 +321,9 @@ model ParticipantUploadBatch {
   course        Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
   registrations CourseParticipant[]
 
+  @@unique([courseId, uploadSequence])
   @@index([courseId])
+  @@index([uploadedByCoordinatorId])
   @@index([status])
 }
 

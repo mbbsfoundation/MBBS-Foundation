@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import {
+  COORDINATOR_SESSION_COOKIE,
+  verifyCoordinatorSessionToken,
+} from "@/lib/cprday/auth";
 import { prisma } from "@/lib/prisma";
 
 type CreateCourseRequest = {
@@ -42,35 +47,108 @@ function parseOptionalNumber(value: unknown) {
   return Math.floor(parsedValue);
 }
 
-function createCourseCode() {
-  const datePart = new Date().toISOString().slice(0, 10).replaceAll("-", "");
-  const randomPart = Math.random()
-    .toString(36)
-    .slice(2, 7)
-    .toUpperCase();
+async function createNextCourseCode(
+  stateCode: string,
+  courseDateText: string,
+) {
+  const datePart = courseDateText.replaceAll("-", "");
+  const prefix = `CPR-${stateCode}-${datePart}-`;
 
-  return `CPR-${datePart}-${randomPart}`;
-}
+  const latestCourse = await prisma.course.findFirst({
+    where: {
+      courseCode: {
+        startsWith: prefix,
+      },
+    },
+    orderBy: {
+      courseCode: "desc",
+    },
+    select: {
+      courseCode: true,
+    },
+  });
 
-function verifyManagementKey(request: NextRequest) {
-  const expectedKey = process.env.CPRDAY_MANAGEMENT_KEY;
+  let nextSequence = 1;
 
-  if (!expectedKey) {
-    console.error("CPRDAY_MANAGEMENT_KEY is not configured.");
-    return false;
+  if (latestCourse) {
+    const previousSequenceText =
+      latestCourse.courseCode.split("-").at(-1);
+
+    const previousSequence = Number(previousSequenceText);
+
+    if (Number.isInteger(previousSequence)) {
+      nextSequence = previousSequence + 1;
+    }
   }
 
-  const suppliedKey = request.headers.get("x-cprday-management-key");
+  const sequencePart = String(nextSequence).padStart(3, "0");
 
-  return suppliedKey === expectedKey;
+  return `${prefix}${sequencePart}`;
+}
+
+async function getCoordinatorSession(request: NextRequest) {
+  const sessionToken = request.cookies.get(
+    COORDINATOR_SESSION_COOKIE,
+  )?.value;
+
+  if (!sessionToken) {
+    return null;
+  }
+
+  return verifyCoordinatorSessionToken(sessionToken);
 }
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-
     const courseCode = normaliseText(searchParams.get("courseCode"));
-    const includeAll = searchParams.get("all") === "true";
+    const latestMine = searchParams.get("latestMine") === "true";
+    if (latestMine) {
+  const session = await getCoordinatorSession(request);
+
+  if (!session) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Please sign in as a Course Coordinator.",
+      },
+      {
+        status: 401,
+      },
+    );
+  }
+
+  const latestCourse = await prisma.course.findFirst({
+    where: {
+      teamMembers: {
+        some: {
+          userId: session.userId,
+          teamRole: "COURSE_COORDINATOR",
+          status: "ACCEPTED",
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      title: true,
+      venueName: true,
+      addressLine1: true,
+      addressLine2: true,
+      city: true,
+      district: true,
+      state: true,
+      stateCode: true,
+      postalCode: true,
+    },
+  });
+
+  return NextResponse.json({
+    success: true,
+    course: latestCourse,
+  });
+}
 
     if (courseCode) {
       const course = await prisma.course.findUnique({
@@ -91,7 +169,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(
           {
             success: false,
-            message: "Course not found.",
+            message: "Venue not found.",
           },
           {
             status: 404,
@@ -99,11 +177,11 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      if (!includeAll && !course.isPublicRegistrationOpen) {
+      if (!course.isPublicRegistrationOpen) {
         return NextResponse.json(
           {
             success: false,
-            message: "Public registration is not open for this course.",
+            message: "Public registration is not open for this venue.",
           },
           {
             status: 403,
@@ -117,27 +195,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    if (includeAll && !verifyManagementKey(request)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Unauthorised access.",
-        },
-        {
-          status: 401,
-        },
-      );
-    }
-
     const courses = await prisma.course.findMany({
-      where: includeAll
-        ? undefined
-        : {
-            isPublicRegistrationOpen: true,
-            status: {
-              in: ["APPROVED", "SUBMITTED", "DRAFT"],
-            },
-          },
+      where: {
+        isPublicRegistrationOpen: true,
+        status: {
+          in: ["APPROVED", "SUBMITTED", "DRAFT"],
+        },
+      },
       orderBy: [
         {
           courseDate: "asc",
@@ -161,12 +225,12 @@ export async function GET(request: NextRequest) {
       courses,
     });
   } catch (error) {
-    console.error("Unable to load CPR Day courses:", error);
+    console.error("Unable to load CPR Day venues:", error);
 
     return NextResponse.json(
       {
         success: false,
-        message: "Unable to load courses.",
+        message: "Unable to load venues.",
       },
       {
         status: 500,
@@ -177,14 +241,44 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!verifyManagementKey(request)) {
+    const session = await getCoordinatorSession(request);
+
+    if (!session) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid management key.",
+          message: "Please sign in as a Course Coordinator.",
         },
         {
           status: 401,
+        },
+      );
+    }
+
+    const coordinator = await prisma.user.findFirst({
+      where: {
+        id: session.userId,
+        isActive: true,
+        roleAssignments: {
+          some: {
+            role: "COURSE_COORDINATOR",
+            status: "ACTIVE",
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!coordinator) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Your coordinator account is not active.",
+        },
+        {
+          status: 403,
         },
       );
     }
@@ -209,13 +303,14 @@ export async function POST(request: NextRequest) {
     const postalCode = normaliseText(body.postalCode);
 
     const requiredFields = [
+      ["title", title],
       ["courseDate", courseDateText],
-      ["startTime", startTime],
       ["venueName", venueName],
       ["city", city],
       ["district", district],
       ["state", state],
       ["stateCode", stateCode],
+      ["postalCode", postalCode],
     ] as const;
 
     const missingFields = requiredFields
@@ -226,7 +321,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Required course details are missing.",
+          message: "Please complete all required venue details.",
           missingFields,
         },
         {
@@ -241,7 +336,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid course date.",
+          message: "Please enter a valid training date.",
         },
         {
           status: 400,
@@ -274,32 +369,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let courseCode = createCourseCode();
 
-    while (
-      await prisma.course.findUnique({
-        where: {
-          courseCode,
-        },
-        select: {
-          id: true,
-        },
-      })
-    ) {
-      courseCode = createCourseCode();
-    }
+      let course = null;
 
-    const course = await prisma.course.create({
+for (let attempt = 0; attempt < 5; attempt += 1) {
+  const courseCode = await createNextCourseCode(
+    stateCode,
+    courseDateText,
+  );
+
+  try {
+    course = await prisma.course.create({
       data: {
         courseCode,
-        venueId: courseCode,
         title,
         description: normaliseText(body.description) || null,
-
         status: "DRAFT",
 
         courseDate,
-        startTime,
+        startTime: startTime || null,
         endTime: endTime || null,
 
         venueName,
@@ -309,44 +397,71 @@ export async function POST(request: NextRequest) {
         district,
         state,
         stateCode,
-        postalCode: postalCode || null,
+        postalCode,
 
         expectedParticipants,
         maximumParticipants,
 
         isPublicRegistrationOpen:
           body.isPublicRegistrationOpen === true,
+
+        teamMembers: {
+          create: {
+            userId: session.userId,
+            teamRole: "COURSE_COORDINATOR",
+            status: "ACCEPTED",
+            respondedAt: new Date(),
+          },
+        },
       },
     });
+
+    break;
+  } catch (error) {
+    const isDuplicateCourseCode =
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002";
+
+    if (!isDuplicateCourseCode || attempt === 4) {
+      throw error;
+    }
+  }
+}
+
+if (!course) {
+  throw new Error("Unable to generate a unique Course ID.");
+}
 
     return NextResponse.json(
       {
         success: true,
         message: "Course created successfully.",
-        course,
-        links: {
-          banner: `/cprday/dashboard/banner?courseCode=${encodeURIComponent(
-            course.courseCode,
-          )}`,
-          registration: `/cprday/participant/register/${encodeURIComponent(
-            course.stateCode,
-          )}/${encodeURIComponent(course.courseCode)}`,
-          attendance: `/cprday/dashboard/participants?courseCode=${encodeURIComponent(
-            course.courseCode,
-          )}`,
+        course: {
+          id: course.id,
+          courseCode: course.courseCode,
+          title: course.title,
+          venueName: course.venueName,
         },
       },
       {
         status: 201,
       },
     );
-  } catch (error) {
-    console.error("Unable to create CPR Day course:", error);
+   } catch (error) {
+    console.error("Unable to create CPR Day Course:", error);
+
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown server error.";
 
     return NextResponse.json(
       {
         success: false,
-        message: "Unable to create the course.",
+        message:
+          process.env.NODE_ENV === "development"
+            ? errorMessage
+            : "Unable to create the course. Please try again.",
       },
       {
         status: 500,

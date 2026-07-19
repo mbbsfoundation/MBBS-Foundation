@@ -4,14 +4,92 @@ export default function Home() {
 
       {/* HEADER */}
             {/* HERO */}
+            {/* ================= NATIONAL IAP CPR DAY ================= */}
+
+<section className="border-y border-sky-200 bg-gradient-to-r from-sky-50 via-blue-50 to-cyan-50">
+  <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-6 py-10 lg:flex-row">
+
+    <div className="max-w-3xl">
+
+      <p className="text-sm font-bold uppercase tracking-[0.25em] text-red-700">
+        🇮🇳 National Public Health Initiative
+      </p>
+
+      <h2 className="mt-3 text-3xl font-bold text-slate-900 md:text-4xl">
+        National IAP CPR Day 2026
+      </h2>
+
+      <p className="mt-4 text-lg leading-8 text-slate-700">
+        Join the nationwide movement to build a CPR-aware and CPR-ready India.
+        Course Coordinators can register venues, manage courses and upload
+        attendance through the official CPR Day Portal.
+      </p>
+
+      <div className="mt-6 flex flex-wrap gap-4">
+
+        <a
+          href="/cprday"
+          className="rounded-xl bg-purple-700 px-6 py-3 font-semibold text-white transition hover:bg-red-800"
+        >
+          ❤️ Open CPR Day Portal
+        </a>
+
+        <a
+          href="/cprday/signup"
+          className="rounded-xl border border-red-700 bg-white px-6 py-3 font-semibold text-red-700 transition hover:bg-red-50"
+        >
+          Become a Course Coordinator
+        </a>
+
+      </div>
+
+    </div>
+
+    <div className="w-full max-w-sm rounded-2xl border border-red-200 bg-white p-6 shadow-lg">
+
+      <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
+        National IAP CPR Day
+      </p>
+
+      <h3 className="mt-2 text-2xl font-bold text-slate-900">
+        21 July 2026
+      </h3>
+
+      <div className="mt-6 space-y-3 text-slate-700">
+
+        <div className="flex items-center justify-between">
+          <span>🏫 Venues</span>
+          <span className="font-bold">542</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span>👨‍⚕️ Expected Participants</span>
+          <span className="font-bold">45000</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span>❤️ Mission</span>
+          <span className="font-bold text-red-700">
+            Save Lives
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{/* ================= END CPR DAY ================= */}
       <section className="mx-auto max-w-6xl px-6 py-20 md:grid md:grid-cols-2 md:gap-12">
 
         <div>
-          <h1 className="text-5xl font-bold md:text-7xl">
+          <h1 className="text-4xl font-bold md:text-5xl">
             Build the doctor within
           </h1>
           <p className="mt-4 text-xl font-medium text-red-700">
-  A complete guide for NEET aspirants and MBBS students in India
+  A complete guide for MBBS students in India
 </p>
 
           <p className="mt-6 text-lg text-slate-600">
@@ -46,6 +124,7 @@ Forever!
 
 
       </section>
+      
       <section className="w-full bg-gradient-to-r from-blue-50 to-slate-50 py-16 mt-16">
   <div className="mx-auto max-w-6xl px-6 text-center">
 

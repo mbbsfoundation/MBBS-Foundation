@@ -1,14 +1,14 @@
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 
-export const ADMIN_SESSION_COOKIE = "cprday_admin_session";
+export const COORDINATOR_SESSION_COOKIE = "cprday_coordinator_session";
 
 const SESSION_DURATION_SECONDS = 60 * 60 * 8;
 
-export type AdminSessionPayload = {
+export type CoordinatorSessionPayload = {
   userId: string;
   email: string;
-  role: "ADMINISTRATOR";
+  role: "COURSE_COORDINATOR";
 };
 
 function getSessionSecret(): Uint8Array {
@@ -38,8 +38,8 @@ export async function verifyPassword(
   return bcrypt.compare(password, passwordHash);
 }
 
-export async function createAdminSessionToken(
-  payload: AdminSessionPayload,
+export async function createCoordinatorSessionToken(
+  payload: CoordinatorSessionPayload,
 ): Promise<string> {
   const issuedAt = Math.floor(Date.now() / 1000);
 
@@ -58,9 +58,9 @@ export async function createAdminSessionToken(
     .sign(getSessionSecret());
 }
 
-export async function verifyAdminSessionToken(
+export async function verifyCoordinatorSessionToken(
   token: string,
-): Promise<AdminSessionPayload | null> {
+): Promise<CoordinatorSessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSessionSecret(), {
       algorithms: ["HS256"],
@@ -69,7 +69,7 @@ export async function verifyAdminSessionToken(
     if (
       typeof payload.userId !== "string" ||
       typeof payload.email !== "string" ||
-      payload.role !== "ADMINISTRATOR"
+      payload.role !== "COURSE_COORDINATOR"
     ) {
       return null;
     }
@@ -77,14 +77,14 @@ export async function verifyAdminSessionToken(
     return {
       userId: payload.userId,
       email: payload.email,
-      role: "ADMINISTRATOR",
+      role: "COURSE_COORDINATOR",
     };
   } catch {
     return null;
   }
 }
 
-export function getAdminSessionCookieOptions() {
+export function getCoordinatorSessionCookieOptions() {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
