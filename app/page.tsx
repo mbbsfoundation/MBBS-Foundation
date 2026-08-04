@@ -4,10 +4,10 @@ export default function Home() {
 
       {/* HEADER */}
             {/* HERO */}
-            {/* ================= NATIONAL IAP CPR DAY ================= */}
+            {/* ================= CPR SANJEEVANI ================= */}
 
-<section className="border-y border-sky-200 bg-gradient-to-r from-sky-50 via-blue-50 to-cyan-50">
-  <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-6 py-10 lg:flex-row">
+<section className="border-y border-sky-200 bg-gradient-to-r from-sky-50 via-blue-50 to-cyan-50 py-10">
+  <div className="mx-auto max-w-6xl px-6">
 
     <div className="max-w-3xl">
 
@@ -15,64 +15,31 @@ export default function Home() {
         🇮🇳 National Public Health Initiative
       </p>
 
-      <h2 className="mt-3 text-3xl font-bold text-slate-900 md:text-4xl">
-        National IAP CPR Day 2026
+      <h2 className="mt-3 text-3xl font-extrabold text-slate-900 md:text-4xl">
+        CPR Sanjeevani
       </h2>
 
       <p className="mt-4 text-lg leading-8 text-slate-700">
-        Join the nationwide movement to build a CPR-aware and CPR-ready India.
-        Course Coordinators can register venues, manage courses and upload
-        attendance through the official CPR Day Portal.
+        A nationwide initiative by the Indian Academy of Pediatrics to empower citizens with lifesaving CPR skills. Learn CPR, find training venues, and access individual completion certificates through the official CPR portal.
       </p>
 
-      <div className="mt-6 flex flex-wrap gap-4">
+      <div className="mt-6 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
 
         <a
           href="/cprday"
-          className="rounded-xl bg-purple-700 px-6 py-3 font-semibold text-white transition hover:bg-red-800"
+          className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white shadow-lg transition hover:from-sky-700 hover:to-purple-700 flex items-center justify-center gap-2 text-center"
         >
-          ❤️ Open CPR Day Portal
+          ❤️ CPR Sanjeevani Portal →
         </a>
 
         <a
-          href="/cprday/signup"
-          className="rounded-xl border border-red-700 bg-white px-6 py-3 font-semibold text-red-700 transition hover:bg-red-50"
+          href="https://www.facebook.com/share/g/1DF14f2Npr/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full sm:w-auto rounded-xl border border-blue-600 bg-blue-50 px-6 py-3.5 font-semibold text-blue-700 transition hover:bg-blue-100 flex items-center justify-center gap-2 text-center"
         >
-          Become a Course Coordinator
+          Join CPR Sanjeevani Facebook Group →
         </a>
-
-      </div>
-
-    </div>
-
-    <div className="w-full max-w-sm rounded-2xl border border-red-200 bg-white p-6 shadow-lg">
-
-      <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
-        National IAP CPR Day
-      </p>
-
-      <h3 className="mt-2 text-2xl font-bold text-slate-900">
-        21 July 2026
-      </h3>
-
-      <div className="mt-6 space-y-3 text-slate-700">
-
-        <div className="flex items-center justify-between">
-          <span>🏫 Venues</span>
-          <span className="font-bold">542</span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span>👨‍⚕️ Expected Participants</span>
-          <span className="font-bold">45000</span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <span>❤️ Mission</span>
-          <span className="font-bold text-red-700">
-            Save Lives
-          </span>
-        </div>
 
       </div>
 
@@ -81,7 +48,7 @@ export default function Home() {
   </div>
 </section>
 
-{/* ================= END CPR DAY ================= */}
+{/* ================= END CPR SANJEEVANI ================= */}
       <section className="mx-auto max-w-6xl px-6 py-20 md:grid md:grid-cols-2 md:gap-12">
 
         <div>
@@ -641,7 +608,7 @@ Forever!
       <a
   href="https://wa.me/918340793824"
   target="_blank"
-  className="fixed bottom-6 right-6 rounded-full bg-green-500 px-5 py-3 text-white shadow-lg"
+  className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 rounded-full bg-green-500 px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-2xl transition hover:bg-green-600"
 >
   Chat on WhatsApp
 </a>

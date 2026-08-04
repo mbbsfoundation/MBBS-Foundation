@@ -1,124 +1,66 @@
-import Link from "next/link";export default function CPRDayPage() {
+import Link from "next/link";
+import CertificateAccessSection from "@/components/cprday/CertificateAccessSection";
+import CPReSanjeevaniSection from "@/components/cprday/CPReSanjeevaniSection";
+
+export default function CPRDayPage() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
       {/* Hero */}
 
-      <section className="bg-gradient-to-br from-slate-950 via-red-950 to-slate-950 px-6 py-20 text-white">
+      <section className="bg-gradient-to-br from-sky-100 via-purple-50 to-indigo-100 border-b border-purple-200/60 px-6 py-20 text-slate-900">
         <div className="mx-auto max-w-5xl text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.24em] text-red-300">
-            Indian Academy of Pediatrics
+          <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-sky-800 bg-sky-100/90 border border-sky-300 inline-block px-4 py-1.5 rounded-full">
+            Indian Academy of Pediatrics Initiative
           </p>
 
-          <h1 className="mt-6 text-4xl font-black uppercase tracking-tight sm:text-5xl md:text-7xl">
-            National IAP
-            <span className="block text-red-500">CPR Day 2026</span>
+          <h1 className="mt-6 text-4xl font-black uppercase tracking-tight sm:text-5xl md:text-7xl text-slate-900">
+            <span className="block bg-gradient-to-r from-sky-700 via-indigo-700 to-purple-700 bg-clip-text text-transparent">
+              CPR Sanjeevani
+            </span>
           </h1>
 
-          <p className="mt-6 text-2xl font-bold text-white">
-            21 July 2026
-          </p>
-
-          <h2 className="mt-8 text-2xl font-bold sm:text-3xl">
+          <h2 className="mt-6 text-2xl font-extrabold sm:text-3xl text-purple-950">
             Every Citizen Can Save a Life
           </h2>
 
-          <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-300">
+          <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-slate-700">
             A nationwide initiative of the Indian Academy of Pediatrics to
             empower citizens with lifesaving CPR skills through standardised
             awareness, demonstration and supervised hands-on training.
           </p>
 
-          <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto items-stretch">
             <a
-              href="#coordinator-portal"
-              className="rounded-xl bg-red-600 px-7 py-4 font-bold text-white shadow-lg transition hover:bg-red-500"
+              href="#certificate-access"
+              className="flex items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-5 py-4 text-center font-bold text-white shadow-lg transition hover:from-sky-700 hover:to-purple-700 text-sm sm:text-base leading-snug"
             >
-              Course Coordinator Portal
+              Access your IAP CPR Day Participation Certificate
             </a>
 
             <a
-              href="#downloads"
-              className="rounded-xl border border-white/30 bg-white/10 px-7 py-4 font-bold text-white transition hover:bg-white/20"
+              href="#cpr-esanjeevani"
+              className="flex items-center justify-center rounded-xl border-2 border-sky-300 bg-white px-5 py-4 text-center font-bold text-sky-900 shadow-sm transition hover:bg-sky-50 text-sm sm:text-base leading-snug"
             >
-              Download Centre
+              🎓 CPR eSANJEEVANI Online Module
+            </a>
+
+            <a
+              href="https://www.facebook.com/share/g/1DF14f2Npr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center rounded-xl bg-sky-600 px-5 py-4 text-center font-bold text-white shadow-lg transition hover:bg-sky-700 text-sm sm:text-base leading-snug"
+            >
+              CPR Sanjeevani Facebook Group
             </a>
           </div>
         </div>
       </section>
 
-      {/* Coordinator portal */}
+      {/* Certificate Portal with Radio Buttons */}
+      <CertificateAccessSection />
 
-      <section
-        id="coordinator-portal"
-        className="scroll-mt-24 bg-slate-50 px-6 py-16"
-      >
-        <div className="mx-auto max-w-5xl">
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-700">
-              Course Coordinators
-            </p>
-
-            <h2 className="mt-3 text-3xl font-black tracking-tight">
-              Course Coordinator Portal
-            </h2>
-
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-              Course coordinators will use one simple portal to create courses,
-              review their course details, download the attendance sheet and
-              upload the completed attendance record after training.
-            </p>
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-              {[
-                "Login",
-                "Create Course",
-                "Download Sheet",
-                "Conduct Training",
-                "Upload Attendance",
-              ].map((step, index) => (
-                <div
-                  key={step}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 font-black text-red-700">
-                    {index + 1}
-                  </div>
-
-                  <p className="mt-4 font-bold text-slate-900">{step}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-sky-200 bg-sky-50 p-6 sm:flex-row sm:items-center sm:justify-between">
-  <div>
-    <h3 className="text-lg font-bold text-slate-900">
-      Course Coordinator Portal
-    </h3>
-
-    <p className="mt-1 text-slate-600">
-      Sign in to create courses, review course details and manage attendance.
-    </p>
-  </div>
-
-  <div className="flex flex-col gap-3 sm:flex-row">
-    <Link
-      href="/cprday/login"
-      className="rounded-xl bg-sky-700 px-5 py-3 text-center font-semibold text-white hover:bg-sky-800"
-    >
-      Coordinator Login
-    </Link>
-
-    <Link
-      href="/cprday/signup"
-      className="rounded-xl border border-sky-700 px-5 py-3 text-center font-semibold text-sky-700 hover:bg-white"
-    >
-      Create Account
-    </Link>
-  </div>
-</div>
-          </div>
-        </div>
-      </section>
+      {/* CPR eSANJEEVANI Online Module */}
+      <CPReSanjeevaniSection />
 
       {/* Downloads */}
 
@@ -187,18 +129,18 @@ import Link from "next/link";export default function CPRDayPage() {
 
       {/* About */}
 
-      <section className="bg-slate-950 px-6 py-16 text-white">
+      <section className="bg-gradient-to-br from-indigo-900 via-purple-900 to-sky-950 px-6 py-16 text-white">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-black">About National IAP CPR Day</h2>
+          <h2 className="text-3xl font-black">About CPR Sanjeevani</h2>
 
-          <p className="mt-5 text-lg leading-8 text-slate-300">
-            National IAP CPR Day brings together IAP branches, healthcare
+          <p className="mt-5 text-lg leading-8 text-purple-100">
+            CPR Sanjeevani brings together IAP branches, healthcare
             institutions, medical professionals, instructors, CPR Champions,
             schools and community organisations to improve public recognition
             of cardiac arrest and encourage prompt lifesaving action.
           </p>
 
-          <p className="mt-8 text-sm font-bold uppercase tracking-[0.18em] text-red-300">
+          <p className="mt-8 text-sm font-bold uppercase tracking-[0.18em] text-sky-300">
             Indian Academy of Pediatrics · IAP ALS–BLS Group
           </p>
         </div>
