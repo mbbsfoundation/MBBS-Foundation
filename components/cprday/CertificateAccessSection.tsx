@@ -19,9 +19,7 @@ type Certificate = {
 };
 
 export default function CertificateAccessSection() {
-  const [accessMode, setAccessMode] = useState<"certificate_id" | "mobile_email">("certificate_id");
   const [certId, setCertId] = useState("");
-  const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [certificates, setCertificates] = useState<Certificate[] | null>(null);
@@ -56,36 +54,6 @@ export default function CertificateAccessSection() {
     }
   };
 
-  const handleSearchByMobileEmail = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) {
-      setError("Please enter a mobile number or email address.");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    setCertificates(null);
-
-    try {
-      const res = await fetch(`/api/cprday/certificates?query=${encodeURIComponent(query.trim())}`);
-      const data = await res.json();
-
-      if (res.ok && data.success && data.certificates) {
-        setCertificates(data.certificates);
-      } else {
-        setError(data.error || `No certificates found for "${query}".`);
-      }
-    } catch (err) {
-      console.error("Error searching by mobile/email:", err);
-      setError("Failed to retrieve certificates. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-
   return (
     <section id="certificate-access" className="scroll-mt-24 bg-gradient-to-b from-purple-50/60 via-sky-50/70 to-indigo-50/40 px-4 sm:px-6 py-12 sm:py-16 text-slate-900 border-t border-purple-200">
       <div className="mx-auto max-w-5xl">
@@ -97,163 +65,70 @@ export default function CertificateAccessSection() {
             Access Your CPR Sanjeevani Certificate
           </h2>
           <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-base sm:text-lg text-slate-600">
-            Select your preferred search mode below to view, verify, and download your official CPR Sanjeevani certificate.
+            Enter your unique Certificate ID below to view, verify, and download your official CPR Sanjeevani certificate.
           </p>
         </div>
 
-        {/* Certificate Access Mode Radio Button Selection */}
+        {/* Certificate Access Form */}
         <div className="mt-8 sm:mt-10 rounded-2xl sm:rounded-3xl border border-purple-200/80 bg-white p-4 sm:p-8 shadow-xl">
-          <p className="text-xs font-extrabold uppercase tracking-wider text-purple-900 mb-4">
-            Select Search Mode:
-          </p>
-
-          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
-            {/* Radio Button 1: Certificate ID */}
-            <label
-              htmlFor="radio-cert-id"
-              className={`flex cursor-pointer flex-col rounded-xl sm:rounded-2xl border p-4 sm:p-5 transition ${accessMode === "certificate_id"
-                  ? "border-purple-500 bg-purple-50/80 ring-2 ring-purple-500/20"
-                  : "border-sky-200 bg-white hover:border-purple-300 hover:bg-sky-50/50"
-                }`}
-            >
-              <div className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  id="radio-cert-id"
-                  name="certificate_access_mode"
-                  value="certificate_id"
-                  checked={accessMode === "certificate_id"}
-                  onChange={() => {
-                    setAccessMode("certificate_id");
-                    setError(null);
-                  }}
-                  className="h-4 w-4 accent-purple-600 focus:ring-purple-500"
-                />
-                <span className="font-bold text-slate-900 text-sm sm:text-base">Certificate ID</span>
-              </div>
-              <p className="mt-2 text-xs text-slate-600">
-                Access your IAP CPR Day Participation Certificate directly using your unique Certificate ID
-              </p>
+          <div>
+            <label htmlFor="certificate-id-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
+              Enter Individual Certificate ID
             </label>
-
-            {/* Radio Button 2: Mobile / Email */}
-            <label
-              htmlFor="radio-mobile-email"
-              className={`flex cursor-pointer flex-col rounded-xl sm:rounded-2xl border p-4 sm:p-5 transition ${accessMode === "mobile_email"
-                  ? "border-purple-500 bg-purple-50/80 ring-2 ring-purple-500/20"
-                  : "border-sky-200 bg-white hover:border-purple-300 hover:bg-sky-50/50"
-                }`}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearchByCertId();
+              }}
+              className="mt-2 flex flex-col gap-3 sm:flex-row"
             >
-              <div className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  id="radio-mobile-email"
-                  name="certificate_access_mode"
-                  value="mobile_email"
-                  checked={accessMode === "mobile_email"}
-                  onChange={() => {
-                    setAccessMode("mobile_email");
-                    setError(null);
-                  }}
-                  className="h-4 w-4 accent-purple-600 focus:ring-purple-500"
-                />
-                <span className="font-bold text-slate-900 text-sm sm:text-base">Mobile / Email</span>
-              </div>
-              <p className="mt-2 text-xs text-slate-600">
-                Search all certificates linked to registered mobile or email address
-              </p>
-            </label>
-          </div>
-
-          {/* Form 1: Certificate ID Search */}
-          {accessMode === "certificate_id" && (
-            <div className="mt-6 sm:mt-8">
-              <label htmlFor="certificate-id-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
-                Enter Individual Certificate ID
-              </label>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSearchByCertId();
-                }}
-                className="mt-2 flex flex-col gap-3 sm:flex-row"
+              <input
+                id="certificate-id-input"
+                type="text"
+                value={certId}
+                onChange={(e) => setCertId(e.target.value.toUpperCase())}
+                placeholder="e.g. IAPCPR/PA/HP/0101"
+                className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 font-mono tracking-wider placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                required
+              />
+              <button
+                id="btn-access-certificate"
+                type="submit"
+                disabled={loading}
+                className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
               >
-                <input
-                  id="certificate-id-input"
-                  type="text"
-                  value={certId}
-                  onChange={(e) => setCertId(e.target.value.toUpperCase())}
-                  placeholder="e.g. IAPCPR/PA/HP/0101"
-                  className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 font-mono tracking-wider placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  required
-                />
-                <button
-                  id="btn-access-certificate"
-                  type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                      </svg>
-                      Verifying...
-                    </>
-                  ) : (
-                    "Access Certificate"
-                  )}
-                </button>
-              </form>
+                {loading ? (
+                  <>
+                    <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Verifying...
+                  </>
+                ) : (
+                  "Access Certificate"
+                )}
+              </button>
+            </form>
 
-              {/* Sample IDs Quick Links */}
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                <span className="w-full sm:w-auto">Try Sample Certificate IDs:</span>
-                {sampleIds.map((sample) => (
-                  <button
-                    key={sample}
-                    type="button"
-                    onClick={() => {
-                      setCertId(sample);
-                      handleSearchByCertId(sample);
-                    }}
-                    className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all"
-                  >
-                    {sample}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Form 2: Mobile / Email Search */}
-          {accessMode === "mobile_email" && (
-            <div className="mt-6 sm:mt-8">
-              <label htmlFor="mobile-email-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
-                Enter Mobile Number or Email
-              </label>
-              <form onSubmit={handleSearchByMobileEmail} className="mt-2 flex flex-col gap-3 sm:flex-row">
-                <input
-                  id="mobile-email-input"
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="e.g. 9631638095 or email@domain.com"
-                  className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  required
-                />
+            {/* Sample IDs Quick Links */}
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <span className="w-full sm:w-auto">Try Sample Certificate IDs:</span>
+              {sampleIds.map((sample) => (
                 <button
-                  id="btn-search-mobile-email"
-                  type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
+                  key={sample}
+                  type="button"
+                  onClick={() => {
+                    setCertId(sample);
+                    handleSearchByCertId(sample);
+                  }}
+                  className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all"
                 >
-                  {loading ? "Searching..." : "Search Certificates"}
+                  {sample}
                 </button>
-              </form>
+              ))}
             </div>
-          )}
+          </div>
 
           {/* Error Message */}
           {error && (

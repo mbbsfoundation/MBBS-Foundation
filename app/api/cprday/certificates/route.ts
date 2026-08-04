@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "This Certificate ID, Mobile Number, or Email ID is not valid. Please enter a valid ID.",
+          error: "This Certificate ID is not valid. Please enter a valid Certificate ID.",
         },
         { status: 404 }
       );
