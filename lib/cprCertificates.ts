@@ -240,7 +240,10 @@ export function getCertificateCities(state: string): string[] {
   const citiesSet = new Set<string>();
   for (const r of all) {
     if (r.state.trim().toLowerCase() === cleanState && r.city && r.city.trim().length > 0) {
-      citiesSet.add(r.city.trim());
+      const cleanCity = r.city.trim();
+      if (!cleanCity.toLowerCase().startsWith("dr.") && !cleanCity.toLowerCase().startsWith("dr ")) {
+        citiesSet.add(cleanCity);
+      }
     }
   }
   return Array.from(citiesSet).sort((a, b) => a.localeCompare(b));
