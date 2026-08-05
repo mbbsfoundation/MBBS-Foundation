@@ -19,12 +19,107 @@ type Certificate = {
 };
 
 export default function CertificateAccessSection() {
+  const [searchMode, setSearchMode] = useState<"cert_id" | "hierarchy">("cert_id");
   const [certId, setCertId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [certificates, setCertificates] = useState<Certificate[] | null>(null);
 
+  // Cascading Hierarchy Search States
+  const [statesList, setStatesList] = useState<string[]>([]);
+  const [citiesList, setCitiesList] = useState<string[]>([]);
+  const [venuesList, setVenuesList] = useState<string[]>([]);
+  const [participantsList, setParticipantsList] = useState<string[]>([]);
+
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [selectedVenue, setSelectedVenue] = useState("");
+  const [selectedParticipant, setSelectedParticipant] = useState("");
+
   const sampleIds = ["IAPCPR/PA/HP/0101", "IAPCPR/PA/HP/0102", "IAPCPR/PA/HP/0103"];
+
+  // Fetch initial states list when hierarchy mode opens
+  const loadStates = async () => {
+    if (statesList.length > 0) return;
+    try {
+      const res = await fetch("/api/cprday/certificates?action=states");
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setStatesList(data.states);
+      }
+    } catch (e) {
+      console.error("Error loading states:", e);
+    }
+  };
+
+  const handleModeSwitch = (mode: "cert_id" | "hierarchy") => {
+    setSearchMode(mode);
+    setError(null);
+    setCertificates(null);
+    if (mode === "hierarchy") {
+      loadStates();
+    }
+  };
+
+  const handleStateSelect = async (stateVal: string) => {
+    setSelectedState(stateVal);
+    setSelectedCity("");
+    setSelectedVenue("");
+    setSelectedParticipant("");
+    setCitiesList([]);
+    setVenuesList([]);
+    setParticipantsList([]);
+    setError(null);
+
+    if (!stateVal) return;
+    try {
+      const res = await fetch(`/api/cprday/certificates?action=cities&state=${encodeURIComponent(stateVal)}`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCitiesList(data.cities);
+      }
+    } catch (e) {}
+  };
+
+  const handleCitySelect = async (cityVal: string) => {
+    setSelectedCity(cityVal);
+    setSelectedVenue("");
+    setSelectedParticipant("");
+    setVenuesList([]);
+    setParticipantsList([]);
+    setError(null);
+
+    if (!cityVal) return;
+    try {
+      const res = await fetch(
+        `/api/cprday/certificates?action=venues&state=${encodeURIComponent(selectedState)}&city=${encodeURIComponent(cityVal)}`
+      );
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setVenuesList(data.venues);
+      }
+    } catch (e) {}
+  };
+
+  const handleVenueSelect = async (venueVal: string) => {
+    setSelectedVenue(venueVal);
+    setSelectedParticipant("");
+    setParticipantsList([]);
+    setError(null);
+
+    if (!venueVal) return;
+    try {
+      const res = await fetch(
+        `/api/cprday/certificates?action=participants&state=${encodeURIComponent(
+          selectedState
+        )}&city=${encodeURIComponent(selectedCity)}&venue=${encodeURIComponent(venueVal)}`
+      );
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setParticipantsList(data.participants);
+      }
+    } catch (e) {}
+  };
 
   const handleSearchByCertId = async (idToSearch?: string) => {
     const targetId = (idToSearch || certId).trim();
@@ -54,6 +149,40 @@ export default function CertificateAccessSection() {
     }
   };
 
+  const handleSearchByHierarchy = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedState || !selectedCity || !selectedVenue || !selectedParticipant) {
+      setError("Please complete all 4 selection fields (State, City, Venue, and Participant Name).");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setCertificates(null);
+
+    try {
+      const url = `/api/cprday/certificates?action=search-hierarchy&state=${encodeURIComponent(
+        selectedState
+      )}&city=${encodeURIComponent(selectedCity)}&venue=${encodeURIComponent(
+        selectedVenue
+      )}&participant=${encodeURIComponent(selectedParticipant)}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (res.ok && data.success && data.certificates) {
+        setCertificates(data.certificates);
+      } else {
+        setError(data.error || "No certificate found matching this combination.");
+      }
+    } catch (err) {
+      console.error("Error searching by location hierarchy:", err);
+      setError("Failed to connect to certificate server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section id="certificate-access" className="scroll-mt-24 bg-gradient-to-b from-purple-50/60 via-sky-50/70 to-indigo-50/40 px-4 sm:px-6 py-12 sm:py-16 text-slate-900 border-t border-purple-200">
       <div className="mx-auto max-w-5xl">
@@ -65,70 +194,217 @@ export default function CertificateAccessSection() {
             Access Your CPR Sanjeevani Certificate
           </h2>
           <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-base sm:text-lg text-slate-600">
-            Enter your unique Certificate ID below to view, verify, and download your official CPR Sanjeevani certificate.
+            Search by your unique Certificate ID or consecutively select your State, City, Training Venue, and Participant Name to unlock your certificate.
           </p>
         </div>
 
-        {/* Certificate Access Form */}
-        <div className="mt-8 sm:mt-10 rounded-2xl sm:rounded-3xl border border-purple-200/80 bg-white p-4 sm:p-8 shadow-xl">
-          <div>
-            <label htmlFor="certificate-id-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
-              Enter Individual Certificate ID
-            </label>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSearchByCertId();
-              }}
-              className="mt-2 flex flex-col gap-3 sm:flex-row"
-            >
-              <input
-                id="certificate-id-input"
-                type="text"
-                value={certId}
-                onChange={(e) => setCertId(e.target.value.toUpperCase())}
-                placeholder="e.g. IAPCPR/PA/HP/0101"
-                className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 font-mono tracking-wider placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                required
-              />
-              <button
-                id="btn-access-certificate"
-                type="submit"
-                disabled={loading}
-                className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
-              >
-                {loading ? (
-                  <>
-                    <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                    Verifying...
-                  </>
-                ) : (
-                  "Access Certificate"
-                )}
-              </button>
-            </form>
+        {/* Mode Selector Tabs */}
+        <div className="mt-8 flex rounded-2xl border border-purple-200 bg-white p-1.5 shadow-md">
+          <button
+            type="button"
+            onClick={() => handleModeSwitch("cert_id")}
+            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 ${
+              searchMode === "cert_id"
+                ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-md"
+                : "text-slate-600 hover:text-purple-700"
+            }`}
+          >
+            🎫 Search by Certificate ID
+          </button>
 
-            {/* Sample IDs Quick Links */}
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-              <span className="w-full sm:w-auto">Try Sample Certificate IDs:</span>
-              {sampleIds.map((sample) => (
+          <button
+            type="button"
+            onClick={() => handleModeSwitch("hierarchy")}
+            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 ${
+              searchMode === "hierarchy"
+                ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-md"
+                : "text-slate-600 hover:text-purple-700"
+            }`}
+          >
+            📍 Search by Location & Venue (State → City → Venue → Name)
+          </button>
+        </div>
+
+        {/* Certificate Access Form Box */}
+        <div className="mt-6 rounded-2xl sm:rounded-3xl border border-purple-200/80 bg-white p-4 sm:p-8 shadow-xl">
+          {searchMode === "cert_id" ? (
+            <div>
+              <label htmlFor="certificate-id-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
+                Enter Individual Certificate ID
+              </label>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSearchByCertId();
+                }}
+                className="mt-2 flex flex-col gap-3 sm:flex-row"
+              >
+                <input
+                  id="certificate-id-input"
+                  type="text"
+                  value={certId}
+                  onChange={(e) => setCertId(e.target.value.toUpperCase())}
+                  placeholder="e.g. IAPCPR/PA/HP/0101"
+                  className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 font-mono tracking-wider placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  required
+                />
                 <button
-                  key={sample}
-                  type="button"
-                  onClick={() => {
-                    setCertId(sample);
-                    handleSearchByCertId(sample);
-                  }}
-                  className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all"
+                  id="btn-access-certificate"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
-                  {sample}
+                  {loading ? (
+                    <>
+                      <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                      Verifying...
+                    </>
+                  ) : (
+                    "Access Certificate"
+                  )}
                 </button>
-              ))}
+              </form>
+
+              {/* Sample IDs Quick Links */}
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span className="w-full sm:w-auto">Try Sample Certificate IDs:</span>
+                {sampleIds.map((sample) => (
+                  <button
+                    key={sample}
+                    type="button"
+                    onClick={() => {
+                      setCertId(sample);
+                      handleSearchByCertId(sample);
+                    }}
+                    className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all"
+                  >
+                    {sample}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <form onSubmit={handleSearchByHierarchy} className="space-y-4">
+              <div className="border-b border-purple-100 pb-3 mb-4">
+                <h3 className="text-lg font-bold text-slate-900">
+                  Step-by-Step Guided Location Verification
+                </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Select your State, City/District, Training Venue, and Participant Name in order to unlock your certificate.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Step 1: Select State */}
+                <div>
+                  <label htmlFor="select-state" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Step 1: Select State *
+                  </label>
+                  <select
+                    id="select-state"
+                    value={selectedState}
+                    onChange={(e) => handleStateSelect(e.target.value)}
+                    className="mt-1.5 w-full rounded-xl border border-sky-200 bg-slate-50/60 px-3.5 py-3 text-sm font-semibold text-slate-900 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    required
+                  >
+                    <option value="">-- Choose State --</option>
+                    {statesList.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Step 2: Select City */}
+                <div>
+                  <label htmlFor="select-city" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Step 2: Select City / District *
+                  </label>
+                  <select
+                    id="select-city"
+                    disabled={!selectedState}
+                    value={selectedCity}
+                    onChange={(e) => handleCitySelect(e.target.value)}
+                    className="mt-1.5 w-full rounded-xl border border-sky-200 bg-slate-50/60 px-3.5 py-3 text-sm font-semibold text-slate-900 disabled:opacity-50 disabled:bg-slate-100 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    required
+                  >
+                    <option value="">
+                      {!selectedState ? "-- Select State First --" : "-- Choose City / District --"}
+                    </option>
+                    {citiesList.map((ct) => (
+                      <option key={ct} value={ct}>
+                        {ct}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {/* Step 3: Select Venue */}
+                <div>
+                  <label htmlFor="select-venue" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Step 3: Select Training Venue *
+                  </label>
+                  <select
+                    id="select-venue"
+                    disabled={!selectedCity}
+                    value={selectedVenue}
+                    onChange={(e) => handleVenueSelect(e.target.value)}
+                    className="mt-1.5 w-full rounded-xl border border-sky-200 bg-slate-50/60 px-3.5 py-3 text-sm font-semibold text-slate-900 disabled:opacity-50 disabled:bg-slate-100 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    required
+                  >
+                    <option value="">
+                      {!selectedCity ? "-- Select City First --" : "-- Choose Training Venue --"}
+                    </option>
+                    {venuesList.map((v) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Step 4: Select Participant Name */}
+                <div>
+                  <label htmlFor="select-participant" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Step 4: Select Participant Name *
+                  </label>
+                  <select
+                    id="select-participant"
+                    disabled={!selectedVenue}
+                    value={selectedParticipant}
+                    onChange={(e) => setSelectedParticipant(e.target.value)}
+                    className="mt-1.5 w-full rounded-xl border border-sky-200 bg-slate-50/60 px-3.5 py-3 text-sm font-semibold text-slate-900 disabled:opacity-50 disabled:bg-slate-100 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    required
+                  >
+                    <option value="">
+                      {!selectedVenue ? "-- Select Venue First --" : "-- Choose Participant Name --"}
+                    </option>
+                    {participantsList.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={loading || !selectedParticipant}
+                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-8 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base shadow-md"
+                >
+                  {loading ? "Unlocking Certificate..." : "Access Certificate"}
+                </button>
+              </div>
+            </form>
+          )}
 
           {/* Error Message */}
           {error && (

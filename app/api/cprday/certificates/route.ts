@@ -3,13 +3,58 @@ import { prisma } from "@/lib/prisma";
 import {
   searchCertificateById,
   searchCertificatesByQuery,
+  getCertificateStates,
+  getCertificateCities,
+  getCertificateVenues,
+  getCertificateParticipants,
+  searchCertificateByHierarchy,
 } from "@/lib/cprCertificates";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const action = searchParams.get("action")?.trim();
     const certId = searchParams.get("id")?.trim() || searchParams.get("certificateId")?.trim();
     const query = searchParams.get("query")?.trim() || searchParams.get("mobile")?.trim() || searchParams.get("email")?.trim();
+
+    // Cascading Hierarchy API Actions
+    if (action === "states") {
+      return NextResponse.json({ success: true, states: getCertificateStates() });
+    }
+
+    if (action === "cities") {
+      const state = searchParams.get("state") || "";
+      return NextResponse.json({ success: true, cities: getCertificateCities(state) });
+    }
+
+    if (action === "venues") {
+      const state = searchParams.get("state") || "";
+      const city = searchParams.get("city") || "";
+      return NextResponse.json({ success: true, venues: getCertificateVenues(state, city) });
+    }
+
+    if (action === "participants") {
+      const state = searchParams.get("state") || "";
+      const city = searchParams.get("city") || "";
+      const venue = searchParams.get("venue") || "";
+      return NextResponse.json({ success: true, participants: getCertificateParticipants(state, city, venue) });
+    }
+
+    if (action === "search-hierarchy") {
+      const state = searchParams.get("state") || "";
+      const city = searchParams.get("city") || "";
+      const venue = searchParams.get("venue") || "";
+      const participant = searchParams.get("participant") || searchParams.get("name") || "";
+
+      const results = searchCertificateByHierarchy(state, city, venue, participant);
+      if (results.length > 0) {
+        return NextResponse.json({ success: true, certificates: results });
+      }
+      return NextResponse.json(
+        { success: false, error: "No certificate found matching the provided State, City, Venue, and Participant Name combination." },
+        { status: 404 }
+      );
+    }
 
     // 1. Search by Certificate ID
     if (certId) {

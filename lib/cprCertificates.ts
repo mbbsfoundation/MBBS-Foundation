@@ -223,16 +223,86 @@ export function searchCertificatesByQuery(query: string): CPRCertificateRecord[]
   });
 }
 
-export function searchCertificatesByVenueOrCode(code: string): CPRCertificateRecord[] {
-  const q = code.trim().toLowerCase();
+export function getCertificateStates(): string[] {
   const all = getAllCPRCertificates();
-  return all.filter((c) => {
-    return (
-      c.venueName.toLowerCase().includes(q) ||
-      c.city.toLowerCase().includes(q) ||
-      c.state.toLowerCase().includes(q) ||
-      c.certificateNumber.toLowerCase().includes(q)
-    );
+  const statesSet = new Set<string>();
+  for (const r of all) {
+    if (r.state && r.state.trim().length > 0) {
+      statesSet.add(r.state.trim());
+    }
+  }
+  return Array.from(statesSet).sort((a, b) => a.localeCompare(b));
+}
+
+export function getCertificateCities(state: string): string[] {
+  const cleanState = state.trim().toLowerCase();
+  const all = getAllCPRCertificates();
+  const citiesSet = new Set<string>();
+  for (const r of all) {
+    if (r.state.trim().toLowerCase() === cleanState && r.city && r.city.trim().length > 0) {
+      citiesSet.add(r.city.trim());
+    }
+  }
+  return Array.from(citiesSet).sort((a, b) => a.localeCompare(b));
+}
+
+export function getCertificateVenues(state: string, city: string): string[] {
+  const cleanState = state.trim().toLowerCase();
+  const cleanCity = city.trim().toLowerCase();
+  const all = getAllCPRCertificates();
+  const venuesSet = new Set<string>();
+  for (const r of all) {
+    if (
+      r.state.trim().toLowerCase() === cleanState &&
+      r.city.trim().toLowerCase() === cleanCity &&
+      r.venueName &&
+      r.venueName.trim().length > 0
+    ) {
+      venuesSet.add(r.venueName.trim());
+    }
+  }
+  return Array.from(venuesSet).sort((a, b) => a.localeCompare(b));
+}
+
+export function getCertificateParticipants(state: string, city: string, venue: string): string[] {
+  const cleanState = state.trim().toLowerCase();
+  const cleanCity = city.trim().toLowerCase();
+  const cleanVenue = venue.trim().toLowerCase();
+  const all = getAllCPRCertificates();
+  const nameSet = new Set<string>();
+  for (const r of all) {
+    if (
+      r.state.trim().toLowerCase() === cleanState &&
+      r.city.trim().toLowerCase() === cleanCity &&
+      r.venueName.trim().toLowerCase() === cleanVenue &&
+      r.participantName &&
+      r.participantName.trim().length > 0
+    ) {
+      nameSet.add(r.participantName.trim());
+    }
+  }
+  return Array.from(nameSet).sort((a, b) => a.localeCompare(b));
+}
+
+export function searchCertificateByHierarchy(
+  state: string,
+  city: string,
+  venue: string,
+  participantName: string
+): CPRCertificateRecord[] {
+  const cleanState = state.trim().toLowerCase();
+  const cleanCity = city.trim().toLowerCase();
+  const cleanVenue = venue.trim().toLowerCase();
+  const cleanName = participantName.trim().toLowerCase();
+
+  const all = getAllCPRCertificates();
+  return all.filter((r) => {
+    const matchState = r.state.trim().toLowerCase() === cleanState;
+    const matchCity = r.city.trim().toLowerCase() === cleanCity;
+    const matchVenue = r.venueName.trim().toLowerCase() === cleanVenue;
+    const rName = r.participantName.trim().toLowerCase();
+    const matchName = rName === cleanName || (cleanName.length >= 3 && rName.includes(cleanName));
+    return matchState && matchCity && matchVenue && matchName;
   });
 }
 
