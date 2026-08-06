@@ -1,8 +1,6 @@
 import fs from "fs";
 import path from "path";
 
-export type CPRCertificateType = "participation" | "coordinator";
-
 export type CPRCertificateRecord = {
   srNo: string;
   certificateNumber: string;
@@ -23,15 +21,14 @@ export type CPRCertificateRecord = {
   status: string;
   category: string;
   courseTitle: string;
-  certType: CPRCertificateType;
 };
 
 /**
  * Extracts Google Drive File ID from standard view/share links
  */
 export function extractGoogleDriveFileId(url: string): string {
-  if (!url || url.includes("#N/A")) return "";
-  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (!url) return "";
+  const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (match && match[1]) return match[1];
   const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if (idMatch && idMatch[1]) return idMatch[1];
@@ -64,7 +61,7 @@ function parseCSVLine(line: string): string[] {
 /**
  * Dynamically loads and parses all CSV files in cprcertificates directory
  */
-export function getAllCPRCertificates(targetType?: CPRCertificateType): CPRCertificateRecord[] {
+export function getAllCPRCertificates(): CPRCertificateRecord[] {
   const certsDir = path.join(process.cwd(), "cprcertificates");
   if (!fs.existsSync(certsDir)) return [];
 
@@ -77,17 +74,10 @@ export function getAllCPRCertificates(targetType?: CPRCertificateType): CPRCerti
 
   for (const file of csvFiles) {
     try {
-      const isCoordinatorFile = file.toLowerCase().includes("coordinator");
-      const currentCertType: CPRCertificateType = isCoordinatorFile ? "coordinator" : "participation";
-
-      if (targetType && currentCertType !== targetType) {
-        continue;
-      }
-
       const filePath = path.join(certsDir, file);
       const content = fs.readFileSync(filePath, "utf8");
       const cleanContent = content.replace(/^\uFEFF/, "");
-      const lines = content.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      const lines = cleanContent.split(/\r?\n/).filter((l) => l.trim().length > 0);
 
       if (lines.length <= 1) continue;
 
@@ -108,7 +98,6 @@ export function getAllCPRCertificates(targetType?: CPRCertificateType): CPRCerti
         (h) =>
           h.includes("name of participant") ||
           h.includes("participant name") ||
-          h.includes("coordinator name") ||
           h.includes("full name") ||
           h.includes("participant") ||
           h.includes("name")
@@ -167,7 +156,7 @@ export function getAllCPRCertificates(targetType?: CPRCertificateType): CPRCerti
 
         // Deduplication 1: Certificate ID check
         if (cleanCertId) {
-          const certKey = `${currentCertType}|${cleanCertId.toUpperCase()}`;
+          const certKey = cleanCertId.toUpperCase();
           if (seenCertIds.has(certKey)) continue;
           seenCertIds.add(certKey);
         }
@@ -175,7 +164,7 @@ export function getAllCPRCertificates(targetType?: CPRCertificateType): CPRCerti
         // Deduplication 2: Participant Name + Mobile + Venue check
         if (cleanName && cleanVenue) {
           const mobileDigits = cleanMobile.replace(/\D/g, "");
-          const personVenueKey = `${currentCertType}|${cleanName.toUpperCase()}|${mobileDigits}|${cleanVenue.toUpperCase()}`;
+          const personVenueKey = `${cleanName.toUpperCase()}|${mobileDigits}|${cleanVenue.toUpperCase()}`;
           if (seenPersonVenueKeys.has(personVenueKey)) continue;
           seenPersonVenueKeys.add(personVenueKey);
         }
@@ -206,11 +195,8 @@ export function getAllCPRCertificates(targetType?: CPRCertificateType): CPRCerti
           previewUrl,
           issueDate: "21 July 2026",
           status: "GENERATED",
-          category: isCoordinatorFile ? "Course Coordinator" : "CPR Aware Citizen",
-          courseTitle: isCoordinatorFile
-            ? "National IAP CPR Sanjeevani Course Coordinator Certificate"
-            : "National IAP CPR Sanjeevani Training Program",
-          certType: currentCertType,
+          category: "CPR Aware Citizen",
+          courseTitle: "National IAP CPR Sanjeevani Training Program",
         });
       }
     } catch (err) {
@@ -221,21 +207,21 @@ export function getAllCPRCertificates(targetType?: CPRCertificateType): CPRCerti
   return records;
 }
 
-export function searchCertificateById(id: string, targetType?: CPRCertificateType): CPRCertificateRecord | null {
+export function searchCertificateById(id: string): CPRCertificateRecord | null {
   const cleanInput = id.trim().toUpperCase();
   if (!cleanInput) return null;
-  const all = getAllCPRCertificates(targetType);
+  const all = getAllCPRCertificates();
   return (
     all.find((c) => c.certificateNumber.trim().toUpperCase() === cleanInput) || null
   );
 }
 
-export function searchCertificatesByQuery(query: string, targetType?: CPRCertificateType): CPRCertificateRecord[] {
+export function searchCertificatesByQuery(query: string): CPRCertificateRecord[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
   const qDigits = q.replace(/\D/g, "");
 
-  const all = getAllCPRCertificates(targetType);
+  const all = getAllCPRCertificates();
   return all.filter((c) => {
     const mobileDigits = c.mobileNumber.replace(/\D/g, "");
     const qDigits10 = qDigits.length === 12 && qDigits.startsWith("91") ? qDigits.slice(2) : qDigits;
@@ -251,8 +237,8 @@ export function searchCertificatesByQuery(query: string, targetType?: CPRCertifi
   });
 }
 
-export function getCertificateStates(targetType?: CPRCertificateType): string[] {
-  const all = getAllCPRCertificates(targetType);
+export function getCertificateStates(): string[] {
+  const all = getAllCPRCertificates();
   const statesSet = new Set<string>();
   for (const r of all) {
     if (r.state && r.state.trim().length > 0) {
@@ -262,9 +248,9 @@ export function getCertificateStates(targetType?: CPRCertificateType): string[] 
   return Array.from(statesSet).sort((a, b) => a.localeCompare(b));
 }
 
-export function getCertificateCities(state: string, targetType?: CPRCertificateType): string[] {
+export function getCertificateCities(state: string): string[] {
   const cleanState = state.trim().toLowerCase();
-  const all = getAllCPRCertificates(targetType);
+  const all = getAllCPRCertificates();
   const citiesSet = new Set<string>();
   for (const r of all) {
     if (r.state.trim().toLowerCase() === cleanState && r.city && r.city.trim().length > 0) {
@@ -277,10 +263,10 @@ export function getCertificateCities(state: string, targetType?: CPRCertificateT
   return Array.from(citiesSet).sort((a, b) => a.localeCompare(b));
 }
 
-export function getCertificateVenues(state: string, city: string, targetType?: CPRCertificateType): string[] {
+export function getCertificateVenues(state: string, city: string): string[] {
   const cleanState = state.trim().toLowerCase();
   const cleanCity = city.trim().toLowerCase();
-  const all = getAllCPRCertificates(targetType);
+  const all = getAllCPRCertificates();
   const venuesSet = new Set<string>();
   for (const r of all) {
     if (
@@ -295,16 +281,11 @@ export function getCertificateVenues(state: string, city: string, targetType?: C
   return Array.from(venuesSet).sort((a, b) => a.localeCompare(b));
 }
 
-export function getCertificateParticipants(
-  state: string,
-  city: string,
-  venue: string,
-  targetType?: CPRCertificateType
-): string[] {
+export function getCertificateParticipants(state: string, city: string, venue: string): string[] {
   const cleanState = state.trim().toLowerCase();
   const cleanCity = city.trim().toLowerCase();
   const cleanVenue = venue.trim().toLowerCase();
-  const all = getAllCPRCertificates(targetType);
+  const all = getAllCPRCertificates();
   const nameSet = new Set<string>();
   for (const r of all) {
     if (
@@ -324,15 +305,14 @@ export function searchCertificateByHierarchy(
   state: string,
   city: string,
   venue: string,
-  participantName: string,
-  targetType?: CPRCertificateType
+  participantName: string
 ): CPRCertificateRecord[] {
   const cleanState = state.trim().toLowerCase();
   const cleanCity = city.trim().toLowerCase();
   const cleanVenue = venue.trim().toLowerCase();
   const cleanName = participantName.trim().toLowerCase();
 
-  const all = getAllCPRCertificates(targetType);
+  const all = getAllCPRCertificates();
   return all.filter((r) => {
     const matchState = r.state.trim().toLowerCase() === cleanState;
     const matchCity = r.city.trim().toLowerCase() === cleanCity;
