@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type Certificate = {
   certificateNumber: string;
@@ -19,7 +19,7 @@ type Certificate = {
 };
 
 export default function CertificateAccessSection() {
-  const [searchMode, setSearchMode] = useState<"cert_id" | "hierarchy">("cert_id");
+  const [searchMode, setSearchMode] = useState<"hierarchy" | "cert_id">("hierarchy");
   const [certId, setCertId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export default function CertificateAccessSection() {
 
   const sampleIds = ["IAPCPR/PA/HP/0101", "IAPCPR/PA/HP/0102", "IAPCPR/PA/HP/0103"];
 
-  // Fetch initial states list when hierarchy mode opens
+  // Fetch initial states list on mount
   const loadStates = async () => {
     if (statesList.length > 0) return;
     try {
@@ -52,7 +52,11 @@ export default function CertificateAccessSection() {
     }
   };
 
-  const handleModeSwitch = (mode: "cert_id" | "hierarchy") => {
+  useEffect(() => {
+    loadStates();
+  }, []);
+
+  const handleModeSwitch = (mode: "hierarchy" | "cert_id") => {
     setSearchMode(mode);
     setError(null);
     setCertificates(null);
@@ -202,18 +206,6 @@ export default function CertificateAccessSection() {
         <div className="mt-8 flex rounded-2xl border border-purple-200 bg-white p-1.5 shadow-md">
           <button
             type="button"
-            onClick={() => handleModeSwitch("cert_id")}
-            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 ${
-              searchMode === "cert_id"
-                ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-md"
-                : "text-slate-600 hover:text-purple-700"
-            }`}
-          >
-            🎫 Search by Certificate ID
-          </button>
-
-          <button
-            type="button"
             onClick={() => handleModeSwitch("hierarchy")}
             className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 ${
               searchMode === "hierarchy"
@@ -223,70 +215,23 @@ export default function CertificateAccessSection() {
           >
             📍 Search by Location & Venue (State → City → Venue → Name)
           </button>
+
+          <button
+            type="button"
+            onClick={() => handleModeSwitch("cert_id")}
+            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 ${
+              searchMode === "cert_id"
+                ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-md"
+                : "text-slate-600 hover:text-purple-700"
+            }`}
+          >
+            🎫 Search by Certificate ID
+          </button>
         </div>
 
         {/* Certificate Access Form Box */}
         <div className="mt-6 rounded-2xl sm:rounded-3xl border border-purple-200/80 bg-white p-4 sm:p-8 shadow-xl">
-          {searchMode === "cert_id" ? (
-            <div>
-              <label htmlFor="certificate-id-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
-                Enter Individual Certificate ID
-              </label>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSearchByCertId();
-                }}
-                className="mt-2 flex flex-col gap-3 sm:flex-row"
-              >
-                <input
-                  id="certificate-id-input"
-                  type="text"
-                  value={certId}
-                  onChange={(e) => setCertId(e.target.value.toUpperCase())}
-                  placeholder="e.g. IAPCPR/PA/HP/0101"
-                  className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 font-mono tracking-wider placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                  required
-                />
-                <button
-                  id="btn-access-certificate"
-                  type="submit"
-                  disabled={loading}
-                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
-                >
-                  {loading ? (
-                    <>
-                      <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                      </svg>
-                      Verifying...
-                    </>
-                  ) : (
-                    "Access Certificate"
-                  )}
-                </button>
-              </form>
-
-              {/* Sample IDs Quick Links */}
-              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                <span className="w-full sm:w-auto">Try Sample Certificate IDs:</span>
-                {sampleIds.map((sample) => (
-                  <button
-                    key={sample}
-                    type="button"
-                    onClick={() => {
-                      setCertId(sample);
-                      handleSearchByCertId(sample);
-                    }}
-                    className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all"
-                  >
-                    {sample}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
+          {searchMode === "hierarchy" ? (
             <form onSubmit={handleSearchByHierarchy} className="space-y-4">
               <div className="border-b border-purple-100 pb-3 mb-4">
                 <h3 className="text-lg font-bold text-slate-900">
@@ -404,6 +349,65 @@ export default function CertificateAccessSection() {
                 </button>
               </div>
             </form>
+          ) : (
+            <div>
+              <label htmlFor="certificate-id-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
+                Enter Individual Certificate ID
+              </label>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSearchByCertId();
+                }}
+                className="mt-2 flex flex-col gap-3 sm:flex-row"
+              >
+                <input
+                  id="certificate-id-input"
+                  type="text"
+                  value={certId}
+                  onChange={(e) => setCertId(e.target.value.toUpperCase())}
+                  placeholder="e.g. IAPCPR/PA/HP/0101"
+                  className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 font-mono tracking-wider placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  required
+                />
+                <button
+                  id="btn-access-certificate"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
+                >
+                  {loading ? (
+                    <>
+                      <svg className="h-5 w-5 animate-spin text-white" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                      Verifying...
+                    </>
+                  ) : (
+                    "Access Certificate"
+                  )}
+                </button>
+              </form>
+
+              {/* Sample IDs Quick Links */}
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span className="w-full sm:w-auto">Try Sample Certificate IDs:</span>
+                {sampleIds.map((sample) => (
+                  <button
+                    key={sample}
+                    type="button"
+                    onClick={() => {
+                      setCertId(sample);
+                      handleSearchByCertId(sample);
+                    }}
+                    className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all"
+                  >
+                    {sample}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Error Message */}
