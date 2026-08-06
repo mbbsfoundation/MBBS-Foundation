@@ -1,6 +1,7 @@
 import Link from "next/link";
 import CertificateAccessSection from "@/components/cprday/CertificateAccessSection";
 import CPReSanjeevaniSection from "@/components/cprday/CPReSanjeevaniSection";
+import ReviveSectionPreview from "@/components/cprday/ReviveSectionPreview";
 
 export default function CPRDayPage() {
   return (
@@ -61,6 +62,9 @@ export default function CPRDayPage() {
 
       {/* CPR eSANJEEVANI Online Module */}
       <CPReSanjeevaniSection />
+
+      {/* Recommended Reading Excerpt — Revive (CPR) Section of MBBS Foundation */}
+      <ReviveSectionPreview />
 
       {/* Downloads */}
 

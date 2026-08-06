@@ -77,7 +77,7 @@ export default function BookFlipPreview() {
         Flip through the preview pages to explore the book.
       </p>
       <ul className="mt-10 space-y-3 text-slate-700">
-  <li>✔ Designed for new MBBS students</li>
+  <li>✔ Designed for MBBS students and all health care workers</li>
   <li>✔ Includes CPR, First Aid, Soft Skills</li>
   <li>✔ Helps you survive and thrive in MBBS</li>
   <li>✔ Written by experienced clinician & educator</li>

@@ -19,7 +19,7 @@ type Certificate = {
 };
 
 export default function CertificateAccessSection() {
-  const [portalType, setPortalType] = useState<"participant" | "coordinator">("participant");
+  const [portalType, setPortalType] = useState<"participant" | "champion" | "coordinator">("participant");
   const [searchMode, setSearchMode] = useState<"hierarchy" | "cert_id">("hierarchy");
   const [certId, setCertId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,12 +37,15 @@ export default function CertificateAccessSection() {
   const [selectedVenue, setSelectedVenue] = useState("");
   const [selectedParticipant, setSelectedParticipant] = useState("");
 
-  const sampleIds = portalType === "participant"
-    ? ["IAPCPR/PA/HP/0101", "IAPCPR/PA/HP/0102", "IAPCPR/PA/HP/0103"]
-    : ["IAPCPR/CC/ML/0101", "IAPCPR/CC/HP/0101", "IAPCPR/CC/BR/0101"];
+  const sampleIds =
+    portalType === "participant"
+      ? ["IAPCPR/PA/HP/0101", "IAPCPR/PA/HP/0102", "IAPCPR/PA/HP/0103"]
+      : portalType === "champion"
+      ? ["IAPCPR/CH/BR/0101", "IAPCPR/CH/BR/0102", "IAPCPR/CH/BR/0103"]
+      : ["IAPCPR/CC/ML/0101", "IAPCPR/CC/HP/0101", "IAPCPR/CC/BR/0101"];
 
   // Fetch initial states list when portalType or hierarchy mode changes
-  const loadStates = async (targetPortal: "participant" | "coordinator" = portalType) => {
+  const loadStates = async (targetPortal: "participant" | "champion" | "coordinator" = portalType) => {
     try {
       const res = await fetch(`/api/cprday/certificates?action=states&portal=${targetPortal}`);
       const data = await res.json();
@@ -70,7 +73,7 @@ export default function CertificateAccessSection() {
     loadStates(portalType);
   }, [portalType]);
 
-  const handlePortalSwitch = (type: "participant" | "coordinator") => {
+  const handlePortalSwitch = (type: "participant" | "champion" | "coordinator") => {
     if (type === portalType) return;
     setPortalType(type);
   };
@@ -212,14 +215,20 @@ export default function CertificateAccessSection() {
     }
   };
 
+  const isChampionPortal = portalType === "champion";
   const isCoordinatorPortal = portalType === "coordinator";
+  const nameLabel = isChampionPortal
+    ? "CPR Champion Name"
+    : isCoordinatorPortal
+    ? "Course Coordinator Name"
+    : "Participant Name";
 
   return (
     <section id="certificate-access" className="scroll-mt-24 bg-gradient-to-b from-purple-50/60 via-sky-50/70 to-indigo-50/40 px-4 sm:px-6 py-12 sm:py-16 text-slate-900 border-t border-purple-200">
       <div className="mx-auto max-w-5xl">
         <div className="text-center">
           <p className="text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.2em] text-purple-800 bg-purple-100/90 border border-purple-300 inline-block px-3.5 sm:px-4 py-1.5 rounded-full">
-            Official Certificate Portal
+            Certificate Portal
           </p>
           <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-4xl text-slate-900">
             Access Your CPR Sanjeevani Certificate
@@ -229,12 +238,12 @@ export default function CertificateAccessSection() {
           </p>
         </div>
 
-        {/* Dedicated Portal Tabs: Participant vs Course Coordinator */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 p-1.5 rounded-2xl bg-slate-200/80 border border-purple-200 shadow-inner">
+        {/* Dedicated Portal Tabs: Participant vs CPR Champion vs Course Coordinator */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-slate-200/80 border border-purple-200 shadow-inner">
           <button
             type="button"
             onClick={() => handlePortalSwitch("participant")}
-            className={`rounded-xl py-3.5 px-5 text-sm sm:text-base font-extrabold transition flex items-center justify-center gap-2.5 ${
+            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 ${
               portalType === "participant"
                 ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-lg scale-[1.01]"
                 : "text-slate-700 hover:text-purple-800 hover:bg-white/50"
@@ -245,8 +254,20 @@ export default function CertificateAccessSection() {
 
           <button
             type="button"
+            onClick={() => handlePortalSwitch("champion")}
+            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 ${
+              portalType === "champion"
+                ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-lg scale-[1.01]"
+                : "text-slate-700 hover:text-purple-800 hover:bg-white/50"
+            }`}
+          >
+            🏆 CPR Champion Certificate Portal
+          </button>
+
+          <button
+            type="button"
             onClick={() => handlePortalSwitch("coordinator")}
-            className={`rounded-xl py-3.5 px-5 text-sm sm:text-base font-extrabold transition flex items-center justify-center gap-2.5 ${
+            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 ${
               portalType === "coordinator"
                 ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-lg scale-[1.01]"
                 : "text-slate-700 hover:text-purple-800 hover:bg-white/50"
@@ -287,11 +308,10 @@ export default function CertificateAccessSection() {
         <div className="mt-6 rounded-2xl sm:rounded-3xl border border-purple-200/80 bg-white p-4 sm:p-8 shadow-xl">
           <div className="mb-4 pb-3 border-b border-purple-100 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-1 rounded-md border border-purple-200">
-                {isCoordinatorPortal ? "Dedicated Portal: Course Coordinator" : "Dedicated Portal: Participant"}
-              </span>
-              <h3 className="mt-1.5 text-lg font-bold text-slate-900">
-                {isCoordinatorPortal
+              <h3 className="text-lg font-bold text-slate-900">
+                {isChampionPortal
+                  ? "CPR Champion Certificate Access"
+                  : isCoordinatorPortal
                   ? "Course Coordinator Certificate Access"
                   : "Participant Certificate Access"}
               </h3>
@@ -301,7 +321,7 @@ export default function CertificateAccessSection() {
           {searchMode === "hierarchy" ? (
             <form onSubmit={handleSearchByHierarchy} className="space-y-4">
               <p className="text-xs text-slate-600">
-                Consecutively select State, City/District, Training Venue, and {isCoordinatorPortal ? "Coordinator Name" : "Participant Name"} to unlock your official certificate.
+                Consecutively select State, City/District, Training Venue, and {nameLabel} to unlock your official certificate.
               </p>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -379,7 +399,7 @@ export default function CertificateAccessSection() {
                 {/* Step 4: Select Name */}
                 <div>
                   <label htmlFor="select-participant" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Step 4: Select {isCoordinatorPortal ? "Course Coordinator Name" : "Participant Name"} *
+                    Step 4: Select {nameLabel} *
                   </label>
                   <select
                     id="select-participant"
@@ -390,9 +410,7 @@ export default function CertificateAccessSection() {
                     required
                   >
                     <option value="">
-                      {!selectedVenue
-                        ? "-- Select Venue First --"
-                        : `-- Choose ${isCoordinatorPortal ? "Course Coordinator Name" : "Participant Name"} --`}
+                      {!selectedVenue ? "-- Select Venue First --" : `-- Choose ${nameLabel} --`}
                     </option>
                     {participantsList.map((p) => (
                       <option key={p} value={p}>
@@ -430,7 +448,13 @@ export default function CertificateAccessSection() {
                   type="text"
                   value={certId}
                   onChange={(e) => setCertId(e.target.value.toUpperCase())}
-                  placeholder={isCoordinatorPortal ? "e.g. IAPCPR/CC/ML/0101" : "e.g. IAPCPR/PA/HP/0101"}
+                  placeholder={
+                    isChampionPortal
+                      ? "e.g. IAPCPR/CH/BR/0101"
+                      : isCoordinatorPortal
+                      ? "e.g. IAPCPR/CC/ML/0101"
+                      : "e.g. IAPCPR/PA/HP/0101"
+                  }
                   className="w-full flex-1 rounded-xl border border-sky-200 bg-slate-50/60 px-4 py-3 sm:py-3.5 text-sm sm:text-base text-slate-900 font-mono tracking-wider placeholder-slate-400 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                   required
                 />
@@ -493,7 +517,7 @@ export default function CertificateAccessSection() {
               <div className="flex items-center justify-between border-b border-emerald-200 pb-3">
                 <h4 className="text-base sm:text-lg font-bold text-emerald-800 flex items-center gap-2">
                   <span className="inline-block h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Official Certificate Verified ({certificates.length})
+                  Certificate Verified ({certificates.length})
                 </h4>
               </div>
 
@@ -506,7 +530,7 @@ export default function CertificateAccessSection() {
                     <div className="space-y-3 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-sm">
-                          Verified Official Certificate
+                          Certificate ID:
                         </span>
                         <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-mono font-bold text-white shadow-sm">
                           {cert.certificateNumber || "Official Certificate"}

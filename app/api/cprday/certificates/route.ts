@@ -19,7 +19,8 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get("query")?.trim() || searchParams.get("mobile")?.trim() || searchParams.get("email")?.trim();
 
     const portalParam = (searchParams.get("portal") || searchParams.get("type") || "participant").trim();
-    const portal: CPRCertificatePortal = portalParam === "coordinator" ? "coordinator" : "participant";
+    const portal: CPRCertificatePortal =
+      portalParam === "champion" ? "champion" : portalParam === "coordinator" ? "coordinator" : "participant";
 
     // Cascading Hierarchy API Actions
     if (action === "states") {

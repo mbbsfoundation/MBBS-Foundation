@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-export type CPRCertificatePortal = "participant" | "coordinator";
+export type CPRCertificatePortal = "participant" | "champion" | "coordinator";
 
 export type CPRCertificateRecord = {
   srNo: string;
@@ -62,7 +62,7 @@ function parseCSVLine(line: string): string[] {
 }
 
 /**
- * Dynamically loads and parses CSV files for participants or course coordinators
+ * Dynamically loads and parses CSV files for participants, CPR champions, or course coordinators
  */
 export function getAllCPRCertificates(portal: CPRCertificatePortal = "participant"): CPRCertificateRecord[] {
   const certsDir = path.join(process.cwd(), "cprcertificates");
@@ -77,9 +77,13 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
 
   for (const file of csvFiles) {
     try {
-      const isCoordinatorFile = file.toLowerCase().includes("coordinator");
+      const lowerFile = file.toLowerCase();
+      const isCoordinatorFile = lowerFile.includes("coordinator");
+      const isChampionFile = lowerFile.includes("champion");
+
       if (portal === "coordinator" && !isCoordinatorFile) continue;
-      if (portal === "participant" && isCoordinatorFile) continue;
+      if (portal === "champion" && !isChampionFile) continue;
+      if (portal === "participant" && (isCoordinatorFile || isChampionFile)) continue;
 
       const filePath = path.join(certsDir, file);
       const content = fs.readFileSync(filePath, "utf8");
@@ -104,6 +108,9 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       const nameIdx = headers.findIndex((h) => {
         if (isCoordinatorFile) {
           return h.includes("coordinator name") || h.includes("participant") || h.includes("name");
+        }
+        if (isChampionFile) {
+          return h.includes("champion") || h.includes("chapion") || h.includes("participant") || h.includes("name");
         }
         return (
           h.includes("name of participant") ||
@@ -148,19 +155,20 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
 
         const certId = cols[certIdIdx >= 0 ? certIdIdx : 1] || "";
         const name = cols[nameIdx >= 0 ? nameIdx : 2] || "";
-        const mobile = cols[mobileIdx >= 0 ? mobileIdx : 3] || "";
-        const email = cols[emailIdx >= 0 ? emailIdx : 4] || "";
+        const mobile = isChampionFile ? "" : cols[mobileIdx >= 0 ? mobileIdx : 3] || "";
+        const email = isChampionFile ? "" : cols[emailIdx >= 0 ? emailIdx : 4] || "";
         const zone = cols[zoneIdx >= 0 ? zoneIdx : 5] || "";
-        const state = cols[stateIdx >= 0 ? stateIdx : 6] || "";
-        const city = cols[cityIdx >= 0 ? cityIdx : 7] || "";
+        const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile ? 3 : 6)] || "";
+        const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile ? 4 : 7)] || "";
         const coordinator = cols[coordinatorIdx >= 0 ? coordinatorIdx : 8] || "";
         const coordinatorEmail = cols[coordinatorEmailIdx >= 0 ? coordinatorEmailIdx : 9] || "";
-        const venue = cols[venueIdx >= 0 ? venueIdx : 10] || "";
-        const driveLink = cols[driveLinkIdx >= 0 ? driveLinkIdx : 11] || "";
+        const venue = cols[venueIdx >= 0 ? venueIdx : (isChampionFile ? 5 : 10)] || "";
+        const driveLink = cols[driveLinkIdx >= 0 ? driveLinkIdx : (isChampionFile ? 6 : 11)] || "";
 
         const cleanCertId = certId.trim();
         const cleanName = name.trim();
         const cleanMobile = mobile.trim();
+        const cleanState = state.trim();
         const cleanVenue = venue.trim();
 
         if (!cleanCertId && !cleanName) continue;
@@ -172,10 +180,12 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           seenCertIds.add(certKey);
         }
 
-        // Deduplication 2: Participant Name + Mobile + Venue check
+        // Deduplication 2: Champion Name + State + Venue check (for Champions) or Name + Mobile + Venue check
         if (cleanName && cleanVenue) {
-          const mobileDigits = cleanMobile.replace(/\D/g, "");
-          const personVenueKey = `${cleanName.toUpperCase()}|${mobileDigits}|${cleanVenue.toUpperCase()}`;
+          const personVenueKey = isChampionFile
+            ? `${cleanName.toUpperCase()}|${cleanState.toUpperCase()}|${cleanVenue.toUpperCase()}`
+            : `${cleanName.toUpperCase()}|${cleanMobile.replace(/\D/g, "")}|${cleanVenue.toUpperCase()}`;
+
           if (seenPersonVenueKeys.has(personVenueKey)) continue;
           seenPersonVenueKeys.add(personVenueKey);
         }
@@ -206,9 +216,15 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           previewUrl,
           issueDate: "21 July 2026",
           status: "GENERATED",
-          category: isCoordinatorFile ? "Course Coordinator" : "CPR Aware Citizen",
+          category: isCoordinatorFile
+            ? "Course Coordinator"
+            : isChampionFile
+            ? "CPR Champion"
+            : "CPR Aware Citizen",
           courseTitle: isCoordinatorFile
             ? "National IAP CPR Sanjeevani Course Coordinator Certificate"
+            : isChampionFile
+            ? "National IAP CPR Sanjeevani Champion Certificate"
             : "National IAP CPR Sanjeevani Training Program",
           portalType: portal,
         });

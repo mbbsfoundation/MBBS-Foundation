@@ -30,24 +30,30 @@ export default function BookPage() {
               Available on
             </p>
 
-            <div className="flex flex-wrap gap-4">
-              <a
-                href="https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl bg-red-700 px-6 py-3 text-white transition hover:bg-red-800"
-              >
-                Buy on Amazon
-              </a>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-4 items-center">
+                <a
+                  href="https://notionpress.com/author/1356076"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-xl bg-red-700 px-6 py-3 font-semibold text-white transition hover:bg-red-800 shadow-sm"
+                >
+                  Buy on Notion Press
+                </a>
 
-              <a
-                href="https://notionpress.com/author/1356076"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-xl border border-slate-300 px-6 py-3 text-slate-900 transition hover:bg-slate-50"
-              >
-                Buy on Notion Press
-              </a>
+                <a
+                  href="https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-50"
+                >
+                  Buy on Amazon
+                </a>
+              </div>
+
+              <div className="inline-flex items-center gap-2 rounded-lg bg-red-50 border border-red-200 px-3.5 py-2 text-xs sm:text-sm text-red-800 max-w-fit">
+                <span className="font-bold text-red-700">🎉 Special Offer:</span> Use coupon code <code className="rounded bg-white px-2 py-0.5 font-mono font-bold text-red-700 border border-red-300">FOUNDERCIRCLE</code> for 20% discount on Notion Press!
+              </div>
             </div>
 
             <p className="text-sm text-slate-500">
@@ -81,33 +87,33 @@ export default function BookPage() {
 
   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
     {[
-      { title: "Threshold", img: "/sections/1_threshold.png" },
-      { title: "Inception", img: "/sections/2_inception.png" },
-      { title: "Genesis", img: "/sections/3_genesis.png" },
-      { title: "Synthesis", img: "/sections/4_synthesis.png" },
-      { title: "Matrix", img: "/sections/5_matrix.png" },
-      { title: "Covenant", img: "/sections/6_covenant.png" },
-      { title: "Crossroads", img: "/sections/7_crossroads.png" },
-      { title: "Revive", img: "/sections/8_revive.png" },
-      { title: "Rescue", img: "/sections/9_rescue.png" },
-      { title: "Impact", img: "/sections/10_impact.png" },
-      { title: "Tempest", img: "/sections/11_tempest.png" },
-      { title: "Illumination", img: "/sections/12_illumination.png" },
-      { title: "Resonance", img: "/sections/13_resonance.png" },
-      { title: "Hidden Curriculum", img: "/sections/14_hidden.png" },
-      { title: "Continuum", img: "/sections/15_continuum.png" },
+      { title: "Threshold", img: "/sections/1_threshold.png", bg: "bg-red-50/80 border-red-200 hover:border-red-400", text: "text-red-950 group-hover:text-red-700", sub: "text-red-800/70" },
+      { title: "Inception", img: "/sections/2_inception.png", bg: "bg-sky-50/80 border-sky-200 hover:border-sky-400", text: "text-sky-950 group-hover:text-sky-700", sub: "text-sky-800/70" },
+      { title: "Genesis", img: "/sections/3_genesis.png", bg: "bg-amber-50/80 border-amber-200 hover:border-amber-400", text: "text-amber-950 group-hover:text-amber-700", sub: "text-amber-800/70" },
+      { title: "Synthesis", img: "/sections/4_synthesis.png", bg: "bg-indigo-50/80 border-indigo-200 hover:border-indigo-400", text: "text-indigo-950 group-hover:text-indigo-700", sub: "text-indigo-800/70" },
+      { title: "Matrix", img: "/sections/5_matrix.png", bg: "bg-purple-50/80 border-purple-200 hover:border-purple-400", text: "text-purple-950 group-hover:text-purple-700", sub: "text-purple-800/70" },
+      { title: "Covenant", img: "/sections/6_covenant.png", bg: "bg-emerald-50/80 border-emerald-200 hover:border-emerald-400", text: "text-emerald-950 group-hover:text-emerald-700", sub: "text-emerald-800/70" },
+      { title: "Crossroads", img: "/sections/7_crossroads.png", bg: "bg-rose-50/80 border-rose-200 hover:border-rose-400", text: "text-rose-950 group-hover:text-rose-700", sub: "text-rose-800/70" },
+      { title: "Revive", img: "/sections/8_revive.png", bg: "bg-teal-50/80 border-teal-200 hover:border-teal-400", text: "text-teal-950 group-hover:text-teal-700", sub: "text-teal-800/70" },
+      { title: "Rescue", img: "/sections/9_rescue.png", bg: "bg-orange-50/80 border-orange-200 hover:border-orange-400", text: "text-orange-950 group-hover:text-orange-700", sub: "text-orange-800/70" },
+      { title: "Impact", img: "/sections/10_impact.png", bg: "bg-blue-50/80 border-blue-200 hover:border-blue-400", text: "text-blue-950 group-hover:text-blue-700", sub: "text-blue-800/70" },
+      { title: "Tempest", img: "/sections/11_tempest.png", bg: "bg-violet-50/80 border-violet-200 hover:border-violet-400", text: "text-violet-950 group-hover:text-violet-700", sub: "text-violet-800/70" },
+      { title: "Illumination", img: "/sections/12_illumination.png", bg: "bg-yellow-50/80 border-yellow-200 hover:border-yellow-400", text: "text-yellow-950 group-hover:text-yellow-700", sub: "text-yellow-900/70" },
+      { title: "Resonance", img: "/sections/13_resonance.png", bg: "bg-cyan-50/80 border-cyan-200 hover:border-cyan-400", text: "text-cyan-950 group-hover:text-cyan-700", sub: "text-cyan-800/70" },
+      { title: "Hidden Curriculum", img: "/sections/14_hidden.png", bg: "bg-fuchsia-50/80 border-fuchsia-200 hover:border-fuchsia-400", text: "text-fuchsia-950 group-hover:text-fuchsia-700", sub: "text-fuchsia-800/70" },
+      { title: "Continuum", img: "/sections/15_continuum.png", bg: "bg-lime-50/80 border-lime-200 hover:border-lime-400", text: "text-lime-950 group-hover:text-lime-800", sub: "text-lime-900/70" },
     ].map((section, i) => (
       <a
         key={i}
         href={section.img}
         target="_blank"
         rel="noopener noreferrer"
-        className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-slate-400"
+        className={`group rounded-2xl border ${section.bg} p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md`}
       >
-        <h3 className="text-lg font-semibold text-slate-900 transition group-hover:text-red-700">
+        <h3 className={`text-lg font-bold transition ${section.text}`}>
           {section.title}
         </h3>
-        <p className="mt-2 text-sm text-slate-500">
+        <p className={`mt-2 text-xs font-medium ${section.sub}`}>
           Click to view section page
         </p>
       </a>
