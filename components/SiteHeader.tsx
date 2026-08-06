@@ -40,6 +40,16 @@ export default function SiteHeader() {
   Book
 </a>
             <a
+  href="/cprday"
+  className={`transition ${
+    pathname === "/cprday"
+      ? "text-red-700 font-semibold"
+      : "hover:text-slate-950"
+  }`}
+>
+  CPR Sanjeevani
+</a>
+            <a
   href="/resources"
   className={`transition ${
     pathname === "/resources"
@@ -88,6 +98,9 @@ export default function SiteHeader() {
               </a>
               <a href="/book" onClick={() => setOpen(false)}>
                 Book
+              </a>
+              <a href="/cprday" onClick={() => setOpen(false)}>
+                CPR Sanjeevani
               </a>
               <a href="/resources" onClick={() => setOpen(false)}>
                 Resources
