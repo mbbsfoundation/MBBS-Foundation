@@ -8,6 +8,7 @@ import {
   getCertificateVenues,
   getCertificateParticipants,
   searchCertificateByHierarchy,
+  CPRCertificateType,
 } from "@/lib/cprCertificates";
 
 export async function GET(request: NextRequest) {
@@ -17,27 +18,31 @@ export async function GET(request: NextRequest) {
     const certId = searchParams.get("id")?.trim() || searchParams.get("certificateId")?.trim();
     const query = searchParams.get("query")?.trim() || searchParams.get("mobile")?.trim() || searchParams.get("email")?.trim();
 
+    const rawCertType = searchParams.get("certType")?.trim() || searchParams.get("type")?.trim();
+    const certType: CPRCertificateType | undefined =
+      rawCertType === "coordinator" ? "coordinator" : rawCertType === "participation" ? "participation" : undefined;
+
     // Cascading Hierarchy API Actions
     if (action === "states") {
-      return NextResponse.json({ success: true, states: getCertificateStates() });
+      return NextResponse.json({ success: true, states: getCertificateStates(certType) });
     }
 
     if (action === "cities") {
       const state = searchParams.get("state") || "";
-      return NextResponse.json({ success: true, cities: getCertificateCities(state) });
+      return NextResponse.json({ success: true, cities: getCertificateCities(state, certType) });
     }
 
     if (action === "venues") {
       const state = searchParams.get("state") || "";
       const city = searchParams.get("city") || "";
-      return NextResponse.json({ success: true, venues: getCertificateVenues(state, city) });
+      return NextResponse.json({ success: true, venues: getCertificateVenues(state, city, certType) });
     }
 
     if (action === "participants") {
       const state = searchParams.get("state") || "";
       const city = searchParams.get("city") || "";
       const venue = searchParams.get("venue") || "";
-      return NextResponse.json({ success: true, participants: getCertificateParticipants(state, city, venue) });
+      return NextResponse.json({ success: true, participants: getCertificateParticipants(state, city, venue, certType) });
     }
 
     if (action === "search-hierarchy") {
@@ -46,12 +51,12 @@ export async function GET(request: NextRequest) {
       const venue = searchParams.get("venue") || "";
       const participant = searchParams.get("participant") || searchParams.get("name") || "";
 
-      const results = searchCertificateByHierarchy(state, city, venue, participant);
+      const results = searchCertificateByHierarchy(state, city, venue, participant, certType);
       if (results.length > 0) {
         return NextResponse.json({ success: true, certificates: results });
       }
       return NextResponse.json(
-        { success: false, error: "No certificate found matching the provided State, City, Venue, and Participant Name combination." },
+        { success: false, error: "No certificate found matching the provided State, City, Venue, and Name combination." },
         { status: 404 }
       );
     }
@@ -61,7 +66,7 @@ export async function GET(request: NextRequest) {
       const normalizedCertId = certId.toUpperCase();
 
       // Check CSV files first
-      const csvMatch = searchCertificateById(certId);
+      const csvMatch = searchCertificateById(certId, certType);
       if (csvMatch) {
         return NextResponse.json({
           success: true,
