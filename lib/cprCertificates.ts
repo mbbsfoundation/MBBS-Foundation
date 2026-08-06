@@ -69,7 +69,8 @@ export function getAllCPRCertificates(): CPRCertificateRecord[] {
   const csvFiles = files.filter((file) => file.endsWith(".csv") || file.endsWith(".CSV"));
 
   const records: CPRCertificateRecord[] = [];
-  const seenIds = new Set<string>();
+  const seenCertIds = new Set<string>();
+  const seenPersonVenueKeys = new Set<string>();
 
   for (const file of csvFiles) {
     try {
@@ -148,8 +149,25 @@ export function getAllCPRCertificates(): CPRCertificateRecord[] {
 
         const cleanCertId = certId.trim();
         const cleanName = name.trim();
+        const cleanMobile = mobile.trim();
+        const cleanVenue = venue.trim();
 
         if (!cleanCertId && !cleanName) continue;
+
+        // Deduplication 1: Certificate ID check
+        if (cleanCertId) {
+          const certKey = cleanCertId.toUpperCase();
+          if (seenCertIds.has(certKey)) continue;
+          seenCertIds.add(certKey);
+        }
+
+        // Deduplication 2: Participant Name + Mobile + Venue check
+        if (cleanName && cleanVenue) {
+          const mobileDigits = cleanMobile.replace(/\D/g, "");
+          const personVenueKey = `${cleanName.toUpperCase()}|${mobileDigits}|${cleanVenue.toUpperCase()}`;
+          if (seenPersonVenueKeys.has(personVenueKey)) continue;
+          seenPersonVenueKeys.add(personVenueKey);
+        }
 
         const driveFileId = extractGoogleDriveFileId(driveLink);
         const downloadUrl = driveFileId
@@ -159,22 +177,18 @@ export function getAllCPRCertificates(): CPRCertificateRecord[] {
           ? `https://drive.google.com/file/d/${driveFileId}/preview`
           : driveLink;
 
-        const recordKey = cleanCertId.toUpperCase() || `${cleanName.toUpperCase()}-${mobile.trim()}`;
-        if (cleanCertId && seenIds.has(recordKey)) continue;
-        if (cleanCertId) seenIds.add(recordKey);
-
         records.push({
           srNo: cols[0] || "",
           certificateNumber: cleanCertId,
           participantName: cleanName,
-          mobileNumber: mobile.trim(),
+          mobileNumber: cleanMobile,
           email: email.trim(),
           zone: zone.trim(),
           state: state.trim(),
           city: city.trim(),
           courseCoordinator: coordinator.trim(),
           courseCoordinatorEmail: coordinatorEmail.trim(),
-          venueName: venue.trim(),
+          venueName: cleanVenue,
           driveLink: driveLink.trim(),
           driveFileId,
           downloadUrl,
