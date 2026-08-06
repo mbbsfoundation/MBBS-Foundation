@@ -12,7 +12,7 @@ export default function SiteHeader() {
       <div className="mx-auto max-w-6xl px-6 py-4">
         <div className="flex items-center justify-between">
           <a href="/" className="block">
-            <p className="text-2xl font-bold md:text-3xl">MBBS Foundation</p>
+            <p className="text-2xl font-bold md:text-3xl">Ayurvigyan Foundation</p>
             <p className="text-sm uppercase tracking-[0.3em] text-red-700">
               Science • Skill • Service
             </p>
