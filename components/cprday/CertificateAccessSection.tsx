@@ -225,7 +225,7 @@ export default function CertificateAccessSection() {
             Access Your CPR Sanjeevani Certificate
           </h2>
           <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-base sm:text-lg text-slate-600">
-            Select your dedicated portal below to search, verify, and download official Google Drive certificates.
+            Select your portal below to access and download your CPR Sanjeevani certificate.
           </p>
         </div>
 
