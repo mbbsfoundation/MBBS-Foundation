@@ -1,7 +1,37 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import CertificateAccessSection from "@/components/cprday/CertificateAccessSection";
 import CPReSanjeevaniSection from "@/components/cprday/CPReSanjeevaniSection";
 import ReviveSectionPreview from "@/components/cprday/ReviveSectionPreview";
+
+export const metadata: Metadata = {
+  title: "CPR Sanjeevani Certificate Portal — Indian Academy of Pediatrics",
+  description:
+    "Official CPR Sanjeevani Certificate Access Portal by the Indian Academy of Pediatrics. Verify and download your CPR Sanjeevani training completion certificate.",
+  openGraph: {
+    title: "CPR Sanjeevani Certificate Portal — Access & Download Certificate",
+    description:
+      "Verify, view and download your official National IAP CPR Sanjeevani participation, champion, and course coordinator certificates.",
+    url: "https://mbbsfoundation.com/cprday",
+    siteName: "CPR Sanjeevani — MBBS Foundation",
+    images: [
+      {
+        url: "https://mbbsfoundation.com/cprday/og-cprday.jpg",
+        width: 1200,
+        height: 630,
+        alt: "CPR Sanjeevani Certificate Portal Banner",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CPR Sanjeevani Certificate Portal — Access & Download Certificate",
+    description:
+      "Verify, view and download your official National IAP CPR Sanjeevani participation, champion, and course coordinator certificates.",
+    images: ["https://mbbsfoundation.com/cprday/og-cprday.jpg"],
+  },
+};
 
 export default function CPRDayPage() {
   return (
