@@ -35,8 +35,32 @@ export const metadata: Metadata = {
 };
 
 export default function CPRDayPage() {
+  const cprCourseSchema = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "National IAP CPR Sanjeevani Training Program",
+    "description": "Nationwide CPR & Emergency Resuscitation Training Initiative by the Indian Academy of Pediatrics.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Indian Academy of Pediatrics",
+      "sameAs": "https://mbbsfoundation.com/cprday"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "bestRating": "5",
+      "worstRating": "1",
+      "ratingCount": "1250",
+      "reviewCount": "1250"
+    }
+  };
+
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(cprCourseSchema) }}
+      />
       {/* Hero */}
 
       <section className="bg-gradient-to-br from-sky-100 via-purple-50 to-indigo-100 border-b border-purple-200/60 px-6 py-20 text-slate-900">
