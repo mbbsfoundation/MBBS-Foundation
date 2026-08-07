@@ -131,34 +131,12 @@ export default function ReviveSectionPreview() {
             &ldquo;MBBS Foundation: Your First Book of Medicine&rdquo; covers ethics, emergency resuscitation, CPR, soft skills, and the hidden curriculum of medicine.
           </p>
 
-          <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 px-4 py-2 text-xs sm:text-sm text-red-800 shadow-sm">
-            <span>🎉 <strong className="text-red-700">Special Offer:</strong></span> Use coupon code <code className="rounded bg-white px-2 py-0.5 font-mono font-bold text-red-700 border border-red-300">FOUNDERCIRCLE</code> for 20% discount on Notion Press!
-          </div>
-
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+          <div className="mt-6 flex items-center justify-center">
             <a
               href="/book"
-              className="w-full sm:w-auto rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-slate-900 border border-slate-300 hover:bg-slate-50 transition shadow-sm text-center"
+              className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-purple-700 to-indigo-700 px-8 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg hover:from-purple-800 hover:to-indigo-800 transition text-center"
             >
-              📖 Explore Table of Contents & Sample Pages
-            </a>
-
-            <a
-              href="https://notionpress.com/author/1356076"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto rounded-xl bg-red-700 px-6 py-3.5 text-sm font-bold text-white hover:bg-red-800 transition shadow-md text-center"
-            >
-              🛒 Buy on Notion Press
-            </a>
-
-            <a
-              href="https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-auto rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-bold text-slate-900 hover:bg-slate-50 transition text-center"
-            >
-              📦 Buy on Amazon
+              📖 Explore Table of Contents & Sample Pages →
             </a>
           </div>
         </div>
