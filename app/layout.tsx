@@ -1,6 +1,8 @@
 import "./globals.css";
 import SiteHeader from "../components/SiteHeader";
 import SecurityGuard from "../components/SecurityGuard";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
   title: "MBBS Foundation: First Year Guide for Medical Students in India",
@@ -57,6 +59,8 @@ export default function RootLayout({
         <SiteHeader />
 
         {children}
+        <Analytics />
+        <SpeedInsights />
 
         <footer className="border-t bg-slate-50">
           <div className="mx-auto max-w-6xl px-6 py-10">
