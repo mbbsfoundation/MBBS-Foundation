@@ -5,6 +5,7 @@ import CPReSanjeevaniSection from "@/components/cprday/CPReSanjeevaniSection";
 import ReviveSectionPreview from "@/components/cprday/ReviveSectionPreview";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://mbbsfoundation.com"),
   title: "CPR Sanjeevani Certificate Portal — Indian Academy of Pediatrics",
   description:
     "Official CPR Sanjeevani Certificate Access Portal by the Indian Academy of Pediatrics. Verify and download your CPR Sanjeevani training completion certificate.",

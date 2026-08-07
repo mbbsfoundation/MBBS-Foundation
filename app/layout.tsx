@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
+  metadataBase: new URL("https://mbbsfoundation.com"),
   title: "MBBS Foundation: First Year Guide for Medical Students & NEET Aspirants",
   description:
     "Essential guide for new MBBS students and NEET selected candidates in India. Covers college transition, CPR, first aid, medical ethics, communication, soft skills, and survival in medical school.",
