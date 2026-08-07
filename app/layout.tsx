@@ -5,18 +5,21 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata = {
-  title: "MBBS Foundation: First Year Guide for Medical Students in India",
+  title: "MBBS Foundation: First Year Guide for Medical Students & NEET Aspirants",
   description:
-    "MBBS Foundation is a practical guide for first-year MBBS students covering transition, CPR, first aid, ethics, communication, and real-world medical learning.",
+    "Essential guide for new MBBS students and NEET selected candidates in India. Covers college transition, CPR, first aid, medical ethics, communication, soft skills, and survival in medical school.",
   keywords: [
     "MBBS Foundation",
     "MBBS first year guide",
+    "NEET UG counseling 2026",
+    "books for first year MBBS",
+    "NEET selected students guide",
+    "medical college admission guide",
     "MBBS book India",
-    "book for MBBS students",
     "CPR training India",
     "First aid for medical students",
-    "AETCOM",
-    "medical student guide India",
+    "AETCOM ethics",
+    "Dr Lokesh Tiwari MBBS book",
   ],
   authors: [{ name: "Dr Lokesh Tiwari" }],
   icons: {

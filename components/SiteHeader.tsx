@@ -8,7 +8,27 @@ export default function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur">
+    <div className="relative z-50">
+      {/* Top Announcement Banner for NEET Counseling & New MBBS Season */}
+      <div className="bg-gradient-to-r from-red-700 via-rose-700 to-purple-800 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-sm">
+        <div className="mx-auto max-w-6xl flex items-center justify-center gap-2 flex-wrap">
+          <span>🎓 <strong>Heading to Medical College?</strong> Get <em>MBBS Foundation: Your First Book of Medicine</em></span>
+          <span className="hidden sm:inline">•</span>
+          <span className="bg-white/10 px-2 py-0.5 rounded border border-white/20">
+            Use code <code className="font-mono font-bold text-amber-300">FOUNDERCIRCLE</code> for 20% OFF on Notion Press!
+          </span>
+          <a
+            href="https://notionpress.com/author/1356076"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 font-bold hover:text-amber-300 transition ml-1"
+          >
+            Order Now →
+          </a>
+        </div>
+      </div>
+
+      <header className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur">
       <div className="mx-auto max-w-6xl px-6 py-4">
         <div className="flex items-center justify-between">
           <a href="/" className="block">
@@ -122,5 +142,6 @@ export default function SiteHeader() {
         )}
       </div>
     </header>
+    </div>
   );
 }

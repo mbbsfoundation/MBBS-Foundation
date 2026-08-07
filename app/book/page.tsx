@@ -1,7 +1,48 @@
 import BookFlipPreview from "../../components/BookFlipPreview";
 export default function BookPage() {
+  const bookSchema = {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": "MBBS Foundation: Your First Book of Medicine",
+    "author": {
+      "@type": "Person",
+      "name": "Dr Lokesh Tiwari",
+      "jobTitle": "Clinician & Educator"
+    },
+    "url": "https://mbbsfoundation.com/book",
+    "image": "https://mbbsfoundation.com/book.png",
+    "description": "An uptodate guide for MBBS students covering transition into medicine, ethics, CPR, first aid, communication, soft skills, and the hidden curriculum of becoming a doctor.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Notion Press"
+    },
+    "inLanguage": "English",
+    "offers": [
+      {
+        "@type": "Offer",
+        "seller": {
+          "@type": "Organization",
+          "name": "Notion Press"
+        },
+        "url": "https://notionpress.com/author/1356076"
+      },
+      {
+        "@type": "Offer",
+        "seller": {
+          "@type": "Organization",
+          "name": "Amazon India"
+        },
+        "url": "https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
+      }
+    ]
+  };
+
   return (
     <main className="min-h-screen bg-white text-slate-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(bookSchema) }}
+      />
       <section className="mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 md:grid-cols-2">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-700">
