@@ -1,5 +1,6 @@
 import "./globals.css";
 import SiteHeader from "../components/SiteHeader";
+import SecurityGuard from "../components/SecurityGuard";
 
 export const metadata = {
   title: "MBBS Foundation: First Year Guide for Medical Students in India",
@@ -52,6 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-white text-slate-900">
+        <SecurityGuard />
         <SiteHeader />
 
         {children}
