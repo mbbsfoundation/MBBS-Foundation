@@ -39,26 +39,51 @@ export function extractGoogleDriveFileId(url: string): string {
 }
 
 /**
- * CSV Line Parser handling quotes and commas within quotes
+ * Robust CSV parser that handles multiline quoted values correctly.
  */
-function parseCSVLine(line: string): string[] {
-  const result: string[] = [];
-  let current = "";
+function parseFullCSV(content: string): string[][] {
+  const rows: string[][] = [];
+  let currentRow: string[] = [];
+  let currentCell = "";
   let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
+  for (let i = 0; i < content.length; i++) {
+    const char = content[i];
+    const nextChar = content[i + 1];
+
     if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
-      result.push(current.trim().replace(/^"|"$/g, ""));
-      current = "";
+      if (inQuotes && nextChar === '"') {
+        currentCell += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      currentRow.push(currentCell.trim());
+      currentCell = "";
+    } else if ((char === '\r' || char === '\n') && !inQuotes) {
+      if (char === '\r' && nextChar === '\n') {
+        i++;
+      }
+      currentRow.push(currentCell.trim());
+      if (currentRow.some((cell) => cell.length > 0)) {
+        rows.push(currentRow);
+      }
+      currentRow = [];
+      currentCell = "";
     } else {
-      current += char;
+      currentCell += char;
     }
   }
-  result.push(current.trim().replace(/^"|"$/g, ""));
-  return result;
+
+  if (currentCell.length > 0 || currentRow.length > 0) {
+    currentRow.push(currentCell.trim());
+    if (currentRow.some((cell) => cell.length > 0)) {
+      rows.push(currentRow);
+    }
+  }
+
+  return rows;
 }
 
 /**
@@ -88,12 +113,12 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       const filePath = path.join(certsDir, file);
       const content = fs.readFileSync(filePath, "utf8");
       const cleanContent = content.replace(/^\uFEFF/, "");
-      const lines = cleanContent.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      const rows = parseFullCSV(cleanContent);
 
-      if (lines.length <= 1) continue;
+      if (rows.length <= 1) continue;
 
       // Find header indices dynamically
-      const headers = parseCSVLine(lines[0]).map((h) => h.toLowerCase().trim());
+      const headers = rows[0].map((h) => h.toLowerCase().trim());
 
       const certIdIdx = headers.findIndex(
         (h) =>
@@ -149,8 +174,8 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         (h) => h.includes("drive") || h.includes("link") || h.includes("url") || h.includes("google")
       );
 
-      for (let i = 1; i < lines.length; i++) {
-        const cols = parseCSVLine(lines[i]);
+      for (let i = 1; i < rows.length; i++) {
+        const cols = rows[i];
         if (cols.length < 3) continue;
 
         const certId = cols[certIdIdx >= 0 ? certIdIdx : 1] || "";
@@ -160,16 +185,33 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         const zone = cols[zoneIdx >= 0 ? zoneIdx : 5] || "";
         const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile ? 3 : 6)] || "";
         const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile ? 4 : 7)] || "";
-        const coordinator = cols[coordinatorIdx >= 0 ? coordinatorIdx : 8] || "";
-        const coordinatorEmail = cols[coordinatorEmailIdx >= 0 ? coordinatorEmailIdx : 9] || "";
-        const venue = cols[venueIdx >= 0 ? venueIdx : (isChampionFile ? 5 : 10)] || "";
-        const driveLink = cols[driveLinkIdx >= 0 ? driveLinkIdx : (isChampionFile ? 6 : 11)] || "";
+        const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : "";
+        const coordinatorEmail = coordinatorEmailIdx >= 0 ? cols[coordinatorEmailIdx] || "" : "";
+        const venue = venueIdx >= 0 ? cols[venueIdx] || "" : cols[isChampionFile ? 5 : 10] || "";
+        const driveLink = driveLinkIdx >= 0 ? cols[driveLinkIdx] || "" : cols[isChampionFile ? 6 : 11] || "";
 
         const cleanCertId = certId.trim();
         const cleanName = name.trim();
         const cleanMobile = mobile.trim();
         const cleanState = state.trim();
         const cleanVenue = venue.trim();
+        let cleanCity = city.trim();
+
+        if (!cleanCity || cleanCity.toLowerCase().includes("panuganti") || cleanCity.toLowerCase().includes("suresh")) {
+          if (cleanVenue.toLowerCase().includes("kiddy's corner") || cleanVenue.toLowerCase().includes("gwalior")) {
+            cleanCity = "Gwalior";
+          } else if (cleanVenue.toLowerCase().includes("assam medical college")) {
+            cleanCity = "Dibrugarh";
+          } else if (cleanVenue.toLowerCase().includes("guwahati")) {
+            cleanCity = "Guwahati";
+          } else if (cleanVenue.toLowerCase().includes("rohini")) {
+            cleanCity = "Delhi";
+          } else if (cleanVenue.toLowerCase().includes("thirthahalli")) {
+            cleanCity = "Thirthahalli";
+          } else if (cleanState) {
+            cleanCity = cleanState;
+          }
+        }
 
         if (!cleanCertId && !cleanName) continue;
 
@@ -206,7 +248,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           email: email.trim(),
           zone: zone.trim(),
           state: state.trim(),
-          city: city.trim(),
+          city: cleanCity,
           courseCoordinator: coordinator.trim(),
           courseCoordinatorEmail: coordinatorEmail.trim(),
           venueName: cleanVenue,
@@ -269,28 +311,44 @@ export function searchCertificatesByQuery(query: string, portal: CPRCertificateP
 
 export function getCertificateStates(portal: CPRCertificatePortal = "participant"): string[] {
   const all = getAllCPRCertificates(portal);
-  const statesSet = new Set<string>();
+  const map = new Map<string, string>();
   for (const r of all) {
     if (r.state && r.state.trim().length > 0) {
-      statesSet.add(r.state.trim());
+      const key = r.state.trim().toLowerCase();
+      if (!map.has(key)) {
+        const formatted = r.state
+          .trim()
+          .toLowerCase()
+          .split(" ")
+          .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ""))
+          .join(" ");
+        map.set(key, formatted);
+      }
     }
   }
-  return Array.from(statesSet).sort((a, b) => a.localeCompare(b));
+  return Array.from(map.values()).sort((a, b) => a.localeCompare(b));
 }
 
 export function getCertificateCities(state: string, portal: CPRCertificatePortal = "participant"): string[] {
   const cleanState = state.trim().toLowerCase();
   const all = getAllCPRCertificates(portal);
-  const citiesSet = new Set<string>();
+  const map = new Map<string, string>();
   for (const r of all) {
     if (r.state.trim().toLowerCase() === cleanState && r.city && r.city.trim().length > 0) {
       const cleanCity = r.city.trim();
+      const key = cleanCity.toLowerCase();
       if (!cleanCity.toLowerCase().startsWith("dr.") && !cleanCity.toLowerCase().startsWith("dr ")) {
-        citiesSet.add(cleanCity);
+        if (!map.has(key)) {
+          const formatted = cleanCity
+            .split(" ")
+            .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : ""))
+            .join(" ");
+          map.set(key, formatted);
+        }
       }
     }
   }
-  return Array.from(citiesSet).sort((a, b) => a.localeCompare(b));
+  return Array.from(map.values()).sort((a, b) => a.localeCompare(b));
 }
 
 export function getCertificateVenues(state: string, city: string, portal: CPRCertificatePortal = "participant"): string[] {

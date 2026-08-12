@@ -277,6 +277,38 @@ export default function CertificateAccessSection() {
           </div>
         </div>
 
+        {/* Certificate Download Notice for Course Coordinators */}
+        <div className="mt-6 rounded-2xl border border-sky-300/80 bg-gradient-to-r from-sky-50 via-indigo-50/60 to-purple-50 p-5 sm:p-6 shadow-md text-slate-800">
+          <div className="flex items-start gap-3.5">
+            <div className="rounded-xl bg-sky-600 p-2 text-white shrink-0 shadow-sm mt-0.5">
+              <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="space-y-2.5">
+              <h3 className="text-base sm:text-lg font-black text-sky-950 tracking-tight">
+                Certificate Download Notice for Course Coordinators
+              </h3>
+
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
+                Certificates for Course Coordinators, CPR Champions, and CPR Lay Rescuers are now available for download from the Certificate Centre for all courses where attendance was submitted in the prescribed Excel format.
+              </p>
+
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
+                If attendance for your course was submitted as a handwritten sheet, image, or PDF, please resubmit the attendance in the prescribed Excel format to enable certificate generation.
+              </p>
+
+              <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
+                If the name of any CPR Champion or CPR Instructor who actively contributed to the training is missing from the records, please submit the details through the Supplementary Report Form. The link for the Supplementary Report will be activated shortly.
+              </p>
+
+              <p className="text-xs sm:text-sm font-semibold text-sky-900 pt-1 border-t border-sky-200/60">
+                Thank you for your cooperation in ensuring accurate certification records.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Dedicated Portal Tabs: Participant vs CPR Champion vs Course Coordinator */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-slate-200/80 border border-purple-200 shadow-inner">
           <button
