@@ -299,7 +299,19 @@ export default function CertificateAccessSection() {
               </p>
 
               <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
-                If the name of any CPR Champion or CPR Instructor who actively contributed to the training is missing from the records, please submit the details through the Supplementary Report Form. The link for the Supplementary Report will be activated shortly.
+                If the name of any CPR Champion or CPR Instructor who actively contributed to the training is missing from the records, please submit the details through the{" "}
+                <a
+                  href="https://forms.gle/4gKfBMHvyKqakxLMA"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-sky-700 underline hover:text-sky-900 transition-colors inline-flex items-baseline gap-1"
+                >
+                  Supplementary Report Form
+                  <svg className="w-3.5 h-3.5 inline-block self-center text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+                .
               </p>
 
               <p className="text-xs sm:text-sm font-semibold text-sky-900 pt-1 border-t border-sky-200/60">
