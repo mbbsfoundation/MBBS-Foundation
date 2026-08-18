@@ -352,3 +352,50 @@ model CourseTeamMember {
   @@index([courseId, teamRole, status])
   @@index([userId, status])
 }
+
+model SanjeevaniCertificate {
+  id                 String   @id @default(cuid())
+  certificateId      String   @unique
+  sequenceNumber     Int
+  stateCode          String
+  participantName    String
+  normalizedName     String
+  date               String
+  venue              String
+  city               String
+  state              String
+  mobileNumber       String?
+  email              String?
+  uploadBatchId      String?
+  status             String   @default("GENERATED")
+  certificateFileUrl String?
+  metadata           Json?
+  generatedAt        DateTime @default(now())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  batch              SanjeevaniUploadBatch? @relation(fields: [uploadBatchId], references: [id], onDelete: SetNull)
+
+  @@index([stateCode, sequenceNumber])
+  @@index([certificateId])
+  @@index([stateCode])
+  @@index([normalizedName, stateCode])
+  @@index([mobileNumber])
+  @@index([email])
+}
+
+model SanjeevaniUploadBatch {
+  id               String   @id @default(cuid())
+  originalFileName String
+  totalRows        Int      @default(0)
+  validRows        Int      @default(0)
+  importedRows     Int      @default(0)
+  duplicateRows    Int      @default(0)
+  errorRows        Int      @default(0)
+  status           String   @default("COMPLETED")
+  processingNotes  String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  certificates     SanjeevaniCertificate[]
+}

@@ -1,0 +1,93 @@
+[
+  {
+    "id": "BATCH-1787077481374-8867",
+    "originalFileName": "CPR_Day_Master_Venue_Registry.csv",
+    "totalRows": 212,
+    "validRows": 212,
+    "importedRows": 212,
+    "duplicateRows": 0,
+    "errorRows": 0,
+    "status": "COMPLETED",
+    "processingNotes": "Generated 212 certificates across 28 categories/states.",
+    "createdAt": "2026-08-18T18:24:41.374Z",
+    "updatedAt": "2026-08-18T18:24:41.374Z"
+  },
+  {
+    "id": "BATCH-1787071088011-8695",
+    "originalFileName": "CPR_Champions_Supplement1.csv",
+    "totalRows": 56,
+    "validRows": 56,
+    "importedRows": 56,
+    "duplicateRows": 0,
+    "errorRows": 0,
+    "status": "COMPLETED",
+    "processingNotes": "Generated 56 certificates across 10 categories/states.",
+    "createdAt": "2026-08-18T16:38:08.011Z",
+    "updatedAt": "2026-08-18T16:38:08.011Z"
+  },
+  {
+    "id": "BATCH-1787063227594-1921",
+    "originalFileName": "Participants_Suppl_21072026.csv",
+    "totalRows": 1663,
+    "validRows": 1663,
+    "importedRows": 1663,
+    "duplicateRows": 0,
+    "errorRows": 0,
+    "status": "COMPLETED",
+    "processingNotes": "Generated 1663 certificates across 10 categories/states.",
+    "createdAt": "2026-08-18T14:27:07.594Z",
+    "updatedAt": "2026-08-18T14:27:07.594Z"
+  },
+  {
+    "id": "BATCH-1787063192384-9600",
+    "originalFileName": "Participants_Suppl_21072026.csv",
+    "totalRows": 1663,
+    "validRows": 1663,
+    "importedRows": 0,
+    "duplicateRows": 1663,
+    "errorRows": 1663,
+    "status": "COMPLETED_WITH_SKIPPED",
+    "processingNotes": "Generated 0 certificates across 10 categories/states.",
+    "createdAt": "2026-08-18T14:26:32.384Z",
+    "updatedAt": "2026-08-18T14:26:32.384Z"
+  },
+  {
+    "id": "BATCH-1787063119256-5173",
+    "originalFileName": "Participants_Suppl_21072026.csv",
+    "totalRows": 1663,
+    "validRows": 1663,
+    "importedRows": 1362,
+    "duplicateRows": 301,
+    "errorRows": 301,
+    "status": "COMPLETED_WITH_SKIPPED",
+    "processingNotes": "Generated 1362 certificates across 10 categories/states.",
+    "createdAt": "2026-08-18T14:25:19.256Z",
+    "updatedAt": "2026-08-18T14:25:19.256Z"
+  },
+  {
+    "id": "BATCH-1786978235891-7670",
+    "originalFileName": "test_batch.csv",
+    "totalRows": 2,
+    "validRows": 2,
+    "importedRows": 2,
+    "duplicateRows": 0,
+    "errorRows": 0,
+    "status": "COMPLETED",
+    "processingNotes": "Generated 2 certificates across 2 categories/states.",
+    "createdAt": "2026-08-17T14:50:35.891Z",
+    "updatedAt": "2026-08-17T14:50:35.891Z"
+  },
+  {
+    "id": "SANJ-BATCH-1786973446371-2280",
+    "originalFileName": "Sample_IAP_CPR_Sanjeevani_Participants.csv",
+    "totalRows": 5,
+    "validRows": 5,
+    "importedRows": 5,
+    "duplicateRows": 0,
+    "errorRows": 0,
+    "status": "COMPLETED",
+    "processingNotes": "Generated 5 certificates across 4 states.",
+    "createdAt": "2026-08-17T13:30:46.371Z",
+    "updatedAt": "2026-08-17T13:30:46.371Z"
+  }
+]

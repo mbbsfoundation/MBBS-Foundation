@@ -86,12 +86,89 @@ function parseFullCSV(content: string): string[][] {
   return rows;
 }
 
+// In-Memory Fast Cache for Parsed CSV Records & State Max Sequences
+const certificateCache: Partial<Record<CPRCertificatePortal, CPRCertificateRecord[]>> = {};
+const cprDayMaxSeqCache = new Map<string, number>();
+const championMaxSeqCache = new Map<string, number>();
+let cprDayMaxSeqIndexed = false;
+let championMaxSeqIndexed = false;
+let lastCsvMtime = 0;
+
+function getLatestCsvMtime(dir: string): number {
+  try {
+    const files = fs.readdirSync(dir);
+    let maxMtime = 0;
+    for (const f of files) {
+      if (f.endsWith(".csv") || f.endsWith(".CSV")) {
+        const stats = fs.statSync(path.join(dir, f));
+        if (stats.mtimeMs > maxMtime) maxMtime = stats.mtimeMs;
+      }
+    }
+    return maxMtime;
+  } catch {
+    return 0;
+  }
+}
+
+function indexCprDayParticipantSequences(records: CPRCertificateRecord[]) {
+  cprDayMaxSeqCache.clear();
+  for (const r of records) {
+    const certNum = (r.certificateNumber || "").trim().toUpperCase();
+    const match = certNum.match(/^IAPCPR[/-]PA[/-]([A-Z]+)[/-](\d+)$/i);
+    if (match && match[1] && match[2]) {
+      const state = match[1].toUpperCase();
+      const num = parseInt(match[2], 10);
+      if (!isNaN(num)) {
+        const current = cprDayMaxSeqCache.get(state) || 0;
+        if (num > current) {
+          cprDayMaxSeqCache.set(state, num);
+        }
+      }
+    }
+  }
+  cprDayMaxSeqIndexed = true;
+}
+
+function indexChampionSequences(records: CPRCertificateRecord[]) {
+  championMaxSeqCache.clear();
+  for (const r of records) {
+    const certNum = (r.certificateNumber || "").trim().toUpperCase();
+    const match = certNum.match(/^IAPCPR[/-]CH[/-]([A-Z]+)[/-](\d+)$/i);
+    if (match && match[1] && match[2]) {
+      const state = match[1].toUpperCase();
+      const num = parseInt(match[2], 10);
+      if (!isNaN(num)) {
+        const current = championMaxSeqCache.get(state) || 0;
+        if (num > current) {
+          championMaxSeqCache.set(state, num);
+        }
+      }
+    }
+  }
+  championMaxSeqIndexed = true;
+}
+
 /**
  * Dynamically loads and parses CSV files for participants, CPR champions, or course coordinators
+ * (Auto-invalidates and refreshes cache if CSV files are modified).
  */
 export function getAllCPRCertificates(portal: CPRCertificatePortal = "participant"): CPRCertificateRecord[] {
   const certsDir = path.join(process.cwd(), "cprcertificates");
   if (!fs.existsSync(certsDir)) return [];
+
+  const currentMtime = getLatestCsvMtime(certsDir);
+  if (currentMtime > lastCsvMtime) {
+    // Clear cache if any CSV file was updated on disk
+    lastCsvMtime = currentMtime;
+    certificateCache.participant = undefined;
+    certificateCache.champion = undefined;
+    certificateCache.coordinator = undefined;
+    cprDayMaxSeqIndexed = false;
+  }
+
+  if (certificateCache[portal]) {
+    return certificateCache[portal]!;
+  }
 
   const files = fs.readdirSync(certsDir);
   const csvFiles = files.filter((file) => file.endsWith(".csv") || file.endsWith(".CSV"));
@@ -276,6 +353,13 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
     }
   }
 
+  certificateCache[portal] = records;
+  if (portal === "participant") {
+    indexCprDayParticipantSequences(records);
+  } else if (portal === "champion") {
+    indexChampionSequences(records);
+  }
+
   return records;
 }
 
@@ -407,7 +491,7 @@ export function searchCertificateByHierarchy(
   const cleanName = participantName.trim().toLowerCase();
 
   const all = getAllCPRCertificates(portal);
-  return all.filter((r) => {
+  const matches = all.filter((r) => {
     const matchState = r.state.trim().toLowerCase() === cleanState;
     const matchCity = r.city.trim().toLowerCase() === cleanCity;
     const matchVenue = r.venueName.trim().toLowerCase() === cleanVenue;
@@ -415,5 +499,60 @@ export function searchCertificateByHierarchy(
     const matchName = rName === cleanName || (cleanName.length >= 3 && rName.includes(cleanName));
     return matchState && matchCity && matchVenue && matchName;
   });
+
+  // Deduplicate by person identity (same name, mobile number, venue, city, and state)
+  const seen = new Set<string>();
+  const deduplicated: CPRCertificateRecord[] = [];
+
+  for (const r of matches) {
+    const normName = (r.participantName || "").trim().toLowerCase().replace(/\s+/g, " ").replace(/[^\w\s]/gi, "");
+    const normVenue = (r.venueName || "").trim().toLowerCase().replace(/\s+/g, " ").replace(/[^\w\s]/gi, "");
+    const normCity = (r.city || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const normState = (r.state || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const normMobile = (r.mobileNumber || "").replace(/\D/g, "");
+
+    const key = `${normName}|${normMobile}|${normVenue}|${normCity}|${normState}`;
+    const baseKey = `${normName}|${normVenue}|${normCity}|${normState}`;
+
+    if (!seen.has(key) && !seen.has(baseKey)) {
+      seen.add(key);
+      if (normMobile) {
+        seen.add(baseKey);
+      }
+      deduplicated.push(r);
+    }
+  }
+
+  return deduplicated;
+}
+
+/**
+ * Fast O(1) lookup of highest CPR Day participant sequence number for a given state code.
+ * (e.g. from IAPCPR/PA/ML/0205, returns 205).
+ */
+export function getHighestCPRDayParticipantSequence(stateCode: string): number {
+  const normState = (stateCode || "").trim().toUpperCase().replace(/[^A-Z]/g, "");
+  if (!normState) return 0;
+
+  if (!cprDayMaxSeqIndexed) {
+    getAllCPRCertificates("participant");
+  }
+
+  return cprDayMaxSeqCache.get(normState) || 0;
+}
+
+/**
+ * Fast O(1) lookup of highest CPR Champion sequence number for a given state code.
+ * (e.g. from IAPCPR/CH/ML/0205, returns 205).
+ */
+export function getHighestCPRChampionSequence(stateCode: string): number {
+  const normState = (stateCode || "").trim().toUpperCase().replace(/[^A-Z]/g, "");
+  if (!normState) return 0;
+
+  if (!championMaxSeqIndexed) {
+    getAllCPRCertificates("champion");
+  }
+
+  return championMaxSeqCache.get(normState) || 0;
 }
 

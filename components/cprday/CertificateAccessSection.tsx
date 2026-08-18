@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import {
+  downloadCertificatePdf,
+  downloadCertificatePng,
+} from "@/components/cprsanjeevani/CertificateRenderer";
 
 type Certificate = {
   certificateNumber: string;
@@ -16,10 +20,40 @@ type Certificate = {
   downloadUrl?: string;
   previewUrl?: string;
   courseCoordinator?: string;
+  svg?: string;
+  pdfFilename?: string;
+  pngFilename?: string;
+  svgFilename?: string;
+  mobileNumber?: string;
+  email?: string;
 };
 
+/**
+ * Deduplicates certificates for the same person/venue
+ * ensuring only one certificate is shown for preview and download.
+ */
+function deduplicateCertificates(certs: Certificate[]): Certificate[] {
+  const seen = new Set<string>();
+  const result: Certificate[] = [];
+
+  for (const c of certs) {
+    const name = (c.participantName || "").trim().toLowerCase().replace(/\s+/g, " ").replace(/[^\w\s]/gi, "");
+    const venue = (c.venueName || "").trim().toLowerCase().replace(/\s+/g, " ").replace(/[^\w\s]/gi, "");
+    const city = (c.city || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const state = (c.state || "").trim().toLowerCase().replace(/\s+/g, " ");
+
+    const key = `${name}|${venue}|${city}|${state}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      result.push(c);
+    }
+  }
+
+  return result;
+}
+
 export default function CertificateAccessSection() {
-  const [portalType, setPortalType] = useState<"participant" | "champion" | "coordinator">("participant");
+  const [portalType, setPortalType] = useState<"participant" | "champion" | "coordinator" | "facility">("participant");
   const [searchMode, setSearchMode] = useState<"hierarchy" | "cert_id">("hierarchy");
   const [certId, setCertId] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,6 +77,10 @@ export default function CertificateAccessSection() {
   const [feedbackText, setFeedbackText] = useState("");
   const [ratedCerts, setRatedCerts] = useState<Set<string>>(new Set());
   const [submittingRating, setSubmittingRating] = useState(false);
+
+  // In-Page Fitted Certificate Preview Modal
+  const [activePreviewCert, setActivePreviewCert] = useState<Certificate | null>(null);
+  const [downloadingFormat, setDownloadingFormat] = useState<"pdf" | "png" | null>(null);
 
   const handleRatingSubmit = async (cert: Certificate) => {
     setSubmittingRating(true);
@@ -69,14 +107,16 @@ export default function CertificateAccessSection() {
   };
 
   const sampleIds =
-    portalType === "participant"
+    portalType === "facility"
+      ? ["IAP-CPR-Day/Venue/AN-101", "IAP-CPR-Day/Venue/AP-101", "IAP-CPR-Day/Venue/DL-101", "IAP-CPR-Day/Venue/WB-121"]
+      : portalType === "participant"
       ? ["IAPCPR/PA/HP/0101", "IAPCPR/PA/HP/0102", "IAPCPR/PA/HP/0103"]
       : portalType === "champion"
       ? ["IAPCPR/CH/BR/0101", "IAPCPR/CH/BR/0102", "IAPCPR/CH/BR/0103"]
       : ["IAPCPR/CC/ML/0101", "IAPCPR/CC/HP/0101", "IAPCPR/CC/BR/0101"];
 
-  // Fetch initial states list when portalType or hierarchy mode changes
-  const loadStates = async (targetPortal: "participant" | "champion" | "coordinator" = portalType) => {
+  // Fetch initial states list when portalType changes
+  const loadStates = async (targetPortal: "participant" | "champion" | "coordinator" | "facility" = portalType) => {
     try {
       const res = await fetch(`/api/cprday/certificates?action=states&portal=${targetPortal}`);
       const data = await res.json();
@@ -104,7 +144,7 @@ export default function CertificateAccessSection() {
     loadStates(portalType);
   }, [portalType]);
 
-  const handlePortalSwitch = (type: "participant" | "champion" | "coordinator") => {
+  const handlePortalSwitch = (type: "participant" | "champion" | "coordinator" | "facility") => {
     if (type === portalType) return;
     setPortalType(type);
   };
@@ -169,6 +209,11 @@ export default function CertificateAccessSection() {
     setError(null);
 
     if (!venueVal) return;
+    if (portalType === "facility") {
+      // For facility certificate, venue itself is the entity!
+      return;
+    }
+
     try {
       const res = await fetch(
         `/api/cprday/certificates?action=participants&state=${encodeURIComponent(
@@ -185,7 +230,7 @@ export default function CertificateAccessSection() {
   const handleSearchByCertId = async (idToSearch?: string) => {
     const targetId = (idToSearch || certId).trim();
     if (!targetId) {
-      setError("Please enter a Certificate ID.");
+      setError("Please enter a Certificate ID / Venue Code.");
       return;
     }
 
@@ -214,9 +259,17 @@ export default function CertificateAccessSection() {
 
   const handleSearchByHierarchy = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedState || !selectedCity || !selectedVenue || !selectedParticipant) {
-      setError("Please select all 4 options (State, City, Venue, and Name).");
-      return;
+
+    if (portalType === "facility") {
+      if (!selectedState || !selectedCity || !selectedVenue) {
+        setError("Please select State, City, and Training Venue.");
+        return;
+      }
+    } else {
+      if (!selectedState || !selectedCity || !selectedVenue || !selectedParticipant) {
+        setError("Please select all 4 options (State, City, Venue, and Name).");
+        return;
+      }
     }
 
     setLoading(true);
@@ -224,17 +277,22 @@ export default function CertificateAccessSection() {
     setCertificates(null);
 
     try {
-      const url = `/api/cprday/certificates?action=search-hierarchy&state=${encodeURIComponent(
+      let url = `/api/cprday/certificates?action=search-hierarchy&state=${encodeURIComponent(
         selectedState
       )}&city=${encodeURIComponent(selectedCity)}&venue=${encodeURIComponent(
         selectedVenue
-      )}&participant=${encodeURIComponent(selectedParticipant)}&portal=${portalType}`;
+      )}&portal=${portalType}`;
+
+      if (portalType !== "facility" && selectedParticipant) {
+        url += `&participant=${encodeURIComponent(selectedParticipant)}`;
+      }
 
       const res = await fetch(url);
       const data = await res.json();
 
       if (res.ok && data.success && data.certificates) {
-        setCertificates(data.certificates);
+        const uniqueCerts = deduplicateCertificates(data.certificates);
+        setCertificates(uniqueCerts);
       } else {
         setError(data.error || "No certificate found matching this combination.");
       }
@@ -246,8 +304,68 @@ export default function CertificateAccessSection() {
     }
   };
 
+  // Direct PDF Download Handler
+  const handleDownloadPdf = async (cert: Certificate) => {
+    if (!cert.svg) return;
+    setDownloadingFormat("pdf");
+    try {
+      await downloadCertificatePdf({
+        id: cert.certificateNumber,
+        certificateId: cert.certificateNumber,
+        sequenceNumber: 0,
+        stateCode: cert.state || "",
+        participantName: cert.participantName,
+        date: cert.issueDate,
+        venue: cert.venueName,
+        city: cert.city,
+        state: cert.state,
+        courseCoordinator: cert.courseCoordinator,
+        category: cert.category,
+        svg: cert.svg,
+        pdfFilename: cert.pdfFilename || `${cert.certificateNumber.replace(/\//g, "-")}_${cert.participantName.replace(/\s+/g, "-")}.pdf`,
+        pngFilename: cert.pngFilename || `${cert.certificateNumber.replace(/\//g, "-")}_${cert.participantName.replace(/\s+/g, "-")}.png`,
+      });
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      alert("Failed to render PDF certificate. Please try again.");
+    } finally {
+      setDownloadingFormat(null);
+    }
+  };
+
+  // Direct PNG Download Handler
+  const handleDownloadPng = async (cert: Certificate) => {
+    if (!cert.svg) return;
+    setDownloadingFormat("png");
+    try {
+      await downloadCertificatePng({
+        id: cert.certificateNumber,
+        certificateId: cert.certificateNumber,
+        sequenceNumber: 0,
+        stateCode: cert.state || "",
+        participantName: cert.participantName,
+        date: cert.issueDate,
+        venue: cert.venueName,
+        city: cert.city,
+        state: cert.state,
+        courseCoordinator: cert.courseCoordinator,
+        category: cert.category,
+        svg: cert.svg,
+        pdfFilename: cert.pdfFilename || `${cert.certificateNumber.replace(/\//g, "-")}_${cert.participantName.replace(/\s+/g, "-")}.pdf`,
+        pngFilename: cert.pngFilename || `${cert.certificateNumber.replace(/\//g, "-")}_${cert.participantName.replace(/\s+/g, "-")}.png`,
+      });
+    } catch (err) {
+      console.error("Error generating PNG:", err);
+      alert("Failed to render PNG certificate. Please try again.");
+    } finally {
+      setDownloadingFormat(null);
+    }
+  };
+
+  const isFacilityPortal = portalType === "facility";
   const isChampionPortal = portalType === "champion";
   const isCoordinatorPortal = portalType === "coordinator";
+
   const nameLabel = isChampionPortal
     ? "CPR Champion Name"
     : isCoordinatorPortal
@@ -265,7 +383,7 @@ export default function CertificateAccessSection() {
             Access Your CPR Sanjeevani Certificate
           </h2>
           <p className="mx-auto mt-3 sm:mt-4 max-w-2xl text-base sm:text-lg text-slate-600">
-            Select your portal below to access and download your CPR Sanjeevani certificate.
+            Select your category below to search, view, and download your official CPR Sanjeevani certificate.
           </p>
 
           {/* Live Cumulative Rating Badge */}
@@ -277,7 +395,7 @@ export default function CertificateAccessSection() {
           </div>
         </div>
 
-        {/* Certificate Download Notice for Course Coordinators */}
+        {/* Certificate Download Notice */}
         <div className="mt-6 rounded-2xl border border-sky-300/80 bg-gradient-to-r from-sky-50 via-indigo-50/60 to-purple-50 p-5 sm:p-6 shadow-md text-slate-800">
           <div className="flex items-start gap-3.5">
             <div className="rounded-xl bg-sky-600 p-2 text-white shrink-0 shadow-sm mt-0.5">
@@ -287,130 +405,124 @@ export default function CertificateAccessSection() {
             </div>
             <div className="space-y-2.5">
               <h3 className="text-base sm:text-lg font-black text-sky-950 tracking-tight">
-                Certificate Download Notice for Course Coordinators
+                Certificate Download Centre — Participants, Coordinators, Champions &amp; Facilities
               </h3>
 
               <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
-                Certificates for Course Coordinators, CPR Champions, and CPR Lay Rescuers are now available for download from the Certificate Centre for all courses where attendance was submitted in the prescribed Excel format.
+                Official high-resolution certificates for <strong>Participants (Lay Rescuers)</strong>, <strong>Course Coordinators</strong>, <strong>CPR Champions</strong>, and <strong>CPR Day Facilities / Venues</strong> are available for instant preview and PDF / PNG download.
               </p>
 
               <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
-                If attendance for your course was submitted as a handwritten sheet, image, or PDF, please resubmit the attendance in the prescribed Excel format to enable certificate generation.
+                If the name of any CPR Champion or CPR Instructor who actively contributed to the training is missing from the records, please submit the details through your state specific CPR WhatsApp group.
               </p>
 
               <p className="text-xs sm:text-sm leading-relaxed text-slate-700">
-                If the name of any CPR Champion or CPR Instructor who actively contributed to the training is missing from the records, please submit the details through the{" "}
+                For adding participants names, please use Excel sheets in the prescribed format. Participant details submitted as an image, PDF, or Word document cannot be processed for certification purposes.
+              </p>
+
+              <div className="pt-1">
                 <a
-                  href="https://forms.gle/4gKfBMHvyKqakxLMA"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-sky-700 underline hover:text-sky-900 transition-colors inline-flex items-baseline gap-1"
+                  href="/cprday/Participant%20attendence%20sheet.xlsx"
+                  download="Participant_Attendance_Sheet.xlsx"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow transition cursor-pointer"
                 >
-                  Supplementary Report Form
-                  <svg className="w-3.5 h-3.5 inline-block self-center text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
+                  <span>📥 Download Prescribed Participant Attendance Sheet (.xlsx)</span>
                 </a>
-                .
-              </p>
-
-              <p className="text-xs sm:text-sm font-semibold text-sky-900 pt-1 border-t border-sky-200/60">
-                Thank you for your cooperation in ensuring accurate certification records.
-              </p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Dedicated Portal Tabs: Participant vs CPR Champion vs Course Coordinator */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-2.5 p-1.5 rounded-2xl bg-slate-200/80 border border-purple-200 shadow-inner">
+        {/* Dedicated Portal Tabs / Radio Buttons: Participant vs CPR Champion vs Course Coordinator vs CPR Day Venue */}
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 p-1.5 rounded-2xl bg-slate-200/80 border border-purple-200 shadow-inner">
           <button
             type="button"
             onClick={() => handlePortalSwitch("participant")}
-            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 ${
+            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 cursor-pointer ${
               portalType === "participant"
                 ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-lg scale-[1.01]"
                 : "text-slate-700 hover:text-purple-800 hover:bg-white/50"
             }`}
           >
-            🎓 Participant Certificate Portal
+            🎓 Participant Portal
           </button>
 
           <button
             type="button"
             onClick={() => handlePortalSwitch("champion")}
-            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 ${
+            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 cursor-pointer ${
               portalType === "champion"
                 ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-lg scale-[1.01]"
                 : "text-slate-700 hover:text-purple-800 hover:bg-white/50"
             }`}
           >
-            🏆 CPR Champion Certificate Portal
+            🏆 CPR Champion Portal
           </button>
 
           <button
             type="button"
             onClick={() => handlePortalSwitch("coordinator")}
-            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 ${
+            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 cursor-pointer ${
               portalType === "coordinator"
                 ? "bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 text-white shadow-lg scale-[1.01]"
                 : "text-slate-700 hover:text-purple-800 hover:bg-white/50"
             }`}
           >
-            🎗️ Course Coordinator Certificate Portal
+            🎗️ Coordinator Portal
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handlePortalSwitch("facility")}
+            className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 cursor-pointer ${
+              portalType === "facility"
+                ? "bg-gradient-to-r from-indigo-700 via-purple-700 to-sky-700 text-white shadow-lg scale-[1.01]"
+                : "text-slate-700 hover:text-purple-800 hover:bg-white/50"
+            }`}
+          >
+            🏥 CPR Day Venue Portal
           </button>
         </div>
 
         {/* Mode Selector Tabs inside active portal */}
-        <div className="mt-6 flex rounded-2xl border border-purple-200 bg-white p-1.5 shadow-md">
+        <div className="mt-6 flex flex-col sm:flex-row rounded-2xl border border-purple-200 bg-white p-1.5 shadow-md gap-1">
           <button
             type="button"
             onClick={() => handleModeSwitch("hierarchy")}
-            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 ${
+            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
               searchMode === "hierarchy"
                 ? "bg-purple-900 text-white shadow-md"
                 : "text-slate-600 hover:text-purple-700"
             }`}
           >
-            📍 Search by Location & Venue (State → City → Venue → Name)
+            📍 Search by Location ({isFacilityPortal ? "State → City → Venue" : "State → City → Venue → Name"})
           </button>
 
           <button
             type="button"
             onClick={() => handleModeSwitch("cert_id")}
-            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 ${
+            className={`flex-1 rounded-xl py-3 px-4 text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 cursor-pointer ${
               searchMode === "cert_id"
                 ? "bg-purple-900 text-white shadow-md"
                 : "text-slate-600 hover:text-purple-700"
             }`}
           >
-            🎫 Search by Certificate ID
+            🔢 Search by {isFacilityPortal ? "Venue Code / Certificate ID" : "Certificate ID"}
           </button>
         </div>
 
-        {/* Certificate Access Form Box */}
-        <div className="mt-6 rounded-2xl sm:rounded-3xl border border-purple-200/80 bg-white p-4 sm:p-8 shadow-xl">
-          <div className="mb-4 pb-3 border-b border-purple-100 flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h3 className="text-lg font-bold text-slate-900">
-                {isChampionPortal
-                  ? "CPR Champion Certificate Access"
-                  : isCoordinatorPortal
-                  ? "Course Coordinator Certificate Access"
-                  : "Participant Certificate Access"}
-              </h3>
-            </div>
-          </div>
-
+        {/* Search Body */}
+        <div className="mt-4 rounded-2xl sm:rounded-3xl border border-purple-200/80 bg-white p-5 sm:p-8 shadow-xl">
           {searchMode === "hierarchy" ? (
             <form onSubmit={handleSearchByHierarchy} className="space-y-4">
-              <p className="text-xs text-slate-600">
-                Consecutively select State, City/District, Training Venue, and {nameLabel} to unlock your official certificate.
-              </p>
-
-              <div className="grid gap-4 sm:grid-cols-2">
+              {/* Uniform Horizontal Axis Grid for Steps 1, 2, 3, 4 */}
+              <div className={`grid grid-cols-1 sm:grid-cols-2 ${isFacilityPortal ? "md:grid-cols-3" : "md:grid-cols-4"} gap-4 items-end`}>
                 {/* Step 1: Select State */}
-                <div>
-                  <label htmlFor="select-state" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                <div className="flex flex-col justify-end">
+                  <label htmlFor="select-state" className="block text-xs font-bold uppercase tracking-wider text-slate-700 h-7 flex items-end">
                     Step 1: Select State *
                   </label>
                   <select
@@ -421,18 +533,18 @@ export default function CertificateAccessSection() {
                     required
                   >
                     <option value="">-- Choose State --</option>
-                    {statesList.map((st) => (
-                      <option key={st} value={st}>
-                        {st}
+                    {statesList.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
                       </option>
                     ))}
                   </select>
                 </div>
 
                 {/* Step 2: Select City */}
-                <div>
-                  <label htmlFor="select-city" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Step 2: Select City / District *
+                <div className="flex flex-col justify-end">
+                  <label htmlFor="select-city" className="block text-xs font-bold uppercase tracking-wider text-slate-700 h-7 flex items-end">
+                    Step 2: Select City *
                   </label>
                   <select
                     id="select-city"
@@ -443,22 +555,20 @@ export default function CertificateAccessSection() {
                     required
                   >
                     <option value="">
-                      {!selectedState ? "-- Select State First --" : "-- Choose City / District --"}
+                      {!selectedState ? "-- Select State First --" : "-- Choose City --"}
                     </option>
-                    {citiesList.map((ct) => (
-                      <option key={ct} value={ct}>
-                        {ct}
+                    {citiesList.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
                       </option>
                     ))}
                   </select>
                 </div>
-              </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
                 {/* Step 3: Select Venue */}
-                <div>
-                  <label htmlFor="select-venue" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Step 3: Select Training Venue *
+                <div className="flex flex-col justify-end">
+                  <label htmlFor="select-venue" className="block text-xs font-bold uppercase tracking-wider text-slate-700 h-7 flex items-end">
+                    Step 3: Select Venue *
                   </label>
                   <select
                     id="select-venue"
@@ -479,45 +589,51 @@ export default function CertificateAccessSection() {
                   </select>
                 </div>
 
-                {/* Step 4: Select Name */}
-                <div>
-                  <label htmlFor="select-participant" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                    Step 4: Select {nameLabel} *
-                  </label>
-                  <select
-                    id="select-participant"
-                    disabled={!selectedVenue}
-                    value={selectedParticipant}
-                    onChange={(e) => setSelectedParticipant(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-sky-200 bg-slate-50/60 px-3.5 py-3 text-sm font-semibold text-slate-900 disabled:opacity-50 disabled:bg-slate-100 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-                    required
-                  >
-                    <option value="">
-                      {!selectedVenue ? "-- Select Venue First --" : `-- Choose ${nameLabel} --`}
-                    </option>
-                    {participantsList.map((p) => (
-                      <option key={p} value={p}>
-                        {p}
+                {/* Step 4: Select Name (Only for Participants, Coordinators, Champions) */}
+                {!isFacilityPortal && (
+                  <div className="flex flex-col justify-end">
+                    <label htmlFor="select-participant" className="block text-xs font-bold uppercase tracking-wider text-slate-700 h-7 flex items-end">
+                      Step 4: Select {nameLabel} *
+                    </label>
+                    <select
+                      id="select-participant"
+                      disabled={!selectedVenue}
+                      value={selectedParticipant}
+                      onChange={(e) => setSelectedParticipant(e.target.value)}
+                      className="mt-1.5 w-full rounded-xl border border-sky-200 bg-slate-50/60 px-3.5 py-3 text-sm font-semibold text-slate-900 disabled:opacity-50 disabled:bg-slate-100 focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                      required
+                    >
+                      <option value="">
+                        {!selectedVenue ? "-- Select Venue First --" : `-- Choose ${nameLabel} --`}
                       </option>
-                    ))}
-                  </select>
-                </div>
+                      {participantsList.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={loading || !selectedParticipant}
-                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-8 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base shadow-md"
+                  disabled={loading || (isFacilityPortal ? !selectedVenue : !selectedParticipant)}
+                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-8 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base shadow-md cursor-pointer"
                 >
-                  {loading ? "Unlocking Certificate..." : "Access Certificate"}
+                  {loading
+                    ? "Unlocking Certificate..."
+                    : isFacilityPortal
+                    ? "Access CPR Day Venue Certificate"
+                    : "Access Certificate"}
                 </button>
               </div>
             </form>
           ) : (
             <div>
               <label htmlFor="certificate-id-input" className="block text-xs sm:text-sm font-semibold text-slate-700">
-                Enter Individual Certificate ID
+                {isFacilityPortal ? "Enter Venue Code or Certificate ID" : "Enter Individual Certificate ID"}
               </label>
               <form
                 onSubmit={(e) => {
@@ -530,9 +646,11 @@ export default function CertificateAccessSection() {
                   id="certificate-id-input"
                   type="text"
                   value={certId}
-                  onChange={(e) => setCertId(e.target.value.toUpperCase())}
+                  onChange={(e) => setCertId(e.target.value)}
                   placeholder={
-                    isChampionPortal
+                    isFacilityPortal
+                      ? "e.g. IAP-CPR-Day/Venue/AN-101"
+                      : isChampionPortal
                       ? "e.g. IAPCPR/CH/BR/0101"
                       : isCoordinatorPortal
                       ? "e.g. IAPCPR/CC/ML/0101"
@@ -545,7 +663,7 @@ export default function CertificateAccessSection() {
                   id="btn-access-certificate"
                   type="submit"
                   disabled={loading}
-                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
+                  className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white hover:from-sky-700 hover:to-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -563,7 +681,7 @@ export default function CertificateAccessSection() {
 
               {/* Sample IDs Quick Links */}
               <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                <span className="w-full sm:w-auto">Try Sample Certificate IDs:</span>
+                <span className="w-full sm:w-auto">Try Sample {isFacilityPortal ? "Venue Codes" : "Certificate IDs"}:</span>
                 {sampleIds.map((sample) => (
                   <button
                     key={sample}
@@ -572,7 +690,7 @@ export default function CertificateAccessSection() {
                       setCertId(sample);
                       handleSearchByCertId(sample);
                     }}
-                    className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all"
+                    className="rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-mono text-purple-700 hover:bg-purple-100 transition break-all cursor-pointer"
                   >
                     {sample}
                   </button>
@@ -613,156 +731,159 @@ export default function CertificateAccessSection() {
                     <div className="space-y-3 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-sm">
-                          Certificate ID:
+                          {cert.category === "CPR Facility / Venue" || isFacilityPortal
+                            ? "Venue Code:"
+                            : "Certificate ID:"}
                         </span>
-                        <span className="rounded-full bg-slate-900 px-3 py-1 text-xs font-mono font-bold text-white shadow-sm">
-                          {cert.certificateNumber || "Official Certificate"}
+                        <span className="font-mono text-sm sm:text-base font-black text-emerald-950">
+                          {cert.certificateNumber}
+                        </span>
+                        <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                          ✓ {cert.status || "VALID"}
                         </span>
                       </div>
 
-                      <h4 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                        {cert.participantName}
-                      </h4>
+                      <div>
+                        <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                          {cert.participantName}
+                        </h3>
+                        <p className="text-xs sm:text-sm font-semibold text-emerald-800 mt-0.5">
+                          {cert.courseTitle}
+                        </p>
+                      </div>
 
-                      <p className="text-xs sm:text-sm font-semibold text-purple-900">
-                        {cert.courseTitle}
-                      </p>
-
-                      <div className="grid gap-2 text-xs sm:text-sm text-slate-700 sm:grid-cols-2 pt-2 border-t border-emerald-200/60">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700 pt-1">
                         <div>
-                          <span className="font-semibold text-slate-500">Training Venue: </span>
-                          <span className="font-medium text-slate-900">{cert.venueName}</span>
+                          <span className="text-slate-500 font-medium">Training Venue: </span>
+                          <strong className="text-slate-900">{cert.venueName || "—"}</strong>
                         </div>
-
                         <div>
-                          <span className="font-semibold text-slate-500">Location: </span>
-                          <span className="font-medium text-slate-900">
-                            {cert.city ? `${cert.city}, ` : ""}
-                            {cert.state}
-                          </span>
+                          <span className="text-slate-500 font-medium">Location: </span>
+                          <strong className="text-slate-900">
+                            {cert.city ? `${cert.city}, ${cert.state}` : cert.state}
+                          </strong>
                         </div>
-
+                        <div>
+                          <span className="text-slate-500 font-medium">Issue Date: </span>
+                          <strong className="text-slate-900">{cert.issueDate || "21 July 2026"}</strong>
+                        </div>
                         {cert.courseCoordinator && (
                           <div>
-                            <span className="font-semibold text-slate-500">Coordinator: </span>
-                            <span className="font-medium text-slate-900">{cert.courseCoordinator}</span>
+                            <span className="text-slate-500 font-medium">Coordinator: </span>
+                            <strong className="text-slate-900">{cert.courseCoordinator}</strong>
                           </div>
                         )}
+                      </div>
+                    </div>
 
-                        <div>
-                          <span className="font-semibold text-slate-500">Issue Date: </span>
-                          <span className="font-medium text-slate-900">{cert.issueDate}</span>
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0">
+                      {cert.svg ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setActivePreviewCert(cert)}
+                            className="rounded-xl bg-purple-900 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-purple-800 transition flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            👁️ Preview
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadPdf(cert)}
+                            disabled={downloadingFormat === "pdf"}
+                            className="rounded-xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-center cursor-pointer disabled:opacity-50"
+                          >
+                            {downloadingFormat === "pdf" ? "Rendering..." : "📥 Download PDF"}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDownloadPng(cert)}
+                            disabled={downloadingFormat === "png"}
+                            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition flex items-center justify-center gap-1.5 text-center cursor-pointer disabled:opacity-50"
+                          >
+                            {downloadingFormat === "png" ? "Rendering..." : "🖼️ PNG"}
+                          </button>
+                        </>
+                      ) : cert.driveLink ? (
+                        <>
+                          <a
+                            href={cert.driveLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-center"
+                          >
+                            📥 Download Certificate
+                          </a>
+
+                          <a
+                            href={cert.previewUrl || cert.driveLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-xl border border-purple-300 bg-white px-5 py-3 text-xs sm:text-sm font-bold text-purple-900 hover:bg-purple-50 transition flex items-center justify-center gap-2 text-center"
+                          >
+                            👁️ Preview
+                          </a>
+                        </>
+                      ) : (
+                        <div className="text-xs font-semibold text-slate-500 italic">
+                          Official Certificate Verified
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Rating & Feedback Box */}
+                  <div className="mt-6 pt-5 border-t border-emerald-200/80">
+                    {ratedCerts.has(cert.certificateNumber) ? (
+                      <div className="rounded-xl bg-emerald-100/80 p-3 text-center text-xs font-bold text-emerald-800">
+                        ⭐ Thank you! Your feedback has been recorded.
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Rate your CPR Sanjeevani training experience:
+                          </span>
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => setRatingInput(star)}
+                                onMouseEnter={() => setHoverRating(star)}
+                                onMouseLeave={() => setHoverRating(0)}
+                                className="text-xl sm:text-2xl transition hover:scale-110 focus:outline-none cursor-pointer"
+                              >
+                                {star <= (hoverRating || ratingInput) ? "★" : "☆"}
+                              </button>
+                            ))}
+                            <span className="ml-2 text-xs font-bold text-slate-600">
+                              {hoverRating || ratingInput} / 5
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={feedbackText}
+                            onChange={(e) => setFeedbackText(e.target.value)}
+                            placeholder="Optional feedback (e.g. Excellent hands-on session, well organized)..."
+                            className="flex-1 rounded-xl border border-emerald-200 bg-white px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none"
+                          />
+                          <button
+                            type="button"
+                            disabled={submittingRating}
+                            onClick={() => handleRatingSubmit(cert)}
+                            className="rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50 transition cursor-pointer"
+                          >
+                            {submittingRating ? "Submitting..." : "Submit Rating"}
+                          </button>
                         </div>
                       </div>
-
-                      {/* Star Rating Prompt */}
-                      {ratedCerts.has(cert.certificateNumber) ? (
-                        <div className="mt-4 rounded-2xl bg-emerald-100/90 border border-emerald-300 p-3.5 text-center">
-                          <p className="text-xs sm:text-sm font-bold text-emerald-900 flex items-center justify-center gap-1.5">
-                            <span className="text-base">🎉</span> Thank you for rating your CPR Training! ⭐⭐⭐⭐⭐
-                          </p>
-                          <p className="mt-0.5 text-xs text-emerald-800">
-                            Your feedback helps us continuously improve emergency resuscitation training across India.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="mt-4 rounded-2xl border border-amber-200/90 bg-amber-50/80 p-4">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                            <div>
-                              <p className="text-xs sm:text-sm font-extrabold text-amber-950 flex items-center gap-1.5">
-                                <span className="text-base">⭐</span> Rate Your CPR Sanjeevani Training Experience
-                              </p>
-                              <p className="text-xs text-amber-800 mt-0.5">
-                                Please give a star rating before downloading your official certificate.
-                              </p>
-                            </div>
-
-                            {/* Interactive Stars */}
-                            <div className="flex items-center gap-1 shrink-0 bg-white px-3 py-1.5 rounded-xl border border-amber-200 shadow-sm">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                  key={star}
-                                  type="button"
-                                  onClick={() => setRatingInput(star)}
-                                  onMouseEnter={() => setHoverRating(star)}
-                                  onMouseLeave={() => setHoverRating(0)}
-                                  className="text-xl sm:text-2xl transition transform hover:scale-125 focus:outline-none"
-                                  aria-label={`Rate ${star} stars`}
-                                >
-                                  <span className={(hoverRating || ratingInput) >= star ? "text-amber-400" : "text-slate-300"}>
-                                    ★
-                                  </span>
-                                </button>
-                              ))}
-                              <span className="ml-1 text-xs font-bold text-amber-900">
-                                {hoverRating || ratingInput}/5
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Optional Feedback Input & Submit */}
-                          <div className="mt-3 flex flex-col sm:flex-row gap-2">
-                            <input
-                              type="text"
-                              value={feedbackText}
-                              onChange={(e) => setFeedbackText(e.target.value)}
-                              placeholder="Optional: Share a brief comment or feedback about your training..."
-                              className="w-full flex-1 rounded-xl border border-amber-300/80 bg-white px-3.5 py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:border-amber-500 focus:outline-none"
-                            />
-                            <button
-                              type="button"
-                              disabled={submittingRating}
-                              onClick={() => handleRatingSubmit(cert)}
-                              className="rounded-xl bg-amber-500 hover:bg-amber-600 px-5 py-2 text-xs sm:text-sm font-bold text-slate-950 transition shrink-0 shadow-sm disabled:opacity-50"
-                            >
-                              {submittingRating ? "Saving..." : "Submit Rating ⭐"}
-                            </button>
-                          </div>
-
-                          <div className="mt-2 text-right">
-                            <button
-                              type="button"
-                              onClick={() => setRatedCerts((prev) => new Set(prev).add(cert.certificateNumber))}
-                              className="text-[11px] text-amber-800/80 hover:text-amber-900 underline font-medium"
-                            >
-                              Skip rating & download directly →
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* View and Download Action Buttons */}
-                    <div className="flex flex-col sm:flex-row md:flex-col gap-3 shrink-0 justify-center">
-                      {cert.downloadUrl && (
-                        <a
-                          href={cert.downloadUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white shadow-lg hover:bg-emerald-700 transition active:scale-95 text-center"
-                        >
-                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Download Certificate
-                        </a>
-                      )}
-
-                      {cert.previewUrl && (
-                        <a
-                          href={cert.previewUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white px-6 py-3.5 text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-50 transition active:scale-95 text-center"
-                        >
-                          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                          Preview Certificate
-                        </a>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -770,6 +891,78 @@ export default function CertificateAccessSection() {
           )}
         </div>
       </div>
+
+      {/* In-Page Certificate Preview Modal - Optimized A4 Landscape Dimensions */}
+      {activePreviewCert && activePreviewCert.svg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-2 sm:p-4 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 sm:px-6 py-3.5 shrink-0">
+              <div className="flex items-center gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-black text-purple-900 uppercase tracking-wider">
+                      {activePreviewCert.category || "IAP CPR Sanjeevani"}
+                    </span>
+                    <span className="font-mono text-xs font-bold text-slate-600">
+                      {activePreviewCert.certificateNumber}
+                    </span>
+                    <span className="hidden sm:inline-block rounded-md bg-slate-200/80 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
+                      📐 A4 Landscape (297 × 210 mm)
+                    </span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 mt-1 truncate max-w-md sm:max-w-lg">
+                    {activePreviewCert.participantName}
+                  </h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActivePreviewCert(null)}
+                aria-label="Close Preview"
+                className="rounded-full p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Certificate Display Area - Fitted A4 Landscape Container */}
+            <div className="relative flex-1 overflow-hidden p-2 sm:p-5 bg-slate-900/10 flex items-center justify-center min-h-[250px] max-h-[calc(88vh-140px)]">
+              <div className="relative w-full max-w-4xl max-h-[calc(86vh-160px)] aspect-[297/210] rounded-xl bg-white shadow-2xl overflow-hidden border border-slate-300 flex items-center justify-center">
+                <div
+                  className="w-full h-full flex items-center justify-center certificate-preview-container [&_svg]:w-full [&_svg]:h-full [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:object-contain [&_svg]:block"
+                  dangerouslySetInnerHTML={{ __html: activePreviewCert.svg }}
+                />
+              </div>
+            </div>
+
+            {/* Footer Actions - PDF & PNG Only */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-4 sm:px-6 py-3.5 shrink-0">
+              <div className="text-xs text-slate-500 truncate max-w-xs sm:max-w-sm">
+                <strong>Format:</strong> High-Resolution Print Ready A4
+              </div>
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadPng(activePreviewCert)}
+                  disabled={downloadingFormat === "png"}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition disabled:opacity-50 cursor-pointer"
+                >
+                  {downloadingFormat === "png" ? "Rendering..." : "🖼️ Download PNG"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownloadPdf(activePreviewCert)}
+                  disabled={downloadingFormat === "pdf"}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-purple-900 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-purple-800 shadow-md transition disabled:opacity-50 cursor-pointer"
+                >
+                  {downloadingFormat === "pdf" ? "Rendering PDF..." : "📥 Download PDF"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

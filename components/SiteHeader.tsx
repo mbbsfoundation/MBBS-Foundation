@@ -60,36 +60,46 @@ export default function SiteHeader() {
   Book
 </a>
             <a
-  href="/cprday"
-  className={`transition ${
-    pathname === "/cprday"
-      ? "text-red-700 font-semibold"
-      : "hover:text-slate-950"
-  }`}
->
-  CPR Sanjeevani
-</a>
+              href="/cprday"
+              className={`transition ${
+                pathname === "/cprday"
+                  ? "text-red-700 font-semibold"
+                  : "hover:text-slate-950"
+              }`}
+            >
+              CPR Day
+            </a>
             <a
-  href="/resources"
-  className={`transition ${
-    pathname === "/resources"
-      ? "text-red-700 font-semibold"
-      : "hover:text-slate-950"
-  }`}
->
-  Resources
-</a>
-<a href="/blog">Blog</a>
+              href="/cprsanjeevani"
+              className={`transition ${
+                pathname?.startsWith("/cprsanjeevani")
+                  ? "text-teal-700 font-bold"
+                  : "text-slate-700 hover:text-teal-700 font-medium"
+              }`}
+            >
+              Sanjeevani Certificates
+            </a>
             <a
-  href="/contact"
-  className={`transition ${
-    pathname === "/contact"
-      ? "text-red-700 font-semibold"
-      : "hover:text-slate-950"
-  }`}
->
-  Contact
-</a>
+              href="/resources"
+              className={`transition ${
+                pathname === "/resources"
+                  ? "text-red-700 font-semibold"
+                  : "hover:text-slate-950"
+              }`}
+            >
+              Resources
+            </a>
+            <a href="/blog">Blog</a>
+            <a
+              href="/contact"
+              className={`transition ${
+                pathname === "/contact"
+                  ? "text-red-700 font-semibold"
+                  : "hover:text-slate-950"
+              }`}
+            >
+              Contact
+            </a>
             <a
               href="https://notionpress.com/in/read/mbbs-foundation"
               target="_blank"
@@ -120,7 +130,14 @@ export default function SiteHeader() {
                 Book
               </a>
               <a href="/cprday" onClick={() => setOpen(false)}>
-                CPR Sanjeevani
+                CPR Day
+              </a>
+              <a
+                href="/cprsanjeevani"
+                onClick={() => setOpen(false)}
+                className="font-bold text-teal-800"
+              >
+                Sanjeevani Certificates
               </a>
               <a href="/resources" onClick={() => setOpen(false)}>
                 Resources

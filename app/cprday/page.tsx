@@ -179,7 +179,7 @@ export default function CPRDayPage() {
             <DownloadCard
               title="Participant Attendance Sheet"
               description="Standard Excel sheet for participant details and attendance."
-              href="/cprday/participant-registration-template.xlsx"
+              href="/cprday/Participant%20attendence%20sheet.xlsx"
               type="Excel"
             />
           </div>
