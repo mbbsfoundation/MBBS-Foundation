@@ -119,9 +119,7 @@ Forever!
 
   {/* STUDENT */}
   <a
-    href="neet"
-    target="_blank"
-    rel="noopener noreferrer"
+    href="/neet-to-mbbs"
     className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
   >
     <p className="font-semibold text-lg text-slate-900 group-hover:text-blue-700">
@@ -134,9 +132,7 @@ Forever!
 
   {/* PARENT */}
   <a
-    href="neet"
-    target="_blank"
-    rel="noopener noreferrer"
+    href="/neet-to-mbbs"
     className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
   >
     <p className="font-semibold text-lg text-slate-900 group-hover:text-blue-700">
@@ -152,9 +148,7 @@ Forever!
 {/* CTA */}
 <div className="mt-10">
   <a
-    href="neet"
-    target="_blank"
-    rel="noopener noreferrer"
+    href="/neet-to-mbbs"
     className="inline-block rounded-xl bg-black px-8 py-4 text-lg text-white transition hover:bg-slate-800 hover:scale-105"
   >
     Start Your MBBS Journey →
