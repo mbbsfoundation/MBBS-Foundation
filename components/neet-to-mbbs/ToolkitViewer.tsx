@@ -5,7 +5,7 @@ import Link from "next/link";
 import { trackNeetEvent } from "@/lib/analytics";
 import InteractiveCollegeComparator from "./InteractiveCollegeComparator";
 
-type ResourceKey = "counselling" | "college-comparison" | "documents" | "first-day";
+type ResourceKey = "college-comparison" | "counselling" | "documents" | "first-day";
 
 interface ResourceMeta {
   id: ResourceKey;
@@ -19,6 +19,15 @@ interface ResourceMeta {
 
 const RESOURCES: ResourceMeta[] = [
   {
+    id: "college-comparison",
+    anchor: "college-comparison",
+    title: "Interactive Medical College Comparison",
+    shortTitle: "College Comparison Tool",
+    badge: "FEATURED TOOL",
+    description: "Compare up to three colleges using the factors that actually matter.",
+    icon: "⚖️",
+  },
+  {
     id: "counselling",
     anchor: "counselling-checklist",
     title: "NEET Counselling Checklist",
@@ -28,20 +37,11 @@ const RESOURCES: ResourceMeta[] = [
     icon: "📋",
   },
   {
-    id: "college-comparison",
-    anchor: "college-comparison",
-    title: "Medical College Comparison Worksheet",
-    shortTitle: "Comparison Worksheet",
-    badge: "Worksheet 02",
-    description: "Compare up to three colleges using the factors that actually matter.",
-    icon: "⚖️",
-  },
-  {
     id: "documents",
     anchor: "documents-checklist",
     title: "Counselling & Admission Documents Checklist",
     shortTitle: "Documents Checklist",
-    badge: "Checklist 03",
+    badge: "Checklist 02",
     description: "Prepare commonly required counselling and admission documents.",
     icon: "📑",
   },
@@ -49,29 +49,31 @@ const RESOURCES: ResourceMeta[] = [
     id: "first-day",
     anchor: "first-day-mbbs",
     title: "Before Your First Day of MBBS Checklist",
-    shortTitle: "First Day Checklist",
-    badge: "Checklist 04",
+    shortTitle: "First Day / Before MBBS Checklist",
+    badge: "Checklist 03",
     description: "Make the transition from NEET aspirant to medical student.",
     icon: "🩺",
   },
 ];
 
+const CHECKLIST_RESOURCES = RESOURCES.filter((r) => r.id !== "college-comparison");
+
 export default function ToolkitViewer() {
-  const [activeTab, setActiveTab] = useState<ResourceKey>("counselling");
+  const [activeTab, setActiveTab] = useState<ResourceKey>("college-comparison");
   const [copied, setCopied] = useState(false);
 
   // Sync with URL anchor on mount or hash change
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.replace("#", "");
-      if (hash === "college-comparison" || hash === "college-comparison-worksheet") {
-        setActiveTab("college-comparison");
+      if (hash === "counselling-checklist" || hash === "counselling") {
+        setActiveTab("counselling");
       } else if (hash === "documents-checklist" || hash === "documents") {
         setActiveTab("documents");
       } else if (hash === "first-day-mbbs" || hash === "first-day") {
         setActiveTab("first-day");
-      } else if (hash === "counselling-checklist" || hash === "counselling") {
-        setActiveTab("counselling");
+      } else if (hash === "college-comparison" || hash === "college-comparison-worksheet") {
+        setActiveTab("college-comparison");
       }
     };
 
@@ -107,67 +109,171 @@ export default function ToolkitViewer() {
     }
   };
 
+  const scrollToContent = () => {
+    if (typeof window !== "undefined") {
+      const el = document.getElementById("toolkit-content-area");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
     <div className="space-y-10 print:space-y-0">
-      {/* 4 Resource Selection Cards */}
-      <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-4 print:hidden">
-        {RESOURCES.map((res) => {
-          const isSelected = activeTab === res.id;
-          return (
-            <button
-              key={res.id}
-              type="button"
-              onClick={() => {
-                setActiveTab(res.id);
-                window.location.hash = res.anchor;
-                trackNeetEvent("neet_toolkit_use", { resource: res.id });
-              }}
-              className={`text-left rounded-2xl p-4 sm:p-5 border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-3 ${
-                isSelected
-                  ? "border-red-700 bg-red-50/70 shadow-sm ring-2 ring-red-700/20"
-                  : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs"
-              }`}
-            >
+      {/* ========================================================================= */}
+      {/* 1. HERO RESOURCE: FEATURED INTERACTIVE COLLEGE COMPARISON TOOL */}
+      {/* ========================================================================= */}
+      <div className="print:hidden space-y-8">
+        {/* Featured Hero Card */}
+        <div
+          className={`rounded-3xl border-2 p-6 sm:p-8 transition-all duration-200 shadow-sm ${
+            activeTab === "college-comparison"
+              ? "border-red-700 bg-gradient-to-br from-red-50/80 via-white to-slate-50 ring-2 ring-red-700/20"
+              : "border-slate-300 bg-white hover:border-slate-400"
+          }`}
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-3.5 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-red-700 text-white px-2.5 py-1 text-[11px] font-black uppercase tracking-wider shadow-2xs">
+                  <span>✨</span> FEATURED INTERACTIVE TOOL
+                </span>
+                <span className="text-xs font-semibold text-slate-500 hidden sm:inline">
+                  Personalized Decision Matrix
+                </span>
+              </div>
+
               <div>
-                <div className="flex items-center justify-between">
-                  <span
-                    className={`inline-block rounded-lg px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                      isSelected
-                        ? "bg-red-800 text-white"
-                        : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {res.badge}
-                  </span>
-                  <span className="text-xl" aria-hidden="true">
-                    {res.icon}
-                  </span>
-                </div>
-                <h2 className="mt-3 font-bold text-slate-900 text-sm sm:text-base leading-snug">
-                  {res.shortTitle}
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  Compare 3 Medical Colleges
                 </h2>
-                <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">
-                  {res.description}
+                <p className="text-base sm:text-lg font-bold text-red-800 mt-1">
+                  Make Your Choice With More Clarity
                 </p>
               </div>
 
-              <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs font-semibold">
-                <span className={isSelected ? "text-red-800" : "text-slate-500"}>
-                  {isSelected ? "● Active View" : "View Resource →"}
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Compare what actually matters to you and your family: <strong className="text-slate-800 font-semibold">cost • clinical exposure • bond • hostel • location • PG opportunities</strong>
+              </p>
+
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-700 pt-1">
+                <span className="flex items-center gap-1.5 text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  <span>✓</span> Set your priorities
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  <span>✓</span> Compare 3 colleges
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  <span>✓</span> Traffic-light results
+                </span>
+                <span className="flex items-center gap-1.5 text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                  <span>✓</span> One-page comparison report
                 </span>
               </div>
-            </button>
-          );
-        })}
+            </div>
+
+            <div className="flex flex-col sm:flex-row lg:flex-col items-stretch sm:items-center lg:items-end gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("college-comparison");
+                  window.location.hash = "college-comparison";
+                  trackNeetEvent("neet_toolkit_use", { resource: "college-comparison" });
+                  scrollToContent();
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-700 px-6 sm:px-8 py-4 text-base font-extrabold text-white shadow-md hover:bg-red-800 transition cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>Compare My 3 Colleges →</span>
+              </button>
+              {activeTab === "college-comparison" && (
+                <span className="text-xs font-bold text-red-800 flex items-center gap-1.5 self-center lg:self-end">
+                  <span className="h-2 w-2 rounded-full bg-red-600 animate-pulse"></span>
+                  Active Below
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 2. THREE SUPPORTING CHECKLISTS */}
+        {/* ========================================================================= */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200/80 pb-2">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                Supporting Verification Resources
+              </span>
+              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mt-0.5">
+                Free Checklists for Your MBBS Admission Journey
+              </h3>
+            </div>
+            <span className="text-xs font-semibold text-slate-500 hidden sm:inline">
+              Printable Guides
+            </span>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {CHECKLIST_RESOURCES.map((res, idx) => {
+              const isSelected = activeTab === res.id;
+              return (
+                <button
+                  key={res.id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(res.id);
+                    window.location.hash = res.anchor;
+                    trackNeetEvent("neet_toolkit_use", { resource: res.id });
+                    scrollToContent();
+                  }}
+                  className={`text-left rounded-2xl p-5 border transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-4 ${
+                    isSelected
+                      ? "border-slate-900 bg-slate-50 shadow-sm ring-2 ring-slate-900/10"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs"
+                  }`}
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`inline-block rounded-lg px-2 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                          isSelected ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        0{idx + 1} • Checklist
+                      </span>
+                      <span className="text-xl" aria-hidden="true">
+                        {res.icon}
+                      </span>
+                    </div>
+                    <h4 className="font-extrabold text-slate-900 text-base leading-snug">
+                      {res.shortTitle}
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {res.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between text-xs font-bold">
+                    <span className={isSelected ? "text-slate-900 font-extrabold" : "text-slate-500"}>
+                      {isSelected ? "● Viewing Below" : "Open Checklist →"}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
-      {/* Resource Action Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 print:hidden border-b border-slate-200 pb-4">
+      {/* ========================================================================= */}
+      {/* 3. RESOURCE ACTION TOOLBAR */}
+      {/* ========================================================================= */}
+      <div id="toolkit-content-area" className="flex flex-wrap items-center justify-between gap-3 pt-4 print:hidden border-b border-slate-200 pb-4">
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-            Current Resource:
+            Active Resource:
           </span>
-          <span className="text-sm font-bold text-slate-900">
+          <span className="text-sm font-extrabold text-slate-900">
             {RESOURCES.find((r) => r.id === activeTab)?.title}
           </span>
         </div>
@@ -207,7 +313,7 @@ export default function ToolkitViewer() {
       </div>
 
       {/* ========================================================================= */}
-      {/* PRINTABLE RESOURCE CONTAINER */}
+      {/* 4. PRINTABLE RESOURCE CONTAINER */}
       {/* ========================================================================= */}
       <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm print:border-none print:p-0 print:m-0 print:shadow-none">
         {/* Printable Header (Visible on print and screen, but hidden for college-comparison which has its own print layout) */}

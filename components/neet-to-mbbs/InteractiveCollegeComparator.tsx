@@ -583,55 +583,85 @@ export default function InteractiveCollegeComparator() {
           <div
             className="rounded-3xl border border-slate-200 bg-slate-50/70 p-6 sm:p-8 space-y-6"
           >
-            <div className="space-y-1.5">
-              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
-                Step 2 • Decision Weights
-              </span>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                First Ask: What Matters Most to You & Your Family?
-              </h3>
-              <p className="text-sm sm:text-base text-slate-700 leading-relaxed max-w-3xl">
-                Assign priority weights to each factor. The tool will use these weights to evaluate how well each college fits your family&apos;s specific criteria.
-              </p>
+            {/* Header & Compact Legend */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
+              <div className="space-y-1">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
+                  Step 2 • Decision Weights
+                </span>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                  What Matters Most to You & Your Family?
+                </h3>
+                <p className="text-sm text-slate-700 leading-relaxed max-w-2xl">
+                  Every family values different things. Tell us what matters most to yours—we&apos;ll use these priorities when comparing your three colleges.
+                </p>
+              </div>
+
+              {/* Compact Legend */}
+              <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shrink-0 shadow-2xs">
+                <span className="text-red-700 font-extrabold">3×</span> Very Important
+                <span className="text-slate-300">•</span>
+                <span className="text-amber-700 font-extrabold">2×</span> Important
+                <span className="text-slate-300">•</span>
+                <span className="text-slate-600 font-extrabold">1×</span> Less Important
+              </div>
             </div>
 
-            <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+            {/* 10 Factor Vertical Cards Grid: 5 cols on lg, 3 on md, 2 on sm, 1 on mobile */}
+            <div className="grid gap-3.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               {[
-                { key: "affordability" as const, label: "1. Affordability / True Cost", icon: "💰" },
-                { key: "clinicalExposure" as const, label: "2. Clinical Exposure & Case Variety", icon: "🩺" },
-                { key: "teachingHospital" as const, label: "3. Teaching Hospital Patient Load", icon: "🏥" },
-                { key: "academicEcosystem" as const, label: "4. Academic Ecosystem & Faculty", icon: "🏛️" },
-                { key: "bondObligation" as const, label: "5. Rural Service Bond / Penalty", icon: "📜" },
-                { key: "hostelCampus" as const, label: "6. Hostel, Campus & Mess", icon: "🏢" },
-                { key: "locationConnectivity" as const, label: "7. Location & Transport Ease", icon: "🚆" },
-                { key: "distanceFromHome" as const, label: "8. Distance from Home", icon: "📍" },
-                { key: "pgOpportunities" as const, label: "9. Internal PG Quota / Future Scope", icon: "🎓" },
-                { key: "personalPreference" as const, label: "10. Personal Preference / Intuition", icon: "⭐" },
-              ].map(({ key, label, icon }) => (
+                { key: "affordability" as const, num: "01", icon: "💰", title: "Affordability & True Cost" },
+                { key: "clinicalExposure" as const, num: "02", icon: "🩺", title: "Clinical Exposure & Case Variety" },
+                { key: "teachingHospital" as const, num: "03", icon: "🏥", title: "Teaching Hospital & Patient Load" },
+                { key: "academicEcosystem" as const, num: "04", icon: "🏛️", title: "Academic Ecosystem & Faculty" },
+                { key: "bondObligation" as const, num: "05", icon: "📜", title: "Service Bond & Penalty" },
+                { key: "hostelCampus" as const, num: "06", icon: "🏢", title: "Hostel, Campus & Mess" },
+                { key: "locationConnectivity" as const, num: "07", icon: "🚆", title: "Location & Transport" },
+                { key: "distanceFromHome" as const, num: "08", icon: "📍", title: "Distance From Home" },
+                { key: "pgOpportunities" as const, num: "09", icon: "🎓", title: "PG Opportunities & Scope" },
+                { key: "personalPreference" as const, num: "10", icon: "⭐", title: "Personal Preference" },
+              ].map(({ key, num, icon, title }) => (
                 <div
                   key={key}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-3 shadow-2xs"
+                  className="rounded-2xl border border-slate-200/90 bg-white p-4 flex flex-col justify-between space-y-3.5 hover:border-slate-300 transition shadow-2xs"
                 >
-                  <div className="space-y-0.5">
-                    <span className="text-sm sm:text-[15px] font-bold text-slate-900 flex items-center gap-1.5">
-                      <span>{icon}</span> {label}
+                  {/* Top: Number & Icon */}
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-black text-slate-400">
+                      {num}
+                    </span>
+                    <span className="text-xl" aria-hidden="true">
+                      {icon}
                     </span>
                   </div>
 
-                  <select
-                    value={priorities[key]}
-                    onChange={(e) =>
-                      setPriorities((prev) => ({
-                        ...prev,
-                        [key]: e.target.value as PriorityWeight,
-                      }))
-                    }
-                    className="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:border-red-700"
-                  >
-                    <option value="3">Very Important (3x)</option>
-                    <option value="2">Important (2x)</option>
-                    <option value="1">Less Important (1x)</option>
-                  </select>
+                  {/* Title Above Dropdown */}
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                      {title}
+                    </h4>
+                    <p className="text-[11px] font-medium text-slate-500">
+                      How important is this?
+                    </p>
+                  </div>
+
+                  {/* Dropdown Below Title */}
+                  <div className="pt-1">
+                    <select
+                      value={priorities[key]}
+                      onChange={(e) =>
+                        setPriorities((prev) => ({
+                          ...prev,
+                          [key]: e.target.value as PriorityWeight,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs sm:text-sm font-bold text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none cursor-pointer transition shadow-2xs"
+                    >
+                      <option value="3">Very Important (3×)</option>
+                      <option value="2">Important (2×)</option>
+                      <option value="1">Less Important (1×)</option>
+                    </select>
+                  </div>
                 </div>
               ))}
             </div>

@@ -117,7 +117,7 @@ export default function NeetToolkitPage() {
       {/* ========================================================================= */}
       {/* 1. HEADER & BREADCRUMB */}
       {/* ========================================================================= */}
-      <section className="border-b border-slate-100 bg-gradient-to-b from-slate-50/80 via-white to-white px-4 pt-8 pb-12 sm:px-6 sm:pt-12 sm:pb-16 print:hidden">
+      <section className="border-b border-slate-100 bg-gradient-to-b from-slate-50/80 via-white to-white px-4 pt-5 pb-7 sm:px-6 sm:pt-7 sm:pb-9 print:hidden">
         <div className="mx-auto max-w-5xl">
           {/* Breadcrumb Navigation */}
           <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500">
@@ -132,8 +132,8 @@ export default function NeetToolkitPage() {
           </nav>
 
           {/* Eyebrow */}
-          <div className="mt-6 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-800">
+          <div className="mt-4 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-3 py-0.5 text-xs font-bold uppercase tracking-widest text-red-800">
               <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
               Decision & Preparation Toolkit
             </span>
@@ -143,17 +143,17 @@ export default function NeetToolkitPage() {
           </div>
 
           {/* Heading */}
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl leading-tight">
+          <h1 className="mt-3 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl md:text-4xl leading-tight">
             NEET to MBBS Toolkit
           </h1>
 
           {/* Subheading */}
-          <p className="mt-4 max-w-3xl text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed font-normal">
+          <p className="mt-2.5 max-w-3xl text-sm sm:text-base md:text-lg text-slate-600 leading-relaxed font-normal">
             Practical checklists and worksheets to help you move from counselling and college selection to medical college with fewer last-minute surprises.
           </p>
 
           {/* Quick Sub-Navigation Bar */}
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600">
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600">
             <span className="text-slate-400">Related Guides:</span>
             <Link
               href="/neet-to-mbbs/counselling"
@@ -174,7 +174,7 @@ export default function NeetToolkitPage() {
       {/* ========================================================================= */}
       {/* 2. TOOLKIT VIEWER INTERACTIVE & PRINTABLE COMPONENT */}
       {/* ========================================================================= */}
-      <section className="py-10 sm:py-14 px-4 sm:px-6 bg-slate-50/40 print:bg-white print:p-0 print:m-0">
+      <section className="py-6 sm:py-9 px-4 sm:px-6 bg-slate-50/40 print:bg-white print:p-0 print:m-0">
         <div className="mx-auto max-w-5xl print:max-w-none print:m-0 print:p-0">
           <ToolkitViewer />
         </div>
