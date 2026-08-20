@@ -120,6 +120,340 @@ const DEFAULT_PRIORITIES: PrioritySettings = {
   personalPreference: "3",
 };
 
+interface CityStateLocation {
+  city: string;
+  state: string;
+}
+
+// Major Indian Medical College Cities & States (Current official state names only: Uttarakhand, Odisha, etc.)
+const INDIAN_MEDICAL_CITIES: CityStateLocation[] = [
+  // Delhi NCR
+  { city: "New Delhi", state: "Delhi" },
+  { city: "Delhi", state: "Delhi" },
+  { city: "Noida", state: "Uttar Pradesh" },
+  { city: "Greater Noida", state: "Uttar Pradesh" },
+  { city: "Ghaziabad", state: "Uttar Pradesh" },
+  { city: "Gurugram", state: "Haryana" },
+  { city: "Faridabad", state: "Haryana" },
+
+  // Maharashtra
+  { city: "Mumbai", state: "Maharashtra" },
+  { city: "Pune", state: "Maharashtra" },
+  { city: "Nagpur", state: "Maharashtra" },
+  { city: "Nashik", state: "Maharashtra" },
+  { city: "Aurangabad (Chhatrapati Sambhajinagar)", state: "Maharashtra" },
+  { city: "Solapur", state: "Maharashtra" },
+  { city: "Kolhapur", state: "Maharashtra" },
+  { city: "Navi Mumbai", state: "Maharashtra" },
+  { city: "Thane", state: "Maharashtra" },
+  { city: "Nanded", state: "Maharashtra" },
+  { city: "Miraj", state: "Maharashtra" },
+  { city: "Latur", state: "Maharashtra" },
+  { city: "Dhule", state: "Maharashtra" },
+  { city: "Amravati", state: "Maharashtra" },
+  { city: "Akola", state: "Maharashtra" },
+  { city: "Wardha", state: "Maharashtra" },
+  { city: "Jalgaon", state: "Maharashtra" },
+  { city: "Karad", state: "Maharashtra" },
+
+  // Karnataka
+  { city: "Bengaluru", state: "Karnataka" },
+  { city: "Mysuru", state: "Karnataka" },
+  { city: "Mangaluru", state: "Karnataka" },
+  { city: "Belagavi", state: "Karnataka" },
+  { city: "Hubballi", state: "Karnataka" },
+  { city: "Dharwad", state: "Karnataka" },
+  { city: "Kalaburagi", state: "Karnataka" },
+  { city: "Davangere", state: "Karnataka" },
+  { city: "Shivamogga", state: "Karnataka" },
+  { city: "Ballari", state: "Karnataka" },
+  { city: "Manipal", state: "Karnataka" },
+  { city: "Kolar", state: "Karnataka" },
+  { city: "Tumakuru", state: "Karnataka" },
+
+  // Tamil Nadu
+  { city: "Chennai", state: "Tamil Nadu" },
+  { city: "Coimbatore", state: "Tamil Nadu" },
+  { city: "Madurai", state: "Tamil Nadu" },
+  { city: "Tiruchirappalli", state: "Tamil Nadu" },
+  { city: "Salem", state: "Tamil Nadu" },
+  { city: "Vellore", state: "Tamil Nadu" },
+  { city: "Tirunelveli", state: "Tamil Nadu" },
+  { city: "Thanjavur", state: "Tamil Nadu" },
+  { city: "Chengalpattu", state: "Tamil Nadu" },
+  { city: "Kanchipuram", state: "Tamil Nadu" },
+  { city: "Erode", state: "Tamil Nadu" },
+
+  // Uttar Pradesh
+  { city: "Lucknow", state: "Uttar Pradesh" },
+  { city: "Kanpur", state: "Uttar Pradesh" },
+  { city: "Varanasi", state: "Uttar Pradesh" },
+  { city: "Agra", state: "Uttar Pradesh" },
+  { city: "Prayagraj", state: "Uttar Pradesh" },
+  { city: "Gorakhpur", state: "Uttar Pradesh" },
+  { city: "Meerut", state: "Uttar Pradesh" },
+  { city: "Bareilly", state: "Uttar Pradesh" },
+  { city: "Aligarh", state: "Uttar Pradesh" },
+  { city: "Jhansi", state: "Uttar Pradesh" },
+  { city: "Ayodhya", state: "Uttar Pradesh" },
+  { city: "Saifai", state: "Uttar Pradesh" },
+  { city: "Banda", state: "Uttar Pradesh" },
+  { city: "Saharanpur", state: "Uttar Pradesh" },
+  { city: "Muzaffarnagar", state: "Uttar Pradesh" },
+
+  // Uttarakhand (Official Name: Uttarakhand, NOT Uttaranchal)
+  { city: "Rishikesh", state: "Uttarakhand" },
+  { city: "Dehradun", state: "Uttarakhand" },
+  { city: "Haldwani", state: "Uttarakhand" },
+  { city: "Srinagar (Garhwal)", state: "Uttarakhand" },
+  { city: "Almora", state: "Uttarakhand" },
+
+  // Rajasthan
+  { city: "Jaipur", state: "Rajasthan" },
+  { city: "Jodhpur", state: "Rajasthan" },
+  { city: "Udaipur", state: "Rajasthan" },
+  { city: "Kota", state: "Rajasthan" },
+  { city: "Bikaner", state: "Rajasthan" },
+  { city: "Ajmer", state: "Rajasthan" },
+  { city: "Alwar", state: "Rajasthan" },
+  { city: "Bharatpur", state: "Rajasthan" },
+  { city: "Bhilwara", state: "Rajasthan" },
+  { city: "Pali", state: "Rajasthan" },
+  { city: "Sikar", state: "Rajasthan" },
+  { city: "Barmer", state: "Rajasthan" },
+
+  // Gujarat
+  { city: "Ahmedabad", state: "Gujarat" },
+  { city: "Vadodara", state: "Gujarat" },
+  { city: "Surat", state: "Gujarat" },
+  { city: "Rajkot", state: "Gujarat" },
+  { city: "Bhavnagar", state: "Gujarat" },
+  { city: "Jamnagar", state: "Gujarat" },
+  { city: "Gandhinagar", state: "Gujarat" },
+  { city: "Bhuj", state: "Gujarat" },
+  { city: "Himmatnagar", state: "Gujarat" },
+  { city: "Morbi", state: "Gujarat" },
+
+  // West Bengal
+  { city: "Kolkata", state: "West Bengal" },
+  { city: "Siliguri", state: "West Bengal" },
+  { city: "Kalyani", state: "West Bengal" },
+  { city: "Burdwan (Bardhaman)", state: "West Bengal" },
+  { city: "Bankura", state: "West Bengal" },
+  { city: "Midnapore (Medinipur)", state: "West Bengal" },
+  { city: "Malda", state: "West Bengal" },
+  { city: "Murshidabad", state: "West Bengal" },
+  { city: "Cooch Behar", state: "West Bengal" },
+
+  // Kerala
+  { city: "Thiruvananthapuram", state: "Kerala" },
+  { city: "Kochi", state: "Kerala" },
+  { city: "Kozhikode", state: "Kerala" },
+  { city: "Thrissur", state: "Kerala" },
+  { city: "Kottayam", state: "Kerala" },
+  { city: "Alappuzha", state: "Kerala" },
+  { city: "Kannur", state: "Kerala" },
+  { city: "Manjeri", state: "Kerala" },
+  { city: "Kollam", state: "Kerala" },
+  { city: "Palakkad", state: "Kerala" },
+
+  // Telangana
+  { city: "Hyderabad", state: "Telangana" },
+  { city: "Warangal", state: "Telangana" },
+  { city: "Nizamabad", state: "Telangana" },
+  { city: "Karimnagar", state: "Telangana" },
+  { city: "Khammam", state: "Telangana" },
+  { city: "Mahabubnagar", state: "Telangana" },
+  { city: "Bibinagar", state: "Telangana" },
+
+  // Andhra Pradesh
+  { city: "Visakhapatnam", state: "Andhra Pradesh" },
+  { city: "Vijayawada", state: "Andhra Pradesh" },
+  { city: "Guntur", state: "Andhra Pradesh" },
+  { city: "Tirupati", state: "Andhra Pradesh" },
+  { city: "Kurnool", state: "Andhra Pradesh" },
+  { city: "Kakinada", state: "Andhra Pradesh" },
+  { city: "Nellore", state: "Andhra Pradesh" },
+  { city: "Kadapa", state: "Andhra Pradesh" },
+  { city: "Anantapur", state: "Andhra Pradesh" },
+  { city: "Mangalagiri", state: "Andhra Pradesh" },
+
+  // Madhya Pradesh
+  { city: "Bhopal", state: "Madhya Pradesh" },
+  { city: "Indore", state: "Madhya Pradesh" },
+  { city: "Gwalior", state: "Madhya Pradesh" },
+  { city: "Jabalpur", state: "Madhya Pradesh" },
+  { city: "Rewa", state: "Madhya Pradesh" },
+  { city: "Sagar", state: "Madhya Pradesh" },
+  { city: "Ujjain", state: "Madhya Pradesh" },
+  { city: "Ratlam", state: "Madhya Pradesh" },
+  { city: "Vidisha", state: "Madhya Pradesh" },
+  { city: "Khandwa", state: "Madhya Pradesh" },
+  { city: "Shivpuri", state: "Madhya Pradesh" },
+
+  // Bihar
+  { city: "Patna", state: "Bihar" },
+  { city: "Gaya", state: "Bihar" },
+  { city: "Muzaffarpur", state: "Bihar" },
+  { city: "Darbhanga", state: "Bihar" },
+  { city: "Bhagalpur", state: "Bihar" },
+  { city: "Pawapuri (Nalanda)", state: "Bihar" },
+  { city: "Bettiah", state: "Bihar" },
+  { city: "Madhepura", state: "Bihar" },
+
+  // Odisha (Official Name: Odisha, NOT Orissa)
+  { city: "Bhubaneswar", state: "Odisha" },
+  { city: "Cuttack", state: "Odisha" },
+  { city: "Berhampur", state: "Odisha" },
+  { city: "Burla (Sambalpur)", state: "Odisha" },
+  { city: "Rourkela", state: "Odisha" },
+  { city: "Balasore", state: "Odisha" },
+  { city: "Baripada", state: "Odisha" },
+  { city: "Koraput", state: "Odisha" },
+  { city: "Balangir", state: "Odisha" },
+  { city: "Puri", state: "Odisha" },
+
+  // Punjab, Haryana & Chandigarh
+  { city: "Chandigarh", state: "Chandigarh" },
+  { city: "Amritsar", state: "Punjab" },
+  { city: "Ludhiana", state: "Punjab" },
+  { city: "Patiala", state: "Punjab" },
+  { city: "Bathinda", state: "Punjab" },
+  { city: "Jalandhar", state: "Punjab" },
+  { city: "Faridkot", state: "Punjab" },
+  { city: "Rohtak", state: "Haryana" },
+  { city: "Karnal", state: "Haryana" },
+  { city: "Sonipat", state: "Haryana" },
+  { city: "Agroha", state: "Haryana" },
+  { city: "Mewat (Nuh)", state: "Haryana" },
+
+  // Jammu & Kashmir and Ladakh
+  { city: "Srinagar", state: "Jammu and Kashmir" },
+  { city: "Jammu", state: "Jammu and Kashmir" },
+  { city: "Anantnag", state: "Jammu and Kashmir" },
+  { city: "Baramulla", state: "Jammu and Kashmir" },
+  { city: "Kathua", state: "Jammu and Kashmir" },
+  { city: "Rajouri", state: "Jammu and Kashmir" },
+  { city: "Doda", state: "Jammu and Kashmir" },
+
+  // Himachal Pradesh
+  { city: "Shimla", state: "Himachal Pradesh" },
+  { city: "Tanda (Kangra)", state: "Himachal Pradesh" },
+  { city: "Bilaspur", state: "Himachal Pradesh" },
+  { city: "Mandi (Nerchowk)", state: "Himachal Pradesh" },
+  { city: "Nahan (Sirmour)", state: "Himachal Pradesh" },
+  { city: "Chamba", state: "Himachal Pradesh" },
+  { city: "Hamirpur", state: "Himachal Pradesh" },
+
+  // Chhattisgarh & Jharkhand
+  { city: "Raipur", state: "Chhattisgarh" },
+  { city: "Bilaspur", state: "Chhattisgarh" },
+  { city: "Jagdalpur", state: "Chhattisgarh" },
+  { city: "Rajnandgaon", state: "Chhattisgarh" },
+  { city: "Ambikapur", state: "Chhattisgarh" },
+  { city: "Ranchi", state: "Jharkhand" },
+  { city: "Jamshedpur", state: "Jharkhand" },
+  { city: "Dhanbad", state: "Jharkhand" },
+  { city: "Deoghar", state: "Jharkhand" },
+  { city: "Dumka", state: "Jharkhand" },
+  { city: "Hazaribagh", state: "Jharkhand" },
+  { city: "Palamu", state: "Jharkhand" },
+
+  // Assam & North East
+  { city: "Guwahati", state: "Assam" },
+  { city: "Dibrugarh", state: "Assam" },
+  { city: "Silchar", state: "Assam" },
+  { city: "Jorhat", state: "Assam" },
+  { city: "Tezpur", state: "Assam" },
+  { city: "Barpeta", state: "Assam" },
+  { city: "Diphu", state: "Assam" },
+  { city: "Shillong", state: "Meghalaya" },
+  { city: "Imphal", state: "Manipur" },
+  { city: "Agartala", state: "Tripura" },
+  { city: "Aizawl", state: "Mizoram" },
+  { city: "Kohima", state: "Nagaland" },
+  { city: "Gangtok", state: "Sikkim" },
+  { city: "Naharlagun", state: "Arunachal Pradesh" },
+
+  // Goa & Puducherry
+  { city: "Bambolim (Panaji)", state: "Goa" },
+  { city: "Puducherry", state: "Puducherry" },
+  { city: "Karaikal", state: "Puducherry" },
+];
+
+const DECISION_FACTORS = [
+  {
+    key: "affordability" as const,
+    num: "01",
+    icon: "💰",
+    title: "Affordability & True Cost",
+    tint: "bg-amber-50/70 border-amber-200/90 hover:border-amber-300",
+  },
+  {
+    key: "clinicalExposure" as const,
+    num: "02",
+    icon: "🩺",
+    title: "Clinical Exposure & Variety",
+    tint: "bg-emerald-50/70 border-emerald-200/90 hover:border-emerald-300",
+  },
+  {
+    key: "teachingHospital" as const,
+    num: "03",
+    icon: "🏥",
+    title: "Teaching Hospital Patient Load",
+    tint: "bg-blue-50/70 border-blue-200/90 hover:border-blue-300",
+  },
+  {
+    key: "academicEcosystem" as const,
+    num: "04",
+    icon: "🏛️",
+    title: "Academic Ecosystem & Faculty",
+    tint: "bg-indigo-50/70 border-indigo-200/90 hover:border-indigo-300",
+  },
+  {
+    key: "bondObligation" as const,
+    num: "05",
+    icon: "📜",
+    title: "Service Bond & Penalty",
+    tint: "bg-rose-50/70 border-rose-200/90 hover:border-rose-300",
+  },
+  {
+    key: "hostelCampus" as const,
+    num: "06",
+    icon: "🏢",
+    title: "Hostel, Campus & Mess",
+    tint: "bg-orange-50/70 border-orange-200/90 hover:border-orange-300",
+  },
+  {
+    key: "locationConnectivity" as const,
+    num: "07",
+    icon: "🚆",
+    title: "Location & Transport",
+    tint: "bg-teal-50/70 border-teal-200/90 hover:border-teal-300",
+  },
+  {
+    key: "distanceFromHome" as const,
+    num: "08",
+    icon: "📍",
+    title: "Distance From Home",
+    tint: "bg-violet-50/70 border-violet-200/90 hover:border-violet-300",
+  },
+  {
+    key: "pgOpportunities" as const,
+    num: "09",
+    icon: "🎓",
+    title: "PG Opportunities & Scope",
+    tint: "bg-sky-50/70 border-sky-200/90 hover:border-sky-300",
+  },
+  {
+    key: "personalPreference" as const,
+    num: "10",
+    icon: "⭐",
+    title: "Personal Preference",
+    tint: "bg-pink-50/70 border-pink-200/90 hover:border-pink-300",
+  },
+];
+
 export type TrafficStatus = "green" | "yellow" | "red" | "neutral";
 
 export default function InteractiveCollegeComparator() {
@@ -128,6 +462,9 @@ export default function InteractiveCollegeComparator() {
   const [idType, setIdType] = useState<"mobile" | "dob" | "none">("none");
   const [idValue, setIdValue] = useState("");
   const [neetRank, setNeetRank] = useState("");
+
+  // City Autocomplete Focus State
+  const [activeCityIndex, setActiveCityIndex] = useState<number | null>(null);
 
   // Priority weights state
   const [priorities, setPriorities] = useState<PrioritySettings>(DEFAULT_PRIORITIES);
@@ -581,24 +918,24 @@ export default function InteractiveCollegeComparator() {
 
           {/* 2. PRIORITY WEIGHTS: WHAT MATTERS TO YOU? */}
           <div
-            className="rounded-3xl border border-slate-200 bg-slate-50/70 p-6 sm:p-8 space-y-6"
+            className="rounded-3xl border border-slate-200 bg-slate-50/70 p-5 sm:p-6 space-y-4"
           >
             {/* Header & Compact Legend */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-              <div className="space-y-1">
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-3.5">
+              <div className="space-y-0.5">
+                <span className="text-xs font-bold uppercase tracking-wider text-red-700">
                   Step 2 • Decision Weights
                 </span>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
                   What Matters Most to You & Your Family?
                 </h3>
-                <p className="text-sm text-slate-700 leading-relaxed max-w-2xl">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
                   Every family values different things. Tell us what matters most to yours—we&apos;ll use these priorities when comparing your three colleges.
                 </p>
               </div>
 
               {/* Compact Legend */}
-              <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shrink-0 shadow-2xs">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shrink-0 shadow-2xs">
                 <span className="text-red-700 font-extrabold">3×</span> Very Important
                 <span className="text-slate-300">•</span>
                 <span className="text-amber-700 font-extrabold">2×</span> Important
@@ -608,45 +945,29 @@ export default function InteractiveCollegeComparator() {
             </div>
 
             {/* 10 Factor Vertical Cards Grid: 5 cols on lg, 3 on md, 2 on sm, 1 on mobile */}
-            <div className="grid gap-3.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-              {[
-                { key: "affordability" as const, num: "01", icon: "💰", title: "Affordability & True Cost" },
-                { key: "clinicalExposure" as const, num: "02", icon: "🩺", title: "Clinical Exposure & Case Variety" },
-                { key: "teachingHospital" as const, num: "03", icon: "🏥", title: "Teaching Hospital & Patient Load" },
-                { key: "academicEcosystem" as const, num: "04", icon: "🏛️", title: "Academic Ecosystem & Faculty" },
-                { key: "bondObligation" as const, num: "05", icon: "📜", title: "Service Bond & Penalty" },
-                { key: "hostelCampus" as const, num: "06", icon: "🏢", title: "Hostel, Campus & Mess" },
-                { key: "locationConnectivity" as const, num: "07", icon: "🚆", title: "Location & Transport" },
-                { key: "distanceFromHome" as const, num: "08", icon: "📍", title: "Distance From Home" },
-                { key: "pgOpportunities" as const, num: "09", icon: "🎓", title: "PG Opportunities & Scope" },
-                { key: "personalPreference" as const, num: "10", icon: "⭐", title: "Personal Preference" },
-              ].map(({ key, num, icon, title }) => (
+            <div className="grid gap-2.5 sm:gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+              {DECISION_FACTORS.map(({ key, num, icon, title, tint }) => (
                 <div
                   key={key}
-                  className="rounded-2xl border border-slate-200/90 bg-white p-4 flex flex-col justify-between space-y-3.5 hover:border-slate-300 transition shadow-2xs"
+                  className={`rounded-2xl border p-3 flex flex-col justify-between space-y-2 transition shadow-2xs ${tint}`}
                 >
                   {/* Top: Number & Icon */}
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-black text-slate-400">
+                    <span className="font-mono text-xs font-black text-slate-500">
                       {num}
                     </span>
-                    <span className="text-xl" aria-hidden="true">
+                    <span className="text-lg" aria-hidden="true">
                       {icon}
                     </span>
                   </div>
 
                   {/* Title Above Dropdown */}
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-bold text-slate-900 leading-snug">
-                      {title}
-                    </h4>
-                    <p className="text-[11px] font-medium text-slate-500">
-                      How important is this?
-                    </p>
-                  </div>
+                  <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 leading-snug min-h-[34px] flex items-center">
+                    {title}
+                  </h4>
 
                   {/* Dropdown Below Title */}
-                  <div className="pt-1">
+                  <div className="pt-0.5">
                     <select
                       value={priorities[key]}
                       onChange={(e) =>
@@ -655,7 +976,7 @@ export default function InteractiveCollegeComparator() {
                           [key]: e.target.value as PriorityWeight,
                         }))
                       }
-                      className="w-full rounded-xl border border-slate-300 bg-slate-50 px-2.5 py-2 text-xs sm:text-sm font-bold text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none cursor-pointer transition shadow-2xs"
+                      className="w-full rounded-xl border border-slate-300/90 bg-white/95 px-2 py-1.5 text-xs sm:text-[13px] font-bold text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none cursor-pointer transition shadow-2xs"
                     >
                       <option value="3">Very Important (3×)</option>
                       <option value="2">Important (2×)</option>
@@ -666,7 +987,7 @@ export default function InteractiveCollegeComparator() {
               ))}
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-500 italic">
+            <p className="text-xs text-slate-500 italic">
               Note: Decision weights define what matters to you. This is a personalized decision-aid, not an automated AI recommendation.
             </p>
           </div>
@@ -746,15 +1067,73 @@ export default function InteractiveCollegeComparator() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2.5">
-                        <div>
+                        <div className="relative">
                           <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">City</label>
                           <input
                             type="text"
                             placeholder={placeholder.city}
                             value={college.city}
-                            onChange={(e) => updateCollege(idx, { city: e.target.value })}
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900"
+                            onFocus={() => setActiveCityIndex(idx)}
+                            onBlur={() => setTimeout(() => setActiveCityIndex(null), 250)}
+                            onChange={(e) => {
+                              updateCollege(idx, { city: e.target.value });
+                              setActiveCityIndex(idx);
+                            }}
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
+                            autoComplete="off"
                           />
+
+                          {/* Independent City Autocomplete Suggestions */}
+                          {activeCityIndex === idx && (() => {
+                            const query = college.city.trim().toLowerCase();
+                            if (query.length === 0) return null;
+
+                            let matches = INDIAN_MEDICAL_CITIES.filter((item) =>
+                              item.city.toLowerCase().includes(query) || item.state.toLowerCase().includes(query)
+                            );
+
+                            if (college.state.trim()) {
+                              const stateQuery = college.state.trim().toLowerCase();
+                              matches.sort((a, b) => {
+                                const aMatch = a.state.toLowerCase().includes(stateQuery) ? 1 : 0;
+                                const bMatch = b.state.toLowerCase().includes(stateQuery) ? 1 : 0;
+                                return bMatch - aMatch;
+                              });
+                            }
+
+                            const uniqueMatches: CityStateLocation[] = [];
+                            const seen = new Set<string>();
+                            for (const m of matches) {
+                              const key = `${m.city}|${m.state}`;
+                              if (!seen.has(key)) {
+                                seen.add(key);
+                                uniqueMatches.push(m);
+                              }
+                              if (uniqueMatches.length >= 7) break;
+                            }
+
+                            if (uniqueMatches.length === 0) return null;
+
+                            return (
+                              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg divide-y divide-slate-100">
+                                {uniqueMatches.map((item, mIdx) => (
+                                  <button
+                                    key={mIdx}
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      updateCollege(idx, { city: item.city, state: item.state });
+                                      setActiveCityIndex(null);
+                                    }}
+                                    className="w-full text-left rounded-lg px-2.5 py-1.5 text-xs hover:bg-red-50 hover:text-red-900 transition flex items-center justify-between cursor-pointer"
+                                  >
+                                    <span className="font-bold text-slate-800">{item.city}</span>
+                                    <span className="text-[11px] text-slate-500 font-medium">{item.state}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            );
+                          })()}
                         </div>
                         <div>
                           <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">State</label>
@@ -763,7 +1142,7 @@ export default function InteractiveCollegeComparator() {
                             placeholder={placeholder.state}
                             value={college.state}
                             onChange={(e) => updateCollege(idx, { state: e.target.value })}
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900"
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
                           />
                         </div>
                       </div>
@@ -959,9 +1338,11 @@ export default function InteractiveCollegeComparator() {
 
                       {/* G. Personal Preference (1-5 Rating) */}
                       <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900 text-sm sm:text-[15px]">⭐ 7. Personal Preference</span>
-                          <span className="font-extrabold text-sm text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-bold text-slate-900 text-sm sm:text-[15px] whitespace-nowrap">
+                            ⭐ 7. Personal Preference
+                          </span>
+                          <span className="inline-flex items-center justify-center min-w-[72px] px-3.5 py-1 text-sm font-extrabold text-red-700 bg-red-50 rounded-lg border border-red-200 whitespace-nowrap shrink-0 shadow-2xs">
                             {college.personalPreferenceRating} / 5
                           </span>
                         </div>
