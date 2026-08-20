@@ -454,6 +454,46 @@ const DECISION_FACTORS = [
   },
 ];
 
+// Official Indian States & UTs (Current official administrative names only)
+const INDIAN_STATES: string[] = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
 export type TrafficStatus = "green" | "yellow" | "red" | "neutral";
 
 export default function InteractiveCollegeComparator() {
@@ -463,8 +503,9 @@ export default function InteractiveCollegeComparator() {
   const [idValue, setIdValue] = useState("");
   const [neetRank, setNeetRank] = useState("");
 
-  // City Autocomplete Focus State
+  // City & State Autocomplete Focus State (Independent for Choice 1, 2, 3)
   const [activeCityIndex, setActiveCityIndex] = useState<number | null>(null);
+  const [activeStateIndex, setActiveStateIndex] = useState<number | null>(null);
 
   // Priority weights state
   const [priorities, setPriorities] = useState<PrioritySettings>(DEFAULT_PRIORITIES);
@@ -1054,26 +1095,46 @@ export default function InteractiveCollegeComparator() {
                     {/* Basic Details */}
                     <div className="space-y-3.5">
                       <div>
-                        <label className="block text-xs sm:text-sm font-bold text-slate-800 mb-1">
+                        <label
+                          htmlFor={`college_${idx + 1}_name_field`}
+                          className="block text-xs sm:text-sm font-bold text-slate-800 mb-1"
+                        >
                           Medical College Name
                         </label>
                         <input
                           type="text"
+                          id={`college_${idx + 1}_name_field`}
+                          name={`college_${idx + 1}_name_field`}
                           placeholder={placeholder.name}
                           value={college.name}
                           onChange={(e) => updateCollege(idx, { name: e.target.value })}
                           className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
+                          autoComplete="off"
+                          data-lpignore="true"
+                          data-form-type="other"
+                          spellCheck={false}
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-2.5">
+                        {/* Independent City Autocomplete */}
                         <div className="relative">
-                          <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">City</label>
+                          <label
+                            htmlFor={`college_${idx + 1}_city_field`}
+                            className="block text-xs sm:text-sm font-bold text-slate-700 mb-1"
+                          >
+                            City
+                          </label>
                           <input
                             type="text"
+                            id={`college_${idx + 1}_city_field`}
+                            name={`college_${idx + 1}_city_field`}
                             placeholder={placeholder.city}
                             value={college.city}
-                            onFocus={() => setActiveCityIndex(idx)}
+                            onFocus={() => {
+                              setActiveCityIndex(idx);
+                              setActiveStateIndex(null);
+                            }}
                             onBlur={() => setTimeout(() => setActiveCityIndex(null), 250)}
                             onChange={(e) => {
                               updateCollege(idx, { city: e.target.value });
@@ -1081,9 +1142,12 @@ export default function InteractiveCollegeComparator() {
                             }}
                             className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
                             autoComplete="off"
+                            data-lpignore="true"
+                            data-form-type="other"
+                            spellCheck={false}
                           />
 
-                          {/* Independent City Autocomplete Suggestions */}
+                          {/* Independent City Suggestions: Active only when user has typed >= 1 chars */}
                           {activeCityIndex === idx && (() => {
                             const query = college.city.trim().toLowerCase();
                             if (query.length === 0) return null;
@@ -1135,15 +1199,68 @@ export default function InteractiveCollegeComparator() {
                             );
                           })()}
                         </div>
-                        <div>
-                          <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">State</label>
+
+                        {/* Independent State Autocomplete */}
+                        <div className="relative">
+                          <label
+                            htmlFor={`college_${idx + 1}_state_field`}
+                            className="block text-xs sm:text-sm font-bold text-slate-700 mb-1"
+                          >
+                            State
+                          </label>
                           <input
                             type="text"
+                            id={`college_${idx + 1}_state_field`}
+                            name={`college_${idx + 1}_state_field`}
                             placeholder={placeholder.state}
                             value={college.state}
-                            onChange={(e) => updateCollege(idx, { state: e.target.value })}
+                            onFocus={() => {
+                              setActiveStateIndex(idx);
+                              setActiveCityIndex(null);
+                            }}
+                            onBlur={() => setTimeout(() => setActiveStateIndex(null), 250)}
+                            onChange={(e) => {
+                              updateCollege(idx, { state: e.target.value });
+                              setActiveStateIndex(idx);
+                            }}
                             className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
+                            autoComplete="off"
+                            data-lpignore="true"
+                            data-form-type="other"
+                            spellCheck={false}
                           />
+
+                          {/* Independent State Suggestions: Active only when user has typed >= 1 chars */}
+                          {activeStateIndex === idx && (() => {
+                            const query = college.state.trim().toLowerCase();
+                            if (query.length === 0) return null;
+
+                            const matches = INDIAN_STATES.filter((s) =>
+                              s.toLowerCase().includes(query)
+                            );
+
+                            if (matches.length === 0) return null;
+
+                            return (
+                              <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-48 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1 shadow-lg divide-y divide-slate-100">
+                                {matches.slice(0, 6).map((stateName, sIdx) => (
+                                  <button
+                                    key={sIdx}
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      updateCollege(idx, { state: stateName });
+                                      setActiveStateIndex(null);
+                                    }}
+                                    className="w-full text-left rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800 hover:bg-red-50 hover:text-red-900 transition flex items-center justify-between cursor-pointer"
+                                  >
+                                    <span>{stateName}</span>
+                                    <span className="text-[10px] text-slate-400 font-semibold">State / UT</span>
+                                  </button>
+                                ))}
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
 
