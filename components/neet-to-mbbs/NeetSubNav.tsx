@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { label: "Overview", href: "/neet-to-mbbs", exact: true },
   { label: "Counselling", href: "/neet-to-mbbs/counselling" },
   { label: "College Choice", href: "/neet-to-mbbs/choosing-a-medical-college" },
-  { label: "Free Toolkit", href: "/neet-to-mbbs/toolkit" },
+  { label: "Toolkit", href: "/neet-to-mbbs/toolkit" },
   { label: "Parents", href: "/neet-to-mbbs/parents" },
   { label: "MBBS Prep", href: "/neet-to-mbbs/after-admission" },
   { label: "Challenge 🎯", href: "/neet-to-mbbs/readiness-quiz" },
@@ -53,7 +53,7 @@ export default function NeetSubNav() {
 
           <div className="hidden lg:flex items-center gap-2 shrink-0 text-xs font-semibold text-slate-500">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-            <span>Free Guidance Ecosystem</span>
+            <span>NEET Guidance Ecosystem</span>
           </div>
         </div>
       </div>

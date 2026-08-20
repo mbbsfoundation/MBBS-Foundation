@@ -137,9 +137,9 @@ export default function NeetReadinessQuizPage() {
           label: "MBBS Prep Guide",
         }}
         next={{
-          title: "Free NEET to MBBS Toolkit & Worksheets",
+          title: "NEET to MBBS Toolkit & Worksheets",
           href: "/neet-to-mbbs/toolkit",
-          label: "Free Toolkit",
+          label: "Toolkit",
         }}
         parallel={{
           title: "A Parent's Guide to the Journey from NEET to MBBS",

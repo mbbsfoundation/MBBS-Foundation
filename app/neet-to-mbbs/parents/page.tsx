@@ -619,7 +619,7 @@ export default function NeetParentsGuidePage() {
                   className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-slate-800 transition"
                 >
                   <span>🖨️</span>
-                  <span>Explore Free Toolkit →</span>
+                  <span>Explore Toolkit →</span>
                 </Link>
               </div>
             </div>
@@ -779,9 +779,9 @@ export default function NeetParentsGuidePage() {
           label: "Next: MBBS Prep",
         }}
         parallel={{
-          title: "Free NEET to MBBS Toolkit & Worksheets",
+          title: "NEET to MBBS Decision Toolkit & Worksheets",
           href: "/neet-to-mbbs/toolkit",
-          label: "Free Toolkit",
+          label: "Toolkit",
         }}
       />
     </main>

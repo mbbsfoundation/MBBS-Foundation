@@ -215,7 +215,7 @@ export default function ToolkitViewer() {
           <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-red-700">
-                NEET to MBBS 2026 • Free Educational Toolkit
+                NEET to MBBS 2026 • Educational Toolkit
               </p>
               <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
                 {RESOURCES.find((r) => r.id === activeTab)?.title}

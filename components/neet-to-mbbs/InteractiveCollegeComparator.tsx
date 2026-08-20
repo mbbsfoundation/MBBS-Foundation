@@ -489,21 +489,21 @@ export default function InteractiveCollegeComparator() {
         /* ========================================================================= */
         /* VIEW MODE B: INTERACTIVE MEDICAL COLLEGE COMPARISON TOOL */
         /* ========================================================================= */
-        <div className="space-y-12 print:hidden">
+        <div className="space-y-14 print:hidden">
           {/* 1. STUDENT IDENTIFICATION (LOCAL ONLY) */}
           <div
-            className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xs space-y-4"
+            className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xs space-y-5"
           >
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
                   Step 1 • Student Details
                 </span>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-0.5">
                   Who Is This Comparison Prepared For?
                 </h3>
               </div>
-              <span className="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+              <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
                 🔒 Stored Locally Only
               </span>
             </div>
@@ -511,7 +511,7 @@ export default function InteractiveCollegeComparator() {
             <div className="grid gap-4 sm:grid-cols-3">
               {/* Student Name */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-sm font-bold text-slate-800 mb-1.5">
                   Student Name <span className="text-red-600">*</span>
                 </label>
                 <input
@@ -519,21 +519,21 @@ export default function InteractiveCollegeComparator() {
                   placeholder="e.g. Aditi Sharma"
                   value={studentName}
                   onChange={(e) => setStudentName(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-sm sm:text-base font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none transition"
                 />
               </div>
 
               {/* Optional Identifier (Mobile or DOB) */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-bold text-slate-700">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-bold text-slate-800">
                     Optional Identifier
                   </label>
-                  <div className="flex items-center gap-2 text-[10px] font-semibold text-slate-500">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
                     <button
                       type="button"
                       onClick={() => { setIdType("mobile"); setIdValue(""); }}
-                      className={`cursor-pointer ${idType === "mobile" ? "text-red-700 font-bold underline" : ""}`}
+                      className={`cursor-pointer ${idType === "mobile" ? "text-red-700 font-bold underline" : "hover:text-slate-700"}`}
                     >
                       Mobile
                     </button>
@@ -541,7 +541,7 @@ export default function InteractiveCollegeComparator() {
                     <button
                       type="button"
                       onClick={() => { setIdType("dob"); setIdValue(""); }}
-                      className={`cursor-pointer ${idType === "dob" ? "text-red-700 font-bold underline" : ""}`}
+                      className={`cursor-pointer ${idType === "dob" ? "text-red-700 font-bold underline" : "hover:text-slate-700"}`}
                     >
                       DOB
                     </button>
@@ -555,13 +555,13 @@ export default function InteractiveCollegeComparator() {
                     if (idType === "none") setIdType("mobile");
                     setIdValue(e.target.value);
                   }}
-                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-sm sm:text-base font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none transition"
                 />
               </div>
 
               {/* NEET AIR / Rank */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-sm font-bold text-slate-800 mb-1.5">
                   NEET AIR / Rank (Optional)
                 </label>
                 <input
@@ -569,12 +569,12 @@ export default function InteractiveCollegeComparator() {
                   placeholder="e.g. 14,250"
                   value={neetRank}
                   onChange={(e) => setNeetRank(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-xs sm:text-sm font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3.5 py-2.5 text-sm sm:text-base font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none transition"
                 />
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-500 italic pt-1">
+            <p className="text-xs sm:text-sm text-slate-500 italic pt-1">
               Your information is used only to prepare this comparison report and is never transmitted, saved, or submitted to any server.
             </p>
           </div>
@@ -583,19 +583,19 @@ export default function InteractiveCollegeComparator() {
           <div
             className="rounded-3xl border border-slate-200 bg-slate-50/70 p-6 sm:p-8 space-y-6"
           >
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+            <div className="space-y-1.5">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
                 Step 2 • Decision Weights
               </span>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+              <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
                 First Ask: What Matters Most to You & Your Family?
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl">
+              <p className="text-sm sm:text-base text-slate-700 leading-relaxed max-w-3xl">
                 Assign priority weights to each factor. The tool will use these weights to evaluate how well each college fits your family&apos;s specific criteria.
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { key: "affordability" as const, label: "1. Affordability / True Cost", icon: "💰" },
                 { key: "clinicalExposure" as const, label: "2. Clinical Exposure & Case Variety", icon: "🩺" },
@@ -610,10 +610,10 @@ export default function InteractiveCollegeComparator() {
               ].map(({ key, label, icon }) => (
                 <div
                   key={key}
-                  className="rounded-2xl border border-slate-200 bg-white p-3.5 flex items-center justify-between gap-3 shadow-2xs"
+                  className="rounded-2xl border border-slate-200 bg-white p-4 flex items-center justify-between gap-3 shadow-2xs"
                 >
                   <div className="space-y-0.5">
-                    <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span className="text-sm sm:text-[15px] font-bold text-slate-900 flex items-center gap-1.5">
                       <span>{icon}</span> {label}
                     </span>
                   </div>
@@ -626,7 +626,7 @@ export default function InteractiveCollegeComparator() {
                         [key]: e.target.value as PriorityWeight,
                       }))
                     }
-                    className="rounded-lg border border-slate-300 bg-slate-50 px-2 py-1 text-xs font-bold text-slate-800 focus:bg-white focus:border-red-700"
+                    className="rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:border-red-700"
                   >
                     <option value="3">Very Important (3x)</option>
                     <option value="2">Important (2x)</option>
@@ -636,7 +636,7 @@ export default function InteractiveCollegeComparator() {
               ))}
             </div>
 
-            <p className="text-[11px] text-slate-500 italic">
+            <p className="text-xs sm:text-sm text-slate-500 italic">
               Note: Decision weights define what matters to you. This is a personalized decision-aid, not an automated AI recommendation.
             </p>
           </div>
@@ -644,23 +644,23 @@ export default function InteractiveCollegeComparator() {
           {/* 3. THREE SHORTLISTED COLLEGES INPUT FORM */}
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+              <div className="space-y-1">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
                   Step 3 • College Profiles & Verification
                 </span>
-                <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+                <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
                   Enter Information for Your Three Shortlisted Options
                 </h3>
               </div>
 
               {/* Mobile Tab Switcher */}
-              <div className="flex items-center gap-1 sm:hidden bg-slate-100 p-1 rounded-xl">
+              <div className="flex items-center gap-1 sm:hidden bg-slate-100 p-1.5 rounded-xl">
                 {[0, 1, 2].map((idx) => (
                   <button
                     key={idx}
                     type="button"
                     onClick={() => setActiveCollegeTab(idx)}
-                    className={`flex-1 py-1.5 px-3 text-xs font-bold rounded-lg transition cursor-pointer ${
+                    className={`flex-1 py-2 px-3.5 text-sm font-bold rounded-lg transition cursor-pointer ${
                       activeCollegeTab === idx
                         ? "bg-red-700 text-white shadow-2xs"
                         : "text-slate-600 hover:text-slate-900"
@@ -686,24 +686,24 @@ export default function InteractiveCollegeComparator() {
                     } ${isHiddenOnMobile ? "hidden sm:block" : "block"}`}
                   >
                     {/* College Header */}
-                    <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                    <div className="border-b border-slate-100 pb-3.5 flex items-center justify-between">
                       <span className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-900 text-white text-xs font-bold">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 text-white text-xs sm:text-sm font-black">
                           {idx + 1}
                         </span>
-                        <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                        <span className="text-sm font-extrabold uppercase tracking-wider text-slate-800">
                           Choice {idx + 1}
                         </span>
                       </span>
-                      <span className="text-[11px] font-semibold text-slate-500">
-                        {college.name ? college.name.slice(0, 20) + "..." : "Enter details"}
+                      <span className="text-xs sm:text-sm font-semibold text-slate-500">
+                        {college.name ? college.name.slice(0, 18) + "..." : "Enter details"}
                       </span>
                     </div>
 
                     {/* Basic Details */}
-                    <div className="space-y-3">
+                    <div className="space-y-3.5">
                       <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                        <label className="block text-xs sm:text-sm font-bold text-slate-800 mb-1">
                           Medical College Name
                         </label>
                         <input
@@ -711,40 +711,40 @@ export default function InteractiveCollegeComparator() {
                           placeholder={placeholder.name}
                           value={college.name}
                           onChange={(e) => updateCollege(idx, { name: e.target.value })}
-                          className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
+                          className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-sm font-medium text-slate-900 focus:bg-white focus:border-red-700 focus:outline-none"
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2.5">
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-600 mb-1">City</label>
+                          <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">City</label>
                           <input
                             type="text"
                             placeholder={placeholder.city}
                             value={college.city}
                             onChange={(e) => updateCollege(idx, { city: e.target.value })}
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-xs text-slate-900"
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900"
                           />
                         </div>
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-600 mb-1">State</label>
+                          <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">State</label>
                           <input
                             type="text"
                             placeholder={placeholder.state}
                             value={college.state}
                             onChange={(e) => updateCollege(idx, { state: e.target.value })}
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-xs text-slate-900"
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-3 py-2 text-sm text-slate-900"
                           />
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-2.5">
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-600 mb-1">Category</label>
+                          <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">Category</label>
                           <select
                             value={college.type}
                             onChange={(e) => updateCollege(idx, { type: e.target.value as any })}
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-2 py-2 text-xs text-slate-900"
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-2.5 py-2 text-xs sm:text-sm font-medium text-slate-900"
                           >
                             <option value="">Select Category</option>
                             <option value="Government">Government</option>
@@ -754,11 +754,11 @@ export default function InteractiveCollegeComparator() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[11px] font-bold text-slate-600 mb-1">NMC Status</label>
+                          <label className="block text-xs sm:text-sm font-bold text-slate-700 mb-1">NMC Status</label>
                           <select
                             value={college.recognitionChecked}
                             onChange={(e) => updateCollege(idx, { recognitionChecked: e.target.value as any })}
-                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-2 py-2 text-xs text-slate-900"
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 px-2.5 py-2 text-xs sm:text-sm font-medium text-slate-900"
                           >
                             <option value="">Recognition Status</option>
                             <option value="Yes">✓ Verified Recognised</option>
@@ -769,10 +769,10 @@ export default function InteractiveCollegeComparator() {
                     </div>
 
                     {/* Factor Assessments */}
-                    <div className="space-y-4 pt-3 border-t border-slate-100 text-xs">
+                    <div className="space-y-4 pt-3 border-t border-slate-100 text-sm">
                       {/* A. Financial Cost & Affordability */}
-                      <div className="space-y-1.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
-                        <span className="font-bold text-slate-900 flex items-center justify-between">
+                      <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
+                        <span className="font-bold text-slate-900 text-sm sm:text-[15px] flex items-center justify-between">
                           <span>💰 1. Total Financial Cost</span>
                           {evaluateFactor("affordability", college).status === "green" && <span>🟢</span>}
                           {evaluateFactor("affordability", college).status === "yellow" && <span>🟡</span>}
@@ -783,12 +783,12 @@ export default function InteractiveCollegeComparator() {
                           placeholder="Estimated 5.5-Yr Cost (e.g. ₹6 Lakhs)"
                           value={college.costEstimated}
                           onChange={(e) => updateCollege(idx, { costEstimated: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm text-slate-900"
                         />
                         <select
                           value={college.costAffordability}
                           onChange={(e) => updateCollege(idx, { costAffordability: e.target.value as any })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-slate-800"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs sm:text-sm font-semibold text-slate-800"
                         >
                           <option value="">Affordability for Your Family?</option>
                           <option value="comfortable">🟢 Comfortable</option>
@@ -798,8 +798,8 @@ export default function InteractiveCollegeComparator() {
                       </div>
 
                       {/* B. Bond & Service Obligation */}
-                      <div className="space-y-1.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
-                        <span className="font-bold text-slate-900 flex items-center justify-between">
+                      <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
+                        <span className="font-bold text-slate-900 text-sm sm:text-[15px] flex items-center justify-between">
                           <span>📜 2. Rural Service Bond</span>
                           {evaluateFactor("bondObligation", college).status === "green" && <span>🟢</span>}
                           {evaluateFactor("bondObligation", college).status === "yellow" && <span>🟡</span>}
@@ -808,7 +808,7 @@ export default function InteractiveCollegeComparator() {
                         <select
                           value={college.bondRating}
                           onChange={(e) => updateCollege(idx, { bondRating: e.target.value as any })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-slate-800"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs sm:text-sm font-semibold text-slate-800"
                         >
                           <option value="">Bond Obligation Fit?</option>
                           <option value="no-bond">🟢 No known bond</option>
@@ -821,13 +821,13 @@ export default function InteractiveCollegeComparator() {
                           placeholder="Optional: Duration (e.g. 1 Yr) & Penalty ₹"
                           value={college.bondDuration}
                           onChange={(e) => updateCollege(idx, { bondDuration: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-[11px] text-slate-700"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs sm:text-sm text-slate-800"
                         />
                       </div>
 
                       {/* C. Clinical Exposure & Hospital Load */}
-                      <div className="space-y-1.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
-                        <span className="font-bold text-slate-900 flex items-center justify-between">
+                      <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
+                        <span className="font-bold text-slate-900 text-sm sm:text-[15px] flex items-center justify-between">
                           <span>🩺 3. Clinical & Patient Load</span>
                           {evaluateFactor("clinicalExposure", college).status === "green" && <span>🟢</span>}
                           {evaluateFactor("clinicalExposure", college).status === "yellow" && <span>🟡</span>}
@@ -836,7 +836,7 @@ export default function InteractiveCollegeComparator() {
                         <select
                           value={college.clinicalRating}
                           onChange={(e) => updateCollege(idx, { clinicalRating: e.target.value as any })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-slate-800"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs sm:text-sm font-semibold text-slate-800"
                         >
                           <option value="">Hospital OPD & Patient Variety?</option>
                           <option value="strong">🟢 Strong patient load & active OPD</option>
@@ -847,8 +847,8 @@ export default function InteractiveCollegeComparator() {
                       </div>
 
                       {/* D. Academic Ecosystem */}
-                      <div className="space-y-1.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
-                        <span className="font-bold text-slate-900 flex items-center justify-between">
+                      <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
+                        <span className="font-bold text-slate-900 text-sm sm:text-[15px] flex items-center justify-between">
                           <span>🏛️ 4. Academic Ecosystem</span>
                           {evaluateFactor("academicEcosystem", college).status === "green" && <span>🟢</span>}
                           {evaluateFactor("academicEcosystem", college).status === "yellow" && <span>🟡</span>}
@@ -857,7 +857,7 @@ export default function InteractiveCollegeComparator() {
                         <select
                           value={college.academicRating}
                           onChange={(e) => updateCollege(idx, { academicRating: e.target.value as any })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-slate-800"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs sm:text-sm font-semibold text-slate-800"
                         >
                           <option value="">Faculty, Academics & PG Depts?</option>
                           <option value="strong">🟢 Strong academic culture & PG courses</option>
@@ -868,8 +868,8 @@ export default function InteractiveCollegeComparator() {
                       </div>
 
                       {/* E. Hostel & Campus */}
-                      <div className="space-y-1.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
-                        <span className="font-bold text-slate-900 flex items-center justify-between">
+                      <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
+                        <span className="font-bold text-slate-900 text-sm sm:text-[15px] flex items-center justify-between">
                           <span>🏢 5. Hostel & Campus Fit</span>
                           {evaluateFactor("hostelCampus", college).status === "green" && <span>🟢</span>}
                           {evaluateFactor("hostelCampus", college).status === "yellow" && <span>🟡</span>}
@@ -878,7 +878,7 @@ export default function InteractiveCollegeComparator() {
                         <select
                           value={college.hostelRating}
                           onChange={(e) => updateCollege(idx, { hostelRating: e.target.value as any })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs font-semibold text-slate-800"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs sm:text-sm font-semibold text-slate-800"
                         >
                           <option value="">Hostel & Living Fit?</option>
                           <option value="good-fit">🟢 Good fit / confirmed availability</option>
@@ -889,18 +889,18 @@ export default function InteractiveCollegeComparator() {
                       </div>
 
                       {/* F. Distance & Travel Connectivity */}
-                      <div className="space-y-1.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
-                        <span className="font-bold text-slate-900 flex items-center justify-between">
+                      <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
+                        <span className="font-bold text-slate-900 text-sm sm:text-[15px] flex items-center justify-between">
                           <span>🚆 6. Location & Distance</span>
                           {evaluateFactor("locationConnectivity", college).status === "green" && <span>🟢</span>}
                           {evaluateFactor("locationConnectivity", college).status === "yellow" && <span>🟡</span>}
                           {evaluateFactor("locationConnectivity", college).status === "red" && <span>🔴</span>}
                         </span>
-                        <div className="grid grid-cols-2 gap-1.5">
+                        <div className="grid grid-cols-2 gap-2">
                           <select
                             value={college.locationRating}
                             onChange={(e) => updateCollege(idx, { locationRating: e.target.value as any })}
-                            className="rounded-lg border border-slate-300 bg-white px-1.5 py-1.5 text-[11px] font-semibold text-slate-800"
+                            className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs sm:text-sm font-semibold text-slate-800"
                           >
                             <option value="">Connectivity?</option>
                             <option value="convenient">🟢 Convenient</option>
@@ -910,7 +910,7 @@ export default function InteractiveCollegeComparator() {
                           <select
                             value={college.distanceRating}
                             onChange={(e) => updateCollege(idx, { distanceRating: e.target.value as any })}
-                            className="rounded-lg border border-slate-300 bg-white px-1.5 py-1.5 text-[11px] font-semibold text-slate-800"
+                            className="rounded-lg border border-slate-300 bg-white px-2 py-2 text-xs sm:text-sm font-semibold text-slate-800"
                           >
                             <option value="">Distance Fit?</option>
                             <option value="comfortable">🟢 Comfortable</option>
@@ -923,30 +923,30 @@ export default function InteractiveCollegeComparator() {
                           placeholder="Approx km or travel hours (optional)"
                           value={college.distanceValue}
                           onChange={(e) => updateCollege(idx, { distanceValue: e.target.value })}
-                          className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1 text-[11px] text-slate-700"
+                          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs sm:text-sm text-slate-800"
                         />
                       </div>
 
                       {/* G. Personal Preference (1-5 Rating) */}
-                      <div className="space-y-1.5 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
+                      <div className="space-y-2 rounded-2xl bg-slate-50/70 border border-slate-200/80 p-3.5">
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-slate-900">⭐ 7. Personal Preference</span>
-                          <span className="font-bold text-xs text-red-700">
+                          <span className="font-bold text-slate-900 text-sm sm:text-[15px]">⭐ 7. Personal Preference</span>
+                          <span className="font-extrabold text-sm text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
                             {college.personalPreferenceRating} / 5
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs sm:text-sm text-slate-600">
                           If all other facts were equal, how strongly do you prefer this college?
                         </p>
-                        <div className="flex items-center justify-between gap-1 pt-1">
+                        <div className="flex items-center justify-between gap-1.5 pt-1">
                           {[1, 2, 3, 4, 5].map((val) => (
                             <button
                               key={val}
                               type="button"
                               onClick={() => updateCollege(idx, { personalPreferenceRating: val })}
-                              className={`flex-1 py-1 text-xs font-bold rounded-lg border transition cursor-pointer ${
+                              className={`flex-1 py-2 text-xs sm:text-sm font-black rounded-lg border transition cursor-pointer ${
                                 college.personalPreferenceRating === val
-                                  ? "bg-slate-900 text-white border-slate-900"
+                                  ? "bg-slate-900 text-white border-slate-900 shadow-xs"
                                   : "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
                               }`}
                             >
@@ -966,27 +966,27 @@ export default function InteractiveCollegeComparator() {
           {/* 4. TRAFFIC-LIGHT DECISION MATRIX (VISIBLE ONCE DATA IS ENTERED) */}
           {/* ========================================================================= */}
           <div className="space-y-4">
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+            <div className="space-y-1.5">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
                 Step 4 • Comparative Matrix
               </span>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+              <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
                 Side-by-Side Traffic-Light Assessment
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600">
+              <p className="text-sm sm:text-base text-slate-600">
                 🟢 Favourable (Fits your priorities) • 🟡 Review / Needs Info • 🔴 Important Concern
               </p>
             </div>
 
             <div className="overflow-x-auto rounded-2xl border border-slate-300 bg-white shadow-2xs">
-              <table className="w-full text-left text-xs border-collapse">
+              <table className="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr className="bg-slate-900 text-white font-bold">
-                    <th className="py-3 px-4 w-1/4">Evaluation Factor</th>
+                    <th className="py-3.5 px-4 w-1/4 text-xs sm:text-sm uppercase tracking-wider">Evaluation Factor</th>
                     {colleges.map((c, i) => (
-                      <th key={i} className="py-3 px-4 w-1/4">
-                        <span className="block text-slate-300 font-normal text-[10px]">Choice {i + 1}</span>
-                        <span>{c.name.trim() || `College Choice ${i + 1}`}</span>
+                      <th key={i} className="py-3.5 px-4 w-1/4">
+                        <span className="block text-slate-300 font-semibold text-xs">Choice {i + 1}</span>
+                        <span className="text-xs sm:text-sm font-bold">{c.name.trim() || `College Choice ${i + 1}`}</span>
                       </th>
                     ))}
                   </tr>
@@ -1005,20 +1005,20 @@ export default function InteractiveCollegeComparator() {
                     { key: "personalPreference" as const, title: "Personal Preference" },
                   ].map(({ key, title }, rowIdx) => (
                     <tr key={key} className={rowIdx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}>
-                      <td className="py-2.5 px-4 font-bold text-slate-900 bg-slate-50/90 border-r border-slate-200">
+                      <td className="py-3 px-4 font-bold text-slate-900 text-xs sm:text-sm bg-slate-50/90 border-r border-slate-200">
                         {title}
                       </td>
                       {colleges.map((col, colIdx) => {
                         const { status, label } = evaluateFactor(key, col);
                         return (
-                          <td key={colIdx} className="py-2.5 px-4">
+                          <td key={colIdx} className="py-3 px-4">
                             <span
-                              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-bold text-[11px] ${
+                              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-xs sm:text-sm ${
                                 status === "green"
-                                  ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                                  ? "bg-emerald-100 text-emerald-950 border border-emerald-300"
                                   : status === "red"
-                                  ? "bg-rose-100 text-rose-900 border border-rose-300"
-                                  : "bg-amber-100 text-amber-900 border border-amber-300"
+                                  ? "bg-rose-100 text-rose-950 border border-rose-300"
+                                  : "bg-amber-100 text-amber-950 border border-amber-300"
                               }`}
                             >
                               <span>{status === "green" ? "🟢" : status === "red" ? "🔴" : "🟡"}</span>
@@ -1038,14 +1038,14 @@ export default function InteractiveCollegeComparator() {
           {/* 5. WEIGHTED FIT SUMMARY & COMPARISON CARDS */}
           {/* ========================================================================= */}
           <div className="space-y-6">
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+            <div className="space-y-1.5">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
                 Step 5 • Weighted Fit Summary
               </span>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+              <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
                 Fit With Your Family&apos;s Priorities
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600">
+              <p className="text-sm sm:text-base text-slate-600">
                 Calculated using your weighted priority settings. High scores indicate strong alignment with what you defined as important.
               </p>
             </div>
@@ -1056,39 +1056,39 @@ export default function InteractiveCollegeComparator() {
                   key={summary.index}
                   className="rounded-3xl border-2 border-slate-800 bg-white p-6 space-y-4 shadow-sm flex flex-col justify-between"
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                      <span className="text-xs font-bold text-slate-500 uppercase">
+                  <div className="space-y-3.5">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                      <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-wider">
                         Choice {summary.index + 1}
                       </span>
-                      <span className="text-xs font-extrabold bg-slate-900 text-white px-2.5 py-0.5 rounded-full">
+                      <span className="text-xs sm:text-sm font-black bg-slate-900 text-white px-3 py-1 rounded-full shadow-2xs">
                         Fit: {summary.fitPercentage}%
                       </span>
                     </div>
 
-                    <h4 className="text-base font-extrabold text-slate-900 leading-snug">
+                    <h4 className="text-lg sm:text-xl font-black text-slate-900 leading-snug">
                       {summary.name}
                     </h4>
 
                     {/* Traffic counts */}
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 pt-1">
-                      <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 pt-1">
+                      <span className="bg-emerald-50 text-emerald-900 px-2.5 py-1 rounded-lg border border-emerald-200">
                         🟢 {summary.greenCount} Favourable
                       </span>
-                      <span className="bg-amber-50 text-amber-800 px-2 py-0.5 rounded-md border border-amber-200">
+                      <span className="bg-amber-50 text-amber-900 px-2.5 py-1 rounded-lg border border-amber-200">
                         🟡 {summary.yellowCount} Review
                       </span>
-                      <span className="bg-rose-50 text-rose-800 px-2 py-0.5 rounded-md border border-rose-200">
+                      <span className="bg-rose-50 text-rose-900 px-2.5 py-1 rounded-lg border border-rose-200">
                         🔴 {summary.redCount} Concern
                       </span>
                     </div>
 
                     {/* Strengths & Concerns bullet lists */}
-                    <div className="space-y-2 pt-2 text-xs">
+                    <div className="space-y-2.5 pt-2 text-xs sm:text-sm">
                       {summary.strongFactors.length > 0 && (
                         <div>
-                          <strong className="text-emerald-800 block font-bold">Strongest Factors:</strong>
-                          <p className="text-slate-600 mt-0.5 leading-relaxed">
+                          <strong className="text-emerald-900 block font-bold">Strongest Factors:</strong>
+                          <p className="text-slate-700 mt-0.5 leading-relaxed font-medium">
                             {summary.strongFactors.slice(0, 3).join(", ")}
                           </p>
                         </div>
@@ -1096,8 +1096,8 @@ export default function InteractiveCollegeComparator() {
 
                       {summary.reviewFactors.length > 0 && (
                         <div>
-                          <strong className="text-amber-800 block font-bold">Review Before Deciding:</strong>
-                          <p className="text-slate-600 mt-0.5 leading-relaxed">
+                          <strong className="text-amber-900 block font-bold">Review Before Deciding:</strong>
+                          <p className="text-slate-700 mt-0.5 leading-relaxed font-medium">
                             {summary.reviewFactors.slice(0, 3).join(", ")}
                           </p>
                         </div>
@@ -1105,8 +1105,8 @@ export default function InteractiveCollegeComparator() {
 
                       {summary.concernFactors.length > 0 && (
                         <div>
-                          <strong className="text-rose-800 block font-bold">Important Concern:</strong>
-                          <p className="text-slate-600 mt-0.5 leading-relaxed">
+                          <strong className="text-rose-900 block font-bold">Important Concern:</strong>
+                          <p className="text-slate-700 mt-0.5 leading-relaxed font-medium">
                             {summary.concernFactors.slice(0, 2).join(", ")}
                           </p>
                         </div>
@@ -1124,34 +1124,34 @@ export default function InteractiveCollegeComparator() {
           <div
             className="rounded-3xl border border-slate-200 bg-slate-950 text-white p-6 sm:p-8 space-y-5"
           >
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-[0.2em] text-red-400">
+            <div className="space-y-1.5">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-red-400">
                 Comparative Summary
               </span>
-              <h3 className="text-xl sm:text-2xl font-extrabold text-white">
+              <h3 className="text-xl sm:text-2xl font-black text-white">
                 Your Comparison at a Glance
               </h3>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl">
                 Based on the information and priorities you entered, the mathematical alignment suggests:
               </p>
             </div>
 
             {/* Suggested Order Cards */}
-            <div className="grid gap-3 sm:grid-cols-3 pt-1">
+            <div className="grid gap-3.5 sm:grid-cols-3 pt-1">
               {sortedColleges.map((col, rankIdx) => (
                 <div
                   key={col.index}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 space-y-2"
+                  className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4.5 space-y-2.5"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white text-xs sm:text-sm font-black">
                       {rankIdx + 1}
                     </span>
-                    <span className="text-xs font-bold text-red-400">
+                    <span className="text-sm font-extrabold text-red-400 bg-red-950/60 border border-red-800/40 px-2.5 py-0.5 rounded-full">
                       {col.fitPercentage}% Fit
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-white leading-snug">
+                  <h4 className="text-base font-bold text-white leading-snug">
                     {col.name}
                   </h4>
                 </div>
@@ -1160,12 +1160,12 @@ export default function InteractiveCollegeComparator() {
 
             {/* Tie / Close Choices Note */}
             {isCloseMatch && (
-              <div className="rounded-xl bg-amber-500/10 border border-amber-400/30 p-3.5 text-xs text-amber-200">
+              <div className="rounded-xl bg-amber-500/10 border border-amber-400/30 p-4 text-xs sm:text-sm text-amber-200 leading-relaxed">
                 ⚠️ <strong>Very Close Choices:</strong> The top choices have very close numerical scores. Review the highlighted yellow/red factors and your personal preference rather than relying only on the percentage score.
               </div>
             )}
 
-            <div className="pt-2 border-t border-slate-800 text-slate-400 text-xs leading-relaxed italic">
+            <div className="pt-2 border-t border-slate-800 text-slate-400 text-xs sm:text-sm leading-relaxed italic">
               Decision aid only. This is not a college quality ranking or counselling recommendation. The result directly reflects your entered priorities and data. Verify critical facts before locking your choices.
             </div>
           </div>
@@ -1175,22 +1175,22 @@ export default function InteractiveCollegeComparator() {
           {/* ========================================================================= */}
           {allVerificationItems.length > 0 && (
             <div
-              className="rounded-3xl border border-amber-200 bg-amber-50/50 p-6 sm:p-8 space-y-4"
+              className="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 sm:p-8 space-y-4"
             >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">⚠️</span>
-                <h3 className="text-base sm:text-lg font-bold text-amber-950">
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">⚠️</span>
+                <h3 className="text-lg sm:text-xl font-bold text-amber-950">
                   Things You Still Need to Check Before Choice Locking
                 </h3>
               </div>
-              <p className="text-xs sm:text-sm text-amber-900 leading-relaxed">
+              <p className="text-sm sm:text-base text-amber-950 leading-relaxed">
                 Based on items marked &ldquo;Not yet verified&rdquo; or &ldquo;Needs more information&rdquo;, ensure you clarify these points:
               </p>
 
-              <ul className="space-y-2 pl-2 text-xs sm:text-sm text-slate-800 font-medium">
+              <ul className="space-y-2.5 pl-2 text-sm sm:text-base text-slate-800 font-medium">
                 {allVerificationItems.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2.5">
-                    <span className="text-amber-700 font-bold">•</span>
+                    <span className="text-amber-700 font-bold text-base">•</span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -1202,29 +1202,29 @@ export default function InteractiveCollegeComparator() {
           {/* 8. USER'S FINAL PREFERENCE SELECTION */}
           {/* ========================================================================= */}
           <div
-            className="rounded-3xl border-2 border-dashed border-red-300 bg-red-50/30 p-6 sm:p-8 space-y-4"
+            className="rounded-3xl border-2 border-dashed border-red-300 bg-red-50/40 p-6 sm:p-8 space-y-4"
           >
-            <div className="space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+            <div className="space-y-1.5">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-red-700">
                 Step 6 • Your Decision
               </span>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900">
+              <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900">
                 What Is Your Final Preference Order?
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600">
+              <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
                 The tool calculates mathematical fit, but your family&apos;s judgement is final. Select your final intended counselling order:
               </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3 pt-2">
               <div>
-                <label className="block text-xs font-bold text-red-900 mb-1">
+                <label className="block text-xs sm:text-sm font-bold text-red-950 mb-1.5">
                   1st Preference:
                 </label>
                 <select
                   value={finalPref1}
                   onChange={(e) => setFinalPref1(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold text-slate-900"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm sm:text-base font-bold text-slate-900 focus:border-red-700 focus:outline-none"
                 >
                   <option value="">Select 1st Preference</option>
                   {colleges.map((c, i) => (
@@ -1236,13 +1236,13 @@ export default function InteractiveCollegeComparator() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1">
+                <label className="block text-xs sm:text-sm font-bold text-slate-900 mb-1.5">
                   2nd Preference:
                 </label>
                 <select
                   value={finalPref2}
                   onChange={(e) => setFinalPref2(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold text-slate-900"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm sm:text-base font-bold text-slate-900 focus:border-red-700 focus:outline-none"
                 >
                   <option value="">Select 2nd Preference</option>
                   {colleges.map((c, i) => (
@@ -1254,13 +1254,13 @@ export default function InteractiveCollegeComparator() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-900 mb-1">
+                <label className="block text-xs sm:text-sm font-bold text-slate-900 mb-1.5">
                   3rd Preference:
                 </label>
                 <select
                   value={finalPref3}
                   onChange={(e) => setFinalPref3(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs sm:text-sm font-bold text-slate-900"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm sm:text-base font-bold text-slate-900 focus:border-red-700 focus:outline-none"
                 >
                   <option value="">Select 3rd Preference</option>
                   {colleges.map((c, i) => (
@@ -1276,11 +1276,11 @@ export default function InteractiveCollegeComparator() {
           {/* ========================================================================= */}
           {/* 9. BOTTOM ACTION BUTTONS */}
           {/* ========================================================================= */}
-          <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
             <button
               type="button"
               onClick={handleReset}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer"
             >
               <span>🔄</span>
               <span>Start New Comparison</span>
@@ -1289,7 +1289,7 @@ export default function InteractiveCollegeComparator() {
             <button
               type="button"
               onClick={handlePrint}
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-sm hover:bg-slate-800 transition cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-7 py-3.5 text-sm sm:text-base font-bold text-white shadow-md hover:bg-slate-800 transition cursor-pointer"
             >
               <span>🖨️</span>
               <span>Print / Save Comparison Report (PDF)</span>

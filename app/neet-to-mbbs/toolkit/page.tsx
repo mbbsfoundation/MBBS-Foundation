@@ -97,7 +97,7 @@ const TOOLKIT_STRUCTURED_DATA = {
         {
           "@type": "ListItem",
           position: 3,
-          name: "Free Toolkit & College Comparator",
+          name: "Toolkit & College Comparator",
           item: "https://mbbsfoundation.com/neet-to-mbbs/toolkit",
         },
       ],
@@ -128,23 +128,23 @@ export default function NeetToolkitPage() {
               NEET to MBBS 2026
             </Link>
             <span aria-hidden="true">→</span>
-            <span className="text-slate-700 font-bold">Free Toolkit</span>
+            <span className="text-slate-700 font-bold">Toolkit</span>
           </nav>
 
           {/* Eyebrow */}
           <div className="mt-6 flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-800">
               <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
-              Free Resources • No Sign-Up Required
+              Decision & Preparation Toolkit
             </span>
             <span className="text-xs font-medium text-slate-500">
-              100% Free & Printable
+              Printable & Interactive
             </span>
           </div>
 
           {/* Heading */}
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl leading-tight">
-            Free NEET to MBBS Toolkit
+            NEET to MBBS Toolkit
           </h1>
 
           {/* Subheading */}

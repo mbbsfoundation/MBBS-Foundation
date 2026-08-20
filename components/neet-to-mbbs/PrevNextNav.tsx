@@ -95,7 +95,7 @@ export default function PrevNextNav({
             </Link>
             <span>•</span>
             <Link href="/neet-to-mbbs/toolkit" className="text-slate-600 hover:text-red-700">
-              Free Toolkit
+              Toolkit
             </Link>
             <span>•</span>
             <Link href="/neet-to-mbbs/parents" className="text-slate-600 hover:text-red-700">

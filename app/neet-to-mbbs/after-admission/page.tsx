@@ -742,7 +742,7 @@ export default function NeetAfterAdmissionPage() {
               href="/neet-to-mbbs/toolkit"
               className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-800 shadow-2xs hover:bg-slate-50 transition shrink-0"
             >
-              <span>🖨️</span> Open Free Toolkit →
+              <span>🖨️</span> Open Toolkit →
             </Link>
           </div>
         </div>
@@ -866,7 +866,7 @@ export default function NeetAfterAdmissionPage() {
               href="/neet-to-mbbs/toolkit"
               className="inline-flex items-center rounded-xl bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-950 hover:bg-slate-100 transition"
             >
-              Explore Free Toolkit
+              Explore Toolkit
             </Link>
 
             <Link
@@ -888,7 +888,7 @@ export default function NeetAfterAdmissionPage() {
         heading="Know Someone Else Starting MBBS?"
         subheading="Share this guide with batchmates or friends who have confirmed their MBBS seats."
         sharePath="/neet-to-mbbs/after-admission"
-        whatsappMessage="Got an MBBS seat? Congratulations! This free guide explains what to expect before starting medical college—from first-year subjects and Foundation Course to professionalism, communication and preparing for your first day: [URL]"
+        whatsappMessage="Got an MBBS seat? Congratulations! This guide explains what to expect before starting medical college—from first-year subjects and Foundation Course to professionalism, communication and preparing for your first day: [URL]"
       />
 
       {/* ========================================================================= */}
@@ -896,9 +896,9 @@ export default function NeetAfterAdmissionPage() {
       {/* ========================================================================= */}
       <PrevNextNav
         prev={{
-          title: "Free NEET to MBBS Toolkit & Checklists",
+          title: "NEET to MBBS Toolkit & Checklists",
           href: "/neet-to-mbbs/toolkit",
-          label: "Free Toolkit",
+          label: "Toolkit",
         }}
         parallel={{
           title: "A Parent's Guide to the Journey from NEET to MBBS",
