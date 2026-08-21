@@ -138,6 +138,45 @@ function formatSanjeevaniRecord(rec: SanjeevaniCertificateRecord) {
   };
 }
 
+/**
+ * Ensures any certificate lacking a Drive link has its dynamic SVG and export filenames attached.
+ */
+function ensureCertificateRenderFields(cert: any) {
+  if (!cert) return cert;
+  if (!cert.driveLink && !cert.svg) {
+    const certNum = cert.certificateNumber || cert.certificateId || "";
+    const isFacility = cert.category === "CPR Facility / Venue" || certNum.toUpperCase().includes("VENUE");
+    const isChampion = !isFacility && (cert.category === "CPR Champion" || certNum.toUpperCase().includes("/CH/"));
+    const isCoordinator = !isFacility && !isChampion && (cert.category === "Course Coordinator" || certNum.toUpperCase().includes("/CC/"));
+    const isCprDay = !isFacility && !isChampion && !isCoordinator;
+
+    let certCat: "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" = "SANJEEVANI";
+    if (isFacility) certCat = "CPR_FACILITY";
+    else if (isChampion) certCat = "CPR_CHAMPION";
+    else if (isCprDay) certCat = "CPR_DAY";
+
+    try {
+      cert.svg = generateUnifiedCertificateSvg({
+        category: certCat,
+        participantName: cert.participantName || "",
+        date: cert.issueDate || cert.date || "21-07-2026",
+        venue: cert.venueName || cert.venue || "",
+        city: cert.city || "",
+        state: cert.state || "",
+        stateCode: cert.state || "",
+        certificateId: certNum,
+        courseCoordinator: cert.courseCoordinator,
+      });
+      cert.pdfFilename = formatCertificateFilename(certNum, cert.participantName, "pdf");
+      cert.pngFilename = formatCertificateFilename(certNum, cert.participantName, "png");
+      cert.svgFilename = formatCertificateFilename(certNum, cert.participantName, "svg");
+    } catch (err) {
+      console.error(`Failed to generate SVG for ${certNum}:`, err);
+    }
+  }
+  return cert;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -325,7 +364,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (combinedResults.length > 0) {
-        const deduplicated = deduplicatePersonRecords(combinedResults);
+        const deduplicated = deduplicatePersonRecords(combinedResults).map(ensureCertificateRenderFields);
         return NextResponse.json({ success: true, certificates: deduplicated });
       }
 
@@ -342,20 +381,19 @@ export async function GET(request: NextRequest) {
       // Step 1: Check CPR Day CSV records
       let csvMatch: CPRCertificateRecord | null = null;
       if (portal !== "facility") {
-        if (isAllPortals) {
+        csvMatch = searchCertificateById(certId, portal);
+        if (!csvMatch) {
           csvMatch =
             searchCertificateById(certId, "participant") ||
-            searchCertificateById(certId, "coordinator") ||
-            searchCertificateById(certId, "champion");
-        } else {
-          csvMatch = searchCertificateById(certId, portal);
+            searchCertificateById(certId, "champion") ||
+            searchCertificateById(certId, "coordinator");
         }
       }
 
       if (csvMatch) {
         return NextResponse.json({
           success: true,
-          certificate: csvMatch,
+          certificate: ensureCertificateRenderFields(csvMatch),
         });
       }
 
@@ -376,25 +414,27 @@ export async function GET(request: NextRequest) {
           });
 
           if (participantRecord) {
+            const rawCert = {
+              certificateNumber: participantRecord.certificateNumber || normalizedCertId,
+              participantName: participantRecord.participant.fullName,
+              courseTitle: participantRecord.course.title,
+              venueName: participantRecord.course.venueName,
+              city: participantRecord.course.city,
+              state: participantRecord.course.state,
+              issueDate: participantRecord.certificateGeneratedAt
+                ? new Date(participantRecord.certificateGeneratedAt).toLocaleDateString("en-IN", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+                : "21 July 2026",
+              status: participantRecord.certificateStatus,
+              category: participantRecord.participant.participantCategory.replace(/_/g, " "),
+            };
+
             return NextResponse.json({
               success: true,
-              certificate: {
-                certificateNumber: participantRecord.certificateNumber || normalizedCertId,
-                participantName: participantRecord.participant.fullName,
-                courseTitle: participantRecord.course.title,
-                venueName: participantRecord.course.venueName,
-                city: participantRecord.course.city,
-                state: participantRecord.course.state,
-                issueDate: participantRecord.certificateGeneratedAt
-                  ? new Date(participantRecord.certificateGeneratedAt).toLocaleDateString("en-IN", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })
-                  : "21 July 2026",
-                status: participantRecord.certificateStatus,
-                category: participantRecord.participant.participantCategory.replace(/_/g, " "),
-              },
+              certificate: ensureCertificateRenderFields(rawCert),
             });
           }
         } catch (dbError) {
@@ -499,7 +539,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (allFoundCerts.length > 0) {
-        const deduplicated = deduplicatePersonRecords(allFoundCerts);
+        const deduplicated = deduplicatePersonRecords(allFoundCerts).map(ensureCertificateRenderFields);
         return NextResponse.json({
           success: true,
           certificates: deduplicated,
