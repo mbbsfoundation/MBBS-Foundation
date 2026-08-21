@@ -1,16 +1,16 @@
 [
   {
-    "id": "BATCH-SUPPL-2-1787325176436",
-    "originalFileName": "Participants_Suppl_2_Clean.csv",
-    "totalRows": 2057,
-    "validRows": 2057,
-    "importedRows": 2057,
+    "id": "BATCH-SUPPL-2-1787332405595",
+    "originalFileName": "Participants_Suppl_2.numbers",
+    "totalRows": 1832,
+    "validRows": 1832,
+    "importedRows": 1832,
     "duplicateRows": 0,
     "errorRows": 0,
     "status": "COMPLETED",
-    "processingNotes": "Successfully generated and indexed all 2,057 participants from Participants_Suppl_2_Clean.csv",
-    "createdAt": "2026-08-21T15:12:56.436Z",
-    "updatedAt": "2026-08-21T15:12:56.436Z"
+    "processingNotes": "Successfully synchronized 1832 participants from updated Participants_Suppl_2.numbers",
+    "createdAt": "2026-08-21T17:13:25.595Z",
+    "updatedAt": "2026-08-21T17:13:25.595Z"
   },
   {
     "id": "BATCH-1787077481374-8867",
