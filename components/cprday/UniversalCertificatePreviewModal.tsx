@@ -182,18 +182,18 @@ export default function UniversalCertificatePreviewModal({
                   <div className="flex flex-col items-center justify-center p-6 text-center space-y-3">
                     <div className="text-4xl">📄</div>
                     <p className="text-sm font-bold text-slate-800">
-                      Official Certificate available on Google Drive
+                      Official Certificate Document
                     </p>
                     <p className="text-xs text-slate-500 max-w-sm">
-                      Inline browser embedding was restricted by Google Drive. Click below to view the official file directly.
+                      Inline browser embedding was blocked by the browser. Click below to view or download your verified certificate file.
                     </p>
                     <a
-                      href={certificate.driveLink}
+                      href={directDownloadUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="rounded-xl bg-purple-900 px-5 py-2.5 text-xs font-bold text-white shadow-md hover:bg-purple-800 transition inline-flex items-center gap-2"
                     >
-                      🔗 Open Certificate in Google Drive
+                      📥 Download Certificate
                     </a>
                   </div>
                 )}
@@ -210,15 +210,7 @@ export default function UniversalCertificatePreviewModal({
         {/* Footer Actions */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-4 sm:px-6 py-3.5 shrink-0">
           <div className="text-xs text-slate-500 truncate max-w-xs sm:max-w-sm">
-            {certificate.svg ? (
-              <>
-                <strong>Format:</strong> High-Resolution Print Ready A4
-              </>
-            ) : (
-              <>
-                <strong>Source:</strong> Authoritative Google Drive Certificate
-              </>
-            )}
+            <strong>Format:</strong> High-Resolution Print Ready A4
           </div>
 
           <div className="flex items-center gap-2.5">
@@ -242,27 +234,15 @@ export default function UniversalCertificatePreviewModal({
                 </button>
               </>
             ) : isDriveHosted ? (
-              <>
-                {certificate.driveLink && (
-                  <a
-                    href={certificate.driveLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-purple-300 bg-white px-4 py-2 text-xs sm:text-sm font-bold text-purple-900 hover:bg-purple-50 shadow-xs transition cursor-pointer"
-                  >
-                    🔗 Open in Drive
-                  </a>
-                )}
-                <a
-                  href={directDownloadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-emerald-800 shadow-md transition cursor-pointer"
-                >
-                  📥 Download Certificate
-                </a>
-              </>
+              <a
+                href={directDownloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-5 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-emerald-800 shadow-md transition cursor-pointer"
+              >
+                📥 Download Certificate
+              </a>
             ) : null}
           </div>
         </div>
