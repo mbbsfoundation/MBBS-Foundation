@@ -5,6 +5,7 @@ import {
   downloadCertificatePdf,
   downloadCertificatePng,
 } from "@/components/cprsanjeevani/CertificateRenderer";
+import UniversalCertificatePreviewModal from "@/components/cprday/UniversalCertificatePreviewModal";
 
 type Certificate = {
   certificateNumber: string;
@@ -842,22 +843,22 @@ export default function CertificateAccessSection() {
                         </>
                       ) : cert.driveLink ? (
                         <>
+                          <button
+                            type="button"
+                            onClick={() => setActivePreviewCert(cert)}
+                            className="rounded-xl bg-purple-900 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-purple-800 transition flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            👁️ Preview
+                          </button>
+
                           <a
-                            href={cert.driveLink}
+                            href={cert.downloadUrl || cert.driveLink}
                             target="_blank"
                             rel="noopener noreferrer"
+                            download
                             className="rounded-xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-center"
                           >
                             📥 Download Certificate
-                          </a>
-
-                          <a
-                            href={cert.previewUrl || cert.driveLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="rounded-xl border border-purple-300 bg-white px-5 py-3 text-xs sm:text-sm font-bold text-purple-900 hover:bg-purple-50 transition flex items-center justify-center gap-2 text-center"
-                          >
-                            👁️ Preview
                           </a>
                         </>
                       ) : (
@@ -926,77 +927,11 @@ export default function CertificateAccessSection() {
         </div>
       </div>
 
-      {/* In-Page Certificate Preview Modal - Optimized A4 Landscape Dimensions */}
-      {activePreviewCert && activePreviewCert.svg && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-2 sm:p-4 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative flex max-h-[96vh] w-full max-w-5xl flex-col rounded-2xl bg-white shadow-2xl overflow-hidden border border-slate-200">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 sm:px-6 py-3.5 shrink-0">
-              <div className="flex items-center gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-black text-purple-900 uppercase tracking-wider">
-                      {activePreviewCert.category || "IAP CPR Sanjeevani"}
-                    </span>
-                    <span className="font-mono text-xs font-bold text-slate-600">
-                      {activePreviewCert.certificateNumber}
-                    </span>
-                    <span className="hidden sm:inline-block rounded-md bg-slate-200/80 px-2 py-0.5 text-[11px] font-semibold text-slate-700">
-                      📐 A4 Landscape (297 × 210 mm)
-                    </span>
-                  </div>
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 mt-1 truncate max-w-md sm:max-w-lg">
-                    {activePreviewCert.participantName}
-                  </h3>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActivePreviewCert(null)}
-                aria-label="Close Preview"
-                className="rounded-full p-2 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Certificate Display Area - Fitted A4 Landscape Container */}
-            <div className="relative flex-1 overflow-hidden p-2 sm:p-5 bg-slate-900/10 flex items-center justify-center min-h-[250px] max-h-[calc(88vh-140px)]">
-              <div className="relative w-full max-w-4xl max-h-[calc(86vh-160px)] aspect-[297/210] rounded-xl bg-white shadow-2xl overflow-hidden border border-slate-300 flex items-center justify-center">
-                <div
-                  className="w-full h-full flex items-center justify-center certificate-preview-container [&_svg]:w-full [&_svg]:h-full [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:object-contain [&_svg]:block"
-                  dangerouslySetInnerHTML={{ __html: activePreviewCert.svg }}
-                />
-              </div>
-            </div>
-
-            {/* Footer Actions - PDF & PNG Only */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-4 sm:px-6 py-3.5 shrink-0">
-              <div className="text-xs text-slate-500 truncate max-w-xs sm:max-w-sm">
-                <strong>Format:</strong> High-Resolution Print Ready A4
-              </div>
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleDownloadPng(activePreviewCert)}
-                  disabled={downloadingFormat === "png"}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-50 shadow-xs transition disabled:opacity-50 cursor-pointer"
-                >
-                  {downloadingFormat === "png" ? "Rendering..." : "🖼️ Download PNG"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDownloadPdf(activePreviewCert)}
-                  disabled={downloadingFormat === "pdf"}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-purple-900 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-purple-800 shadow-md transition disabled:opacity-50 cursor-pointer"
-                >
-                  {downloadingFormat === "pdf" ? "Rendering PDF..." : "📥 Download PDF"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Universal In-Page Certificate Preview Modal */}
+      <UniversalCertificatePreviewModal
+        certificate={activePreviewCert}
+        onClose={() => setActivePreviewCert(null)}
+      />
     </section>
   );
 }

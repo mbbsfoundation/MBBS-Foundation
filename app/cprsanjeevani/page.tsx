@@ -2,10 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import {
-  CertificateItem,
-  CertificatePreviewModal,
-} from "@/components/cprsanjeevani/CertificateRenderer";
+import UniversalCertificatePreviewModal from "@/components/cprday/UniversalCertificatePreviewModal";
 
 interface CertificateRecord {
   certificateNumber: string;
@@ -61,9 +58,8 @@ export default function SanjeevaniAdminProtectedPortalPage() {
   const [selectedVenue, setSelectedVenue] = useState("");
   const [selectedName, setSelectedName] = useState("");
 
-  // In-Page Preview Modal Item
-  const [previewModalCert, setPreviewModalCert] = useState<CertificateItem | null>(null);
-  const [drivePreviewCert, setDrivePreviewCert] = useState<CertificateRecord | null>(null);
+  // In-Page Universal Preview Modal Item
+  const [universalModalCert, setUniversalModalCert] = useState<CertificateRecord | null>(null);
 
   // Check existing admin session on mount
   useEffect(() => {
@@ -341,27 +337,7 @@ export default function SanjeevaniAdminProtectedPortalPage() {
 
   // Open Preview Modal
   const handleOpenPreview = (cert: CertificateRecord) => {
-    if (cert.svg) {
-      setPreviewModalCert({
-        id: cert.certificateNumber,
-        certificateId: cert.certificateNumber,
-        sequenceNumber: 0,
-        stateCode: cert.state || "",
-        participantName: cert.participantName,
-        date: cert.issueDate,
-        venue: cert.venueName,
-        city: cert.city,
-        state: cert.state,
-        courseCoordinator: cert.courseCoordinator,
-        category: cert.category,
-        svg: cert.svg,
-        pdfFilename: cert.pdfFilename || `${cert.certificateNumber.replace(/\//g, "-")}_${cert.participantName.replace(/\s+/g, "-")}.pdf`,
-        pngFilename: cert.pngFilename || `${cert.certificateNumber.replace(/\//g, "-")}_${cert.participantName.replace(/\s+/g, "-")}.png`,
-        svgFilename: cert.svgFilename || `${cert.certificateNumber.replace(/\//g, "-")}_${cert.participantName.replace(/\s+/g, "-")}.svg`,
-      });
-    } else {
-      setDrivePreviewCert(cert);
-    }
+    setUniversalModalCert(cert);
   };
 
   // ==========================================
@@ -933,13 +909,14 @@ export default function SanjeevaniAdminProtectedPortalPage() {
 
                         {cert.driveLink && (
                           <a
-                            href={cert.driveLink}
+                            href={cert.downloadUrl || cert.driveLink}
                             target="_blank"
                             rel="noopener noreferrer"
+                            download
                             className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition flex items-center justify-center gap-1"
-                            title="Preview on Google Drive"
+                            title="Download Certificate"
                           >
-                            👁️ Preview
+                            📥 Download
                           </a>
                         )}
                       </div>
@@ -952,55 +929,11 @@ export default function SanjeevaniAdminProtectedPortalPage() {
         </div>
       </main>
 
-      {/* In-Page Vector Certificate Modal Preview - Optimized A4 Landscape Dimensions */}
-      {previewModalCert && (
-        <CertificatePreviewModal
-          item={previewModalCert}
-          onClose={() => setPreviewModalCert(null)}
-        />
-      )}
-
-      {/* Fallback Google Drive Modal */}
-      {drivePreviewCert && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-          <div className="w-full max-w-lg rounded-3xl bg-slate-900 border border-slate-700 p-6 text-white space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg">{drivePreviewCert.participantName}</h3>
-              <button
-                type="button"
-                onClick={() => setDrivePreviewCert(null)}
-                className="text-slate-400 hover:text-white cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <p className="text-xs text-slate-300">
-              Certificate Number: <span className="font-mono font-bold text-teal-400">{drivePreviewCert.certificateNumber}</span>
-            </p>
-
-            <div className="pt-4 flex gap-3">
-              {drivePreviewCert.driveLink && (
-                <a
-                  href={drivePreviewCert.driveLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 rounded-xl bg-teal-600 py-2.5 text-center text-xs font-bold text-white hover:bg-teal-700 transition flex items-center justify-center gap-1.5"
-                >
-                  👁️ Preview
-                </a>
-              )}
-              <button
-                type="button"
-                onClick={() => setDrivePreviewCert(null)}
-                className="rounded-xl border border-slate-600 px-4 py-2.5 text-xs text-slate-300 hover:bg-slate-800 cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Universal In-Page Certificate Preview Modal */}
+      <UniversalCertificatePreviewModal
+        certificate={universalModalCert}
+        onClose={() => setUniversalModalCert(null)}
+      />
     </div>
   );
 }
