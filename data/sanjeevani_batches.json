@@ -1,5 +1,18 @@
 [
   {
+    "id": "BATCH-1787323011297-6622",
+    "originalFileName": "Participants_Suppl_2.csv",
+    "totalRows": 2059,
+    "validRows": 2059,
+    "importedRows": 1915,
+    "duplicateRows": 144,
+    "errorRows": 144,
+    "status": "COMPLETED_WITH_SKIPPED",
+    "processingNotes": "Generated 1915 certificates across 5 categories/states.",
+    "createdAt": "2026-08-21T14:36:51.297Z",
+    "updatedAt": "2026-08-21T14:36:51.297Z"
+  },
+  {
     "id": "BATCH-1787077481374-8867",
     "originalFileName": "CPR_Day_Master_Venue_Registry.csv",
     "totalRows": 212,
