@@ -336,38 +336,6 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           ? `https://drive.google.com/file/d/${driveFileId}/preview`
           : driveLink;
 
-        let svgContent: string | undefined = undefined;
-        let pdfFilename: string | undefined = undefined;
-        let pngFilename: string | undefined = undefined;
-        let svgFilename: string | undefined = undefined;
-
-        if (!driveLink.trim() && cleanCertId && cleanName) {
-          const certCat = isCoordinatorFile
-            ? "CPR_DAY"
-            : isChampionFile
-            ? "CPR_CHAMPION"
-            : "CPR_DAY";
-
-          try {
-            svgContent = generateUnifiedCertificateSvg({
-              category: certCat,
-              participantName: cleanName,
-              date: "21-07-2026",
-              venue: cleanVenue,
-              city: cleanCity,
-              state: cleanState,
-              stateCode: cleanState,
-              certificateId: cleanCertId,
-              courseCoordinator: coordinator.trim(),
-            });
-            pdfFilename = formatCertificateFilename(cleanCertId, cleanName, "pdf");
-            pngFilename = formatCertificateFilename(cleanCertId, cleanName, "png");
-            svgFilename = formatCertificateFilename(cleanCertId, cleanName, "svg");
-          } catch (e) {
-            console.error(`Failed to generate SVG for ${cleanCertId}:`, e);
-          }
-        }
-
         records.push({
           srNo: cols[0] || "",
           certificateNumber: cleanCertId,
@@ -397,10 +365,6 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
             ? "National IAP CPR Sanjeevani Champion Certificate"
             : "National IAP CPR Sanjeevani Training Program",
           portalType: portal,
-          svg: svgContent,
-          pdfFilename,
-          pngFilename,
-          svgFilename,
         });
       }
     } catch (err) {

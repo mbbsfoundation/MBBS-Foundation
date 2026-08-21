@@ -57,7 +57,7 @@ export default function CertificateAccessSection() {
   const [searchMode, setSearchMode] = useState<"hierarchy" | "cert_id">("hierarchy");
   const [certId, setCertId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ title: string; message: string } | null>(null);
   const [certificates, setCertificates] = useState<Certificate[] | null>(null);
 
   // Cascading Hierarchy Search States
@@ -134,30 +134,43 @@ export default function CertificateAccessSection() {
     setSelectedCity("");
     setSelectedVenue("");
     setSelectedParticipant("");
+    async function loadStates() {
+      try {
+        const res = await fetch(`/api/cprday/certificates?action=states&portal=${portalType}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.states)) {
+          setStatesList(data.states);
+        }
+      } catch (err) {
+        console.error("Error loading states:", err);
+      }
+    }
+    loadStates();
+  }, [portalType]);
+
+  // Reset dropdowns when portal changes
+  const handlePortalSwitch = (type: "participant" | "champion" | "coordinator" | "facility") => {
+    setPortalType(type);
+    setCertificates(null);
+    setError(null);
+    setCertId("");
+    setSelectedState("");
+    setSelectedCity("");
+    setSelectedVenue("");
+    setSelectedParticipant("");
     setCitiesList([]);
     setVenuesList([]);
     setParticipantsList([]);
-    setError(null);
-    setCertificates(null);
-    setCertId("");
-
-    loadStates(portalType);
-  }, [portalType]);
-
-  const handlePortalSwitch = (type: "participant" | "champion" | "coordinator" | "facility") => {
-    if (type === portalType) return;
-    setPortalType(type);
   };
 
+  // Reset results when search mode changes
   const handleModeSwitch = (mode: "hierarchy" | "cert_id") => {
     setSearchMode(mode);
-    setError(null);
     setCertificates(null);
-    if (mode === "hierarchy") {
-      loadStates(portalType);
-    }
+    setError(null);
   };
 
+  // Cascading Selection Handlers
   const handleStateSelect = async (stateVal: string) => {
     setSelectedState(stateVal);
     setSelectedCity("");
@@ -169,15 +182,18 @@ export default function CertificateAccessSection() {
     setError(null);
 
     if (!stateVal) return;
+
     try {
       const res = await fetch(
         `/api/cprday/certificates?action=cities&state=${encodeURIComponent(stateVal)}&portal=${portalType}`
       );
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (data.success && Array.isArray(data.cities)) {
         setCitiesList(data.cities);
       }
-    } catch (e) {}
+    } catch (err) {
+      console.error("Error loading cities:", err);
+    }
   };
 
   const handleCitySelect = async (cityVal: string) => {
@@ -188,7 +204,8 @@ export default function CertificateAccessSection() {
     setParticipantsList([]);
     setError(null);
 
-    if (!cityVal) return;
+    if (!cityVal || !selectedState) return;
+
     try {
       const res = await fetch(
         `/api/cprday/certificates?action=venues&state=${encodeURIComponent(
@@ -196,10 +213,12 @@ export default function CertificateAccessSection() {
         )}&city=${encodeURIComponent(cityVal)}&portal=${portalType}`
       );
       const data = await res.json();
-      if (res.ok && data.success) {
+      if (data.success && Array.isArray(data.venues)) {
         setVenuesList(data.venues);
       }
-    } catch (e) {}
+    } catch (err) {
+      console.error("Error loading venues:", err);
+    }
   };
 
   const handleVenueSelect = async (venueVal: string) => {
@@ -208,29 +227,32 @@ export default function CertificateAccessSection() {
     setParticipantsList([]);
     setError(null);
 
-    if (!venueVal) return;
-    if (portalType === "facility") {
-      // For facility certificate, venue itself is the entity!
-      return;
-    }
+    if (!venueVal || !selectedState || !selectedCity) return;
 
-    try {
-      const res = await fetch(
-        `/api/cprday/certificates?action=participants&state=${encodeURIComponent(
-          selectedState
-        )}&city=${encodeURIComponent(selectedCity)}&venue=${encodeURIComponent(venueVal)}&portal=${portalType}`
-      );
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setParticipantsList(data.participants);
+    if (portalType !== "facility") {
+      try {
+        const res = await fetch(
+          `/api/cprday/certificates?action=participants&state=${encodeURIComponent(
+            selectedState
+          )}&city=${encodeURIComponent(selectedCity)}&venue=${encodeURIComponent(
+            venueVal
+          )}&portal=${portalType}`
+        );
+        const data = await res.json();
+        if (data.success && Array.isArray(data.participants)) {
+          setParticipantsList(data.participants);
+        }
+      } catch (err) {
+        console.error("Error loading participants:", err);
       }
-    } catch (e) {}
+    }
   };
 
+  // Search Handlers
   const handleSearchByCertId = async (idToSearch?: string) => {
     const targetId = (idToSearch || certId).trim();
     if (!targetId) {
-      setError("Please enter a Certificate ID / Venue Code.");
+      setError({ title: "Input Required", message: "Please enter a Certificate ID / Venue Code." });
       return;
     }
 
@@ -247,11 +269,17 @@ export default function CertificateAccessSection() {
       if (res.ok && data.success && data.certificate) {
         setCertificates([data.certificate]);
       } else {
-        setError(data.error || `No certificate found matching ID "${targetId}".`);
+        setError({
+          title: "Certificate Not Found",
+          message: data.error || `No certificate found matching ID "${targetId}". Please verify the ID and try again.`,
+        });
       }
     } catch (err) {
       console.error("Error retrieving certificate:", err);
-      setError("Failed to connect to certificate server. Please try again.");
+      setError({
+        title: "Unable to Access Certificate Service",
+        message: "Failed to communicate with the certificate server. Please check your connection and try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -262,12 +290,12 @@ export default function CertificateAccessSection() {
 
     if (portalType === "facility") {
       if (!selectedState || !selectedCity || !selectedVenue) {
-        setError("Please select State, City, and Training Venue.");
+        setError({ title: "Selection Incomplete", message: "Please select State, City, and Training Venue." });
         return;
       }
     } else {
       if (!selectedState || !selectedCity || !selectedVenue || !selectedParticipant) {
-        setError("Please select all 4 options (State, City, Venue, and Name).");
+        setError({ title: "Selection Incomplete", message: "Please select all 4 options (State, City, Venue, and Name)." });
         return;
       }
     }
@@ -290,15 +318,21 @@ export default function CertificateAccessSection() {
       const res = await fetch(url);
       const data = await res.json();
 
-      if (res.ok && data.success && data.certificates) {
+      if (res.ok && data.success && data.certificates && data.certificates.length > 0) {
         const uniqueCerts = deduplicateCertificates(data.certificates);
         setCertificates(uniqueCerts);
       } else {
-        setError(data.error || "No certificate found matching this combination.");
+        setError({
+          title: "Certificate Not Found",
+          message: data.error || "No certificate found matching the selected State, City, Venue, and Name combination.",
+        });
       }
     } catch (err) {
       console.error("Error searching location hierarchy:", err);
-      setError("Failed to connect to certificate server. Please try again.");
+      setError({
+        title: "Unable to Access Certificate Service",
+        message: "Failed to communicate with the certificate server. Please check your connection and try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -706,8 +740,8 @@ export default function CertificateAccessSection() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div>
-                <p className="font-bold text-red-800">Certificate Not Found</p>
-                <p className="mt-0.5">{error}</p>
+                <p className="font-bold text-red-800">{error.title || "Notice"}</p>
+                <p className="mt-0.5">{error.message}</p>
               </div>
             </div>
           )}
