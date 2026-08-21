@@ -94,20 +94,26 @@ let cprDayMaxSeqIndexed = false;
 let championMaxSeqIndexed = false;
 let lastCsvMtime = 0;
 
-function getLatestCsvMtime(dir: string): number {
-  try {
-    const files = fs.readdirSync(dir);
-    let maxMtime = 0;
-    for (const f of files) {
-      if (f.endsWith(".csv") || f.endsWith(".CSV")) {
-        const stats = fs.statSync(path.join(dir, f));
-        if (stats.mtimeMs > maxMtime) maxMtime = stats.mtimeMs;
+const CERTS_DIRS = [
+  path.join(process.cwd(), "cprcertificates"),
+  path.join(process.cwd(), "cprsanjeevani"),
+];
+
+function getLatestCsvMtimes(): number {
+  let maxMtime = 0;
+  for (const dir of CERTS_DIRS) {
+    if (!fs.existsSync(dir)) continue;
+    try {
+      const files = fs.readdirSync(dir);
+      for (const f of files) {
+        if (f.endsWith(".csv") || f.endsWith(".CSV")) {
+          const stats = fs.statSync(path.join(dir, f));
+          if (stats.mtimeMs > maxMtime) maxMtime = stats.mtimeMs;
+        }
       }
-    }
-    return maxMtime;
-  } catch {
-    return 0;
+    } catch {}
   }
+  return maxMtime;
 }
 
 function indexCprDayParticipantSequences(records: CPRCertificateRecord[]) {
@@ -150,13 +156,11 @@ function indexChampionSequences(records: CPRCertificateRecord[]) {
 
 /**
  * Dynamically loads and parses CSV files for participants, CPR champions, or course coordinators
+ * across both `cprcertificates` and `cprsanjeevani` folders
  * (Auto-invalidates and refreshes cache if CSV files are modified).
  */
 export function getAllCPRCertificates(portal: CPRCertificatePortal = "participant"): CPRCertificateRecord[] {
-  const certsDir = path.join(process.cwd(), "cprcertificates");
-  if (!fs.existsSync(certsDir)) return [];
-
-  const currentMtime = getLatestCsvMtime(certsDir);
+  const currentMtime = getLatestCsvMtimes();
   if (currentMtime > lastCsvMtime) {
     // Clear cache if any CSV file was updated on disk
     lastCsvMtime = currentMtime;
@@ -170,24 +174,34 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
     return certificateCache[portal]!;
   }
 
-  const files = fs.readdirSync(certsDir);
-  const csvFiles = files.filter((file) => file.endsWith(".csv") || file.endsWith(".CSV"));
+  const allCsvFiles: { dir: string; file: string }[] = [];
+  for (const dir of CERTS_DIRS) {
+    if (!fs.existsSync(dir)) continue;
+    const files = fs.readdirSync(dir);
+    for (const file of files) {
+      if (file.endsWith(".csv") || file.endsWith(".CSV")) {
+        allCsvFiles.push({ dir, file });
+      }
+    }
+  }
 
   const records: CPRCertificateRecord[] = [];
   const seenCertIds = new Set<string>();
   const seenPersonVenueKeys = new Set<string>();
 
-  for (const file of csvFiles) {
+  for (const { dir, file } of allCsvFiles) {
     try {
       const lowerFile = file.toLowerCase();
       const isCoordinatorFile = lowerFile.includes("coordinator");
       const isChampionFile = lowerFile.includes("champion");
+      const isVenueFile = lowerFile.includes("venue") || lowerFile.includes("facility");
 
+      if (isVenueFile) continue; // Venues are handled by facility portal registry
       if (portal === "coordinator" && !isCoordinatorFile) continue;
       if (portal === "champion" && !isChampionFile) continue;
       if (portal === "participant" && (isCoordinatorFile || isChampionFile)) continue;
 
-      const filePath = path.join(certsDir, file);
+      const filePath = path.join(dir, file);
       const content = fs.readFileSync(filePath, "utf8");
       const cleanContent = content.replace(/^\uFEFF/, "");
       const rows = parseFullCSV(cleanContent);
