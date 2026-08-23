@@ -54,19 +54,21 @@ export function getMasterSvgTemplate(category: CertificateCategory = "SANJEEVANI
   if (category === "CPR_CHAMPION") {
     if (cachedChampionSvg) return cachedChampionSvg;
 
-    const primaryPath = path.join(process.cwd(), "cprsanjeevani", "CPR Champions.svg");
-    if (fs.existsSync(primaryPath)) {
-      cachedChampionSvg = fs.readFileSync(primaryPath, "utf-8");
-      return cachedChampionSvg;
+    const possiblePaths = [
+      path.join(process.cwd(), "cprsanjeevani", "CPR Champions.svg"),
+      path.join(process.cwd(), "cprsanjeevani", "cprchampions.svg"),
+      path.join(process.cwd(), "public", "cprsanjeevani", "CPR Champions.svg"),
+      path.join(process.cwd(), "public", "cprsanjeevani", "cprchampions.svg"),
+    ];
+
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        cachedChampionSvg = fs.readFileSync(p, "utf-8");
+        return cachedChampionSvg;
+      }
     }
 
-    const fallbackPath = path.join(process.cwd(), "public", "cprsanjeevani", "CPR Champions.svg");
-    if (fs.existsSync(fallbackPath)) {
-      cachedChampionSvg = fs.readFileSync(fallbackPath, "utf-8");
-      return cachedChampionSvg;
-    }
-
-    throw new Error("Master SVG template 'CPR Champions.svg' not found in cprsanjeevani directory.");
+    throw new Error("Master SVG template 'CPR Champions.svg' / 'cprchampions.svg' not found in cprsanjeevani directory.");
   }
 
   if (category === "CPR_FACILITY") {

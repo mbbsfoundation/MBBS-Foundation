@@ -197,6 +197,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
   for (const { dir, file } of allCsvFiles) {
     try {
       const lowerFile = file.toLowerCase();
+      const isFinalChampionMaster = lowerFile.includes("final_champion_certification_master");
       const isCoordinatorFile = lowerFile.includes("coordinator");
       const isChampionFile = lowerFile.includes("champion");
       const isVenueFile = lowerFile.includes("venue") || lowerFile.includes("facility");
@@ -205,6 +206,14 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       if (portal === "coordinator" && !isCoordinatorFile) continue;
       if (portal === "champion" && !isChampionFile) continue;
       if (portal === "participant" && (isCoordinatorFile || isChampionFile)) continue;
+
+      // If Final_Champion_Certification_Master is present, use it as the definitive source for Champions
+      const hasFinalChampionMaster = allCsvFiles.some((f) =>
+        f.file.toLowerCase().includes("final_champion_certification_master")
+      );
+      if (portal === "champion" && hasFinalChampionMaster && !isFinalChampionMaster) {
+        continue;
+      }
 
       const filePath = path.join(dir, file);
       const content = fs.readFileSync(filePath, "utf8");
@@ -231,7 +240,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           return h.includes("coordinator name") || h.includes("participant") || h.includes("name");
         }
         if (isChampionFile) {
-          return h.includes("champion") || h.includes("chapion") || h.includes("participant") || h.includes("name");
+          return h.includes("name of champion") || h.includes("champion name") || h.includes("champion") || h.includes("chapion") || h.includes("participant") || h.includes("name");
         }
         return (
           h.includes("name of participant") ||
@@ -251,7 +260,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       );
 
       const zoneIdx = headers.findIndex((h) => h.includes("zone"));
-      const stateIdx = headers.findIndex((h) => h.includes("state"));
+      const stateIdx = headers.findIndex((h) => h.includes("state") && !h.includes("state code"));
       const cityIdx = headers.findIndex((h) => h.includes("city") || h.includes("district"));
 
       const coordinatorIdx = headers.findIndex(
@@ -270,21 +279,50 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         (h) => h.includes("drive") || h.includes("link") || h.includes("url") || h.includes("google")
       );
 
+      const statusIdx = headers.findIndex(
+        (h) => h.includes("certificate status") || h.includes("status")
+      );
+
+      const actionIdx = headers.findIndex(
+        (h) => h.includes("website action") || h.includes("action")
+      );
+
+      const uniqueKeyIdx = headers.findIndex(
+        (h) =>
+          h.includes("unique champion-venue key") ||
+          h.includes("unique champion") ||
+          h.includes("unique key") ||
+          h.includes("champion-venue key")
+      );
+
       for (let i = 1; i < rows.length; i++) {
         const cols = rows[i];
         if (cols.length < 3) continue;
+
+        const rowStatus = (statusIdx >= 0 ? cols[statusIdx] || "" : "").trim().toUpperCase();
+        const rowAction = (actionIdx >= 0 ? cols[actionIdx] || "" : "").trim().toUpperCase();
+
+        // Skip any REVIEW records from public search
+        if (rowStatus.startsWith("REVIEW_") || rowAction === "DO_NOT_GENERATE_YET") {
+          continue;
+        }
 
         const certId = cols[certIdIdx >= 0 ? certIdIdx : 1] || "";
         const name = cols[nameIdx >= 0 ? nameIdx : 2] || "";
         const mobile = isChampionFile ? "" : cols[mobileIdx >= 0 ? mobileIdx : 3] || "";
         const email = isChampionFile ? "" : cols[emailIdx >= 0 ? emailIdx : 4] || "";
         const zone = cols[zoneIdx >= 0 ? zoneIdx : 5] || "";
-        const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile ? 3 : 6)] || "";
-        const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile ? 4 : 7)] || "";
+        const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile ? 4 : 6)] || "";
+        const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile ? 3 : 7)] || "";
         const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : "";
         const coordinatorEmail = coordinatorEmailIdx >= 0 ? cols[coordinatorEmailIdx] || "" : "";
-        const venue = venueIdx >= 0 ? cols[venueIdx] || "" : cols[isChampionFile ? 5 : 10] || "";
-        const driveLink = driveLinkIdx >= 0 ? cols[driveLinkIdx] || "" : cols[isChampionFile ? 6 : 11] || "";
+        const venue = venueIdx >= 0 ? cols[venueIdx] || "" : cols[isChampionFile ? 2 : 10] || "";
+        let driveLink = driveLinkIdx >= 0 ? cols[driveLinkIdx] || "" : cols[isChampionFile ? 10 : 11] || "";
+
+        // If NEW_HTML, clear driveLink so it triggers dynamic SVG generation from CPR Champions.svg
+        if (rowStatus === "NEW_HTML" || rowAction === "GENERATE_HTML_CERTIFICATE") {
+          driveLink = "";
+        }
 
         const cleanCertId = certId.trim();
         const cleanName = name.trim();
@@ -318,11 +356,22 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           seenCertIds.add(certKey);
         }
 
-        // Deduplication 2: Champion Name + State + Venue check (for Champions) or Name + Mobile + Venue check
+        // Deduplication 2: Unique Champion-Venue Key check or Person-Venue check
         if (cleanName && cleanVenue) {
-          const personVenueKey = isChampionFile
-            ? `${cleanName.toUpperCase()}|${cleanState.toUpperCase()}|${cleanVenue.toUpperCase()}`
-            : `${cleanName.toUpperCase()}|${cleanMobile.replace(/\D/g, "")}|${cleanVenue.toUpperCase()}`;
+          let personVenueKey = "";
+          if (isChampionFile) {
+            if (uniqueKeyIdx >= 0 && cols[uniqueKeyIdx]) {
+              personVenueKey = cols[uniqueKeyIdx].trim().toLowerCase();
+            } else {
+              const normName = cleanName.toLowerCase().replace(/^(dr|dr\.|prof|prof\.|mr|mr\.|ms|ms\.|mrs|mrs\.|capt|capt\.|lt|lt\.)\s+/i, "").replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+              const normVenue = cleanVenue.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+              const normCity = cleanCity.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+              const normState = cleanState.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+              personVenueKey = `${normName}|${normVenue}|${normCity}|${normState}`;
+            }
+          } else {
+            personVenueKey = `${cleanName.toUpperCase()}|${cleanMobile.replace(/\D/g, "")}|${cleanVenue.toUpperCase()}`;
+          }
 
           if (seenPersonVenueKeys.has(personVenueKey)) continue;
           seenPersonVenueKeys.add(personVenueKey);
