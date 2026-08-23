@@ -150,9 +150,10 @@ function ensureCertificateRenderFields(cert: any) {
     const isCoordinator = !isFacility && !isChampion && (cert.category === "Course Coordinator" || certNum.toUpperCase().includes("/CC/"));
     const isCprDay = !isFacility && !isChampion && !isCoordinator;
 
-    let certCat: "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" = "SANJEEVANI";
+    let certCat: "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" | "COURSE_COORDINATOR" = "SANJEEVANI";
     if (isFacility) certCat = "CPR_FACILITY";
     else if (isChampion) certCat = "CPR_CHAMPION";
+    else if (isCoordinator) certCat = "COURSE_COORDINATOR";
     else if (isCprDay) certCat = "CPR_DAY";
 
     try {

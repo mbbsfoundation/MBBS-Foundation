@@ -42,5 +42,16 @@
     "feedback": "",
     "portalType": "participant",
     "timestamp": "2026-08-08T11:41:45.916Z"
+  },
+  {
+    "id": "rat_1787518202964_0ln90",
+    "certificateNumber": "IAPCPR/CH/WB/0190",
+    "participantName": "Dr Prabal Bir",
+    "venueName": "ESI HOSPITAL, KAMARHATI",
+    "state": "West Bengal",
+    "rating": 5,
+    "feedback": "",
+    "portalType": "champion",
+    "timestamp": "2026-08-23T20:50:02.964Z"
   }
 ]

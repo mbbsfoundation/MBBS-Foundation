@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-export type CertificateCategory = "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY";
+export type CertificateCategory = "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" | "COURSE_COORDINATOR";
 
 export interface UnifiedCertData {
   category?: CertificateCategory;
@@ -21,12 +21,14 @@ let cachedSanjeevaniSvg: string | null = null;
 let cachedCprDaySvg: string | null = null;
 let cachedChampionSvg: string | null = null;
 let cachedFacilitySvg: string | null = null;
+let cachedCoordinatorSvg: string | null = null;
 
 export function invalidateSvgCache() {
   cachedSanjeevaniSvg = null;
   cachedCprDaySvg = null;
   cachedChampionSvg = null;
   cachedFacilitySvg = null;
+  cachedCoordinatorSvg = null;
 }
 
 /**
@@ -69,6 +71,26 @@ export function getMasterSvgTemplate(category: CertificateCategory = "SANJEEVANI
     }
 
     throw new Error("Master SVG template 'CPR Champions.svg' / 'cprchampions.svg' not found in cprsanjeevani directory.");
+  }
+
+  if (category === "COURSE_COORDINATOR") {
+    if (cachedCoordinatorSvg) return cachedCoordinatorSvg;
+
+    const possiblePaths = [
+      path.join(process.cwd(), "cprsanjeevani", "Course Coordinator.svg"),
+      path.join(process.cwd(), "cprsanjeevani", "CourseCoordinator.svg"),
+      path.join(process.cwd(), "cprsanjeevani", "course_coordinator.svg"),
+      path.join(process.cwd(), "public", "cprsanjeevani", "Course Coordinator.svg"),
+    ];
+
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        cachedCoordinatorSvg = fs.readFileSync(p, "utf-8");
+        return cachedCoordinatorSvg;
+      }
+    }
+
+    throw new Error("Master SVG template 'Course Coordinator.svg' not found in cprsanjeevani directory.");
   }
 
   if (category === "CPR_FACILITY") {
@@ -305,6 +327,24 @@ export function generateUnifiedCertificateSvg(data: UnifiedCertData): string {
   <!-- Dynamic CPR Champion Certificate Fields -->
   <g id="cprchampion-dynamic-fields" style="font-family:'Times New Roman', Times, serif; text-rendering:geometricPrecision; shape-rendering:geometricPrecision;">
     <!-- 1. CPR Champion Name -->
+    <text x="14878" y="8680" text-anchor="middle" style="font-size:${nameFontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapedName}</text>
+    
+    <!-- 2. Course Date -->
+    <text x="14878" y="14850" text-anchor="middle" style="font-size:500px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapedDate}</text>
+    
+    <!-- 3. Venue, City, State -->
+    <text x="14878" y="16300" text-anchor="middle" style="font-size:${venueFontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapedVenue}</text>
+    
+    <!-- 4. Certificate ID -->
+    <text x="24606.72" y="12080" text-anchor="middle" style="font-size:460px; font-weight:bold; fill:#001045; font-family:Arial, Helvetica, sans-serif; letter-spacing:1px;">${escapedCertId}</text>
+  </g>
+</svg>`;
+  } else if (category === "COURSE_COORDINATOR") {
+    // Template: Course Coordinator.svg (viewBox: 0 0 29753.3 21007.51)
+    dynamicLayer = `
+  <!-- Dynamic Course Coordinator Certificate Fields -->
+  <g id="cprcoordinator-dynamic-fields" style="font-family:'Times New Roman', Times, serif; text-rendering:geometricPrecision; shape-rendering:geometricPrecision;">
+    <!-- 1. Coordinator Name -->
     <text x="14878" y="8680" text-anchor="middle" style="font-size:${nameFontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapedName}</text>
     
     <!-- 2. Course Date -->

@@ -198,6 +198,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
     try {
       const lowerFile = file.toLowerCase();
       const isFinalChampionMaster = lowerFile.includes("final_champion_certification_master");
+      const isFinalCoordinatorMaster = lowerFile.includes("final_course_coordinator_certification_master");
       const isCoordinatorFile = lowerFile.includes("coordinator");
       const isChampionFile = lowerFile.includes("champion");
       const isVenueFile = lowerFile.includes("venue") || lowerFile.includes("facility");
@@ -212,6 +213,14 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         f.file.toLowerCase().includes("final_champion_certification_master")
       );
       if (portal === "champion" && hasFinalChampionMaster && !isFinalChampionMaster) {
+        continue;
+      }
+
+      // If Final_Course_Coordinator_Certification_Master is present, use it as the definitive source for Course Coordinators
+      const hasFinalCoordinatorMaster = allCsvFiles.some((f) =>
+        f.file.toLowerCase().includes("final_course_coordinator_certification_master")
+      );
+      if (portal === "coordinator" && hasFinalCoordinatorMaster && !isFinalCoordinatorMaster) {
         continue;
       }
 
@@ -237,10 +246,23 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
 
       const nameIdx = headers.findIndex((h) => {
         if (isCoordinatorFile) {
-          return h.includes("coordinator name") || h.includes("participant") || h.includes("name");
+          return (
+            h.includes("coordinator name") ||
+            h.includes("name of coordinator") ||
+            h.includes("coordinator") ||
+            h.includes("participant") ||
+            h.includes("name")
+          );
         }
         if (isChampionFile) {
-          return h.includes("name of champion") || h.includes("champion name") || h.includes("champion") || h.includes("chapion") || h.includes("participant") || h.includes("name");
+          return (
+            h.includes("name of champion") ||
+            h.includes("champion name") ||
+            h.includes("champion") ||
+            h.includes("chapion") ||
+            h.includes("participant") ||
+            h.includes("name")
+          );
         }
         return (
           h.includes("name of participant") ||
@@ -256,7 +278,9 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       );
 
       const emailIdx = headers.findIndex(
-        (h) => (h.includes("email") || h.includes("mail")) && !h.includes("course coordinator")
+        (h) =>
+          (h.includes("email") || h.includes("mail")) &&
+          (!isCoordinatorFile || !h.includes("course coordinator"))
       );
 
       const zoneIdx = headers.findIndex((h) => h.includes("zone"));
@@ -289,10 +313,13 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
 
       const uniqueKeyIdx = headers.findIndex(
         (h) =>
+          h.includes("unique coordinator-venue key") ||
           h.includes("unique champion-venue key") ||
           h.includes("unique champion") ||
+          h.includes("unique coordinator") ||
           h.includes("unique key") ||
-          h.includes("champion-venue key")
+          h.includes("champion-venue key") ||
+          h.includes("coordinator-venue key")
       );
 
       for (let i = 1; i < rows.length; i++) {
@@ -309,17 +336,17 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
 
         const certId = cols[certIdIdx >= 0 ? certIdIdx : 1] || "";
         const name = cols[nameIdx >= 0 ? nameIdx : 2] || "";
-        const mobile = isChampionFile ? "" : cols[mobileIdx >= 0 ? mobileIdx : 3] || "";
-        const email = isChampionFile ? "" : cols[emailIdx >= 0 ? emailIdx : 4] || "";
+        const mobile = isChampionFile || isCoordinatorFile ? "" : cols[mobileIdx >= 0 ? mobileIdx : 3] || "";
+        const email = isChampionFile || isCoordinatorFile ? cols[emailIdx >= 0 ? emailIdx : 6] || "" : cols[emailIdx >= 0 ? emailIdx : 4] || "";
         const zone = cols[zoneIdx >= 0 ? zoneIdx : 5] || "";
-        const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile ? 4 : 6)] || "";
-        const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile ? 3 : 7)] || "";
-        const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : "";
-        const coordinatorEmail = coordinatorEmailIdx >= 0 ? cols[coordinatorEmailIdx] || "" : "";
-        const venue = venueIdx >= 0 ? cols[venueIdx] || "" : cols[isChampionFile ? 2 : 10] || "";
-        let driveLink = driveLinkIdx >= 0 ? cols[driveLinkIdx] || "" : cols[isChampionFile ? 10 : 11] || "";
+        const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile || isCoordinatorFile ? 4 : 6)] || "";
+        const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile || isCoordinatorFile ? 3 : 7)] || "";
+        const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : (isCoordinatorFile ? name : "");
+        const coordinatorEmail = coordinatorEmailIdx >= 0 ? cols[coordinatorEmailIdx] || "" : (isCoordinatorFile ? email : "");
+        const venue = venueIdx >= 0 ? cols[venueIdx] || "" : cols[isChampionFile || isCoordinatorFile ? 2 : 10] || "";
+        let driveLink = driveLinkIdx >= 0 ? cols[driveLinkIdx] || "" : cols[isChampionFile || isCoordinatorFile ? 10 : 11] || "";
 
-        // If NEW_HTML, clear driveLink so it triggers dynamic SVG generation from CPR Champions.svg
+        // If NEW_HTML, clear driveLink so it triggers dynamic SVG generation
         if (rowStatus === "NEW_HTML" || rowAction === "GENERATE_HTML_CERTIFICATE") {
           driveLink = "";
         }
@@ -356,10 +383,10 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           seenCertIds.add(certKey);
         }
 
-        // Deduplication 2: Unique Champion-Venue Key check or Person-Venue check
+        // Deduplication 2: Unique Champion/Coordinator-Venue Key check or Person-Venue check
         if (cleanName && cleanVenue) {
           let personVenueKey = "";
-          if (isChampionFile) {
+          if (isChampionFile || isCoordinatorFile) {
             if (uniqueKeyIdx >= 0 && cols[uniqueKeyIdx]) {
               personVenueKey = cols[uniqueKeyIdx].trim().toLowerCase();
             } else {
