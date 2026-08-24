@@ -382,8 +382,20 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         const cleanCertId = certId.trim();
         const cleanName = name.trim();
         const cleanMobile = mobile.trim();
-        const cleanState = state.trim();
-        const cleanVenue = venue.trim();
+        let cleanState = state.trim();
+        if (cleanState.toLowerCase() === "jammu and kashmir" || cleanState.toLowerCase() === "jammu & kashmir") {
+          cleanState = "Jammu & Kashmir";
+        }
+
+        let cleanVenue = venue.trim();
+        if (
+          cleanVenue.toLowerCase().includes("jindal super special") ||
+          cleanVenue.toLowerCase().includes("jindal super specialty") ||
+          cleanVenue.toLowerCase().includes("jindal super speciality")
+        ) {
+          cleanVenue = "Jindal Super Speciality Hospital";
+        }
+
         let cleanCity = city.trim();
 
         if (!cleanCity || cleanCity.toLowerCase().includes("panuganti") || cleanCity.toLowerCase().includes("suresh")) {
@@ -445,7 +457,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           mobileNumber: cleanMobile,
           email: email.trim(),
           zone: zone.trim(),
-          state: state.trim(),
+          state: cleanState,
           city: cleanCity,
           courseCoordinator: coordinator.trim(),
           courseCoordinatorEmail: coordinatorEmail.trim(),
@@ -484,6 +496,24 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
   return records;
 }
 
+function normalizeStateMatch(state: string): string {
+  const s = (state || "").trim().toLowerCase();
+  if (s === "jammu and kashmir" || s === "jammu & kashmir") return "jammu & kashmir";
+  return s;
+}
+
+function normalizeVenueMatch(venue: string): string {
+  const v = (venue || "").trim().toLowerCase();
+  if (
+    v.includes("jindal super special") ||
+    v.includes("jindal super specialty") ||
+    v.includes("jindal super speciality")
+  ) {
+    return "jindal super speciality hospital";
+  }
+  return v;
+}
+
 export function searchCertificateById(id: string, portal: CPRCertificatePortal = "participant"): CPRCertificateRecord | null {
   const cleanInput = id.trim().toUpperCase();
   if (!cleanInput) return null;
@@ -519,14 +549,19 @@ export function getCertificateStates(portal: CPRCertificatePortal = "participant
   const map = new Map<string, string>();
   for (const r of all) {
     if (r.state && r.state.trim().length > 0) {
-      const key = r.state.trim().toLowerCase();
+      let stateName = r.state.trim();
+      if (stateName.toLowerCase() === "jammu and kashmir" || stateName.toLowerCase() === "jammu & kashmir") {
+        stateName = "Jammu & Kashmir";
+      }
+      const key = stateName.toLowerCase();
       if (!map.has(key)) {
-        const formatted = r.state
-          .trim()
-          .toLowerCase()
-          .split(" ")
-          .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ""))
-          .join(" ");
+        const formatted = stateName === "Jammu & Kashmir"
+          ? "Jammu & Kashmir"
+          : stateName
+              .toLowerCase()
+              .split(" ")
+              .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ""))
+              .join(" ");
         map.set(key, formatted);
       }
     }
@@ -535,11 +570,11 @@ export function getCertificateStates(portal: CPRCertificatePortal = "participant
 }
 
 export function getCertificateCities(state: string, portal: CPRCertificatePortal = "participant"): string[] {
-  const cleanState = state.trim().toLowerCase();
+  const cleanState = normalizeStateMatch(state);
   const all = getAllCPRCertificates(portal);
   const map = new Map<string, string>();
   for (const r of all) {
-    if (r.state.trim().toLowerCase() === cleanState && r.city && r.city.trim().length > 0) {
+    if (normalizeStateMatch(r.state) === cleanState && r.city && r.city.trim().length > 0) {
       const cleanCity = r.city.trim();
       const key = cleanCity.toLowerCase();
       if (!cleanCity.toLowerCase().startsWith("dr.") && !cleanCity.toLowerCase().startsWith("dr ")) {
@@ -557,13 +592,13 @@ export function getCertificateCities(state: string, portal: CPRCertificatePortal
 }
 
 export function getCertificateVenues(state: string, city: string, portal: CPRCertificatePortal = "participant"): string[] {
-  const cleanState = state.trim().toLowerCase();
+  const cleanState = normalizeStateMatch(state);
   const cleanCity = city.trim().toLowerCase();
   const all = getAllCPRCertificates(portal);
   const venuesSet = new Set<string>();
   for (const r of all) {
     if (
-      r.state.trim().toLowerCase() === cleanState &&
+      normalizeStateMatch(r.state) === cleanState &&
       r.city.trim().toLowerCase() === cleanCity &&
       r.venueName &&
       r.venueName.trim().length > 0
@@ -580,16 +615,16 @@ export function getCertificateParticipants(
   venue: string,
   portal: CPRCertificatePortal = "participant"
 ): string[] {
-  const cleanState = state.trim().toLowerCase();
+  const cleanState = normalizeStateMatch(state);
   const cleanCity = city.trim().toLowerCase();
-  const cleanVenue = venue.trim().toLowerCase();
+  const cleanVenue = normalizeVenueMatch(venue);
   const all = getAllCPRCertificates(portal);
   const nameSet = new Set<string>();
   for (const r of all) {
     if (
-      r.state.trim().toLowerCase() === cleanState &&
+      normalizeStateMatch(r.state) === cleanState &&
       r.city.trim().toLowerCase() === cleanCity &&
-      r.venueName.trim().toLowerCase() === cleanVenue &&
+      normalizeVenueMatch(r.venueName) === cleanVenue &&
       r.participantName &&
       r.participantName.trim().length > 0
     ) {
@@ -606,16 +641,16 @@ export function searchCertificateByHierarchy(
   participantName: string,
   portal: CPRCertificatePortal = "participant"
 ): CPRCertificateRecord[] {
-  const cleanState = state.trim().toLowerCase();
+  const cleanState = normalizeStateMatch(state);
   const cleanCity = city.trim().toLowerCase();
-  const cleanVenue = venue.trim().toLowerCase();
+  const cleanVenue = normalizeVenueMatch(venue);
   const cleanName = participantName.trim().toLowerCase();
 
   const all = getAllCPRCertificates(portal);
   const matches = all.filter((r) => {
-    const matchState = r.state.trim().toLowerCase() === cleanState;
+    const matchState = normalizeStateMatch(r.state) === cleanState;
     const matchCity = r.city.trim().toLowerCase() === cleanCity;
-    const matchVenue = r.venueName.trim().toLowerCase() === cleanVenue;
+    const matchVenue = normalizeVenueMatch(r.venueName) === cleanVenue;
     const rName = r.participantName.trim().toLowerCase();
     const matchName = rName === cleanName || (cleanName.length >= 3 && rName.includes(cleanName));
     return matchState && matchCity && matchVenue && matchName;
@@ -627,9 +662,9 @@ export function searchCertificateByHierarchy(
 
   for (const r of matches) {
     const normName = (r.participantName || "").trim().toLowerCase().replace(/\s+/g, " ").replace(/[^\w\s]/gi, "");
-    const normVenue = (r.venueName || "").trim().toLowerCase().replace(/\s+/g, " ").replace(/[^\w\s]/gi, "");
+    const normVenue = normalizeVenueMatch(r.venueName || "").replace(/\s+/g, " ").replace(/[^\w\s]/gi, "");
     const normCity = (r.city || "").trim().toLowerCase().replace(/\s+/g, " ");
-    const normState = (r.state || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const normState = normalizeStateMatch(r.state || "").replace(/\s+/g, " ");
     const normMobile = (r.mobileNumber || "").replace(/\D/g, "");
 
     const key = `${normName}|${normMobile}|${normVenue}|${normCity}|${normState}`;

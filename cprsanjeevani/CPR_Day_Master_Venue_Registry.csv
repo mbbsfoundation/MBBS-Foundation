@@ -73,9 +73,9 @@ S No,Venue,Venue Code,City,State,State Code,Name of Course Coordinator
 72,"Medical College Building, 5Th Floor",IAP-CPR-Day/Venue/HR-101,Kurukshetra,Haryana,HR,Dr Baljeet Maini
 73,"Pathania Public School, Rohtak",IAP-CPR-Day/Venue/HR-102,Rohtak,Haryana,HR,Dr Manoj Rawal
 74,"Indira Gandhi Medical College, Shimla",IAP-CPR-Day/Venue/HP-101,Shimla,Himachal Pradesh,HP,Dr Parveen Bhardawaj
-75,"Dept of Pediatrics, GMC Anantnag",IAP-CPR-Day/Venue/JK-101,Anantnag,Jammu and Kashmir,JK,Dr Showkat Hussain Tali
-76,"Government Medical College, Jammu",IAP-CPR-Day/Venue/JK-102,Baramulla,Jammu and Kashmir,JK,Dr Irshad
-77,"All India Institute of Medical Sciences, Vijaypur, Jammu",IAP-CPR-Day/Venue/JK-103,"Vijaypur, Jammu",Jammu and Kashmir,JK,Dr Samriti Gupta
+75,"Dept of Pediatrics, GMC Anantnag",IAP-CPR-Day/Venue/JK-101,Anantnag,Jammu & Kashmir,JK,Dr Showkat Hussain Tali
+76,"Government Medical College, Jammu",IAP-CPR-Day/Venue/JK-102,Baramulla,Jammu & Kashmir,JK,Dr Irshad
+77,"All India Institute of Medical Sciences, Vijaypur, Jammu",IAP-CPR-Day/Venue/JK-103,"Vijaypur, Jammu",Jammu & Kashmir,JK,Dr Samriti Gupta
 78,"Rani Hospital, Ranchi",IAP-CPR-Day/Venue/JH-101,Ranchi,Jharkhand,JH,Dr Vishwanath Brahmachari
 79,"Basaveshwar International Public School, Bagalkot",IAP-CPR-Day/Venue/KA-101,Bagalkote,Karnataka,KA,Dr Ramesh Pol
 80,District Stadium,IAP-CPR-Day/Venue/KA-102,Bagalkote,Karnataka,KA,Dr Kshamata Kerudi
@@ -158,7 +158,7 @@ S No,Venue,Venue Code,City,State,State Code,Name of Course Coordinator
 157,"Sutlej Club, Ludhiana",IAP-CPR-Day/Venue/PB-110,Ludhiana,Punjab,PB,Dr Sumati Verma
 158,"Dav Public School, Sunam",IAP-CPR-Day/Venue/PB-111,Sunam,Punjab,PB,Dr Sumeet Bansal
 159,"Model Basic High School, Sunam",IAP-CPR-Day/Venue/PB-112,Sunam,Punjab,PB,Dr Sumeet Bansal
-160,"Jindal Super Specialty Hospital, Bharatpur",IAP-CPR-Day/Venue/RJ-101,Bharatpur,Rajasthan,RJ,Dr Kapil Jindal
+160,Jindal Super Speciality Hospital,IAP-CPR-Day/Venue/RJ-101,Bharatpur,Rajasthan,RJ,Dr Kapil Jindal
 161,"Mahila Chikitsalaya, Sanganeri Gate, Jaipur",IAP-CPR-Day/Venue/RJ-102,Jaipur,Rajasthan,RJ,Dr Neha Aggarwal
 162,Agrawal Hospital,IAP-CPR-Day/Venue/RJ-103,Tonk,Rajasthan,RJ,Dr Neha Aggarwal
 163,"New Stnm Hospital, Gangtok",IAP-CPR-Day/Venue/SK-101,Gangtok,Sikkim,SK,Dr Tsultem Doma Bhutia
