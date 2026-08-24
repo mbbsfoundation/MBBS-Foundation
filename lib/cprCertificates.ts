@@ -199,6 +199,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       const lowerFile = file.toLowerCase();
       const isFinalChampionMaster = lowerFile.includes("final_champion_certification_master");
       const isFinalCoordinatorMaster = lowerFile.includes("final_course_coordinator_certification_master");
+      const isFinalParticipantMaster = lowerFile.includes("final_participant_certification_master");
       const isCoordinatorFile = lowerFile.includes("coordinator");
       const isChampionFile = lowerFile.includes("champion");
       const isVenueFile = lowerFile.includes("venue") || lowerFile.includes("facility");
@@ -221,6 +222,19 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         f.file.toLowerCase().includes("final_course_coordinator_certification_master")
       );
       if (portal === "coordinator" && hasFinalCoordinatorMaster && !isFinalCoordinatorMaster) {
+        continue;
+      }
+
+      // If Final_Participant_Certification_Master is present, use it as the single authoritative source for supplemental participants in cprsanjeevani
+      const hasFinalParticipantMaster = allCsvFiles.some((f) =>
+        f.file.toLowerCase().includes("final_participant_certification_master")
+      );
+      if (
+        portal === "participant" &&
+        dir.includes("cprsanjeevani") &&
+        hasFinalParticipantMaster &&
+        !isFinalParticipantMaster
+      ) {
         continue;
       }
 
@@ -273,6 +287,10 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         );
       });
 
+      const dateIdx = headers.findIndex(
+        (h) => h.includes("date") || h.includes("course date") || h.includes("issue date")
+      );
+
       const mobileIdx = headers.findIndex(
         (h) => h.includes("mobile") || h.includes("phone") || h.includes("contact")
       );
@@ -313,18 +331,21 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
 
       const uniqueKeyIdx = headers.findIndex(
         (h) =>
+          h.includes("unique participant-venue key") ||
           h.includes("unique coordinator-venue key") ||
           h.includes("unique champion-venue key") ||
           h.includes("unique champion") ||
           h.includes("unique coordinator") ||
+          h.includes("unique participant") ||
           h.includes("unique key") ||
           h.includes("champion-venue key") ||
-          h.includes("coordinator-venue key")
+          h.includes("coordinator-venue key") ||
+          h.includes("participant-venue key")
       );
 
       for (let i = 1; i < rows.length; i++) {
         const cols = rows[i];
-        if (cols.length < 3) continue;
+        if (cols.length < 2) continue;
 
         const rowStatus = (statusIdx >= 0 ? cols[statusIdx] || "" : "").trim().toUpperCase();
         const rowAction = (actionIdx >= 0 ? cols[actionIdx] || "" : "").trim().toUpperCase();
@@ -344,10 +365,17 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : (isCoordinatorFile ? name : "");
         const coordinatorEmail = coordinatorEmailIdx >= 0 ? cols[coordinatorEmailIdx] || "" : (isCoordinatorFile ? email : "");
         const venue = venueIdx >= 0 ? cols[venueIdx] || "" : cols[isChampionFile || isCoordinatorFile ? 2 : 10] || "";
+        const dateVal = dateIdx >= 0 && cols[dateIdx] && cols[dateIdx].trim() ? cols[dateIdx].trim() : "21 July 2026";
         let driveLink = driveLinkIdx >= 0 ? cols[driveLinkIdx] || "" : cols[isChampionFile || isCoordinatorFile ? 10 : 11] || "";
 
-        // If NEW_HTML, clear driveLink so it triggers dynamic SVG generation
-        if (rowStatus === "NEW_HTML" || rowAction === "GENERATE_HTML_CERTIFICATE") {
+        // If NEW_HTML, EXISTING_ID, or from Final Participant Master, clear driveLink so it triggers dynamic SVG generation
+        if (
+          rowStatus === "NEW_HTML" ||
+          rowStatus === "EXISTING_ID" ||
+          rowAction === "GENERATE_HTML_CERTIFICATE" ||
+          rowAction === "USE_EXISTING_ID" ||
+          isFinalParticipantMaster
+        ) {
           driveLink = "";
         }
 
@@ -383,19 +411,17 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           seenCertIds.add(certKey);
         }
 
-        // Deduplication 2: Unique Champion/Coordinator-Venue Key check or Person-Venue check
+        // Deduplication 2: Unique Champion/Coordinator/Participant-Venue Key check or Person-Venue check
         if (cleanName && cleanVenue) {
           let personVenueKey = "";
-          if (isChampionFile || isCoordinatorFile) {
-            if (uniqueKeyIdx >= 0 && cols[uniqueKeyIdx]) {
-              personVenueKey = cols[uniqueKeyIdx].trim().toLowerCase();
-            } else {
-              const normName = cleanName.toLowerCase().replace(/^(dr|dr\.|prof|prof\.|mr|mr\.|ms|ms\.|mrs|mrs\.|capt|capt\.|lt|lt\.)\s+/i, "").replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
-              const normVenue = cleanVenue.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
-              const normCity = cleanCity.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
-              const normState = cleanState.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
-              personVenueKey = `${normName}|${normVenue}|${normCity}|${normState}`;
-            }
+          if (uniqueKeyIdx >= 0 && cols[uniqueKeyIdx] && cols[uniqueKeyIdx].trim()) {
+            personVenueKey = cols[uniqueKeyIdx].trim().toLowerCase();
+          } else if (isChampionFile || isCoordinatorFile) {
+            const normName = cleanName.toLowerCase().replace(/^(dr|dr\.|prof|prof\.|mr|mr\.|ms|ms\.|mrs|mrs\.|capt|capt\.|lt|lt\.)\s+/i, "").replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+            const normVenue = cleanVenue.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+            const normCity = cleanCity.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+            const normState = cleanState.toLowerCase().replace(/[^\w\s]/gi, " ").replace(/\s+/g, " ").trim();
+            personVenueKey = `${normName}|${normVenue}|${normCity}|${normState}`;
           } else {
             personVenueKey = `${cleanName.toUpperCase()}|${cleanMobile.replace(/\D/g, "")}|${cleanVenue.toUpperCase()}`;
           }
@@ -428,7 +454,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           driveFileId,
           downloadUrl,
           previewUrl,
-          issueDate: "21 July 2026",
+          issueDate: dateVal,
           status: "GENERATED",
           category: isCoordinatorFile
             ? "Course Coordinator"
