@@ -248,6 +248,17 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       // Find header indices dynamically
       const headers = rows[0].map((h) => h.toLowerCase().trim());
 
+      const srNoIdx = headers.findIndex(
+        (h) =>
+          h.includes("sr.no") ||
+          h.includes("sr no") ||
+          h.includes("s.no") ||
+          h.includes("sl.no") ||
+          h.includes("sl no") ||
+          h === "sno" ||
+          h === "sr. no."
+      );
+
       const certIdIdx = headers.findIndex(
         (h) =>
           h.includes("certificate id") ||
@@ -355,11 +366,12 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           continue;
         }
 
+        const srNo = srNoIdx >= 0 ? cols[srNoIdx] || "" : "";
         const certId = cols[certIdIdx >= 0 ? certIdIdx : 1] || "";
         const name = cols[nameIdx >= 0 ? nameIdx : 2] || "";
         const mobile = isChampionFile || isCoordinatorFile ? "" : cols[mobileIdx >= 0 ? mobileIdx : 3] || "";
         const email = isChampionFile || isCoordinatorFile ? cols[emailIdx >= 0 ? emailIdx : 6] || "" : cols[emailIdx >= 0 ? emailIdx : 4] || "";
-        const zone = cols[zoneIdx >= 0 ? zoneIdx : 5] || "";
+        const zone = zoneIdx >= 0 ? cols[zoneIdx] || "" : "";
         const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile || isCoordinatorFile ? 4 : 6)] || "";
         const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile || isCoordinatorFile ? 3 : 7)] || "";
         const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : (isCoordinatorFile ? name : "");
@@ -451,7 +463,7 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           : driveLink;
 
         records.push({
-          srNo: cols[0] || "",
+          srNo,
           certificateNumber: cleanCertId,
           participantName: cleanName,
           mobileNumber: cleanMobile,
