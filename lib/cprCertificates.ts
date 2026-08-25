@@ -100,8 +100,8 @@ let championMaxSeqIndexed = false;
 let lastCsvMtime = 0;
 
 const CERTS_DIRS = [
-  path.join(process.cwd(), "cprcertificates"),
   path.join(process.cwd(), "cprsanjeevani"),
+  path.join(process.cwd(), "cprcertificates"),
 ];
 
 function getLatestCsvMtimes(): number {
