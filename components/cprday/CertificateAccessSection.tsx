@@ -788,10 +788,12 @@ export default function CertificateAccessSection() {
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700 pt-1">
-                        <div>
-                          <span className="text-slate-500 font-medium">Training Venue: </span>
-                          <strong className="text-slate-900">{cert.venueName || "—"}</strong>
-                        </div>
+                        {!isFacilityPortal && cert.category !== "CPR Facility / Venue" && (
+                          <div>
+                            <span className="text-slate-500 font-medium">Training Venue: </span>
+                            <strong className="text-slate-900">{cert.venueName || "—"}</strong>
+                          </div>
+                        )}
                         <div>
                           <span className="text-slate-500 font-medium">Location: </span>
                           <strong className="text-slate-900">

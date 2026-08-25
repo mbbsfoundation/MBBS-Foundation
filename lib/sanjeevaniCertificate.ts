@@ -184,28 +184,51 @@ function calculateVenueFontSize(venueText: string): number {
 }
 
 /**
- * Renders the Facility / Venue name with dynamic auto-scaling and 2-line wrapping for long names.
+ * Renders the Facility / Venue name and Location with dynamic auto-scaling and clean 2-line/3-line layout.
  */
-function renderFacilityVenueText(venueStr: string): string {
-  const clean = (venueStr || "").trim();
-  const length = clean.length;
+function renderFacilityVenueText(venueStr: string, cityStr: string = "", stateStr: string = ""): string {
+  const v = (venueStr || "").trim();
+  const c = (cityStr || "").trim();
+  const s = (stateStr || "").trim();
+
+  // Clean location string (City, State)
+  const locParts: string[] = [];
+  if (c) locParts.push(c);
+  if (s && (!c || c.toLowerCase() !== s.toLowerCase())) locParts.push(s);
+  const locStr = locParts.join(", ");
+
+  // Clean venue string: avoid repeating trailing city/state if already in venue title
+  let vClean = v;
+  if (locStr && vClean.toLowerCase().endsWith(locStr.toLowerCase())) {
+    vClean = vClean.substring(0, vClean.length - locStr.length).replace(/,\s*$/, "").trim();
+  } else if (s && vClean.toLowerCase().endsWith(s.toLowerCase())) {
+    vClean = vClean.substring(0, vClean.length - s.length).replace(/,\s*$/, "").trim();
+  } else if (c && vClean.toLowerCase().endsWith(c.toLowerCase())) {
+    vClean = vClean.substring(0, vClean.length - c.length).replace(/,\s*$/, "").trim();
+  }
+
+  const length = vClean.length;
 
   if (length <= 45) {
     const fontSize = length <= 25 ? 850 : Math.round(850 * (25 / length));
-    return `<text x="14878" y="9050" text-anchor="middle" style="font-size:${fontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(clean)}</text>`;
+    const venueSvg = `<text x="14878" y="8650" text-anchor="middle" style="font-size:${fontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(vClean)}</text>`;
+    const locSvg = locStr
+      ? `<text x="14878" y="9450" text-anchor="middle" style="font-size:520px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(locStr)}</text>`
+      : "";
+    return `${venueSvg}\n    ${locSvg}`;
   }
 
-  // 2-line wrapped text
+  // 2-line wrapped venue text for long venue names
   let splitIdx = -1;
   const mid = Math.floor(length / 2);
 
   // Search for comma near midpoint
-  for (let offset = 0; offset <= 20; offset++) {
-    if (mid + offset < length && clean[mid + offset] === ",") {
+  for (let offset = 0; offset <= 25; offset++) {
+    if (mid + offset < length && vClean[mid + offset] === ",") {
       splitIdx = mid + offset + 1;
       break;
     }
-    if (mid - offset >= 0 && clean[mid - offset] === ",") {
+    if (mid - offset >= 0 && vClean[mid - offset] === ",") {
       splitIdx = mid - offset + 1;
       break;
     }
@@ -213,12 +236,12 @@ function renderFacilityVenueText(venueStr: string): string {
 
   // Search for space near midpoint
   if (splitIdx === -1) {
-    for (let offset = 0; offset <= 20; offset++) {
-      if (mid + offset < length && clean[mid + offset] === " ") {
+    for (let offset = 0; offset <= 25; offset++) {
+      if (mid + offset < length && vClean[mid + offset] === " ") {
         splitIdx = mid + offset;
         break;
       }
-      if (mid - offset >= 0 && clean[mid - offset] === " ") {
+      if (mid - offset >= 0 && vClean[mid - offset] === " ") {
         splitIdx = mid - offset;
         break;
       }
@@ -229,16 +252,21 @@ function renderFacilityVenueText(venueStr: string): string {
     splitIdx = mid;
   }
 
-  const line1 = clean.substring(0, splitIdx).trim();
-  const line2 = clean.substring(splitIdx).trim();
+  const line1 = vClean.substring(0, splitIdx).trim();
+  const line2 = vClean.substring(splitIdx).trim();
 
   const maxLineLen = Math.max(line1.length, line2.length);
-  const fontSize = maxLineLen <= 35 ? 650 : Math.max(400, Math.round(650 * (35 / maxLineLen)));
+  const fontSize = maxLineLen <= 35 ? 620 : Math.max(380, Math.round(620 * (35 / maxLineLen)));
 
-  return `
-    <text x="14878" y="8650" text-anchor="middle" style="font-size:${fontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(line1)}</text>
-    <text x="14878" y="9450" text-anchor="middle" style="font-size:${fontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(line2)}</text>
+  const venueSvg = `
+    <text x="14878" y="8350" text-anchor="middle" style="font-size:${fontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(line1)}</text>
+    <text x="14878" y="9000" text-anchor="middle" style="font-size:${fontSize}px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(line2)}</text>
   `;
+  const locSvg = locStr
+    ? `<text x="14878" y="9600" text-anchor="middle" style="font-size:480px; font-weight:bold; fill:#001045; font-family:'Times New Roman', serif;">${escapeXml(locStr)}</text>`
+    : "";
+
+  return `${venueSvg}\n    ${locSvg}`;
 }
 
 /**
@@ -293,13 +321,13 @@ export function generateUnifiedCertificateSvg(data: UnifiedCertData): string {
 
   if (category === "CPR_FACILITY") {
     // Template: CPR Facility Certificate.svg (viewBox: 0 0 29757.18 20999.92)
-    // Dynamic Fields: 1. Venue/Facility Name (with location), 2. Facility Code / Certificate ID
-    const venueTextRender = renderFacilityVenueText(data.venue ? formatVenueString(data.venue, data.city, data.state) : name);
+    // Dynamic Fields: 1. Venue/Facility Name + Location, 2. Facility Code / Certificate ID
+    const venueTextRender = renderFacilityVenueText(data.venue || name, data.city, data.state);
 
     dynamicLayer = `
   <!-- Dynamic CPR Facility Certificate Fields -->
   <g id="cprfacility-dynamic-fields" style="font-family:'Times New Roman', Times, serif; text-rendering:geometricPrecision; shape-rendering:geometricPrecision;">
-    <!-- 1. Facility / Venue Name -->
+    <!-- 1. Facility / Venue Name & Location -->
     ${venueTextRender}
     
     <!-- 2. Facility Code / Certificate ID (Inside Right Badge) -->

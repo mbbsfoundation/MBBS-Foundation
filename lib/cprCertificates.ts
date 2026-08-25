@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { generateUnifiedCertificateSvg, formatCertificateFilename } from "./sanjeevaniCertificate";
 
-export type CPRCertificatePortal = "participant" | "champion" | "coordinator";
+export type CPRCertificatePortal = "participant" | "champion" | "coordinator" | "facility";
 
 export type CPRCertificateRecord = {
   srNo: string;
@@ -160,6 +160,105 @@ function indexChampionSequences(records: CPRCertificateRecord[]) {
 }
 
 /**
+ * Loads and parses the single authoritative CPR Day Master Venue Registry CSV.
+ * (cprsanjeevani/CPR_Day_Master_Venue_Registry_250826.csv)
+ */
+export function loadFacilityVenues(): CPRCertificateRecord[] {
+  const venueFiles = [
+    path.join(process.cwd(), "cprsanjeevani", "CPR_Day_Master_Venue_Registry_250826.csv"),
+    path.join(process.cwd(), "cprsanjeevani", "CPR_Day_Master_Venue_Registry.csv"),
+  ];
+
+  let targetPath = "";
+  for (const p of venueFiles) {
+    if (fs.existsSync(p)) {
+      targetPath = p;
+      break;
+    }
+  }
+
+  if (!targetPath) {
+    console.error("CPR Day Master Venue Registry CSV not found!");
+    return [];
+  }
+
+  try {
+    const content = fs.readFileSync(targetPath, "utf8");
+    const cleanContent = content.replace(/^\uFEFF/, "");
+    const rows = parseFullCSV(cleanContent);
+
+    if (rows.length <= 1) return [];
+
+    const headers = rows[0].map((h) => h.toLowerCase().trim());
+    const srNoIdx = headers.findIndex((h) => h.includes("s no") || h.includes("sr.no") || h.includes("sr no") || h.includes("s.no"));
+    const venueIdx = headers.findIndex((h) => h === "venue" || (h.includes("venue") && !h.includes("code")));
+    const codeIdx = headers.findIndex((h) => h.includes("venue code") || h.includes("facility code") || h.includes("code"));
+    const cityIdx = headers.findIndex((h) => h.includes("city") || h.includes("district"));
+    const stateIdx = headers.findIndex((h) => h === "state" || (h.includes("state") && !h.includes("code")));
+    const stateCodeIdx = headers.findIndex((h) => h.includes("state code") || h.includes("zone"));
+    const coordinatorIdx = headers.findIndex((h) => h.includes("coordinator") || h.includes("name of course coordinator"));
+
+    const records: CPRCertificateRecord[] = [];
+    const seenCodes = new Set<string>();
+
+    for (let i = 1; i < rows.length; i++) {
+      const cols = rows[i];
+      if (cols.length < 2) continue;
+
+      const srNo = srNoIdx >= 0 ? cols[srNoIdx] || "" : String(i);
+      const venue = cols[venueIdx >= 0 ? venueIdx : 1] || "";
+      const code = cols[codeIdx >= 0 ? codeIdx : 2] || "";
+      const city = cols[cityIdx >= 0 ? cityIdx : 3] || "";
+      const state = cols[stateIdx >= 0 ? stateIdx : 4] || "";
+      const stateCode = stateCodeIdx >= 0 ? cols[stateCodeIdx] || "" : "";
+      const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : "";
+
+      const cleanVenue = venue.trim();
+      const cleanCode = code.trim();
+      let cleanState = state.trim();
+      if (cleanState.toLowerCase() === "jammu and kashmir" || cleanState.toLowerCase() === "jammu & kashmir") {
+        cleanState = "Jammu & Kashmir";
+      }
+      const cleanCity = city.trim();
+
+      if (!cleanVenue && !cleanCode) continue;
+
+      const codeKey = cleanCode.toUpperCase();
+      if (seenCodes.has(codeKey)) continue;
+      seenCodes.add(codeKey);
+
+      records.push({
+        srNo,
+        certificateNumber: cleanCode,
+        participantName: cleanVenue,
+        mobileNumber: "",
+        email: "",
+        zone: stateCode.trim(),
+        state: cleanState,
+        city: cleanCity,
+        courseCoordinator: coordinator.trim(),
+        courseCoordinatorEmail: "",
+        venueName: cleanVenue,
+        driveLink: "",
+        driveFileId: "",
+        downloadUrl: "",
+        previewUrl: "",
+        issueDate: "21 July 2026",
+        status: "GENERATED",
+        category: "CPR Facility / Venue",
+        courseTitle: "National IAP CPR Sanjeevani Training Facility",
+        portalType: "facility",
+      });
+    }
+
+    return records;
+  } catch (err) {
+    console.error("Error reading Master Venue Registry CSV:", err);
+    return [];
+  }
+}
+
+/**
  * Dynamically loads and parses CSV files for participants, CPR champions, or course coordinators
  * across both `cprcertificates` and `cprsanjeevani` folders
  * (Auto-invalidates and refreshes cache if CSV files are modified).
@@ -172,11 +271,18 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
     certificateCache.participant = undefined;
     certificateCache.champion = undefined;
     certificateCache.coordinator = undefined;
+    certificateCache.facility = undefined;
     cprDayMaxSeqIndexed = false;
   }
 
   if (certificateCache[portal]) {
     return certificateCache[portal]!;
+  }
+
+  if (portal === "facility") {
+    const venues = loadFacilityVenues();
+    certificateCache.facility = venues;
+    return venues;
   }
 
   const allCsvFiles: { dir: string; file: string }[] = [];
@@ -539,8 +645,19 @@ export function searchCertificateById(id: string, portal: CPRCertificatePortal =
   const cleanInput = id.trim().toUpperCase();
   if (!cleanInput) return null;
   const all = getAllCPRCertificates(portal);
+  
+  const exact = all.find((c) => c.certificateNumber.trim().toUpperCase() === cleanInput);
+  if (exact) return exact;
+
   return (
-    all.find((c) => c.certificateNumber.trim().toUpperCase() === cleanInput) || null
+    all.find((c) => {
+      const cNum = c.certificateNumber.trim().toUpperCase();
+      if (cNum.replace(/\s+/g, "") === cleanInput.replace(/\s+/g, "")) return true;
+      if (portal === "facility" || c.portalType === "facility") {
+        if (cNum.endsWith(`/${cleanInput}`) || cNum.endsWith(`-${cleanInput}`)) return true;
+      }
+      return false;
+    }) || null
   );
 }
 
@@ -675,7 +792,7 @@ export function searchCertificateByHierarchy(
   state: string,
   city: string,
   venue: string,
-  participantName: string,
+  participantName: string = "",
   portal: CPRCertificatePortal = "participant"
 ): CPRCertificateRecord[] {
   const cleanState = normalizeStateMatch(state);
@@ -684,6 +801,19 @@ export function searchCertificateByHierarchy(
   const cleanName = participantName.trim().toLowerCase();
 
   const all = getAllCPRCertificates(portal);
+
+  if (portal === "facility") {
+    const matches = all.filter((r) => {
+      const matchState = normalizeStateMatch(r.state) === cleanState;
+      const matchCity = r.city.trim().toLowerCase() === cleanCity;
+      const matchVenue =
+        normalizeVenueMatch(r.venueName) === cleanVenue ||
+        normalizeVenueMatch(r.participantName) === cleanVenue;
+      return matchState && matchCity && matchVenue;
+    });
+    return matches;
+  }
+
   const matches = all.filter((r) => {
     const matchState = normalizeStateMatch(r.state) === cleanState;
     const matchCity = r.city.trim().toLowerCase() === cleanCity;

@@ -1,4 +1,4 @@
-﻿S No,Venue,Venue Code,City,State,State Code,Name of Course Coordinator
+S No,Venue,Venue Code,City,State,State Code,Name of Course Coordinator
 1,Kendriya Vidyalaya No. 2,IAP-CPR-Day/Venue/AN-101,Andaman & Nikobar Island,Andaman & Nikobar Island,AN,Dr Prof Bal Mukund
 2,Navy Children School,IAP-CPR-Day/Venue/AN-102,Andaman & Nikobar Island,Andaman & Nikobar Island,AN,Dr Prof Bal Mukund
 3,"ACSR Government Medical College, Nellore",IAP-CPR-Day/Venue/AP-101,Nellore,Andhra Pradesh,AP,Dr A S Kireeti
@@ -55,8 +55,8 @@
 54,"Akashdeep Model Senior Secondary School, Rohini",IAP-CPR-Day/Venue/DL-101,Delhi,Delhi,DL,Mr Manish Sharma Nursing Officer
 55,"B.R. Ambedkar School, Sector 10, Dwarka",IAP-CPR-Day/Venue/DL-102,Delhi,Delhi,DL,Dr Pankaj Goel
 56,"Iskcon Temple, Dwarka",IAP-CPR-Day/Venue/DL-103,Delhi,Delhi,DL,"Dr Richa,; Dr Surinder Yadav"
-57,"Maharaja Agrasen Hospital, Dwarka",IAP-CPR-Day/Venue/DL-104,Dwarka,Delhi,DL,Dr Bharathi Saxena
-58,"St. Martin'S Diocesan School, Delhi Cantt",IAP-CPR-Day/Venue/DL-105,New Delhi,Delhi,DL,Dr Radhika Sachdev
+57,"Maharaja Agrasen Hospital, Dwarka",IAP-CPR-Day/Venue/DL-104,Delhi,Delhi,DL,Dr Bharathi Saxena
+58,"St. Martin'S Diocesan School, Delhi Cantt",IAP-CPR-Day/Venue/DL-105,Delhi,Delhi,DL,Dr Radhika Sachdev
 59,"Maharaja Agrasen Hospital, Punjabi Bagh",IAP-CPR-Day/Venue/DL-106,Punjabi Bagh,Delhi,DL,Dr Deepak Singla
 60,"Gujarat Institute of Nursing Education and Research, Ahmedabad",IAP-CPR-Day/Venue/GJ-101,Ahmedabad,Gujarat,GJ,Dr Arif Vohra
 61,Shree Swaminarayan Gadi Institute,IAP-CPR-Day/Venue/GJ-102,Ahmedabad,Gujarat,GJ,Dr Arif Vohra
@@ -117,15 +117,15 @@
 116,"Shrikishan Somani School, Latur",IAP-CPR-Day/Venue/MH-105,Latur,Maharashtra,MH,Dr Deepika Mashalkar
 117,"N.K. Desai College, Killa-Pardi",IAP-CPR-Day/Venue/MH-106,Mumbai,Maharashtra,MH,Dr Rajesh Kasla
 118,Ashoka Medicover Hospital,IAP-CPR-Day/Venue/MH-107,Nashik,Maharashtra,MH,Dr Tripti Harshad Mahatme
-119,"Ashoka Medicover Hospital, Nashik",IAP-CPR-Day/Venue/MH-108,Nashik,Maharashtra,MH,Dr Tripti Harshad Mahatme
+119,Ashoka Medicover Hospital,IAP-CPR-Day/Venue/MH-108,Nashik,Maharashtra,MH,Dr Tripti Harshad Mahatme
 120,"Civil Hospital / Maharashtra Postgraduate Institute of Medical Education & Research, Nashik",IAP-CPR-Day/Venue/MH-109,Nashik,Maharashtra,MH,Dr Avinash Gore
 121,"Dr. Vasantrao Pawar Medical College, Hospital and Research Centre, Nashik",IAP-CPR-Day/Venue/MH-110,Nashik,Maharashtra,MH,Dr Rahul Koppikar
 122,"K.K. Wagh College of Agriculture, Nashik",IAP-CPR-Day/Venue/MH-111,Nashik,Maharashtra,MH,Dr Tripti Harshad Mahatme
 123,"Mvps'S Shri Chhatrapati Shivaji Maharaj Madhyamik Ani Uchhmadhyamik Vidyalay, Makhmalabad, Nashik",IAP-CPR-Day/Venue/MH-112,Nashik,Maharashtra,MH,Dr Rahul Koppikar
 124,"Smbt Institute of Medical Sciences & Research Centre, Nashik",IAP-CPR-Day/Venue/MH-113,Nashik,Maharashtra,MH,Dr Prasanna Parashare
 125,"District Hospital and Mpgimer, Nashik",IAP-CPR-Day/Venue/MH-114,Nasik,Maharashtra,MH,Dr Ishwar Vijay Gadhari
-126,Itm,IAP-CPR-Day/Venue/MH-115,Navi Mumbai,Maharashtra,MH,Dr Jeeten; Dr A Gavhane
-127,Mgm Mc,IAP-CPR-Day/Venue/MH-116,Navi Mumbai,Maharashtra,MH,Dr Anjali Otiv
+126,ITM Panvel,IAP-CPR-Day/Venue/MH-115,Navi Mumbai,Maharashtra,MH,Dr Jeeten; Dr A Gavhane
+127,Mgm MEDICAL COLLEGE,IAP-CPR-Day/Venue/MH-116,Navi Mumbai,Maharashtra,MH,Dr Anjali Otiv
 128,Panvel City Police Station,IAP-CPR-Day/Venue/MH-117,Navi Mumbai,Maharashtra,MH,Dr Jeeten; Dr A Gavhane
 129,"B.J. Government Medical College, Pune",IAP-CPR-Day/Venue/MH-118,Pune,Maharashtra,MH,Dr Rahul Dawre
 130,"Swami Vivekanand Cbse School, Uruli Kanchan",IAP-CPR-Day/Venue/MH-119,Pune,Maharashtra,MH,Dr Ankita Agrawal
@@ -189,19 +189,19 @@
 188,"Government Doon Medical College, Dehradun",IAP-CPR-Day/Venue/UK-101,Dehradun,Uttarakhand,UK,Dr Ashok Kumar
 189,"Himalayan Institute of Medical Sciences, Dehradun",IAP-CPR-Day/Venue/UK-102,Dehradun,Uttarakhand,UK,Dr Ashish Simalti
 190,"Meher Hospital, Dehradun",IAP-CPR-Day/Venue/UK-103,Dehradun,Uttarakhand,UK,Dr Hans Vaish
-191,Sahota Super Speciality Hospital,IAP-CPR-Day/Venue/UK-104,Dehradun,Uttarakhand,UK,Dr Sahota
+191,Sahota Super Speciality Hospital,IAP-CPR-Day/Venue/UK-104,Kashipur,Uttarakhand,UK,Dr Sahota
 192,Esi Hospital,IAP-CPR-Day/Venue/WB-101,Asansol,West Bengal,WB,Mrs Purnima Chakraborty; Mrs Bani Misra; Mrs Arpita Sen; Mrs Suteshna Mandal; Dr Jaygopal Ray
 193,"Esi Hospital, Bandel",IAP-CPR-Day/Venue/WB-102,Bandel,West Bengal,WB,Dr A Majumder
-194,Bankura,IAP-CPR-Day/Venue/WB-103,Bankura,West Bengal,WB,Dr Shilpi Siddhanta
+194,Eastern Railway Hospital Liluah,IAP-CPR-Day/Venue/WB-103,Howrah,West Bengal,WB,Dr Shilpi Siddhanta
 195,Burdwan Medical College and Hospital,IAP-CPR-Day/Venue/WB-104,Bardhaman,West Bengal,WB,Debasree Guha
 196,"Esi Hospital, Budge Budge, South 24 Parganas",IAP-CPR-Day/Venue/WB-105,Budge Budge,West Bengal,WB,Dr Subhranil Mitra
 197,Jagannath Gupta Institute of Medical Sciences & Hospital,IAP-CPR-Day/Venue/WB-106,Budge Budge,West Bengal,WB,Dr Manas Kumar Mahapatra
 198,Gouridevi Institute of Medical Sciences and Hospital,IAP-CPR-Day/Venue/WB-107,Durgapur,West Bengal,WB,Debanjana Basak
 199,Narayana Superspeciality Hospital,IAP-CPR-Day/Venue/WB-108,Howrah,West Bengal,WB,Amitabha Chattopadhyay
-200,"Narayana Superspeciality Hospital, Howrah",IAP-CPR-Day/Venue/WB-109,Howrah,West Bengal,WB,Amitabha Chattopadhyay
+200,Narayana Superspeciality Hospital,IAP-CPR-Day/Venue/WB-109,Howrah,West Bengal,WB,Amitabha Chattopadhyay
 201,"Apollo Multispeciality Hospitals, Kolkata",IAP-CPR-Day/Venue/WB-110,Kolkata,West Bengal,WB,Dr Amrita Roy
 202,"Community Hall, Dum Dum Estate, Ofdc",IAP-CPR-Day/Venue/WB-111,Kolkata,West Bengal,WB,Dr Santa Chattopadhyay
-203,"Directorate of Esi( Mb) Scheme, Saltlake, Gb Block",IAP-CPR-Day/Venue/WB-112,Kolkata,West Bengal,WB,Dr Anjan Kumar Dutta
+203,"Directorate of Esi (Mb) Scheme, Saltlake, Gb Block",IAP-CPR-Day/Venue/WB-112,Kolkata,West Bengal,WB,Dr Anjan Kumar Dutta
 204,"Dumdum Estate, Ofdc 1",IAP-CPR-Day/Venue/WB-113,Kolkata,West Bengal,WB,Dr Santa Chattopadhyay
 205,"Esi Hospital, Kamarhati",IAP-CPR-Day/Venue/WB-114,Kolkata,West Bengal,WB,Dr Dibyendu Sengupta
 206,"Esi Hospital, Maniktala",IAP-CPR-Day/Venue/WB-115,Kolkata,West Bengal,WB,"Dr Wasim Raja,; Dr Punit Goenka"
@@ -211,14 +211,14 @@
 210,"Raghunathpur Superspeciality Hospital, Purulia",IAP-CPR-Day/Venue/WB-119,Purulia,West Bengal,WB,Dr Abhisek Majhi
 211,"Birla Divya Jyoti School, Matigara, Siliguri",IAP-CPR-Day/Venue/WB-120,Siliguri,West Bengal,WB,Ganga Prasad Sapkota
 212,"Little Angel School, Milan More",IAP-CPR-Day/Venue/WB-121,Siliguri,West Bengal,WB,Ganga Prasad Sapkota; Dr Ganga Sapkota
-213,KURNOOL MEDICAL COLLEGE 1,IAP-CPR-Day/Venue/AP-121,KURNOOL,Andhra Pradesh,AP,
-214,KURNOOL MEDICAL COLLEGE 2,IAP-CPR-Day/Venue/AP-122,KURNOOL,Andhra Pradesh,AP,
-215,KURNOOL MEDICAL COLLEGE 3,IAP-CPR-Day/Venue/AP-123,KURNOOL,Andhra Pradesh,AP,
-216,KURNOOL MEDICAL COLLEGE 4,IAP-CPR-Day/Venue/AP-124,KURNOOL,Andhra Pradesh,AP,
+213,KURNOOL MEDICAL COLLEGE VENUE 1,IAP-CPR-Day/Venue/AP-121,KURNOOL,Andhra Pradesh,AP,
+214,KURNOOL MEDICAL COLLEGE VENUE 2,IAP-CPR-Day/Venue/AP-122,KURNOOL,Andhra Pradesh,AP,
+215,KURNOOL MEDICAL COLLEGE VENUE 3,IAP-CPR-Day/Venue/AP-123,KURNOOL,Andhra Pradesh,AP,
+216,KURNOOL MEDICAL COLLEGE VENUE 4,IAP-CPR-Day/Venue/AP-124,KURNOOL,Andhra Pradesh,AP,
 217,SMC HOSPITAL PEDAVEGI,IAP-CPR-Day/Venue/AP-125,ELURU,Andhra Pradesh,AP,
 218,"SRI PADMAVATHI MEDICAL COLLEGE, SIVMS",IAP-CPR-Day/Venue/AP-126,Tirupati,Andhra Pradesh,AP,
 219,AIIMS GUWAHATI,IAP-CPR-Day/Venue/AS-106,Guwahati,Assam,AS,DR. BIPUL KUMAR DAS
-220,KGMT GHUWATI,IAP-CPR-Day/Venue/AS-107,Guwahati,Assam,AS,DR. BHABESH DOLEY
+220,KGMT GUWAHATI,IAP-CPR-Day/Venue/AS-107,Guwahati,Assam,AS,DR. BHABESH DOLEY
 221,INNER WHEEL CLUB MUZAFFARPUR,IAP-CPR-Day/Venue/BR-115,Muzaffarpur,Bihar,BR,SANJEETA KR. YADAV
 222,Shri Krishna Medical College,IAP-CPR-Day/Venue/BR-116,Muzaffarpur,Bihar,BR,SANJEETA KR. YADAV
 223,SSB CAMP MUZAFFARPUR,IAP-CPR-Day/Venue/BR-117,Muzaffarpur,Bihar,BR,SANJEETA KR. YADAV
@@ -269,7 +269,7 @@
 268,"Fortis Hospital, Mulund",IAP-CPR-Day/Venue/MH-130,Mumbai,Maharashtra,MH,Dr Sameer Sadavarte
 269,GULABRAO PATIL HOMEOPATHY MEDICAL COLLAGE MIRAJ,IAP-CPR-Day/Venue/MH-131,MIRAJ,Maharashtra,MH,Dr. Mateen Ramjan
 270,ITM Panvel,IAP-CPR-Day/Venue/MH-132,Navi Mumbai,Maharashtra,MH,Dr Jeetendra Gavhane
-271,"JNMC, SAWANGI",IAP-CPR-Day/Venue/MH-133,WARDHA,Maharashtra,MH,DR. DINESH HINGE
+271,"JN MEDICAL COLLEGE, SAWANGI",IAP-CPR-Day/Venue/MH-133,WARDHA,Maharashtra,MH,DR. DINESH HINGE
 272,Kaushalya Hospital,IAP-CPR-Day/Venue/MH-134,Thane,Maharashtra,MH,DR. PARUL SHUKLA
 273,MAISAHEB BAVDEKAR SCHOOL,IAP-CPR-Day/Venue/MH-135,KOLHAPUR,Maharashtra,MH,Dr Nivedita Patil
 274,MRR CHILDREN'S HOSPITAL,IAP-CPR-Day/Venue/MH-136,Thane,Maharashtra,MH,DR. SUDESHA BONDRE
@@ -279,7 +279,7 @@
 278,"Sanyogita Patil Cambridge School and Junior College, Miraj",IAP-CPR-Day/Venue/MH-140,Sangli,Maharashtra,MH,Dr. Mateen Shaikh
 279,SHREE VASANTRAO JAYWANTRAO DESHMUKH HIGHSCHOOL,IAP-CPR-Day/Venue/MH-141,KOLHAPUR,Maharashtra,MH,Dr Nivedita Patil
 280,TMC SCHOOL NO 21,IAP-CPR-Day/Venue/MH-142,Thane,Maharashtra,MH,DR. AMRUTA
-281,VDGMC,IAP-CPR-Day/Venue/MH-143,Latur,Maharashtra,MH,DR. KIRAN BAISARE
+281,VDG MEDICAL COLLEGE,IAP-CPR-Day/Venue/MH-143,Latur,Maharashtra,MH,DR. KIRAN BAISARE
 282,"Government High School, IRC Village",IAP-CPR-Day/Venue/OD-107,BHUBANESWAR,Odisha,OD,DR. MRUTUNJAY DAS
 283,KALINGA INSTITUTE OF SOCIAL SCIENCES,IAP-CPR-Day/Venue/OD-108,BHUBANESWAR,Odisha,OD,Dr. Mirabai Dass
 284,APEEJAY SCHOOL,IAP-CPR-Day/Venue/PB-113,Jalandhar,Punjab,PB,DR. ANURADHA BANSAL

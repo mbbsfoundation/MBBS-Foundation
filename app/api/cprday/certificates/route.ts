@@ -157,20 +157,22 @@ function ensureCertificateRenderFields(cert: any) {
     else if (isCprDay) certCat = "CPR_DAY";
 
     try {
+      const pName = cert.participantName || cert.venueName || "";
+      const vName = cert.venueName || cert.venue || (isFacility ? pName : "");
       cert.svg = generateUnifiedCertificateSvg({
         category: certCat,
-        participantName: cert.participantName || "",
-        date: cert.issueDate || cert.date || "21-07-2026",
-        venue: cert.venueName || cert.venue || "",
+        participantName: pName,
+        date: cert.issueDate || cert.date || "21 July 2026",
+        venue: vName,
         city: cert.city || "",
         state: cert.state || "",
-        stateCode: cert.state || "",
+        stateCode: cert.state || cert.zone || "",
         certificateId: certNum,
         courseCoordinator: cert.courseCoordinator,
       });
-      cert.pdfFilename = formatCertificateFilename(certNum, cert.participantName, "pdf");
-      cert.pngFilename = formatCertificateFilename(certNum, cert.participantName, "png");
-      cert.svgFilename = formatCertificateFilename(certNum, cert.participantName, "svg");
+      cert.pdfFilename = formatCertificateFilename(certNum, pName, "pdf");
+      cert.pngFilename = formatCertificateFilename(certNum, pName, "png");
+      cert.svgFilename = formatCertificateFilename(certNum, pName, "svg");
     } catch (err) {
       console.error(`Failed to generate SVG for ${certNum}:`, err);
     }
@@ -187,7 +189,7 @@ export async function GET(request: NextRequest) {
 
     const portalParam = (searchParams.get("portal") || searchParams.get("type") || "participant").trim().toLowerCase();
     const isAllPortals = portalParam === "all";
-    const portal: CPRCertificatePortal | "facility" =
+    const portal: CPRCertificatePortal =
       portalParam === "facility" || portalParam === "venue"
         ? "facility"
         : portalParam === "champion"
@@ -203,9 +205,8 @@ export async function GET(request: NextRequest) {
             ...getCertificateStates("participant"),
             ...getCertificateStates("coordinator"),
             ...getCertificateStates("champion"),
+            ...getCertificateStates("facility"),
           ]
-        : portal === "facility"
-        ? []
         : getCertificateStates(portal);
 
       const uniqueStates = Array.from(new Set(states)).sort((a, b) => a.localeCompare(b));
@@ -222,9 +223,8 @@ export async function GET(request: NextRequest) {
             ...getCertificateCities(state, "participant"),
             ...getCertificateCities(state, "coordinator"),
             ...getCertificateCities(state, "champion"),
+            ...getCertificateCities(state, "facility"),
           ]
-        : portal === "facility"
-        ? []
         : getCertificateCities(state, portal);
 
       const uniqueCities = Array.from(new Set(cities)).sort((a, b) => a.localeCompare(b));
@@ -242,9 +242,8 @@ export async function GET(request: NextRequest) {
             ...getCertificateVenues(state, city, "participant"),
             ...getCertificateVenues(state, city, "coordinator"),
             ...getCertificateVenues(state, city, "champion"),
+            ...getCertificateVenues(state, city, "facility"),
           ]
-        : portal === "facility"
-        ? []
         : getCertificateVenues(state, city, portal);
 
       const uniqueVenues = Array.from(new Set(venues)).sort((a, b) => a.localeCompare(b));
@@ -283,16 +282,15 @@ export async function GET(request: NextRequest) {
 
       const results: CPRCertificateRecord[] = [];
 
-      if (portal !== "facility") {
-        if (isAllPortals) {
-          const pResults = searchCertificateByHierarchy(state, city, venue, participant, "participant");
-          const cResults = searchCertificateByHierarchy(state, city, venue, participant, "coordinator");
-          const chResults = searchCertificateByHierarchy(state, city, venue, participant, "champion");
-          results.push(...pResults, ...cResults, ...chResults);
-        } else {
-          const portalResults = searchCertificateByHierarchy(state, city, venue, participant, portal);
-          results.push(...portalResults);
-        }
+      if (isAllPortals) {
+        const pResults = searchCertificateByHierarchy(state, city, venue, participant, "participant");
+        const cResults = searchCertificateByHierarchy(state, city, venue, participant, "coordinator");
+        const chResults = searchCertificateByHierarchy(state, city, venue, participant, "champion");
+        const fResults = searchCertificateByHierarchy(state, city, venue, participant, "facility");
+        results.push(...pResults, ...cResults, ...chResults, ...fResults);
+      } else {
+        const portalResults = searchCertificateByHierarchy(state, city, venue, participant, portal);
+        results.push(...portalResults);
       }
 
       if (results.length > 0) {
@@ -312,14 +310,13 @@ export async function GET(request: NextRequest) {
 
       // Step 1: Check CPR Day CSV records
       let csvMatch: CPRCertificateRecord | null = null;
-      if (portal !== "facility") {
-        csvMatch = searchCertificateById(certId, portal);
-        if (!csvMatch) {
-          csvMatch =
-            searchCertificateById(certId, "participant") ||
-            searchCertificateById(certId, "champion") ||
-            searchCertificateById(certId, "coordinator");
-        }
+      csvMatch = searchCertificateById(certId, portal);
+      if (!csvMatch) {
+        csvMatch =
+          searchCertificateById(certId, "facility") ||
+          searchCertificateById(certId, "participant") ||
+          searchCertificateById(certId, "champion") ||
+          searchCertificateById(certId, "coordinator");
       }
 
       if (csvMatch) {
