@@ -197,7 +197,8 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
   for (const { dir, file } of allCsvFiles) {
     try {
       const lowerFile = file.toLowerCase();
-      const isFinalChampionMaster = lowerFile.includes("final_champion_certification_master");
+      const isUpdatedChampionMaster = lowerFile.includes("champion_certification_master_updated_250826");
+      const isFinalChampionMaster = isUpdatedChampionMaster || lowerFile.includes("final_champion_certification_master");
       const isFinalCoordinatorMaster = lowerFile.includes("final_course_coordinator_certification_master");
       const isFinalParticipantMaster = lowerFile.includes("final_participant_certification_master");
       const isCoordinatorFile = lowerFile.includes("coordinator");
@@ -209,12 +210,20 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       if (portal === "champion" && !isChampionFile) continue;
       if (portal === "participant" && (isCoordinatorFile || isChampionFile)) continue;
 
-      // If Final_Champion_Certification_Master is present, use it as the definitive source for Champions
-      const hasFinalChampionMaster = allCsvFiles.some((f) =>
-        f.file.toLowerCase().includes("final_champion_certification_master")
+      // If Champion_Certification_Master_UPDATED_250826 (or Final_Champion_Certification_Master) is present, use it as the definitive source for Champions
+      const hasUpdatedChampionMaster = allCsvFiles.some((f) =>
+        f.file.toLowerCase().includes("champion_certification_master_updated_250826")
       );
-      if (portal === "champion" && hasFinalChampionMaster && !isFinalChampionMaster) {
-        continue;
+      const hasFinalChampionMaster =
+        hasUpdatedChampionMaster ||
+        allCsvFiles.some((f) => f.file.toLowerCase().includes("final_champion_certification_master"));
+
+      if (portal === "champion") {
+        if (hasUpdatedChampionMaster && !isUpdatedChampionMaster) {
+          continue;
+        } else if (!hasUpdatedChampionMaster && hasFinalChampionMaster && !isFinalChampionMaster) {
+          continue;
+        }
       }
 
       // If Final_Course_Coordinator_Certification_Master is present, use it as the definitive source for Course Coordinators
