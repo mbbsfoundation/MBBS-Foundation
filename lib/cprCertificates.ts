@@ -631,7 +631,7 @@ export function getCertificateParticipants(
   const cleanCity = city.trim().toLowerCase();
   const cleanVenue = normalizeVenueMatch(venue);
   const all = getAllCPRCertificates(portal);
-  const nameSet = new Set<string>();
+  const nameMap = new Map<string, string>();
   for (const r of all) {
     if (
       normalizeStateMatch(r.state) === cleanState &&
@@ -640,10 +640,26 @@ export function getCertificateParticipants(
       r.participantName &&
       r.participantName.trim().length > 0
     ) {
-      nameSet.add(r.participantName.trim());
+      const rawName = r.participantName.trim();
+      const normKey = rawName
+        .toLowerCase()
+        .replace(/^(mr\.|mr|mrs\.|mrs|ms\.|ms|dr\.|dr)\s+/i, "")
+        .replace(/[^\w\s]/gi, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      if (!nameMap.has(normKey)) {
+        nameMap.set(normKey, rawName);
+      } else {
+        // Prefer uppercase master string if available
+        const existing = nameMap.get(normKey)!;
+        if (rawName === rawName.toUpperCase() && existing !== existing.toUpperCase()) {
+          nameMap.set(normKey, rawName);
+        }
+      }
     }
   }
-  return Array.from(nameSet).sort((a, b) => a.localeCompare(b));
+  return Array.from(nameMap.values()).sort((a, b) => a.localeCompare(b));
 }
 
 export function searchCertificateByHierarchy(

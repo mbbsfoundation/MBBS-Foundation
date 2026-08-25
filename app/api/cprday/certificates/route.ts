@@ -198,7 +198,7 @@ export async function GET(request: NextRequest) {
 
     // Cascading Hierarchy API Actions
     if (action === "states") {
-      const cprDayStates = isAllPortals
+      const states = isAllPortals
         ? [
             ...getCertificateStates("participant"),
             ...getCertificateStates("coordinator"),
@@ -208,26 +208,16 @@ export async function GET(request: NextRequest) {
         ? []
         : getCertificateStates(portal);
 
-      const sanjRecords = getAllSanjeevaniFromStorage();
-      const combinedStates = new Set<string>(cprDayStates);
-
-      for (const r of sanjRecords) {
-        if (matchesPortal(r, portal, isAllPortals)) {
-          if (r.state && r.state.trim().length > 0) {
-            combinedStates.add(r.state.trim());
-          }
-        }
-      }
-
+      const uniqueStates = Array.from(new Set(states)).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
-        states: Array.from(combinedStates).sort((a, b) => a.localeCompare(b)),
+        states: uniqueStates,
       });
     }
 
     if (action === "cities") {
       const state = (searchParams.get("state") || "").trim().toLowerCase();
-      const cprDayCities = isAllPortals
+      const cities = isAllPortals
         ? [
             ...getCertificateCities(state, "participant"),
             ...getCertificateCities(state, "coordinator"),
@@ -237,27 +227,17 @@ export async function GET(request: NextRequest) {
         ? []
         : getCertificateCities(state, portal);
 
-      const sanjRecords = getAllSanjeevaniFromStorage();
-      const combinedCities = new Set<string>(cprDayCities);
-
-      for (const r of sanjRecords) {
-        if (matchesPortal(r, portal, isAllPortals)) {
-          if (r.state.toLowerCase().trim() === state && r.city && r.city.trim().length > 0) {
-            combinedCities.add(r.city.trim());
-          }
-        }
-      }
-
+      const uniqueCities = Array.from(new Set(cities)).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
-        cities: Array.from(combinedCities).sort((a, b) => a.localeCompare(b)),
+        cities: uniqueCities,
       });
     }
 
     if (action === "venues") {
       const state = (searchParams.get("state") || "").trim().toLowerCase();
       const city = (searchParams.get("city") || "").trim().toLowerCase();
-      const cprDayVenues = isAllPortals
+      const venues = isAllPortals
         ? [
             ...getCertificateVenues(state, city, "participant"),
             ...getCertificateVenues(state, city, "coordinator"),
@@ -267,25 +247,10 @@ export async function GET(request: NextRequest) {
         ? []
         : getCertificateVenues(state, city, portal);
 
-      const sanjRecords = getAllSanjeevaniFromStorage();
-      const combinedVenues = new Set<string>(cprDayVenues);
-
-      for (const r of sanjRecords) {
-        if (matchesPortal(r, portal, isAllPortals)) {
-          if (
-            r.state.toLowerCase().trim() === state &&
-            r.city.toLowerCase().trim() === city &&
-            r.venue &&
-            r.venue.trim().length > 0
-          ) {
-            combinedVenues.add(r.venue.trim());
-          }
-        }
-      }
-
+      const uniqueVenues = Array.from(new Set(venues)).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
-        venues: Array.from(combinedVenues).sort((a, b) => a.localeCompare(b)),
+        venues: uniqueVenues,
       });
     }
 
@@ -293,7 +258,7 @@ export async function GET(request: NextRequest) {
       const state = (searchParams.get("state") || "").trim().toLowerCase();
       const city = (searchParams.get("city") || "").trim().toLowerCase();
       const venue = (searchParams.get("venue") || "").trim().toLowerCase();
-      const cprDayParticipants = isAllPortals
+      const participants = isAllPortals
         ? [
             ...getCertificateParticipants(state, city, venue, "participant"),
             ...getCertificateParticipants(state, city, venue, "coordinator"),
@@ -303,26 +268,10 @@ export async function GET(request: NextRequest) {
         ? []
         : getCertificateParticipants(state, city, venue, portal);
 
-      const sanjRecords = getAllSanjeevaniFromStorage();
-      const combinedParticipants = new Set<string>(cprDayParticipants);
-
-      for (const r of sanjRecords) {
-        if (matchesPortal(r, portal, isAllPortals)) {
-          if (
-            r.state.toLowerCase().trim() === state &&
-            r.city.toLowerCase().trim() === city &&
-            r.venue.toLowerCase().trim() === venue &&
-            r.participantName &&
-            r.participantName.trim().length > 0
-          ) {
-            combinedParticipants.add(r.participantName.trim());
-          }
-        }
-      }
-
+      const uniqueParticipants = Array.from(new Set(participants)).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
-        participants: Array.from(combinedParticipants).sort((a, b) => a.localeCompare(b)),
+        participants: uniqueParticipants,
       });
     }
 
@@ -332,40 +281,22 @@ export async function GET(request: NextRequest) {
       const venue = (searchParams.get("venue") || "").trim().toLowerCase();
       const participant = (searchParams.get("participant") || searchParams.get("name") || "").trim().toLowerCase();
 
-      const combinedResults: any[] = [];
+      const results: CPRCertificateRecord[] = [];
 
-      // Step 1: Search CPR Day CSV records
       if (portal !== "facility") {
         if (isAllPortals) {
           const pResults = searchCertificateByHierarchy(state, city, venue, participant, "participant");
           const cResults = searchCertificateByHierarchy(state, city, venue, participant, "coordinator");
           const chResults = searchCertificateByHierarchy(state, city, venue, participant, "champion");
-          combinedResults.push(...pResults, ...cResults, ...chResults);
+          results.push(...pResults, ...cResults, ...chResults);
         } else {
-          const cprDayResults = searchCertificateByHierarchy(state, city, venue, participant, portal);
-          combinedResults.push(...cprDayResults);
+          const portalResults = searchCertificateByHierarchy(state, city, venue, participant, portal);
+          results.push(...portalResults);
         }
       }
 
-      // Step 2: Search Sanjeevani / Stored Records
-      const sanjRecords = getAllSanjeevaniFromStorage();
-      const matchingSanj = sanjRecords.filter((r) => {
-        if (!matchesPortal(r, portal, isAllPortals)) return false;
-        const matchState = r.state.toLowerCase().trim() === state;
-        const matchCity = r.city.toLowerCase().trim() === city;
-        const matchVenue = r.venue.toLowerCase().trim() === venue;
-        const rName = r.participantName.toLowerCase().trim();
-        const matchName = !participant || rName === participant || (participant.length >= 3 && rName.includes(participant));
-        return matchState && matchCity && matchVenue && matchName;
-      });
-
-      if (matchingSanj.length > 0) {
-        const formattedSanj = matchingSanj.map(formatSanjeevaniRecord);
-        combinedResults.push(...formattedSanj);
-      }
-
-      if (combinedResults.length > 0) {
-        const deduplicated = deduplicatePersonRecords(combinedResults).map(ensureCertificateRenderFields);
+      if (results.length > 0) {
+        const deduplicated = deduplicatePersonRecords(results).map(ensureCertificateRenderFields);
         return NextResponse.json({ success: true, certificates: deduplicated });
       }
 
