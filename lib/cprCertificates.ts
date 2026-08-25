@@ -296,6 +296,37 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
     }
   }
 
+  // Ensure deterministic top-priority for authoritative master datasets across any filesystem
+  if (portal === "participant") {
+    allCsvFiles.sort((a, b) => {
+      const aIsMaster = a.file.toLowerCase().includes("final_participant_certification_master");
+      const bIsMaster = b.file.toLowerCase().includes("final_participant_certification_master");
+      if (aIsMaster && !bIsMaster) return -1;
+      if (!aIsMaster && bIsMaster) return 1;
+      return 0;
+    });
+  } else if (portal === "champion") {
+    allCsvFiles.sort((a, b) => {
+      const aIsMaster =
+        a.file.toLowerCase().includes("champion_certification_master_updated_250826") ||
+        a.file.toLowerCase().includes("final_champion_certification_master");
+      const bIsMaster =
+        b.file.toLowerCase().includes("champion_certification_master_updated_250826") ||
+        b.file.toLowerCase().includes("final_champion_certification_master");
+      if (aIsMaster && !bIsMaster) return -1;
+      if (!aIsMaster && bIsMaster) return 1;
+      return 0;
+    });
+  } else if (portal === "coordinator") {
+    allCsvFiles.sort((a, b) => {
+      const aIsMaster = a.file.toLowerCase().includes("final_course_coordinator_certification_master");
+      const bIsMaster = b.file.toLowerCase().includes("final_course_coordinator_certification_master");
+      if (aIsMaster && !bIsMaster) return -1;
+      if (!aIsMaster && bIsMaster) return 1;
+      return 0;
+    });
+  }
+
   const records: CPRCertificateRecord[] = [];
   const seenCertIds = new Set<string>();
   const seenPersonVenueKeys = new Set<string>();
