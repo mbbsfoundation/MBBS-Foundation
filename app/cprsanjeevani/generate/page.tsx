@@ -9,6 +9,7 @@ import {
   downloadCertificatePdf,
   downloadCertificatePng,
 } from "@/components/cprsanjeevani/CertificateRenderer";
+import CPRStateReportViewer from "@/components/cpr/CPRStateReportViewer";
 
 interface PreviewRow {
   rowNumber: number;
@@ -95,8 +96,8 @@ export default function SanjeevaniAdminPortalPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
 
-  // Top-Level Mode: Batch Generation vs Individual Addition
-  const [adminMode, setAdminMode] = useState<"batch" | "individual">("batch");
+  // Top-Level Mode: Batch Generation vs Individual Addition vs State Reports
+  const [adminMode, setAdminMode] = useState<"batch" | "individual" | "reports">("batch");
 
   // Batch Module Category Selector: Participant Certificates vs CPR Champion vs CPR Facility
   const [moduleCategory, setModuleCategory] = useState<"PARTICIPANT" | "CHAMPION" | "FACILITY">("PARTICIPANT");
@@ -741,30 +742,41 @@ export default function SanjeevaniAdminPortalPage() {
         </div>
       </section>
 
-      {/* Top-Level Mode Selector: Batch Generation vs Individual Addition */}
-      <div className="mx-auto max-w-6xl px-6 mt-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1.5 rounded-2xl bg-teal-950/10 border border-teal-800/20 shadow-inner">
+      {/* Top-Level Mode Selector: Batch Generation vs Individual Addition vs State Reports */}
+      <div className="no-print mx-auto max-w-6xl px-6 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-1.5 rounded-2xl bg-teal-950/10 border border-teal-800/20 shadow-inner">
           <button
             type="button"
             onClick={() => setAdminMode("batch")}
-            className={`rounded-xl py-3.5 px-4 text-xs sm:text-base font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+            className={`rounded-xl py-3.5 px-3 text-xs sm:text-sm md:text-base font-black transition flex items-center justify-center gap-2 cursor-pointer ${
               adminMode === "batch"
                 ? "bg-gradient-to-r from-teal-800 to-indigo-900 text-white shadow-lg scale-[1.01]"
                 : "text-slate-700 hover:text-teal-900 hover:bg-white/60 font-bold"
             }`}
           >
-            <span>📦</span> Batch Generation (Spreadsheet Upload)
+            <span>📦</span> Batch Generation
           </button>
           <button
             type="button"
             onClick={() => setAdminMode("individual")}
-            className={`rounded-xl py-3.5 px-4 text-xs sm:text-base font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+            className={`rounded-xl py-3.5 px-3 text-xs sm:text-sm md:text-base font-black transition flex items-center justify-center gap-2 cursor-pointer ${
               adminMode === "individual"
                 ? "bg-gradient-to-r from-teal-800 to-indigo-900 text-white shadow-lg scale-[1.01]"
                 : "text-slate-700 hover:text-teal-900 hover:bg-white/60 font-bold"
             }`}
           >
-            <span>➕</span> Individual Certificate Addition
+            <span>➕</span> Individual Addition
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdminMode("reports")}
+            className={`rounded-xl py-3.5 px-3 text-xs sm:text-sm md:text-base font-black transition flex items-center justify-center gap-2 cursor-pointer ${
+              adminMode === "reports"
+                ? "bg-gradient-to-r from-teal-800 to-indigo-900 text-white shadow-lg scale-[1.01]"
+                : "text-slate-700 hover:text-teal-900 hover:bg-white/60 font-bold"
+            }`}
+          >
+            <span>📊</span> State Reports (Census)
           </button>
         </div>
       </div>
@@ -1186,7 +1198,7 @@ export default function SanjeevaniAdminPortalPage() {
             )}
           </main>
         </>
-      ) : (
+      ) : adminMode === "individual" ? (
         /* INDIVIDUAL CERTIFICATE ADDITION VIEW */
         <main className="mx-auto max-w-4xl px-6 mt-6 space-y-8 animate-in fade-in duration-300">
           {/* Individual Category Selector */}
@@ -1528,6 +1540,11 @@ export default function SanjeevaniAdminPortalPage() {
               </div>
             </form>
           </section>
+        </main>
+      ) : (
+        /* STATE REPORTS VIEW */
+        <main className="mx-auto max-w-6xl px-6 mt-6 animate-in fade-in duration-300">
+          <CPRStateReportViewer isAdmin={true} />
         </main>
       )}
 
