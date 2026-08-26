@@ -326,9 +326,56 @@ export async function GET(request: NextRequest) {
         });
       }
 
-      // Step 2: Check Database CourseParticipant
+      // Step 2: Check Database (AdminCertificateRecord & CourseParticipant)
       if (prisma) {
         try {
+          // Check AdminCertificateRecord
+          const adminRec = await prisma.adminCertificateRecord.findFirst({
+            where: {
+              OR: [
+                { certificateId: { equals: normalizedCertId, mode: "insensitive" } },
+                { id: { equals: certId } },
+              ],
+            },
+          });
+
+          if (adminRec) {
+            let catTitle = "CPR Aware Citizen";
+            let courseTitle = "National IAP CPR Sanjeevani Training Program";
+            if (adminRec.category === "CPR_CHAMPION") {
+              catTitle = "CPR Champion";
+              courseTitle = "National IAP CPR Sanjeevani Champion Certificate";
+            } else if (adminRec.category === "COURSE_COORDINATOR") {
+              catTitle = "Course Coordinator";
+              courseTitle = "National IAP CPR Sanjeevani Course Coordinator Certificate";
+            } else if (adminRec.category === "CPR_FACILITY") {
+              catTitle = "CPR Facility / Venue";
+              courseTitle = "National IAP CPR Sanjeevani Training Facility";
+            }
+
+            const rawCert = {
+              certificateNumber: adminRec.certificateId,
+              participantName: adminRec.name,
+              courseTitle,
+              venueName: adminRec.venueName || adminRec.name,
+              city: adminRec.city || "",
+              state: adminRec.state,
+              issueDate: adminRec.certificateDate || "21 July 2026",
+              status: adminRec.status || "VALID",
+              category: catTitle,
+              mobileNumber: adminRec.mobileNumber || "",
+              email: adminRec.email || "",
+              courseCoordinator: adminRec.courseCoordinator || "",
+              portalType: adminRec.category.toLowerCase().replace("cpr_", ""),
+            };
+
+            return NextResponse.json({
+              success: true,
+              certificate: ensureCertificateRenderFields(rawCert),
+            });
+          }
+
+          // Check CourseParticipant
           const participantRecord = await prisma.courseParticipant.findFirst({
             where: {
               OR: [
@@ -407,10 +454,59 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // Step 2: Check Database
+      // Step 2: Check Database (AdminCertificateRecord & CourseParticipant)
       const normalizedQuery = query.toLowerCase();
       if (prisma) {
         try {
+          const adminMatches = await prisma.adminCertificateRecord.findMany({
+            where: {
+              OR: [
+                { name: { contains: query, mode: "insensitive" } },
+                { normalizedName: { contains: normalizedQuery } },
+                { mobileNumber: { contains: query } },
+                { email: { equals: normalizedQuery, mode: "insensitive" } },
+                { venueName: { contains: query, mode: "insensitive" } },
+                { city: { contains: query, mode: "insensitive" } },
+                { state: { contains: query, mode: "insensitive" } },
+                { certificateId: { contains: query, mode: "insensitive" } },
+              ],
+            },
+            take: 15,
+          });
+
+          if (adminMatches.length > 0) {
+            for (const adminRec of adminMatches) {
+              let catTitle = "CPR Aware Citizen";
+              let courseTitle = "National IAP CPR Sanjeevani Training Program";
+              if (adminRec.category === "CPR_CHAMPION") {
+                catTitle = "CPR Champion";
+                courseTitle = "National IAP CPR Sanjeevani Champion Certificate";
+              } else if (adminRec.category === "COURSE_COORDINATOR") {
+                catTitle = "Course Coordinator";
+                courseTitle = "National IAP CPR Sanjeevani Course Coordinator Certificate";
+              } else if (adminRec.category === "CPR_FACILITY") {
+                catTitle = "CPR Facility / Venue";
+                courseTitle = "National IAP CPR Sanjeevani Training Facility";
+              }
+
+              allFoundCerts.push({
+                certificateNumber: adminRec.certificateId,
+                participantName: adminRec.name,
+                courseTitle,
+                venueName: adminRec.venueName || adminRec.name,
+                city: adminRec.city || "",
+                state: adminRec.state,
+                issueDate: adminRec.certificateDate || "21 July 2026",
+                status: adminRec.status || "VALID",
+                category: catTitle,
+                mobileNumber: adminRec.mobileNumber || "",
+                email: adminRec.email || "",
+                courseCoordinator: adminRec.courseCoordinator || "",
+                portalType: adminRec.category.toLowerCase().replace("cpr_", ""),
+              });
+            }
+          }
+
           const results = await prisma.courseParticipant.findMany({
             where: {
               participant: {

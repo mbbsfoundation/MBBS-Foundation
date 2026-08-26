@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import {
   getHighestCPRDayParticipantSequence,
   getHighestCPRChampionSequence,
+  getHighestCPRCoordinatorSequence,
+  getHighestCPRFacilitySequence,
 } from "@/lib/cprCertificates";
 
 export type CertificateCategory = "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY";
@@ -181,10 +183,12 @@ export function formatSequence(seq: number): string {
  * Builds canonical Certificate ID string:
  * - CPR_DAY: IAPCPR/PA/{STATE_CODE}/{XXXX}
  * - CPR_CHAMPION: IAPCPR/CH/{STATE_CODE}/{XXXX}
+ * - COURSE_COORDINATOR: IAPCPR/CC/{STATE_CODE}/{XXXX}
+ * - CPR_FACILITY: IAP-CPR-Day/Venue/{STATE_CODE}-{XXXX}
  * - SANJEEVANI: IAPCPR/Sanjeevani/{STATE_CODE}/{XXXX}
  */
 export function buildCertificateId(
-  category: CertificateCategory,
+  category: CertificateCategory | "COURSE_COORDINATOR",
   stateCode: string,
   sequenceNumber: number
 ): string {
@@ -195,6 +199,9 @@ export function buildCertificateId(
   }
   if (category === "CPR_CHAMPION") {
     return `IAPCPR/CH/${normState}/${formattedSeq}`;
+  }
+  if (category === "COURSE_COORDINATOR") {
+    return `IAPCPR/CC/${normState}/${formattedSeq}`;
   }
   if (category === "CPR_FACILITY") {
     return `IAP-CPR-Day/Venue/${normState}-${sequenceNumber}`;
@@ -210,7 +217,8 @@ export function extractSequenceFromId(certificateId: string): number | null {
     (certificateId || "").match(/IAPCPR\/Sanjeevani\/[A-Z]+\/(\d+)/i) ||
     (certificateId || "").match(/IAPCPR\/PA\/[A-Z]+\/(\d+)/i) ||
     (certificateId || "").match(/IAPCPR\/CH\/[A-Z]+\/(\d+)/i) ||
-    (certificateId || "").match(/Venue\/[A-Z]+-(\d+)/i);
+    (certificateId || "").match(/IAPCPR\/CC\/[A-Z]+\/(\d+)/i) ||
+    (certificateId || "").match(/Venue\/[A-Z]+[-_](\d+)/i);
   if (match && match[1]) {
     const num = parseInt(match[1], 10);
     return isNaN(num) ? null : num;
@@ -272,9 +280,13 @@ export function getAllBatchesFromStorage(): SanjeevaniBatchRecord[] {
 
 /**
  * Determines the highest certificate sequence number already issued for a specific Category and State Code.
+ * Scans:
+ * 1. Static CSV master files (Participant, Champion, Coordinator, Facility)
+ * 2. In-memory / JSON storage
+ * 3. PostgreSQL AdminCertificateRecord table
  */
 export async function getHighestSequenceForCategoryAndState(
-  category: CertificateCategory,
+  category: CertificateCategory | "COURSE_COORDINATOR",
   stateCode: string
 ): Promise<number> {
   const normState = normalizeStateCode(stateCode);
@@ -282,14 +294,16 @@ export async function getHighestSequenceForCategoryAndState(
 
   if (category === "CPR_DAY") {
     const csvHighest = getHighestCPRDayParticipantSequence(normState);
-    if (csvHighest > highest) {
-      highest = csvHighest;
-    }
+    if (csvHighest > highest) highest = csvHighest;
   } else if (category === "CPR_CHAMPION") {
     const csvHighest = getHighestCPRChampionSequence(normState);
-    if (csvHighest > highest) {
-      highest = csvHighest;
-    }
+    if (csvHighest > highest) highest = csvHighest;
+  } else if (category === "COURSE_COORDINATOR") {
+    const csvHighest = getHighestCPRCoordinatorSequence(normState);
+    if (csvHighest > highest) highest = csvHighest;
+  } else if (category === "CPR_FACILITY") {
+    const csvHighest = getHighestCPRFacilitySequence(normState);
+    if (csvHighest > highest) highest = csvHighest;
   }
 
   // Check in-memory cached JSON storage
@@ -298,17 +312,49 @@ export async function getHighestSequenceForCategoryAndState(
     if (normalizeStateCode(rec.stateCode) === normState) {
       const isCprDayCert = rec.category === "CPR_DAY" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/PA/"));
       const isChampionCert = rec.category === "CPR_CHAMPION" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/CH/"));
+      const isCoordinatorCert = (rec.category as string) === "COURSE_COORDINATOR" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/CC/"));
       const isFacilityCert = rec.category === "CPR_FACILITY" || (rec.certificateId && rec.certificateId.toUpperCase().includes("VENUE"));
       
       if (category === "CPR_DAY" && isCprDayCert) {
         if (rec.sequenceNumber && rec.sequenceNumber > highest) highest = rec.sequenceNumber;
       } else if (category === "CPR_CHAMPION" && isChampionCert) {
         if (rec.sequenceNumber && rec.sequenceNumber > highest) highest = rec.sequenceNumber;
+      } else if (category === "COURSE_COORDINATOR" && isCoordinatorCert) {
+        if (rec.sequenceNumber && rec.sequenceNumber > highest) highest = rec.sequenceNumber;
       } else if (category === "CPR_FACILITY" && isFacilityCert) {
         if (rec.sequenceNumber && rec.sequenceNumber > highest) highest = rec.sequenceNumber;
-      } else if (category === "SANJEEVANI" && !isCprDayCert && !isChampionCert && !isFacilityCert) {
+      } else if (category === "SANJEEVANI" && !isCprDayCert && !isChampionCert && !isCoordinatorCert && !isFacilityCert) {
         if (rec.sequenceNumber && rec.sequenceNumber > highest) highest = rec.sequenceNumber;
       }
+    }
+  }
+
+  // Check PostgreSQL AdminCertificateRecord table
+  if (prisma) {
+    try {
+      let dbCategory: any = "PARTICIPANT";
+      if (category === "CPR_CHAMPION") dbCategory = "CPR_CHAMPION";
+      else if (category === "COURSE_COORDINATOR") dbCategory = "COURSE_COORDINATOR";
+      else if (category === "CPR_FACILITY") dbCategory = "CPR_FACILITY";
+
+      const dbRecords = await prisma.adminCertificateRecord.findMany({
+        where: {
+          category: dbCategory,
+          stateCode: normState,
+        },
+        select: {
+          certificateId: true,
+        },
+      });
+
+      for (const dbr of dbRecords) {
+        const seq = extractSequenceFromId(dbr.certificateId);
+        if (seq && seq > highest) {
+          highest = seq;
+        }
+      }
+    } catch (e) {
+      // safe database fallback
     }
   }
 
@@ -316,10 +362,149 @@ export async function getHighestSequenceForCategoryAndState(
 }
 
 /**
+ * Calculates the next proposed strictly non-colliding certificate ID and sequence.
+ */
+export async function getNextProposedCertificateId(
+  category: "PARTICIPANT" | "CPR_CHAMPION" | "COURSE_COORDINATOR" | "CPR_FACILITY",
+  stateCode: string,
+  customDate?: string
+): Promise<{ nextSequence: number; certificateId: string }> {
+  const normState = normalizeStateCode(stateCode);
+  let storageCat: CertificateCategory | "COURSE_COORDINATOR" = "CPR_DAY";
+
+  if (category === "CPR_CHAMPION") storageCat = "CPR_CHAMPION";
+  else if (category === "COURSE_COORDINATOR") storageCat = "COURSE_COORDINATOR";
+  else if (category === "CPR_FACILITY") storageCat = "CPR_FACILITY";
+  else {
+    const dateToCheck = customDate || "21 July 2026";
+    storageCat = isCprDayDate(dateToCheck) ? "CPR_DAY" : "SANJEEVANI";
+  }
+
+  const highest = await getHighestSequenceForCategoryAndState(storageCat, normState);
+  let nextSeq = highest + 1;
+  if (nextSeq < 101) {
+    nextSeq = 101;
+  }
+
+  const certId = buildCertificateId(storageCat, normState, nextSeq);
+  return { nextSequence: nextSeq, certificateId: certId };
+}
+
+/**
  * Backward compatibility wrapper for getHighestSequenceForState.
  */
 export async function getHighestSequenceForState(stateCode: string): Promise<number> {
   return getHighestSequenceForCategoryAndState("SANJEEVANI", stateCode);
+}
+
+/**
+ * Atomically saves a single manual/individual certificate addition.
+ * Synchronously commits to JSON storage & in-memory cache.
+ * Asynchronously / defensively upserts to PostgreSQL AdminCertificateRecord table.
+ */
+export async function saveSingleIndividualCertificate(params: {
+  certificateId: string;
+  category: "PARTICIPANT" | "CPR_CHAMPION" | "COURSE_COORDINATOR" | "CPR_FACILITY";
+  name: string;
+  state: string;
+  stateCode: string;
+  city: string;
+  venueName?: string;
+  certificateDate: string;
+  mobileNumber?: string;
+  email?: string;
+  courseCoordinator?: string;
+  notes?: string;
+}): Promise<SanjeevaniCertificateRecord> {
+  const normState = normalizeStateCode(params.stateCode);
+  const normalizedName = normalizeParticipantName(params.name);
+  const seq = extractSequenceFromId(params.certificateId) || 101;
+
+  let storageCat: CertificateCategory = "CPR_DAY";
+  if (params.category === "CPR_CHAMPION") storageCat = "CPR_CHAMPION";
+  else if (params.category === "CPR_FACILITY") storageCat = "CPR_FACILITY";
+  else if (params.category === "COURSE_COORDINATOR") storageCat = "CPR_DAY";
+  else storageCat = isCprDayDate(params.certificateDate) ? "CPR_DAY" : "SANJEEVANI";
+
+  const newRecord: SanjeevaniCertificateRecord = {
+    id: `cert_ind_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    certificateId: params.certificateId,
+    sequenceNumber: seq,
+    stateCode: normState,
+    category: storageCat,
+    participantName: params.name,
+    normalizedName,
+    date: params.certificateDate,
+    venue: params.venueName || params.name,
+    city: params.city,
+    state: params.state,
+    mobileNumber: params.mobileNumber || undefined,
+    email: params.email || undefined,
+    courseCoordinator: params.courseCoordinator || undefined,
+    status: "VALID",
+    generatedAt: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  // 1. Synchronously commit to JSON storage file & in-memory index
+  ensureStorageFiles();
+  const certs = getAllSanjeevaniFromStorage();
+  certs.push(newRecord);
+  cachedStorageCerts = certs;
+  try {
+    fs.writeFileSync(CERTS_FILE, JSON.stringify(certs, null, 2), "utf8");
+  } catch (fsErr) {
+    console.error("Error writing sanjeevani_certificates.json:", fsErr);
+  }
+
+  // 2. Synchronize to PostgreSQL table AdminCertificateRecord if available
+  if (prisma && (prisma as any).adminCertificateRecord) {
+    try {
+      let dbCat: any = "PARTICIPANT";
+      if (params.category === "CPR_CHAMPION") dbCat = "CPR_CHAMPION";
+      else if (params.category === "COURSE_COORDINATOR") dbCat = "COURSE_COORDINATOR";
+      else if (params.category === "CPR_FACILITY") dbCat = "CPR_FACILITY";
+
+      await (prisma as any).adminCertificateRecord.upsert({
+        where: { certificateId: params.certificateId },
+        update: {
+          name: params.name,
+          normalizedName,
+          certificateDate: params.certificateDate,
+          venueName: params.venueName || params.name,
+          city: params.city,
+          state: params.state,
+          stateCode: normState,
+          mobileNumber: params.mobileNumber,
+          email: params.email,
+          courseCoordinator: params.courseCoordinator,
+          status: "VALID",
+        },
+        create: {
+          certificateId: params.certificateId,
+          category: dbCat,
+          name: params.name,
+          normalizedName,
+          certificateDate: params.certificateDate,
+          venueName: params.venueName || params.name,
+          city: params.city,
+          state: params.state,
+          stateCode: normState,
+          mobileNumber: params.mobileNumber,
+          email: params.email,
+          courseCoordinator: params.courseCoordinator,
+          status: "VALID",
+          source: "MANUAL_ADMIN",
+          notes: params.notes,
+        },
+      });
+    } catch (dbErr) {
+      console.warn("Database sync warning for individual certificate:", dbErr);
+    }
+  }
+
+  return newRecord;
 }
 
 /**

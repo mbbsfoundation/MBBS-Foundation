@@ -399,3 +399,45 @@ model SanjeevaniUploadBatch {
 
   certificates     SanjeevaniCertificate[]
 }
+
+enum CertificateCategoryType {
+  PARTICIPANT
+  CPR_CHAMPION
+  COURSE_COORDINATOR
+  CPR_FACILITY
+}
+
+model AdminCertificateRecord {
+  id                String                  @id @default(cuid())
+  certificateId     String                  @unique
+  category          CertificateCategoryType
+
+  name              String
+  normalizedName    String
+
+  certificateDate   String
+
+  venueName         String?
+  venueCode         String?
+
+  city              String?
+  state             String
+  stateCode         String
+
+  mobileNumber      String?
+  email             String?
+
+  courseCoordinator String?
+
+  status            String                  @default("VALID")
+  source            String                  @default("MANUAL_ADMIN")
+  notes             String?
+
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  @@index([category, stateCode])
+  @@index([normalizedName, stateCode])
+  @@index([mobileNumber])
+  @@index([email])
+}

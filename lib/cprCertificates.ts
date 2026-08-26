@@ -95,14 +95,18 @@ function parseFullCSV(content: string): string[][] {
 const certificateCache: Partial<Record<CPRCertificatePortal, CPRCertificateRecord[]>> = {};
 const cprDayMaxSeqCache = new Map<string, number>();
 const championMaxSeqCache = new Map<string, number>();
+const coordinatorMaxSeqCache = new Map<string, number>();
 let cprDayMaxSeqIndexed = false;
 let championMaxSeqIndexed = false;
+let coordinatorMaxSeqIndexed = false;
 let lastCsvMtime = 0;
 
 const CERTS_DIRS = [
   path.join(process.cwd(), "cprsanjeevani"),
   path.join(process.cwd(), "cprcertificates"),
 ];
+
+const SANJEEVANI_DATA_FILE = path.join(process.cwd(), "data", "sanjeevani_certificates.json");
 
 function getLatestCsvMtimes(): number {
   let maxMtime = 0;
@@ -118,7 +122,114 @@ function getLatestCsvMtimes(): number {
       }
     } catch {}
   }
+
+  // Also track persistent JSON storage file timestamp
+  if (fs.existsSync(SANJEEVANI_DATA_FILE)) {
+    try {
+      const stats = fs.statSync(SANJEEVANI_DATA_FILE);
+      if (stats.mtimeMs > maxMtime) maxMtime = stats.mtimeMs;
+    } catch {}
+  }
+
   return maxMtime;
+}
+
+function loadStoredAdminRecords(portal: CPRCertificatePortal): CPRCertificateRecord[] {
+  if (!fs.existsSync(SANJEEVANI_DATA_FILE)) {
+    return [];
+  }
+
+  try {
+    const raw = fs.readFileSync(SANJEEVANI_DATA_FILE, "utf8");
+    const jsonList = JSON.parse(raw || "[]");
+    if (!Array.isArray(jsonList) || jsonList.length === 0) return [];
+
+    const out: CPRCertificateRecord[] = [];
+
+    for (let i = 0; i < jsonList.length; i++) {
+      const sc = jsonList[i];
+      if (!sc || !sc.certificateId) continue;
+
+      // Status check: skip VOID, INACTIVE, CANCELLED
+      const status = (sc.status || "VALID").toUpperCase();
+      if (status === "VOID" || status === "INACTIVE" || status === "CANCELLED") {
+        continue;
+      }
+
+      const cId = (sc.certificateId || "").trim().toUpperCase();
+      const rawCat = (sc.category || "").toUpperCase();
+
+      let recPortal: CPRCertificatePortal = "participant";
+      if (rawCat === "CPR_CHAMPION" || cId.includes("/CH/")) {
+        recPortal = "champion";
+      } else if (rawCat === "COURSE_COORDINATOR" || cId.includes("/CC/")) {
+        recPortal = "coordinator";
+      } else if (rawCat === "CPR_FACILITY" || cId.includes("VENUE") || cId.includes("FACILITY")) {
+        recPortal = "facility";
+      } else {
+        recPortal = "participant";
+      }
+
+      if (recPortal !== portal) {
+        continue;
+      }
+
+      let catTitle = "CPR Aware Citizen";
+      let courseTitle = "National IAP CPR Sanjeevani Training Program";
+      if (recPortal === "coordinator") {
+        catTitle = "Course Coordinator";
+        courseTitle = "National IAP CPR Sanjeevani Course Coordinator Certificate";
+      } else if (recPortal === "champion") {
+        catTitle = "CPR Champion";
+        courseTitle = "National IAP CPR Sanjeevani Champion Certificate";
+      } else if (recPortal === "facility") {
+        catTitle = "CPR Facility / Venue";
+        courseTitle = "National IAP CPR Sanjeevani Training Facility";
+      }
+
+      let cleanVenue = (sc.venue || sc.participantName || "").trim();
+      if (
+        cleanVenue.toLowerCase().includes("jindal super special") ||
+        cleanVenue.toLowerCase().includes("jindal super specialty") ||
+        cleanVenue.toLowerCase().includes("jindal super speciality")
+      ) {
+        cleanVenue = "Jindal Super Speciality Hospital";
+      }
+
+      let cleanState = (sc.state || "").trim();
+      if (cleanState.toLowerCase() === "jammu and kashmir" || cleanState.toLowerCase() === "jammu & kashmir") {
+        cleanState = "Jammu & Kashmir";
+      }
+
+      out.push({
+        srNo: sc.id || String(i + 1),
+        certificateNumber: sc.certificateId.trim(),
+        participantName: (sc.participantName || cleanVenue).trim(),
+        mobileNumber: (sc.mobileNumber || "").trim(),
+        email: (sc.email || "").trim(),
+        zone: (sc.stateCode || "").trim(),
+        state: cleanState,
+        city: (sc.city || "").trim(),
+        courseCoordinator: (sc.courseCoordinator || "").trim(),
+        courseCoordinatorEmail: "",
+        venueName: cleanVenue,
+        driveLink: "",
+        driveFileId: "",
+        downloadUrl: "",
+        previewUrl: "",
+        issueDate: sc.date || "21 July 2026",
+        status: "GENERATED",
+        category: catTitle,
+        courseTitle,
+        portalType: recPortal,
+      });
+    }
+
+    return out;
+  } catch (err) {
+    console.error("Error reading stored admin certificates in cprCertificates:", err);
+    return [];
+  }
 }
 
 function indexCprDayParticipantSequences(records: CPRCertificateRecord[]) {
@@ -157,6 +268,53 @@ function indexChampionSequences(records: CPRCertificateRecord[]) {
     }
   }
   championMaxSeqIndexed = true;
+}
+
+function indexCoordinatorSequences(records: CPRCertificateRecord[]) {
+  coordinatorMaxSeqCache.clear();
+  for (const r of records) {
+    const certNum = (r.certificateNumber || "").trim().toUpperCase();
+    const match = certNum.match(/^IAPCPR[/-]CC[/-]([A-Z]+)[/-](\d+)$/i);
+    if (match && match[1] && match[2]) {
+      const state = match[1].toUpperCase();
+      const num = parseInt(match[2], 10);
+      if (!isNaN(num)) {
+        const current = coordinatorMaxSeqCache.get(state) || 0;
+        if (num > current) {
+          coordinatorMaxSeqCache.set(state, num);
+        }
+      }
+    }
+  }
+  coordinatorMaxSeqIndexed = true;
+}
+
+export function getHighestCPRCoordinatorSequence(stateCode: string): number {
+  const normState = (stateCode || "").trim().toUpperCase();
+  if (!coordinatorMaxSeqIndexed) {
+    const coords = getAllCPRCertificates("coordinator");
+    indexCoordinatorSequences(coords);
+  }
+  return coordinatorMaxSeqCache.get(normState) || 0;
+}
+
+export function getHighestCPRFacilitySequence(stateCode: string): number {
+  const normState = (stateCode || "").trim().toUpperCase();
+  const venues = loadFacilityVenues();
+  let maxSeq = 0;
+  for (const v of venues) {
+    const certNum = (v.certificateNumber || "").trim().toUpperCase();
+    const match = certNum.match(/Venue\/([A-Z]+)[-_](\d+)/i);
+    if (match && match[1] && match[2]) {
+      if (match[1].toUpperCase() === normState) {
+        const num = parseInt(match[2], 10);
+        if (!isNaN(num) && num > maxSeq) {
+          maxSeq = num;
+        }
+      }
+    }
+  }
+  return maxSeq;
 }
 
 /**
@@ -281,8 +439,18 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
 
   if (portal === "facility") {
     const venues = loadFacilityVenues();
-    certificateCache.facility = venues;
-    return venues;
+    const adminFacilities = loadStoredAdminRecords("facility");
+    const combined = [...venues];
+    const seen = new Set(venues.map((v) => (v.certificateNumber || "").toUpperCase()));
+    for (const af of adminFacilities) {
+      const k = (af.certificateNumber || "").toUpperCase();
+      if (!seen.has(k)) {
+        seen.add(k);
+        combined.push(af);
+      }
+    }
+    certificateCache.facility = combined;
+    return combined;
   }
 
   const allCsvFiles: { dir: string; file: string }[] = [];
@@ -641,6 +809,16 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
       }
     } catch (err) {
       console.error(`Error reading CSV file ${file}:`, err);
+    }
+  }
+
+  // Merge Admin created / stored certificates seamlessly
+  const storedAdminRecords = loadStoredAdminRecords(portal);
+  for (const ar of storedAdminRecords) {
+    const certKey = ar.certificateNumber.trim().toUpperCase();
+    if (!seenCertIds.has(certKey)) {
+      seenCertIds.add(certKey);
+      records.push(ar);
     }
   }
 
