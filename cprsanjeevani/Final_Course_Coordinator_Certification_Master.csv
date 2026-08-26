@@ -1,4 +1,4 @@
-﻿Coordinator Name,Certificate ID,Venue,City,State,Zone,Email ID,Certificate Status,Website Action,Existing Source,Drive Link,Match Method,Unique Coordinator-Venue Key
+Coordinator Name,Certificate ID,Venue,City,State,Zone,Email ID,Certificate Status,Website Action,Existing Source,Drive Link,Match Method,Unique Coordinator-Venue Key
 Dr Prof Bal Mukund,,KENDRIYA VIDYALAYA NO. 2,Portblair,Andaman & Nikobar Island,South Zone,,REVIEW_STATE_CODE,DO_NOT_GENERATE_YET,,,,dr prof bal mukund | kendriya vidyalaya no 2 | portblair | andaman and nikobar island
 Dr Prof Bal Mukund,,NAVY CHILDREN SCHOOL,Portblair,Andaman & Nikobar Island,South Zone,,REVIEW_STATE_CODE,DO_NOT_GENERATE_YET,,,,dr prof bal mukund | navy children school | portblair | andaman and nikobar island
 Dr A S Kireeti,IAPCPR/CC/AP/0140,"ACSR GOVERNMENT MEDICAL COLLEGE, NELLORE",Nellore,Andhra Pradesh,Central Zone,,NEW_HTML,GENERATE_HTML_CERTIFICATE,,,,dr a s kireeti | acsr government medical college nellore | nellore | andhra pradesh
@@ -356,4 +356,5 @@ Dr. Kapil Jindal,IAPCPR/CC/RJ/0106,"JINDAL SUPER SPECIALTY HOSPITAL, BHARATPUR",
 Dr. Sahota,IAPCPR/CC/UK/0107,SAHOTA SUPER SPECIALITY HOSPITAL,Dehradun,Uttarakhand,North Zone,,NEW_HTML,GENERATE_HTML_CERTIFICATE,,,Updated Summary 25-08-2026,dr sahota | sahota super speciality hospital | dehradun | uttarakhand
 Debanjana Basak,IAPCPR/CC/WB/0137,GOURIDEVI INSTITUTE OF MEDICAL SCIENCES AND HOSPITAL,Durgapur,West Bengal,East Zone,,NEW_HTML,GENERATE_HTML_CERTIFICATE,,,Updated Summary 25-08-2026,debanjana basak | gouridevi institute of medical sciences and hospital | durgapur | west bengal
 Dr ganga sapkota,IAPCPR/CC/WB/0138,"LITTLE ANGEL SCHOOL, MILAN MORE",Siliguri,West Bengal,East Zone,,NEW_HTML,GENERATE_HTML_CERTIFICATE,,,Updated Summary 25-08-2026,dr ganga sapkota | little angel school milan more | siliguri | west bengal
-Amitabha Chattopadhyay,IAPCPR/CC/WB/0139,NARAYANA SUPERSPECIALITY HOSPITAL,Howrah,West Bengal,East Zone,,NEW_HTML,GENERATE_HTML_CERTIFICATE,,,Updated Summary 25-08-2026,amitabha chattopadhyay | narayana superspeciality hospital | howrah | west bengal
+Dr Amitabha Chattopadhyay,IAPCPR/CC/WB/0139,NARAYANA SUPERSPECIALITY HOSPITAL,Howrah,West Bengal,East Zone,,NEW_HTML,GENERATE_HTML_CERTIFICATE,,,Updated Summary 25-08-2026,amitabha chattopadhyay | narayana superspeciality hospital | howrah | west bengal
+Dr Punit Goenka,IAPCPR/CC/WB/0140,"ESI HOSPITAL, MANIKTALA",Kolkata,West Bengal,East Zone,,NEW_HTML,GENERATE_HTML_CERTIFICATE,,,Updated Summary 25-08-2026,dr punit goenka | esi hospital maniktala | kolkata | west bengal
