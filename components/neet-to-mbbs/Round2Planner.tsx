@@ -6,6 +6,7 @@ import Round1EvidenceExplorer from "./Round1EvidenceExplorer";
 import MedicalCollegeExplorer from "./MedicalCollegeExplorer";
 import BookDiscoveryCard from "./BookDiscoveryCard";
 import BookEngagementPrompt from "./BookEngagementPrompt";
+import SharePageButton from "./SharePageButton";
 import type { Round1EvidenceResponse, DomicileCollegeSummary, CollegeRound1CategoryProfile } from "@/lib/counselling/evidenceTypes";
 
 const INDIAN_STATES_AND_UTS = [
@@ -498,20 +499,26 @@ export default function Round2Planner() {
     <div className="w-full space-y-6 pb-24">
       {/* 1. Compact Hero Header */}
       <div className="rounded-3xl border border-slate-200 bg-linear-to-b from-white to-slate-50/70 p-4 sm:p-6 shadow-xs no-print">
-        <div className="max-w-3xl space-y-2">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-blue-900">
-            <span>🎯</span>
-            <span>NEET 2026 • Counselling Decision Support</span>
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div className="max-w-3xl space-y-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wider text-blue-900">
+              <span>🎯</span>
+              <span>NEET 2026 • Counselling Decision Support</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-900">
+              NEET-UG 2026 Counselling Planner
+            </h1>
+            <p className="text-xs sm:text-sm leading-relaxed text-slate-600">
+              Explore actual Round-1 allotments, understand medical-college AIR patterns and organise your counselling choices.
+            </p>
+            <div className="pt-1 text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
+              <span>📊</span>
+              <span>Based on MCC Round-1 allotment & seat-matrix data and available 2026 NMC MBBS seat data.</span>
+            </div>
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-slate-900">
-            NEET-UG 2026 Counselling Planner
-          </h1>
-          <p className="text-xs sm:text-sm leading-relaxed text-slate-600">
-            Explore actual Round-1 allotments, understand medical-college AIR patterns and organise your counselling choices.
-          </p>
-          <div className="pt-1 text-[11px] font-semibold text-slate-500 flex items-center gap-1.5">
-            <span>📊</span>
-            <span>Based on MCC Round-1 allotment & seat-matrix data and available 2026 NMC MBBS seat data.</span>
+
+          <div className="shrink-0 sm:pt-1">
+            <SharePageButton canonicalUrl="https://mbbsfoundation.com/neet-to-mbbs/counselling/round-2-planner" />
           </div>
         </div>
 
