@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { prisma } from "../prisma";
 import {
   CounsellingSeatCategory,
@@ -140,7 +141,7 @@ export interface Round1EvidenceResponse {
 /**
  * Resolves the official MCC Round-1 CounsellingRound record for Academic Year 2026.
  */
-export async function getMccRound1Context() {
+export const getMccRound1Context = cache(async () => {
   return prisma.counsellingRound.findFirst({
     where: {
       academicYear: 2026,
@@ -153,7 +154,7 @@ export async function getMccRound1Context() {
       authority: true,
     },
   });
-}
+});
 
 // ==========================================
 // 3. Exact AIR Lookup
@@ -852,13 +853,13 @@ export async function searchMedicalCollegesEvidence(
 /**
  * Retrieves complete factual Round-1 evidence and capacity metrics for an individual medical college by slug.
  */
-export async function getCollegeEvidenceBySlug(slug: string): Promise<(DomicileCollegeSummary & {
+export const getCollegeEvidenceBySlug = cache(async (slug: string): Promise<(DomicileCollegeSummary & {
   slug: string;
   city: string | null;
   establishmentYear: number | null;
   nmcCollegeCode: string | null;
   mccInstituteCode: string | null;
-}) | null> {
+}) | null> => {
   const roundContext = await getMccRound1Context();
   const targetRoundId = roundContext?.id;
 
@@ -928,5 +929,5 @@ export async function getCollegeEvidenceBySlug(slug: string): Promise<(DomicileC
     studentCategoryRound1Profiles: [],
     allCategoryProfiles,
   };
-}
+});
 
