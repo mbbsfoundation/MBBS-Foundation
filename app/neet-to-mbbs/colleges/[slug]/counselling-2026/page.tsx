@@ -34,6 +34,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       return {
         title: "Medical College Not Found | MBBS Foundation",
         description: "The requested medical college counselling profile could not be found.",
+        openGraph: {
+          title: "Medical College Explorer | MBBS Foundation",
+          description: "NEET-UG 2026 Medical College Counselling & Round-1 AIR Explorer.",
+          images: [
+            {
+              url: STATIC_OG_IMAGE_URL,
+              width: 1200,
+              height: 630,
+              alt: "NEET-UG 2026 Medical College Explorer | MBBS Foundation",
+              type: "image/png",
+            },
+          ],
+        },
+        twitter: {
+          card: "summary_large_image",
+          images: [STATIC_OG_IMAGE_URL],
+        },
       };
     }
 
@@ -94,6 +111,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: "NEET Medical College Counselling 2026 | MBBS Foundation",
       description: "NEET-UG 2026 MCC Round-1 allotment distributions and seat capacity matrix.",
+      openGraph: {
+        title: "NEET-UG 2026 Medical College Explorer | MBBS Foundation",
+        description: "Official MCC Round-1 allotment patterns and 2026 MBBS seat capacity matrix.",
+        images: [
+          {
+            url: STATIC_OG_IMAGE_URL,
+            width: 1200,
+            height: 630,
+            alt: "NEET-UG 2026 Medical College Explorer | MBBS Foundation",
+            type: "image/png",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        images: [STATIC_OG_IMAGE_URL],
+      },
     };
   }
 }
