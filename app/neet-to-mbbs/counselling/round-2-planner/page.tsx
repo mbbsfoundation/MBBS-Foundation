@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png",
+        url: "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png?v=2",
         width: 1200,
         height: 630,
         alt: "NEET-UG 2026: Where Do YOU Stand? | MBBS Foundation Counselling Planner",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     title: "NEET-UG 2026: Where Do YOU Stand?",
     description:
       "Enter your AIR and explore medical colleges, Round-1 AIR patterns, seats and category-wise evidence using MCC NEET-UG 2026 and NMC official-source data.",
-    images: ["https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png"],
+    images: ["https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png?v=2"],
   },
 };
 

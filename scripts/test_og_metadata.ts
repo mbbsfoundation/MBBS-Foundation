@@ -67,8 +67,8 @@ function runTests() {
   assert(Array.isArray(ogImages) && ogImages.length > 0, "Open Graph images array is populated");
   const firstOgImg = ogImages?.[0];
   assert(
-    firstOgImg?.url === "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png",
-    "Open Graph image URL is 'https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png'",
+    firstOgImg?.url === "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png?v=2",
+    "Open Graph image URL is 'https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png?v=2'",
     String(firstOgImg?.url)
   );
   assert(firstOgImg?.width === 1200, "Open Graph image declared width is 1200");
@@ -84,7 +84,7 @@ function runTests() {
     "Twitter description matches Open Graph description"
   );
   assert(
-    twitter?.images?.[0] === "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png",
+    twitter?.images?.[0] === "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png?v=2",
     "Twitter image matches Open Graph image URL"
   );
 
