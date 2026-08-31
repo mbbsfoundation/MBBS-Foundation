@@ -17,7 +17,7 @@ export interface CollegeEvidenceCardProps {
   studentCategory?: string;
   isPwD?: boolean;
   isCompared?: boolean;
-  onToggleCompare?: (collegeId: string) => void;
+  onToggleCompare?: (college: DomicileCollegeSummary | string) => void;
   onViewDetails?: (college: DomicileCollegeSummary) => void;
   isInPlan?: boolean;
   onTogglePlan?: (item: {
@@ -118,7 +118,7 @@ export default function CollegeEvidenceCard({
 
   const handleToggleCompareClick = () => {
     onMeaningfulInteraction?.();
-    onToggleCompare?.(college.collegeId);
+    onToggleCompare?.(college);
   };
 
   const handleViewDetailsClick = () => {

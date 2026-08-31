@@ -60,7 +60,7 @@ const INDIAN_STATES_AND_UTS = [
 
 interface MedicalCollegeExplorerProps {
   selectedCollegeIds: string[];
-  onToggleComparison: (collegeId: string) => void;
+  onToggleComparison: (college: DomicileCollegeSummary | string) => void;
   plannedItemIds: Set<string>;
   onTogglePlan: (item: {
     collegeId: string;

@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useTransition, useCallback } from "react";
+import React, { useState, useEffect, useTransition, useCallback } from "react";
 import type { CounsellingRecommendation, OpportunityBand } from "@/lib/counselling/recommendationEngine";
 import Round1EvidenceExplorer from "./Round1EvidenceExplorer";
 import MedicalCollegeExplorer from "./MedicalCollegeExplorer";
 import BookDiscoveryCard from "./BookDiscoveryCard";
 import BookEngagementPrompt from "./BookEngagementPrompt";
-import type { Round1EvidenceResponse } from "@/lib/counselling/evidenceTypes";
+import type { Round1EvidenceResponse, DomicileCollegeSummary, CollegeRound1CategoryProfile } from "@/lib/counselling/evidenceTypes";
 
 const INDIAN_STATES_AND_UTS = [
   "Andaman and Nicobar Islands",
@@ -152,6 +152,7 @@ export default function Round2Planner() {
 
   // Comparison State (Transient in memory)
   const [selectedCollegeIds, setSelectedCollegeIds] = useState<string[]>([]);
+  const [comparisonColleges, setComparisonColleges] = useState<Record<string, DomicileCollegeSummary>>({});
   const [comparisonNotice, setComparisonNotice] = useState<string | null>(null);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState<boolean>(false);
 
@@ -197,9 +198,20 @@ export default function Round2Planner() {
   };
 
   // Comparison Handlers
-  const handleToggleComparison = (collegeId: string) => {
+  const handleToggleComparison = (collegeOrId: string | DomicileCollegeSummary) => {
+    const collegeId = typeof collegeOrId === "string" ? collegeOrId : collegeOrId.collegeId;
+    if (!collegeId) return;
+
     setComparisonNotice(null);
     recordMeaningfulExploration();
+
+    if (typeof collegeOrId !== "string") {
+      setComparisonColleges((prev) => ({
+        ...prev,
+        [collegeId]: collegeOrId,
+      }));
+    }
+
     setSelectedCollegeIds((prev) => {
       if (prev.includes(collegeId)) {
         return prev.filter((id) => id !== collegeId);
@@ -470,9 +482,10 @@ export default function Round2Planner() {
   // Helper to get college name map for selected comparison colleges
   const selectedCollegesSummary = selectedCollegeIds.map((id) => {
     const matchingRec = allRecs.find((r) => r.collegeId === id);
+    const summaryCollege = comparisonColleges[id];
     return {
       id,
-      name: matchingRec?.collegeName || id,
+      name: matchingRec?.collegeName || summaryCollege?.collegeName || id,
     };
   });
 
@@ -1313,6 +1326,7 @@ export default function Round2Planner() {
         <ComparisonModal
           selectedCollegeIds={selectedCollegeIds}
           allRecommendations={allRecs}
+          comparisonColleges={comparisonColleges}
           personalFactors={personalFactors}
           domicileState={domicileState}
           onClose={() => setIsComparisonModalOpen(false)}
@@ -1702,6 +1716,7 @@ function formatINR(val?: number): string {
 function ComparisonModal({
   selectedCollegeIds,
   allRecommendations,
+  comparisonColleges = {},
   personalFactors,
   domicileState,
   onClose,
@@ -1711,6 +1726,7 @@ function ComparisonModal({
 }: {
   selectedCollegeIds: string[];
   allRecommendations: CounsellingRecommendation[];
+  comparisonColleges?: Record<string, DomicileCollegeSummary>;
   personalFactors: Record<string, PersonalCollegeFactors>;
   domicileState: string;
   onClose: () => void;
@@ -1719,24 +1735,106 @@ function ComparisonModal({
   onClearFactors: (collegeId: string) => void;
 }) {
   const [editingCollegeId, setEditingCollegeId] = useState<string | null>(null);
+  const [fetchedColleges, setFetchedColleges] = useState<Record<string, DomicileCollegeSummary>>({});
+
+  useEffect(() => {
+    const missingIds = selectedCollegeIds.filter(
+      (id) =>
+        !allRecommendations.some((r) => r.collegeId === id) &&
+        !comparisonColleges[id] &&
+        !fetchedColleges[id]
+    );
+
+    if (missingIds.length > 0) {
+      missingIds.forEach(async (id) => {
+        try {
+          const res = await fetch(`/api/counselling/colleges?query=${encodeURIComponent(id)}&includeEvidence=true`);
+          if (res.ok) {
+            const resultData = await res.json();
+            const found = resultData.items?.find((item: any) => item.collegeId === id || item.id === id);
+            if (found) {
+              setFetchedColleges((prev) => ({ ...prev, [id]: found }));
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch college for comparison:", id, e);
+        }
+      });
+    }
+  }, [selectedCollegeIds, allRecommendations, comparisonColleges, fetchedColleges]);
 
   const comparedColleges = selectedCollegeIds.map((id) => {
     const matchingRecs = allRecommendations.filter((r) => r.collegeId === id);
-    const primary = matchingRecs[0];
+    const summaryCol = comparisonColleges[id] || fetchedColleges[id];
+
+    if (matchingRecs.length > 0) {
+      const primary = matchingRecs[0];
+      return {
+        id,
+        collegeName: primary.collegeName,
+        state: primary.state,
+        managementType: primary.managementType,
+        approvedSeats2026: primary.approvedSeats2026,
+        seatIncrease2026: primary.seatIncrease2026,
+        isNewEstablishment2026: primary.isNewEstablishment2026,
+        isINI: primary.isINI,
+        isCentralUniversity: primary.isCentralUniversity,
+        isDeemed: primary.isDeemed,
+        isESIC: primary.isESIC,
+        hasPersonalizedRecommendations: true,
+        pathways: matchingRecs,
+        userFactors: personalFactors[id] || {},
+      };
+    }
+
+    if (summaryCol) {
+      const allProfiles = summaryCol.allCategoryProfiles || [];
+      const pathways = allProfiles.map((p) => ({
+        quota: p.quota,
+        seatCategory: p.seatCategory as any,
+        isPwD: p.isPwD,
+        route: "MCC" as const,
+        opportunityBand: "LOW_EVIDENCE" as const,
+        medianAIR: p.medianAIR,
+        highestAIR: p.highestAIR,
+        sampleSize: p.sampleSize || p.seatsAllotted || 0,
+        estimatedPool: summaryCol.approxOutsideMccRound1Pool ?? null,
+        reasonCodes: [] as string[],
+        reasonSummary: `${p.seatsOffered} seats offered, ${p.seatsAllotted} allotted in MCC Round 1.`,
+      }));
+
+      return {
+        id,
+        collegeName: summaryCol.collegeName,
+        state: summaryCol.state,
+        managementType: summaryCol.managementType,
+        approvedSeats2026: summaryCol.totalMBBSSeats2026 ?? null,
+        seatIncrease2026: 0,
+        isNewEstablishment2026: false,
+        isINI: summaryCol.isINI || summaryCol.managementType === "INI",
+        isCentralUniversity: summaryCol.isCentralUniversity || summaryCol.managementType === "CENTRAL",
+        isDeemed: summaryCol.isDeemed || summaryCol.managementType === "DEEMED",
+        isESIC: summaryCol.isESIC || summaryCol.managementType === "ESIC",
+        hasPersonalizedRecommendations: false,
+        pathways,
+        userFactors: personalFactors[id] || {},
+      };
+    }
 
     return {
       id,
-      collegeName: primary?.collegeName || "Unknown College",
-      state: primary?.state || "N/A",
-      managementType: primary?.managementType || "N/A",
-      approvedSeats2026: primary?.approvedSeats2026 || null,
-      seatIncrease2026: primary?.seatIncrease2026 || 0,
-      isNewEstablishment2026: primary?.isNewEstablishment2026 || false,
-      isINI: primary?.isINI || false,
-      isCentralUniversity: primary?.isCentralUniversity || false,
-      isDeemed: primary?.isDeemed || false,
-      isESIC: primary?.isESIC || false,
-      pathways: matchingRecs,
+      collegeName: "College data unavailable",
+      state: "N/A",
+      managementType: "N/A",
+      approvedSeats2026: null,
+      seatIncrease2026: 0,
+      isNewEstablishment2026: false,
+      isINI: false,
+      isCentralUniversity: false,
+      isDeemed: false,
+      isESIC: false,
+      hasPersonalizedRecommendations: false,
+      pathways: [],
       userFactors: personalFactors[id] || {},
     };
   });
@@ -1841,27 +1939,35 @@ function ComparisonModal({
 
                       <div className="space-y-2">
                         <div className="font-bold text-slate-700 uppercase tracking-wider text-[10px]">
-                          Your Eligible Pathways ({col.pathways.length})
+                          {col.hasPersonalizedRecommendations
+                            ? `Your Eligible Pathways (${col.pathways.length})`
+                            : `Recorded Round-1 Pathways (${col.pathways.length})`}
                         </div>
+
+                        {col.pathways.length === 0 && (
+                          <div className="rounded-xl bg-white border border-slate-200 p-3 text-[11px] text-slate-500 italic">
+                            No MCC Round-1 allotment pathways recorded.
+                          </div>
+                        )}
 
                         {col.pathways.map((p, pIdx) => {
                           const bandBadge = {
                             STRONG: "bg-emerald-100 text-emerald-950 border-emerald-300",
                             REALISTIC: "bg-blue-100 text-blue-950 border-blue-300",
                             STRETCH: "bg-amber-100 text-amber-950 border-amber-300",
-                            LOW_EVIDENCE: p.reasonCodes.includes("STATE_RANK_DATA_AWAITED")
+                            LOW_EVIDENCE: p.reasonCodes?.includes("STATE_RANK_DATA_AWAITED")
                               ? "bg-purple-100 text-purple-950 border-purple-300"
                               : "bg-slate-100 text-slate-800 border-slate-300",
-                          }[p.opportunityBand];
+                          }[p.opportunityBand] || "bg-slate-100 text-slate-800 border-slate-300";
 
                           const bandLabel = {
                             STRONG: "Strong Historical Position",
                             REALISTIC: "Within Typical Round-1 Range",
                             STRETCH: "Stretch Based on Round-1",
-                            LOW_EVIDENCE: p.reasonCodes.includes("STATE_RANK_DATA_AWAITED")
+                            LOW_EVIDENCE: p.reasonCodes?.includes("STATE_RANK_DATA_AWAITED")
                               ? "State Opportunity — Rank Data Awaited"
-                              : "Limited Historical Evidence",
-                          }[p.opportunityBand];
+                              : "Official Round-1 Allotment Data",
+                          }[p.opportunityBand] || "Official Round-1 Allotment Data";
 
                           return (
                             <div

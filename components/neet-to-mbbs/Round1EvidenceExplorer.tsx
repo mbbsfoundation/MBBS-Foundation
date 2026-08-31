@@ -28,7 +28,7 @@ interface Round1EvidenceExplorerProps {
   isPwD: boolean;
   domicileState: string;
   selectedCollegeIds: string[];
-  onToggleComparison: (collegeId: string) => void;
+  onToggleComparison: (college: DomicileCollegeSummary | string) => void;
   plannedItemIds: Set<string>;
   onTogglePlan: (item: {
     collegeId: string;
