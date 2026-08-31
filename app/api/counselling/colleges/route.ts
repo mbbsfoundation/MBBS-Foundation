@@ -63,6 +63,7 @@ export async function GET(request: NextRequest) {
       const items = result.items.map((col) => ({
         id: col.collegeId,
         collegeId: col.collegeId,
+        slug: col.slug,
         collegeName: col.collegeName,
         state: col.state,
         managementType: col.managementType,
@@ -118,6 +119,7 @@ export async function GET(request: NextRequest) {
       return {
         id: col.id,
         collegeId: col.id,
+        slug: col.slug,
         collegeName: col.collegeName,
         shortName: col.shortName,
         state: col.state,

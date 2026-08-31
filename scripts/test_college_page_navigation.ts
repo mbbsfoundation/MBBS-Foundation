@@ -86,6 +86,19 @@ async function runTests() {
     assert(Boolean(c.slug) && typeof c.slug === "string", `17. Search result '${c.collegeName}' has slug: ${c.slug}`);
   }
 
+  // 5. Test KMC Manipal specifically
+  console.log("\n[TEST GROUP 4] Kasturba Medical College Manipal Explorer Search");
+  const kmcSearch = await searchMedicalCollegesEvidence({ query: "Kasturba", page: 1, pageSize: 5 });
+  assert(kmcSearch.items.length > 0, "18. searchMedicalCollegesEvidence returns KMC");
+  const kmc = kmcSearch.items.find(i => i.slug === "kasturba-medical-college-manipal");
+  assert(kmc !== undefined, "19. KMC Manipal found in search results with exact slug 'kasturba-medical-college-manipal'");
+  assert(kmc?.slug === "kasturba-medical-college-manipal", "20. KMC Manipal slug is 'kasturba-medical-college-manipal'");
+
+  // 6. Test API Route File Integrity
+  const apiRoutePath = path.join(process.cwd(), "app/api/counselling/colleges/route.ts");
+  const apiRouteContent = fs.readFileSync(apiRoutePath, "utf-8");
+  assert(apiRouteContent.includes("slug: col.slug"), "21. /api/counselling/colleges includes 'slug: col.slug' in JSON mapping");
+
   console.log("\n==================================================================");
   console.log(`TEST SUMMARY: ${passed} PASSED, ${failed} FAILED`);
   console.log("==================================================================");

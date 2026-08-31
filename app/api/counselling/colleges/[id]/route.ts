@@ -76,6 +76,7 @@ export async function GET(
       {
         college: {
           id: college.id,
+          slug: college.slug,
           collegeName: college.collegeName,
           shortName: college.shortName,
           state: college.state,
