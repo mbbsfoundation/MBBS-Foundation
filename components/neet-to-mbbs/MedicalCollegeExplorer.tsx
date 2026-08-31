@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
+import Link from "next/link";
 import type {
   DomicileCollegeSummary,
   CollegeRound1CategoryProfile,
@@ -788,17 +789,28 @@ export default function MedicalCollegeExplorer({
               </div>
 
               {/* Modal Footer */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="text-slate-500 text-[11px]">
                   Factual MCC Round-1 allotments and approved 2026 college capacities.
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveDetailCollege(null)}
-                  className="rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 transition"
-                >
-                  Close
-                </button>
+                <div className="flex items-center gap-2">
+                  {activeDetailCollege.slug && (
+                    <Link
+                      href={`/neet-to-mbbs/colleges/${activeDetailCollege.slug}/counselling-2026`}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-blue-700 transition focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                    >
+                      <span>View College Page</span>
+                      <span>→</span>
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setActiveDetailCollege(null)}
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>
