@@ -15,6 +15,8 @@ import type { CollegeRound1CategoryProfile } from "@/lib/counselling/evidenceTyp
 
 export const dynamic = "force-dynamic";
 
+const COLLEGE_OG_VERSION = "v1";
+
 interface Props {
   params: Promise<{
     slug: string;
@@ -42,6 +44,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = `View ${college.collegeName}, ${college.state} (${seatStr}). Official MCC Round-1 Open Typical Median AIR: ${medianStr}, Best AIR, Last Observed AIR, and complete category-wise allotment evidence.`;
     const canonical = `https://mbbsfoundation.com/neet-to-mbbs/colleges/${college.slug}/counselling-2026`;
 
+    const ogTitle = `${college.collegeName} — NEET-UG 2026 Round-1 AIR Pattern`;
+    const ogDescription = openBenchmark
+      ? `Explore Typical (Median) AIR, Best AIR, Last Observed AIR and 2026 MBBS seat information for ${college.collegeName} using MCC Round-1 evidence.`
+      : `Explore 2026 MBBS seat information and available counselling evidence for ${college.collegeName} on MBBS Foundation™.`;
+    const ogImageUrl = `https://mbbsfoundation.com/neet-to-mbbs/colleges/${college.slug}/counselling-2026/opengraph-image?v=${COLLEGE_OG_VERSION}`;
+
     return {
       title,
       description,
@@ -58,12 +66,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         "NEET UG 2026 counselling",
       ],
       openGraph: {
-        title,
-        description,
+        title: ogTitle,
+        description: ogDescription,
         url: canonical,
         siteName: "MBBS Foundation",
         locale: "en_IN",
         type: "article",
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+            alt: `${college.collegeName} NEET-UG 2026 Round-1 AIR Pattern & MBBS Seats`,
+            type: "image/png",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: ogTitle,
+        description: ogDescription,
+        images: [ogImageUrl],
       },
     };
   } catch (err) {
