@@ -1,54 +1,96 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
-interface BookEngagementPromptProps {
-  engagementCount: number;
-  isIdle?: boolean;
+export interface BookEngagementPromptProps {
+  hasMeaningfulExploration: boolean;
+  delayMs?: number; // default: 50000ms (50s, within 45–60s requirement)
 }
 
 const STORAGE_KEY = "mbbs_foundation_book_prompt_dismissed";
+const DEFAULT_DELAY_MS = 50000; // 50 seconds
 
 export default function BookEngagementPrompt({
-  engagementCount,
-  isIdle = true,
+  hasMeaningfulExploration,
+  delayMs = DEFAULT_DELAY_MS,
 }: BookEngagementPromptProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [hasDismissed, setHasDismissed] = useState<boolean>(true);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Check sessionStorage on mount
+  // Check sessionStorage once on client mount
   useEffect(() => {
     try {
       const dismissed = sessionStorage.getItem(STORAGE_KEY);
-      if (!dismissed) {
+      if (dismissed === "true") {
+        setHasDismissed(true);
+      } else {
         setHasDismissed(false);
       }
     } catch {
-      // Ignore storage errors in restricted contexts
+      // In restricted contexts, default to not dismissed
+      setHasDismissed(false);
     }
   }, []);
 
-  // Trigger prompt when engagement count reaches threshold and UI is idle
-  useEffect(() => {
-    if (!hasDismissed && engagementCount >= 2 && isIdle) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 600);
-      return () => clearTimeout(timer);
-    }
-  }, [engagementCount, hasDismissed, isIdle]);
-
-  const handleDismiss = () => {
+  // Dismiss handler: closes prompt and persists dismissal in sessionStorage for the session
+  const handleDismiss = useCallback(() => {
     setIsOpen(false);
     setHasDismissed(true);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     try {
       sessionStorage.setItem(STORAGE_KEY, "true");
     } catch {
-      // Ignore
+      // Ignore storage errors
     }
-  };
+  }, []);
+
+  // Start the 45-60s discovery delay ONLY AFTER meaningful exploration has occurred
+  useEffect(() => {
+    // If already dismissed for this session, or no meaningful exploration yet, or already open
+    if (hasDismissed || !hasMeaningfulExploration || isOpen) {
+      return;
+    }
+
+    // Start timer strictly after meaningful exploration
+    timerRef.current = setTimeout(() => {
+      // Double check sessionStorage in case another tab or action dismissed it
+      try {
+        if (sessionStorage.getItem(STORAGE_KEY) === "true") {
+          setHasDismissed(true);
+          return;
+        }
+      } catch {}
+
+      setIsOpen(true);
+    }, delayMs);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [hasMeaningfulExploration, hasDismissed, isOpen, delayMs]);
+
+  // Keyboard accessibility: Escape key dismisses the prompt
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleDismiss();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, handleDismiss]);
 
   if (!isOpen || hasDismissed) return null;
 
@@ -57,67 +99,92 @@ export default function BookEngagementPrompt({
       role="dialog"
       aria-modal="true"
       aria-labelledby="book-prompt-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200"
+      aria-describedby="book-prompt-desc"
+      onClick={(e) => {
+        // Backdrop click dismisses
+        if (e.target === e.currentTarget) {
+          handleDismiss();
+        }
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-300 overflow-y-auto"
     >
-      <div className="relative w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-200">
+      <div
+        className="relative w-full max-w-2xl sm:max-w-3xl rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-slate-200/90 animate-in zoom-in-95 duration-200 my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close Button */}
         <button
           type="button"
           onClick={handleDismiss}
-          className="absolute top-4 right-4 h-8 w-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-800 flex items-center justify-center transition"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 h-9 w-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 flex items-center justify-center text-sm font-bold transition focus:outline-none focus:ring-2 focus:ring-slate-300"
           aria-label="Dismiss book prompt"
         >
           ✕
         </button>
 
-        {/* Header Badge */}
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-blue-900">
-            <span>📖</span>
-            <span>Transition to Medicine</span>
-          </span>
-        </div>
-
-        {/* Content with Thumbnail */}
-        <div className="flex gap-4 items-start">
-          <div className="relative shrink-0 w-20 aspect-[3/4] rounded-lg overflow-hidden shadow-sm border border-slate-200 bg-slate-50">
-            <Image
-              src="/preview/01_Cover_Front.png"
-              alt="MBBS Foundation Book Cover"
-              fill
-              sizes="80px"
-              className="object-cover"
-            />
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
+          {/* LEFT: Large Prominent Book Cover (35-40% of area on desktop) */}
+          <div className="md:col-span-5 flex justify-center">
+            <div className="relative w-40 sm:w-48 md:w-full max-w-[230px] aspect-[3/4] rounded-2xl overflow-hidden shadow-xl border border-slate-200/80 bg-slate-100 ring-1 ring-black/5">
+              <Image
+                src="/preview/01_Cover_Front.png"
+                alt="MBBS Foundation: Your First Book of Medicine Book Cover"
+                fill
+                sizes="(max-width: 768px) 180px, 240px"
+                className="object-cover"
+                priority
+              />
+            </div>
           </div>
 
-          <div className="space-y-1.5 flex-1">
-            <h3 id="book-prompt-title" className="text-base font-black text-slate-900 leading-snug">
-              Planning beyond counselling?
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Have you explored <strong>MBBS Foundation: Your First Book of Medicine</strong>? Prepare for the transition
-              from NEET to your first year of MBBS.
+          {/* RIGHT: Content Hierarchy */}
+          <div className="md:col-span-7 space-y-4 text-left">
+            {/* Eyebrow / Context Badge */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50/90 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-blue-900">
+              <span>📖</span>
+              <span>Planning Your Medical College?</span>
+            </div>
+
+            {/* Headline */}
+            <div className="space-y-1">
+              <h2
+                id="book-prompt-title"
+                className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-tight"
+              >
+                Prepare for What Comes Next.
+              </h2>
+              <p className="text-sm sm:text-base font-extrabold text-blue-900 leading-snug">
+                MBBS Foundation: Your First Book of Medicine
+              </p>
+            </div>
+
+            {/* Supporting Text */}
+            <p
+              id="book-prompt-desc"
+              className="text-xs sm:text-sm text-slate-600 leading-relaxed"
+            >
+              From counselling to your first days in medical college — explore the Foundation Course, AETCOM, CPR, clinical orientation, essential skills and the hidden curriculum.
             </p>
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="pt-2 flex items-center gap-2 justify-end border-t border-slate-100 text-xs">
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="rounded-xl px-3.5 py-2 font-bold text-slate-600 hover:bg-slate-100 transition"
-          >
-            Not Now
-          </button>
-          <Link
-            href="/book"
-            onClick={handleDismiss}
-            className="rounded-xl bg-slate-900 px-4 py-2 font-bold text-white shadow-xs hover:bg-slate-800 transition inline-flex items-center gap-1"
-          >
-            <span>Explore the Book</span>
-            <span>→</span>
-          </Link>
+            {/* Actions: Primary CTA + Secondary Not Now */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <Link
+                href="/book"
+                onClick={handleDismiss}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-900 hover:bg-blue-950 text-white px-5 py-3 text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all"
+              >
+                <span>Explore the Book</span>
+                <span aria-hidden="true">→</span>
+              </Link>
+              <button
+                type="button"
+                onClick={handleDismiss}
+                className="rounded-2xl px-4 py-3 text-xs sm:text-sm font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+              >
+                Not Now
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

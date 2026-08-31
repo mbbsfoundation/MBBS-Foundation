@@ -222,7 +222,6 @@ export default function MedicalCollegeExplorer({
               value={selectedState}
               onChange={(e) => {
                 setSelectedState(e.target.value);
-                onMeaningfulInteraction?.();
               }}
               className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-xs font-bold text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
             >
@@ -244,7 +243,6 @@ export default function MedicalCollegeExplorer({
               value={selectedType}
               onChange={(e) => {
                 setSelectedType(e.target.value as CollegeTypeFilter);
-                onMeaningfulInteraction?.();
               }}
               className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-xs font-bold text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
             >
@@ -268,7 +266,6 @@ export default function MedicalCollegeExplorer({
               value={sortBy}
               onChange={(e) => {
                 setSortBy(e.target.value as CollegeSortOption);
-                onMeaningfulInteraction?.();
               }}
               className="w-full rounded-2xl border border-slate-300 bg-slate-50/50 px-3 py-2.5 text-xs font-bold text-slate-900 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"
             >
@@ -300,7 +297,6 @@ export default function MedicalCollegeExplorer({
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  if (e.target.value.length > 2) onMeaningfulInteraction?.();
                 }}
                 placeholder="Type college name or city..."
                 className="w-full rounded-2xl border border-slate-200 bg-slate-50/50 px-4 py-2 text-xs font-bold text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition"

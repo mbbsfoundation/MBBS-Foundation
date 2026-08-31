@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useCallback } from "react";
 import type { CounsellingRecommendation, OpportunityBand } from "@/lib/counselling/recommendationEngine";
 import Round1EvidenceExplorer from "./Round1EvidenceExplorer";
 import MedicalCollegeExplorer from "./MedicalCollegeExplorer";
@@ -163,9 +163,11 @@ export default function Round2Planner() {
   const [isPlanModalOpen, setIsPlanModalOpen] = useState<boolean>(false);
   const [includeNotesInPrint, setIncludeNotesInPrint] = useState<boolean>(true);
 
-  // Engagement tracking for contextual book discovery
-  const [engagementCount, setEngagementCount] = useState<number>(0);
-  const recordInteraction = () => setEngagementCount((prev) => prev + 1);
+  // Meaningful exploration tracking for contextual book discovery
+  const [hasMeaningfulExploration, setHasMeaningfulExploration] = useState<boolean>(false);
+  const recordMeaningfulExploration = useCallback(() => {
+    setHasMeaningfulExploration(true);
+  }, []);
 
   // Expanded card IDs
   const [expandedCardIds, setExpandedCardIds] = useState<Set<string>>(new Set());
@@ -178,6 +180,7 @@ export default function Round2Planner() {
   });
 
   const toggleCard = (id: string) => {
+    recordMeaningfulExploration();
     setExpandedCardIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -196,7 +199,7 @@ export default function Round2Planner() {
   // Comparison Handlers
   const handleToggleComparison = (collegeId: string) => {
     setComparisonNotice(null);
-    recordInteraction();
+    recordMeaningfulExploration();
     setSelectedCollegeIds((prev) => {
       if (prev.includes(collegeId)) {
         return prev.filter((id) => id !== collegeId);
@@ -231,7 +234,7 @@ export default function Round2Planner() {
 
   // Planning List Handlers
   const handleTogglePlanItem = (r: CounsellingRecommendation) => {
-    recordInteraction();
+    recordMeaningfulExploration();
     const itemId = `${r.collegeId}__${r.route}__${r.quota}__${r.seatCategory}__${r.isPwD}`;
     setPlanningItems((prev) => {
       const exists = prev.some((item) => item.id === itemId);
@@ -276,7 +279,7 @@ export default function Round2Planner() {
     sampleSize: number;
     estimatedPool: number | null;
   }) => {
-    recordInteraction();
+    recordMeaningfulExploration();
     const itemId = `${item.collegeId}__${item.route}__${item.quota}__${item.seatCategory}__${item.isPwD}`;
     setPlanningItems((prev) => {
       const exists = prev.some((i) => i.id === itemId);
@@ -519,7 +522,6 @@ export default function Round2Planner() {
           type="button"
           onClick={() => {
             setEntryMode("AIR");
-            recordInteraction();
           }}
           className={`group relative rounded-3xl p-5 text-left transition-all duration-200 border-2 flex items-start gap-4 cursor-pointer ${
             entryMode === "AIR"
@@ -565,7 +567,6 @@ export default function Round2Planner() {
           type="button"
           onClick={() => {
             setEntryMode("COLLEGES");
-            recordInteraction();
           }}
           className={`group relative rounded-3xl p-5 text-left transition-all duration-200 border-2 flex items-start gap-4 cursor-pointer ${
             entryMode === "COLLEGES"
@@ -613,7 +614,7 @@ export default function Round2Planner() {
           onToggleComparison={handleToggleComparison}
           plannedItemIds={new Set(planningItems.map((i) => i.id))}
           onTogglePlan={handleTogglePlanFromEvidence}
-          onMeaningfulInteraction={recordInteraction}
+          onMeaningfulInteraction={recordMeaningfulExploration}
         />
       ) : (
         <>
@@ -902,6 +903,7 @@ export default function Round2Planner() {
               onToggleComparison={handleToggleComparison}
               plannedItemIds={new Set(planningItems.map((i) => i.id))}
               onTogglePlan={handleTogglePlanFromEvidence}
+              onMeaningfulInteraction={recordMeaningfulExploration}
             />
           )}
 
@@ -1478,8 +1480,7 @@ export default function Round2Planner() {
 
       {/* 11. Contextual Session Book Engagement Prompt */}
       <BookEngagementPrompt
-        engagementCount={engagementCount}
-        isIdle={!isLoading && !isPending && !isComparisonModalOpen && !isPlanModalOpen}
+        hasMeaningfulExploration={hasMeaningfulExploration}
       />
     </div>
   );

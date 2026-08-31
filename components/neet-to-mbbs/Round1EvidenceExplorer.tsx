@@ -44,6 +44,7 @@ interface Round1EvidenceExplorerProps {
     estimatedPool: number | null;
   }) => void;
   onSelectCollegeDetail?: (collegeId: string) => void;
+  onMeaningfulInteraction?: () => void;
 }
 
 export default function Round1EvidenceExplorer({
@@ -57,6 +58,7 @@ export default function Round1EvidenceExplorer({
   plannedItemIds,
   onTogglePlan,
   onSelectCollegeDetail,
+  onMeaningfulInteraction,
 }: Round1EvidenceExplorerProps) {
   // Rank Window Interactive State
   const [windowSize, setWindowSize] = useState<SupportedWindow>(
@@ -1004,9 +1006,13 @@ export default function Round1EvidenceExplorer({
                   isPwD={isPwD}
                   isCompared={selectedCollegeIds.includes(col.collegeId)}
                   onToggleCompare={onToggleComparison}
-                  onViewDetails={setActiveCategoryModalCollege}
+                  onViewDetails={(college) => {
+                    onMeaningfulInteraction?.();
+                    setActiveCategoryModalCollege(college);
+                  }}
                   isInPlan={isPlanned}
                   onTogglePlan={onTogglePlan}
+                  onMeaningfulInteraction={onMeaningfulInteraction}
                 />
               );
             })}

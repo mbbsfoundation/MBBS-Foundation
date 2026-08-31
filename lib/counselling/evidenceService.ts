@@ -754,6 +754,7 @@ export async function searchMedicalCollegesEvidence(
 
     return {
       collegeId: col.id,
+      slug: col.slug,
       collegeName: col.collegeName,
       state: col.state,
       managementType: col.managementType,

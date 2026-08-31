@@ -201,12 +201,16 @@ async function runTests() {
     "Book prompt utilizes sessionStorage for session-only persistence"
   );
   assert(
-    promptContent.includes("engagementCount >= 2"),
-    "Book prompt triggers after 2 meaningful interactions"
+    promptContent.includes("hasMeaningfulExploration"),
+    "Book prompt triggers only after meaningful exploration"
   );
   assert(
-    promptContent.includes("Planning beyond counselling?"),
-    "Book prompt contains contextual headline"
+    promptContent.includes("Prepare for What Comes Next."),
+    "Book prompt contains contextual headline 'Prepare for What Comes Next.'"
+  );
+  assert(
+    promptContent.includes("MBBS Foundation: Your First Book of Medicine"),
+    "Book prompt contains prominent title"
   );
   assert(
     promptContent.includes("Not Now"),

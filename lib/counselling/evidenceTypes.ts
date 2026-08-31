@@ -85,6 +85,7 @@ export interface CollegeRound1CategoryProfile {
 
 export interface DomicileCollegeSummary {
   collegeId: string;
+  slug?: string;
   collegeName: string;
   state: string;
   managementType: string;
