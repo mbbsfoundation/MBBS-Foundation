@@ -15,7 +15,7 @@ import type { CollegeRound1CategoryProfile } from "@/lib/counselling/evidenceTyp
 
 export const dynamic = "force-dynamic";
 
-const COLLEGE_OG_VERSION = "v1";
+const COLLEGE_OG_VERSION = "v2";
 
 interface Props {
   params: Promise<{
