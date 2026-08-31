@@ -22,53 +22,69 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const college = await getCollegeEvidenceBySlug(slug);
+  try {
+    const resolvedParams = await params;
+    const slug = resolvedParams?.slug ? decodeURIComponent(resolvedParams.slug).trim().toLowerCase() : "";
+    const college = slug ? await getCollegeEvidenceBySlug(slug) : null;
 
-  if (!college) {
+    if (!college) {
+      return {
+        title: "Medical College Not Found | MBBS Foundation",
+        description: "The requested medical college counselling profile could not be found.",
+      };
+    }
+
+    const openBenchmark = getPrimaryOpenBenchmark(college.allCategoryProfiles || []);
+    const medianStr = openBenchmark?.medianAIR ? openBenchmark.medianAIR.toLocaleString("en-IN") : "N/A";
+    const seatStr = college.totalMBBSSeats2026 > 0 ? `${college.totalMBBSSeats2026} MBBS seats` : "MBBS capacity";
+
+    const title = `${college.collegeName} NEET 2026 | Round-1 AIR Pattern & MBBS Seats`;
+    const description = `View ${college.collegeName}, ${college.state} (${seatStr}). Official MCC Round-1 Open Typical Median AIR: ${medianStr}, Best AIR, Last Observed AIR, and complete category-wise allotment evidence.`;
+    const canonical = `https://mbbsfoundation.com/neet-to-mbbs/colleges/${college.slug}/counselling-2026`;
+
     return {
-      title: "Medical College Not Found | MBBS Foundation",
-      description: "The requested medical college counselling profile could not be found.",
-    };
-  }
-
-  const openBenchmark = getPrimaryOpenBenchmark(college.allCategoryProfiles);
-  const medianStr = openBenchmark?.medianAIR ? openBenchmark.medianAIR.toLocaleString("en-IN") : "N/A";
-  const seatStr = college.totalMBBSSeats2026 > 0 ? `${college.totalMBBSSeats2026} MBBS seats` : "MBBS capacity";
-
-  const title = `${college.collegeName} NEET 2026 | Round-1 AIR Pattern & MBBS Seats`;
-  const description = `View ${college.collegeName}, ${college.state} (${seatStr}). Official MCC Round-1 Open Typical Median AIR: ${medianStr}, Best AIR, Last Observed AIR, and complete category-wise allotment evidence.`;
-  const canonical = `https://mbbsfoundation.com/neet-to-mbbs/colleges/${college.slug}/counselling-2026`;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical,
-    },
-    keywords: [
-      `${college.collegeName} NEET 2026`,
-      `${college.collegeName} cutoff 2026`,
-      `${college.collegeName} closing rank`,
-      `${college.collegeName} Round 1 AIR`,
-      `${college.collegeName} MBBS seats`,
-      `${college.state} medical college counselling`,
-      "NEET UG 2026 counselling",
-    ],
-    openGraph: {
       title,
       description,
-      url: canonical,
-      siteName: "MBBS Foundation",
-      locale: "en_IN",
-      type: "article",
-    },
-  };
+      alternates: {
+        canonical,
+      },
+      keywords: [
+        `${college.collegeName} NEET 2026`,
+        `${college.collegeName} cutoff 2026`,
+        `${college.collegeName} closing rank`,
+        `${college.collegeName} Round 1 AIR`,
+        `${college.collegeName} MBBS seats`,
+        `${college.state} medical college counselling`,
+        "NEET UG 2026 counselling",
+      ],
+      openGraph: {
+        title,
+        description,
+        url: canonical,
+        siteName: "MBBS Foundation",
+        locale: "en_IN",
+        type: "article",
+      },
+    };
+  } catch (err) {
+    return {
+      title: "NEET Medical College Counselling 2026 | MBBS Foundation",
+      description: "NEET-UG 2026 MCC Round-1 allotment distributions and seat capacity matrix.",
+    };
+  }
 }
 
 export default async function CollegeCounsellingPage({ params }: Props) {
-  const { slug } = await params;
-  const college = await getCollegeEvidenceBySlug(slug);
+  let college = null;
+  try {
+    const resolvedParams = await params;
+    const slug = resolvedParams?.slug ? decodeURIComponent(resolvedParams.slug).trim().toLowerCase() : "";
+    if (slug) {
+      college = await getCollegeEvidenceBySlug(slug);
+    }
+  } catch (err) {
+    console.error("Error loading college evidence in page:", err);
+  }
 
   if (!college) {
     notFound();
