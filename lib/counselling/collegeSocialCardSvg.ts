@@ -1,5 +1,6 @@
 import type { DomicileCollegeSummary, CollegeRound1CategoryProfile } from "./evidenceTypes";
 import { getStudentFriendlyQuotaLabel } from "./pathwayOrdering";
+import { EMBEDDED_FONT_STYLE } from "./fonts/embeddedFonts";
 
 export type CollegeEvidenceForCard = DomicileCollegeSummary & { city?: string | null; address?: string | null };
 
@@ -339,11 +340,9 @@ export function generateCollegeSocialCardSvg(
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <!-- Fonts / Styles -->
+    <!-- Embedded Self-Contained Fonts / Styles -->
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Cinzel:wght@700;900&amp;display=swap');
-      .font-sans { font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-      .font-serif { font-family: 'Cinzel', Georgia, 'Times New Roman', serif; }
+${EMBEDDED_FONT_STYLE}
     </style>
 
     <!-- Gradients -->
@@ -709,10 +708,9 @@ export function generateCollegeSocialCardSvg(
 export function generateNotFoundSvg(): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
+    <!-- Embedded Self-Contained Fonts / Styles -->
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=Cinzel:wght@700;900&amp;display=swap');
-      .font-sans { font-family: 'Inter', sans-serif; }
-      .font-serif { font-family: 'Cinzel', Georgia, serif; }
+${EMBEDDED_FONT_STYLE}
     </style>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#061836" />

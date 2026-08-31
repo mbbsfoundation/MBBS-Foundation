@@ -4,10 +4,13 @@ import path from "path";
 import { prisma } from "../lib/prisma";
 import Image, { size } from "../app/neet-to-mbbs/colleges/[slug]/counselling-2026/opengraph-image";
 import { generateMetadata } from "../app/neet-to-mbbs/colleges/[slug]/counselling-2026/page";
+import { generateCollegeSocialCardSvg } from "../lib/counselling/collegeSocialCardSvg";
+import { getCollegeEvidenceBySlug } from "../lib/counselling/evidenceService";
+import { getPrimaryOpenBenchmark } from "../lib/counselling/pathwayOrdering";
 
 async function runTests() {
   console.log("==================================================================");
-  console.log("RUNNING AUTOMATED TESTS: COLLEGE DYNAMIC OPEN GRAPH GENERATOR (V2)");
+  console.log("RUNNING AUTOMATED TESTS: COLLEGE DYNAMIC OPEN GRAPH GENERATOR (V3)");
   console.log("==================================================================");
 
   let passed = 0;
@@ -30,6 +33,20 @@ async function runTests() {
   }
 
   // -------------------------------------------------------------
+  // TEST 0: Self-Contained Font Embedding Check
+  // -------------------------------------------------------------
+  console.log("\n[TEST 0] Self-Contained Font Embedding Verification");
+  const testCollege = await getCollegeEvidenceBySlug("sms-medical-college-jaipur");
+  const testBench = testCollege ? getPrimaryOpenBenchmark(testCollege.allCategoryProfiles) : null;
+  const rawSvg = generateCollegeSocialCardSvg(testCollege, testBench);
+
+  assert(rawSvg.includes("@font-face"), "SVG includes @font-face definition");
+  assert(rawSvg.includes("CardInter"), "SVG defines CardInter font family");
+  assert(rawSvg.includes("CardCinzel"), "SVG defines CardCinzel font family");
+  assert(rawSvg.includes("data:font/woff;charset=utf-8;base64,"), "SVG embeds base64 font data URI");
+  assert(!rawSvg.includes("fonts.googleapis.com"), "SVG has NO remote Google Fonts HTTP dependency");
+
+  // -------------------------------------------------------------
   // TEST 1: SMS Medical College Jaipur
   // -------------------------------------------------------------
   console.log("\n[TEST 1] SMS Medical College Jaipur (sms-medical-college-jaipur)");
@@ -46,7 +63,7 @@ async function runTests() {
   const smsBuffer = Buffer.from(await smsOgResponse.arrayBuffer());
   assert(smsBuffer.length > 5000, `Generated PNG size is healthy (${smsBuffer.length} bytes)`);
 
-  const smsPreviewPath = path.join(tmpDir, "college-og-v2-sms-jaipur.png");
+  const smsPreviewPath = path.join(tmpDir, "college-og-v3-sms-jaipur.png");
   fs.writeFileSync(smsPreviewPath, smsBuffer);
   console.log(`  📁 Saved SMS Jaipur visual preview to: ${smsPreviewPath}`);
 
@@ -74,8 +91,8 @@ async function runTests() {
   );
   assert(
     smsOg?.images?.[0]?.url ===
-      "https://mbbsfoundation.com/neet-to-mbbs/colleges/sms-medical-college-jaipur/counselling-2026/opengraph-image?v=v2",
-    "OG Image points to versioned dynamic endpoint (v2)"
+      "https://mbbsfoundation.com/neet-to-mbbs/colleges/sms-medical-college-jaipur/counselling-2026/opengraph-image?v=v3",
+    "OG Image points to versioned dynamic endpoint (v3)"
   );
   assert(
     smsOg?.images?.[0]?.width === 1200 && smsOg?.images?.[0]?.height === 630,
@@ -85,12 +102,12 @@ async function runTests() {
   assert(smsTwitter?.card === "summary_large_image", "Twitter card is summary_large_image");
   assert(
     smsTwitter?.images?.[0] ===
-      "https://mbbsfoundation.com/neet-to-mbbs/colleges/sms-medical-college-jaipur/counselling-2026/opengraph-image?v=v2",
-    "Twitter image matches OG image (v2)"
+      "https://mbbsfoundation.com/neet-to-mbbs/colleges/sms-medical-college-jaipur/counselling-2026/opengraph-image?v=v3",
+    "Twitter image matches OG image (v3)"
   );
 
   // -------------------------------------------------------------
-  // TEST 2: AIIMS Jodhpur (INI)
+  // TEST 2: AIIMS Jodhpur (INI College)
   // -------------------------------------------------------------
   console.log("\n[TEST 2] AIIMS Jodhpur (aiims-rajasthan)");
   const aiimsSlug = "aiims-rajasthan";
@@ -98,7 +115,8 @@ async function runTests() {
   assert(aiimsOgResponse.status === 200, "AIIMS Jodhpur OG HTTP status is 200");
   const aiimsBuffer = Buffer.from(await aiimsOgResponse.arrayBuffer());
   assert(aiimsBuffer.length > 5000, `AIIMS Jodhpur PNG size healthy (${aiimsBuffer.length} bytes)`);
-  const aiimsPreviewPath = path.join(tmpDir, "college-og-v2-aiims-jodhpur.png");
+
+  const aiimsPreviewPath = path.join(tmpDir, "college-og-v3-aiims-jodhpur.png");
   fs.writeFileSync(aiimsPreviewPath, aiimsBuffer);
   console.log(`  📁 Saved AIIMS Jodhpur visual preview to: ${aiimsPreviewPath}`);
 
@@ -106,12 +124,12 @@ async function runTests() {
   const aiimsOg = aiimsMeta.openGraph as any;
   assert(
     aiimsOg?.images?.[0]?.url ===
-      "https://mbbsfoundation.com/neet-to-mbbs/colleges/aiims-rajasthan/counselling-2026/opengraph-image?v=v2",
-    "AIIMS Jodhpur OG image points to its own slug with v2"
+      `https://mbbsfoundation.com/neet-to-mbbs/colleges/${aiimsSlug}/counselling-2026/opengraph-image?v=v3`,
+    "AIIMS Jodhpur OG image points to its own slug with v3"
   );
 
   // -------------------------------------------------------------
-  // TEST 3: Kasturba Medical College Manipal (Deemed Private)
+  // TEST 3: Kasturba Medical College Manipal (Deemed College)
   // -------------------------------------------------------------
   console.log("\n[TEST 3] Kasturba Medical College Manipal (kasturba-medical-college-manipal)");
   const kmcSlug = "kasturba-medical-college-manipal";
@@ -119,7 +137,8 @@ async function runTests() {
   assert(kmcOgResponse.status === 200, "KMC Manipal OG HTTP status is 200");
   const kmcBuffer = Buffer.from(await kmcOgResponse.arrayBuffer());
   assert(kmcBuffer.length > 5000, `KMC Manipal PNG size healthy (${kmcBuffer.length} bytes)`);
-  const kmcPreviewPath = path.join(tmpDir, "college-og-v2-kmc-manipal.png");
+
+  const kmcPreviewPath = path.join(tmpDir, "college-og-v3-kmc-manipal.png");
   fs.writeFileSync(kmcPreviewPath, kmcBuffer);
   console.log(`  📁 Saved KMC Manipal visual preview to: ${kmcPreviewPath}`);
 
@@ -127,94 +146,75 @@ async function runTests() {
   const kmcOg = kmcMeta.openGraph as any;
   assert(
     kmcOg?.images?.[0]?.url ===
-      "https://mbbsfoundation.com/neet-to-mbbs/colleges/kasturba-medical-college-manipal/counselling-2026/opengraph-image?v=v2",
-    "KMC Manipal OG image points to its own slug with v2"
+      `https://mbbsfoundation.com/neet-to-mbbs/colleges/${kmcSlug}/counselling-2026/opengraph-image?v=v3`,
+    "KMC Manipal OG image points to its own slug with v3"
   );
 
   // -------------------------------------------------------------
   // TEST 4: Long Canonical College Name
   // -------------------------------------------------------------
   console.log("\n[TEST 4] Long Canonical College Name");
-  const longCollege = await prisma.college.findFirst({
+  const longNameCol = await prisma.college.findFirst({
     where: {
-      collegeName: {
-        contains: "NAMO Medical Education and Research Institute",
-      },
-    },
-    select: { slug: true, collegeName: true },
-  });
-
-  if (longCollege) {
-    console.log(
-      `  Testing with: [${longCollege.collegeName.length} chars] ${longCollege.collegeName}`
-    );
-    const longOgResponse = await Image({ params: Promise.resolve({ slug: longCollege.slug }) });
-    assert(longOgResponse.status === 200, "Long Name College OG HTTP status is 200");
-    const longBuffer = Buffer.from(await longOgResponse.arrayBuffer());
-    assert(longBuffer.length > 5000, `Long Name PNG size healthy (${longBuffer.length} bytes)`);
-    const longPreviewPath = path.join(tmpDir, "college-og-v2-long-name.png");
-    fs.writeFileSync(longPreviewPath, longBuffer);
-    console.log(`  📁 Saved Long Name visual preview to: ${longPreviewPath}`);
-  }
-
-  // -------------------------------------------------------------
-  // TEST 5: College with No MCC Round-1 Open Benchmark (Fallback)
-  // -------------------------------------------------------------
-  console.log(
-    "\n[TEST 5] College with No MCC Round-1 Open Benchmark (Pure State / Non-MCC)"
-  );
-  const nonMccCollege = await prisma.college.findFirst({
-    where: {
+      collegeName: { contains: "Silvassa" },
       isActive: true,
-      seatMatrixRecords: {
-        none: {},
-      },
     },
-    select: { slug: true, collegeName: true },
   });
+  const longSlug = longNameCol?.slug || "namo-medical-education-and-research-institute-silvassa";
+  console.log(`  Testing with: [${longNameCol?.collegeName.length || 0} chars] ${longNameCol?.collegeName}`);
 
-  if (nonMccCollege) {
-    console.log(`  Testing non-MCC college: ${nonMccCollege.collegeName} (${nonMccCollege.slug})`);
-    const nonMccOgResponse = await Image({
-      params: Promise.resolve({ slug: nonMccCollege.slug }),
-    });
-    assert(nonMccOgResponse.status === 200, "Non-MCC College OG HTTP status is 200");
-    const nonMccBuffer = Buffer.from(await nonMccOgResponse.arrayBuffer());
-    assert(nonMccBuffer.length > 5000, `Non-MCC PNG size healthy (${nonMccBuffer.length} bytes)`);
-    const nonMccPreviewPath = path.join(tmpDir, "college-og-v2-no-air.png");
-    fs.writeFileSync(nonMccPreviewPath, nonMccBuffer);
-    console.log(`  📁 Saved Non-MCC visual preview to: ${nonMccPreviewPath}`);
+  const longOgResponse = await Image({ params: Promise.resolve({ slug: longSlug }) });
+  assert(longOgResponse.status === 200, "Long Name College OG HTTP status is 200");
+  const longBuffer = Buffer.from(await longOgResponse.arrayBuffer());
+  assert(longBuffer.length > 5000, `Long Name PNG size healthy (${longBuffer.length} bytes)`);
 
-    const nonMccMeta = await generateMetadata({
-      params: Promise.resolve({ slug: nonMccCollege.slug }),
-    });
-    const nonMccOg = nonMccMeta.openGraph as any;
-    assert(
-      nonMccOg?.description?.includes("available counselling evidence"),
-      "Non-MCC OG description uses fallback pattern"
-    );
-    assert(!nonMccOg?.description?.includes("N/A"), "No messy N/A strings in description");
-  }
+  const longPreviewPath = path.join(tmpDir, "college-og-v3-long-name.png");
+  fs.writeFileSync(longPreviewPath, longBuffer);
+  console.log(`  📁 Saved Long Name visual preview to: ${longPreviewPath}`);
+
+  // -------------------------------------------------------------
+  // TEST 5: Non-MCC College (No MCC Round-1 Evidence)
+  // -------------------------------------------------------------
+  console.log("\n[TEST 5] College with No MCC Round-1 Open Benchmark (Pure State / Non-MCC)");
+  const nonMccCol = await prisma.college.findFirst({
+    where: {
+      slug: { contains: "father-muller" },
+      isActive: true,
+    },
+  });
+  const nonMccSlug = nonMccCol?.slug || "father-mullers-medical-college-mangalore";
+  console.log(`  Testing non-MCC college: ${nonMccCol?.collegeName} (${nonMccSlug})`);
+
+  const nonMccOgResponse = await Image({ params: Promise.resolve({ slug: nonMccSlug }) });
+  assert(nonMccOgResponse.status === 200, "Non-MCC College OG HTTP status is 200");
+  const nonMccBuffer = Buffer.from(await nonMccOgResponse.arrayBuffer());
+  assert(nonMccBuffer.length > 5000, `Non-MCC PNG size healthy (${nonMccBuffer.length} bytes)`);
+
+  const nonMccPreviewPath = path.join(tmpDir, "college-og-v3-no-air.png");
+  fs.writeFileSync(nonMccPreviewPath, nonMccBuffer);
+  console.log(`  📁 Saved Non-MCC visual preview to: ${nonMccPreviewPath}`);
+
+  const nonMccMeta = await generateMetadata({ params: Promise.resolve({ slug: nonMccSlug }) });
+  const nonMccOg = nonMccMeta.openGraph as any;
+  assert(
+    nonMccOg?.description?.includes("Explore 2026 MBBS seat information and available counselling evidence"),
+    "Non-MCC OG description uses fallback pattern"
+  );
+  assert(!nonMccOg?.description?.includes("N/A"), "No messy N/A strings in description");
 
   // -------------------------------------------------------------
   // TEST 6: Invalid / Non-existent Slug
   // -------------------------------------------------------------
   console.log("\n[TEST 6] Invalid / Non-existent Slug");
-  const invalidOgResponse = await Image({
-    params: Promise.resolve({ slug: "invalid-non-existent-college-slug-12345" }),
-  });
-  assert(
-    invalidOgResponse.status === 200,
-    "Invalid slug returns graceful fallback HTTP 200 image"
-  );
-  const invalidBuffer = Buffer.from(await invalidOgResponse.arrayBuffer());
+  const invalidSlug = "non-existent-medical-college-slug-xyz-999";
+  const invalidResponse = await Image({ params: Promise.resolve({ slug: invalidSlug }) });
+  assert(invalidResponse.status === 200, "Invalid slug returns graceful fallback HTTP 200 image");
+  const invalidBuffer = Buffer.from(await invalidResponse.arrayBuffer());
   assert(invalidBuffer.length > 3000, `Invalid slug PNG size valid (${invalidBuffer.length} bytes)`);
 
-  const invalidMeta = await generateMetadata({
-    params: Promise.resolve({ slug: "invalid-non-existent-college-slug-12345" }),
-  });
+  const invalidMeta = await generateMetadata({ params: Promise.resolve({ slug: invalidSlug }) });
   assert(
-    String(invalidMeta.title).includes("Not Found"),
+    invalidMeta.title === "Medical College Not Found | MBBS Foundation",
     "Invalid slug returns Not Found SEO title"
   );
 
@@ -227,7 +227,11 @@ async function runTests() {
   }
 }
 
-runTests().catch((err) => {
-  console.error("Test execution error:", err);
-  process.exit(1);
-});
+runTests()
+  .catch((err) => {
+    console.error("Test execution error:", err);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
