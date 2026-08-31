@@ -25,13 +25,28 @@ export const metadata: Metadata = {
     "state medical colleges 2026",
   ],
   openGraph: {
-    title: "NEET UG 2026 Counselling Planner | MCC Round-1 AIR & Medical College Explorer",
+    title: "NEET-UG 2026: Where Do YOU Stand?",
     description:
-      "Explore NEET UG 2026 MCC Round-1 allotments, medical-college AIR patterns, MBBS seats and category-wise evidence. Search by AIR, state or medical college.",
+      "Enter your AIR and explore medical colleges, Round-1 AIR patterns, seats and category-wise evidence using MCC NEET-UG 2026 and NMC official-source data.",
     url: "https://mbbsfoundation.com/neet-to-mbbs/counselling/round-2-planner",
     siteName: "MBBS Foundation",
     locale: "en_IN",
     type: "website",
+    images: [
+      {
+        url: "https://mbbsfoundation.com/images/og-neet-planner-2026.png",
+        width: 1200,
+        height: 630,
+        alt: "NEET-UG 2026: Where Do YOU Stand? | MBBS Foundation Counselling Planner",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NEET-UG 2026: Where Do YOU Stand?",
+    description:
+      "Enter your AIR and explore medical colleges, Round-1 AIR patterns, seats and category-wise evidence using MCC NEET-UG 2026 and NMC official-source data.",
+    images: ["https://mbbsfoundation.com/images/og-neet-planner-2026.png"],
   },
 };
 
