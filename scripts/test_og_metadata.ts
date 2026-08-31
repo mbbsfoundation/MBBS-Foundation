@@ -67,8 +67,8 @@ function runTests() {
   assert(Array.isArray(ogImages) && ogImages.length > 0, "Open Graph images array is populated");
   const firstOgImg = ogImages?.[0];
   assert(
-    firstOgImg?.url === "https://mbbsfoundation.com/images/og-neet-planner-2026.png",
-    "Open Graph image URL is 'https://mbbsfoundation.com/images/og-neet-planner-2026.png'",
+    firstOgImg?.url === "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png",
+    "Open Graph image URL is 'https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png'",
     String(firstOgImg?.url)
   );
   assert(firstOgImg?.width === 1200, "Open Graph image declared width is 1200");
@@ -84,13 +84,13 @@ function runTests() {
     "Twitter description matches Open Graph description"
   );
   assert(
-    twitter?.images?.[0] === "https://mbbsfoundation.com/images/og-neet-planner-2026.png",
+    twitter?.images?.[0] === "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png",
     "Twitter image matches Open Graph image URL"
   );
 
   // 8. Public Static Image File Verification
-  const imgPath = path.join(process.cwd(), "public/images/og-neet-planner-2026.png");
-  assert(fs.existsSync(imgPath), "Public static image file exists in public/images/og-neet-planner-2026.png");
+  const imgPath = path.join(process.cwd(), "public/images/og-neet-planner-2026-custom.png");
+  assert(fs.existsSync(imgPath), "Public static image file exists in public/images/og-neet-planner-2026-custom.png");
   const stats = fs.statSync(imgPath);
   assert(stats.size > 10000, `Image file size is substantial (${stats.size} bytes)`);
 
