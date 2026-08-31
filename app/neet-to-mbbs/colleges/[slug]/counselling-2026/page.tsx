@@ -11,6 +11,7 @@ import {
 } from "@/lib/counselling/pathwayOrdering";
 import CollegeEvidenceCard from "@/components/neet-to-mbbs/CollegeEvidenceCard";
 import NeetSubNav from "@/components/neet-to-mbbs/NeetSubNav";
+import ShareCollegeButton from "@/components/neet-to-mbbs/ShareCollegeButton";
 import type { CollegeRound1CategoryProfile } from "@/lib/counselling/evidenceTypes";
 
 export const dynamic = "force-dynamic";
@@ -286,31 +287,38 @@ export default async function CollegeCounsellingPage({ params }: Props) {
 
         {/* Page Header */}
         <div className="space-y-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-block rounded-md bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-bold text-blue-800">
-              {college.managementType}
-            </span>
-            {college.isINI && (
-              <span className="inline-block rounded-md bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700">
-                Institute of National Importance (INI)
-              </span>
-            )}
-            {college.isDeemed && (
-              <span className="inline-block rounded-md bg-purple-50 border border-purple-200 px-2.5 py-1 text-xs font-bold text-purple-700">
-                Deemed University
-              </span>
-            )}
-            {college.isCentralUniversity && (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="inline-block rounded-md bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-bold text-blue-800">
-                Central University
+                {college.managementType}
               </span>
-            )}
-            {college.isESIC && (
-              <span className="inline-block rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-bold text-teal-800">
-                ESIC Institution
-              </span>
-            )}
-            <span className="text-xs text-slate-500 font-semibold">📍 {college.state}</span>
+              {college.isINI && (
+                <span className="inline-block rounded-md bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-bold text-indigo-700">
+                  Institute of National Importance (INI)
+                </span>
+              )}
+              {college.isDeemed && (
+                <span className="inline-block rounded-md bg-purple-50 border border-purple-200 px-2.5 py-1 text-xs font-bold text-purple-700">
+                  Deemed University
+                </span>
+              )}
+              {college.isCentralUniversity && (
+                <span className="inline-block rounded-md bg-blue-50 border border-blue-200 px-2.5 py-1 text-xs font-bold text-blue-800">
+                  Central University
+                </span>
+              )}
+              {college.isESIC && (
+                <span className="inline-block rounded-md bg-teal-50 border border-teal-200 px-2.5 py-1 text-xs font-bold text-teal-800">
+                  ESIC Institution
+                </span>
+              )}
+              <span className="text-xs text-slate-500 font-semibold">📍 {college.city ? `${college.city}, ${college.state}` : college.state}</span>
+            </div>
+
+            <ShareCollegeButton
+              collegeName={college.collegeName}
+              canonicalUrl={canonicalUrl}
+            />
           </div>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-950 tracking-tight leading-tight">

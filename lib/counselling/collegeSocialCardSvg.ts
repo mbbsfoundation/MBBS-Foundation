@@ -163,8 +163,10 @@ export function generateCollegeSocialCardSvg(
   // 1. College Identity
   const nameFormatting = formatCollegeName(college.collegeName);
   const stateInfo = cleanStateName(college.state || "");
-  const locationStr = college.city
-    ? `${college.city}, ${stateInfo.display}`
+  const rawCity = college.city || (college.collegeName.includes(",") ? college.collegeName.split(",")[1].trim() : "");
+  const cityMatch = rawCity && !rawCity.includes("(") && rawCity.length <= 25 ? rawCity : (college.city || "");
+  const locationStr = cityMatch
+    ? `${cityMatch}, ${stateInfo.display}`
     : stateInfo.display;
 
   // 2. Classification
