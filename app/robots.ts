@@ -6,7 +6,13 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/cprday/my-venues/"],
+        disallow: [
+          "/api/",
+          "/admin/",
+          "/cprday/my-venues/",
+          "/cprsanjeevani/admin-certificate",
+          "/cprsanjeevani/auth",
+        ],
       },
     ],
     sitemap: "https://mbbsfoundation.com/sitemap.xml",

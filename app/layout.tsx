@@ -154,7 +154,7 @@ export default function RootLayout({
 
         {children}
         <Analytics />
-        <SpeedInsights />
+        <SpeedInsights sampleRate={0.25} />
 
         <footer className="border-t bg-slate-50 print:hidden">
           <div className="mx-auto max-w-6xl px-6 py-10">
@@ -219,9 +219,10 @@ export default function RootLayout({
               </div>
             </div>
 
-            <p className="mt-8 text-xs text-slate-500">
-              © 2026 MBBS Foundation. All rights reserved.
-            </p>
+            <div className="mt-8 pt-6 border-t border-slate-200/70 text-xs text-slate-500 space-y-1">
+              <p>© 2026 MBBS Foundation™. All rights reserved.</p>
+              <p className="text-[11px] text-slate-400">MBBS Foundation™ is a trademark-applied brand.</p>
+            </div>
           </div>
         </footer>
       </body>

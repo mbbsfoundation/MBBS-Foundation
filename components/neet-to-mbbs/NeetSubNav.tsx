@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { label: "Overview", href: "/neet-to-mbbs", exact: true },
-  { label: "Counselling", href: "/neet-to-mbbs/counselling" },
+  { label: "Counselling", href: "/neet-to-mbbs/counselling", exact: true },
+  { label: "NEET Counselling Planner", href: "/neet-to-mbbs/counselling/round-2-planner", isPlanner: true },
   { label: "College Choice", href: "/neet-to-mbbs/choosing-a-medical-college" },
   { label: "Toolkit", href: "/neet-to-mbbs/toolkit" },
   { label: "Parents", href: "/neet-to-mbbs/parents" },
@@ -34,6 +35,23 @@ export default function NeetSubNav() {
               const isActive = item.exact
                 ? pathname === item.href
                 : pathname === item.href || pathname?.startsWith(`${item.href}/`);
+
+              if (item.isPlanner) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`h-10 inline-flex items-center rounded-xl px-3.5 sm:px-4 text-xs sm:text-sm font-black transition-all whitespace-nowrap border ${
+                      isActive
+                        ? "bg-blue-900 text-white border-blue-900 shadow-sm ring-2 ring-blue-200"
+                        : "bg-blue-50/90 border-blue-200 text-blue-950 hover:bg-blue-100 hover:border-blue-300"
+                    }`}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              }
 
               return (
                 <Link

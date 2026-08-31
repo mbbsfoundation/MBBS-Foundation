@@ -15,7 +15,7 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient(): PrismaClient {
   // If cached global client exists and has the latest models, reuse it
-  if (globalForPrisma.prisma && (globalForPrisma.prisma as any).adminCertificateRecord) {
+  if (globalForPrisma.prisma && (globalForPrisma.prisma as any).college) {
     return globalForPrisma.prisma;
   }
   const client = new PrismaClient({ adapter });

@@ -1,0 +1,772 @@
+====================================================================================================
+SEQUENCE 5C: MANUAL RECOMMENDATION VALIDATION & AUDIT HARNESS (2026 DATASET)
+====================================================================================================
+
+====================================================================================================
+Profile 1: General (AIR 4,500, OPEN, Non-PwD, Delhi Domicile)
+====================================================================================================
+- Student AIR: 4,500 | Category: OPEN | PwD: false | Domicile: Delhi | Goal: GET_SEAT
+- Total Evaluated Evidence: 521 | Execution Time: 1721ms
+- Summary Counts:
+  * STRONG:         376
+  * REALISTIC:       49
+  * STRETCH:          7
+  * LOW_EVIDENCE:    89
+  * TOTAL:          521
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRONG] RECOMMENDATIONS (Total Available: 376)
+----------------------------------------------------------------------------------------------------
+  [# 1] Kasturba Medical College, Manipal    | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   33398 | Q3:   38444 | High:   42815 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 2] Symbiosis Medical College for Wom... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   45935 | Q3: 50640.25 | High:   56144 | N:  128 | Gap:   0 | Inc:     0 | Pool:    22
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 3] Kasturba Medical College, Mangalore  | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med: 49966.5 | Q3: 54616.25 | High:   59030 | N:  160 | Gap:   0 | Inc:     0 | Pool:    90
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 4] Hamdard Institute of Medical Scie... | Delhi          | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   57615 | Q3: 65883.75 | High:   70072 | N:   52 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 5] Manipal Tata Medical College,Bari... | Jharkhand      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   73257 | Q3:   80495 | High:   90912 | N:  210 | Gap:   0 | Inc:   +50 | Pool:    40
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 6] JSS Medical College, Mysore          | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  111416 | Q3:  131467 | High:  154521 | N:  199 | Gap:   0 | Inc:     0 | Pool:    51
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 7] Rural Medical College, Loni          | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  118219 | Q3: 133020.25 | High:  142869 | N:  170 | Gap:   0 | Inc:     0 | Pool:    30
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 8] K S Hegde Medical Academy, Mangalore | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  137935 | Q3: 153020.25 | High:  165856 | N:  174 | Gap:   0 | Inc:     0 | Pool:    76
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 9] Jawaharlal Nehru Medical College,... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  145756 | Q3:  168119 | High:  181223 | N:  201 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [#10] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  169332 | Q3:  204126 | High:  240367 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [REALISTIC] RECOMMENDATIONS (Total Available: 49)
+----------------------------------------------------------------------------------------------------
+  [# 1] Sher-I-Kashmir Instt. Of Medical ... | Jammu & Kashmir | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:  4546.5 | Q3: 6552.25 | High:    7801 | N:    8 | Gap:   0 | Inc:     0 | Pool:   117
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 2] Nilratan Sircar Medical College, ... | West Bengal    | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    4412 | Q3:    4653 | High:    4818 | N:   13 | Gap:   0 | Inc:     0 | Pool:   237
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 3] Pandit Deendayal Upadhyay Medical... | Gujarat        | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    4410 | Q3:  4913.5 | High:    4950 | N:   12 | Gap:   0 | Inc:     0 | Pool:   188
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 4] Government Medical College, Manje... | Kerala         | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    4387 | Q3:  4528.5 | High:    5045 | N:    7 | Gap:   0 | Inc:     0 | Pool:   103
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 5] Rajendra Institute of Medical Sci... | Jharkhand      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:  4731.5 | Q3: 4945.75 | High:    5035 | N:   14 | Gap:   0 | Inc:   +70 | Pool:   236
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 6] Government Vellore Medical Colleg... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:  4766.5 | Q3: 5382.25 | High:    5672 | N:    6 | Gap:   0 | Inc:     0 | Pool:    94
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 7] Gandhi Medical College, Bhopal       | Madhya Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    4210 | Q3:    4648 | High:    5072 | N:   15 | Gap:   0 | Inc:     0 | Pool:   235
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 8] Government Medical College, Kota     | Rajasthan      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    4826 | Q3:    4948 | High:    5008 | N:   13 | Gap:   0 | Inc:     0 | Pool:   237
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 9] Employees State Insurance Corpora... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    4842 | Q3:  5100.5 | High:    5115 | N:    8 | Gap:   0 | Inc:     0 | Pool:   142
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [#10] Government Medical College, Amritsar | Punjab         | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    4863 | Q3:  5426.5 | High:    5776 | N:   15 | Gap:   0 | Inc:     0 | Pool:   235
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRETCH] RECOMMENDATIONS (Total Available: 7)
+----------------------------------------------------------------------------------------------------
+  [# 1] Jawaharlal Nehru Medical College,... | Rajasthan      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    4361 | Q3:  4465.5 | High:    4540 | N:   15 | Gap:   0 | Inc:     0 | Pool:   235
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 2] Dr. Rajendar Prasad Government Me... | Himachal Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    4312 | Q3:    4362 | High:    4619 | N:    8 | Gap:   0 | Inc:     0 | Pool:   112
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 3] Thanjavur Medical College, Thanjavur | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    4284 | Q3:    4440 | High:    4549 | N:    9 | Gap:   0 | Inc:     0 | Pool:   141
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 4] Government Institute of Medical S... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:  4258.5 | Q3: 4337.25 | High:    4601 | N:    6 | Gap:   0 | Inc:     0 | Pool:    94
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 5] Government Medical College, Ernak... | Kerala         | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:  4206.5 | Q3:    4388 | High:    4582 | N:    6 | Gap:   0 | Inc:     0 | Pool:   104
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 6] MKCG Medical College, Berhampur      | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    4050 | Q3:  4487.5 | High:    4899 | N:   15 | Gap:   0 | Inc:     0 | Pool:   235
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 7] Govt. Mohan Kumaramangalam Medica... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: LOW      | Med:    2655 | Q3:  4128.5 | High:    4538 | N:    4 | Gap:   0 | Inc:     0 | Pool:    96
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+
+>>> Sanity Checks: 100% Passed (Zero violations) ✅
+
+----------------------------------------------------------------------------------------------------
+COLLEGE-LEVEL SPOT CHECKS FOR THIS PROFILE
+----------------------------------------------------------------------------------------------------
+* Target: Maulana Azad Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 90 | High: 129 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: State Quota (Est.) | Cat: OPEN | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 6 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+* Target: Vardhman Mahavir Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 99.5 | High: 124 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: State Quota (Est.) | Cat: OPEN | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 6 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+* Target: University College of Medical Sciences (Found 1 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 247 | High: 435 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: King George's Medical University (UP) (Found 1 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1194.5 | High: 1349 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Grant Medical College, Mumbai (Maharashtra) (Found 1 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1863 | High: 2379 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Gandhi Medical College, Bhopal (MP) (Found 1 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: REALISTIC    | Med: 4210 | High: 5072 | Summary: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway."
+
+
+====================================================================================================
+Profile 2: OBC (AIR 14,000, OBC, Non-PwD, Uttar Pradesh Domicile)
+====================================================================================================
+- Student AIR: 14,000 | Category: OBC | PwD: false | Domicile: Uttar Pradesh | Goal: GET_SEAT
+- Total Evaluated Evidence: 1050 | Execution Time: 710ms
+- Summary Counts:
+  * STRONG:         249
+  * REALISTIC:      157
+  * STRETCH:         15
+  * LOW_EVIDENCE:   629
+  * TOTAL:         1050
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRONG] RECOMMENDATIONS (Total Available: 249)
+----------------------------------------------------------------------------------------------------
+  [# 1] Kasturba Medical College, Manipal    | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   33398 | Q3:   38444 | High:   42815 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 2] Symbiosis Medical College for Wom... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   45935 | Q3: 50640.25 | High:   56144 | N:  128 | Gap:   0 | Inc:     0 | Pool:    22
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 3] Kasturba Medical College, Mangalore  | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med: 49966.5 | Q3: 54616.25 | High:   59030 | N:  160 | Gap:   0 | Inc:     0 | Pool:    90
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 4] Hamdard Institute of Medical Scie... | Delhi          | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   57615 | Q3: 65883.75 | High:   70072 | N:   52 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 5] Manipal Tata Medical College,Bari... | Jharkhand      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   73257 | Q3:   80495 | High:   90912 | N:  210 | Gap:   0 | Inc:   +50 | Pool:    40
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 6] JSS Medical College, Mysore          | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  111416 | Q3:  131467 | High:  154521 | N:  199 | Gap:   0 | Inc:     0 | Pool:    51
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 7] Rural Medical College, Loni          | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  118219 | Q3: 133020.25 | High:  142869 | N:  170 | Gap:   0 | Inc:     0 | Pool:    30
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 8] K S Hegde Medical Academy, Mangalore | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  137935 | Q3: 153020.25 | High:  165856 | N:  174 | Gap:   0 | Inc:     0 | Pool:    76
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 9] Jawaharlal Nehru Medical College,... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  145756 | Q3:  168119 | High:  181223 | N:  201 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [#10] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  169332 | Q3:  204126 | High:  240367 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [REALISTIC] RECOMMENDATIONS (Total Available: 157)
+----------------------------------------------------------------------------------------------------
+  [# 1] Government Medical College, Satara   | Maharashtra    | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   14005 | Q3:   14136 | High:   14366 | N:    5 | Gap:   0 | Inc:     0 | Pool:    95
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 2] Autonomous state medical college ... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   14032 | Q3: 14743.25 | High:   15379 | N:    6 | Gap:   0 | Inc:     0 | Pool:    94
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 3] Government Medical College (Bhara... | Chhattisgarh   | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   13941 | Q3:   14150 | High:   14555 | N:    8 | Gap:   0 | Inc:     0 | Pool:   117
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 4] Government Medical College, Shahd... | Madhya Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   13929 | Q3:   14428 | High:   14717 | N:    5 | Gap:   0 | Inc:     0 | Pool:    95
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 5] Sundarlal Patwa Govt. Medical Col... | Madhya Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   13923 | Q3:   14146 | High:   14416 | N:    5 | Gap:   0 | Inc:     0 | Pool:    95
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 6] Mahatma Gandhi Institute of Medic... | Maharashtra    | PRIVATE    | MCC            | Quota: All India          | Cat: OBC          | Band: REALISTIC   | Conf: MODERATE | Med:   13916 | Q3: 14194.5 | High:   14345 | N:   11 | Gap:   0 | Inc:     0 | Pool:    89
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 7] Government Medical College, Raman... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   13911 | Q3:   14092 | High:   14308 | N:    7 | Gap:   0 | Inc:     0 | Pool:    93
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 8] Government Medical College, Ariyalur | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OBC          | Band: REALISTIC   | Conf: MODERATE | Med:   14094 | Q3:   14126 | High:   14164 | N:    5 | Gap:   0 | Inc:     0 | Pool:   145
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 9] Mahatma Vidur Autonomous State Me... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   13856 | Q3: 14126.5 | High:   14248 | N:    7 | Gap:   0 | Inc:     0 | Pool:    93
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [#10] Autonomous State Medical College ... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:   14169 | Q3:   14455 | High:   14609 | N:    7 | Gap:   0 | Inc:     0 | Pool:    93
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRETCH] RECOMMENDATIONS (Total Available: 15)
+----------------------------------------------------------------------------------------------------
+  [# 1] Dr. Shankarrao Chavan Govt. Medic... | Maharashtra    | GOVERNMENT | MCC            | Quota: All India          | Cat: OBC          | Band: STRETCH     | Conf: MODERATE | Med:   13790 | Q3:   13893 | High:   14035 | N:    6 | Gap:   0 | Inc:     0 | Pool:   144
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 2] Government Medical College, Kathua   | Jammu & Kashmir | GOVERNMENT | MCC            | Quota: All India          | Cat: OBC          | Band: STRETCH     | Conf: MODERATE | Med:   13677 | Q3: 13817.5 | High:   14153 | N:    6 | Gap:   0 | Inc:     0 | Pool:   144
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 3] PABITRA MOHAN PRADHAN MEDICAL COL... | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:   13531 | Q3:   13811 | High:   14500 | N:    5 | Gap:   0 | Inc:     0 | Pool:    95
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 4] Gulbarga Institute of Medical Sci... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med: 13457.5 | Q3: 13860.75 | High:   14131 | N:   12 | Gap:   0 | Inc:     0 | Pool:   188
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 5] Jannayak Karpoori Thakur Medical ... | Bihar          | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:   13410 | Q3: 13963.5 | High:   14260 | N:    6 | Gap:   0 | Inc:     0 | Pool:    94
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 6] Government Medical College, Chhin... | Madhya Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:   13339 | Q3: 13729.5 | High:   14251 | N:   10 | Gap:   0 | Inc:     0 | Pool:   140
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 7] Vijaynagar Institute of Medical S... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: OBC          | Band: STRETCH     | Conf: MODERATE | Med:   12557 | Q3:   12924 | High:   14000 | N:    9 | Gap:   0 | Inc:     0 | Pool:   241
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 8] Government Medical College, Anantnag | Jammu & Kashmir | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:   10654 | Q3:   12653 | High:   14239 | N:    9 | Gap:   0 | Inc:     0 | Pool:   141
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 9] Mahraja Jajati Keshari Medical Co... | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: OBC          | Band: STRETCH     | Conf: LOW      | Med:   14157 | Q3:   14670 | High:   15183 | N:    2 | Gap:   0 | Inc:     0 | Pool:    48
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [#10] PT NEKI RAM SHARMA GOVERNMENT MED... | Haryana        | GOVERNMENT | MCC            | Quota: All India          | Cat: OBC          | Band: STRETCH     | Conf: LOW      | Med: 13825.5 | Q3:   14477 | High:   14690 | N:    4 | Gap:   0 | Inc:     0 | Pool:    96
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+
+>>> Sanity Checks: 100% Passed (Zero violations) ✅
+
+----------------------------------------------------------------------------------------------------
+COLLEGE-LEVEL SPOT CHECKS FOR THIS PROFILE
+----------------------------------------------------------------------------------------------------
+* Target: Maulana Azad Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 382 | High: 429 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 90 | High: 129 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Vardhman Mahavir Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 313 | High: 345 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 99.5 | High: 124 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: University College of Medical Sciences (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 721.5 | High: 926 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 247 | High: 435 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: King George's Medical University (UP) (Found 3 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 1955 | High: 2087 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1194.5 | High: 1349 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: State Quota (Est.) | Cat: OBC | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 213 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+* Target: Grant Medical College, Mumbai (Maharashtra) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 3770 | High: 4108 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1863 | High: 2379 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Gandhi Medical College, Bhopal (MP) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 6407 | High: 6807 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 4210 | High: 5072 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+
+
+====================================================================================================
+Profile 3: EWS (AIR 25,000, EWS, Non-PwD, Rajasthan Domicile)
+====================================================================================================
+- Student AIR: 25,000 | Category: EWS | PwD: false | Domicile: Rajasthan | Goal: GET_SEAT
+- Total Evaluated Evidence: 1004 | Execution Time: 538ms
+- Summary Counts:
+  * STRONG:          62
+  * REALISTIC:       37
+  * STRETCH:         12
+  * LOW_EVIDENCE:   893
+  * TOTAL:         1004
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRONG] RECOMMENDATIONS (Total Available: 62)
+----------------------------------------------------------------------------------------------------
+  [# 1] Symbiosis Medical College for Wom... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   45935 | Q3: 50640.25 | High:   56144 | N:  128 | Gap:   0 | Inc:     0 | Pool:    22
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 2] Kasturba Medical College, Mangalore  | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med: 49966.5 | Q3: 54616.25 | High:   59030 | N:  160 | Gap:   0 | Inc:     0 | Pool:    90
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 3] Hamdard Institute of Medical Scie... | Delhi          | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   57615 | Q3: 65883.75 | High:   70072 | N:   52 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 4] Manipal Tata Medical College,Bari... | Jharkhand      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   73257 | Q3:   80495 | High:   90912 | N:  210 | Gap:   0 | Inc:   +50 | Pool:    40
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 5] JSS Medical College, Mysore          | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  111416 | Q3:  131467 | High:  154521 | N:  199 | Gap:   0 | Inc:     0 | Pool:    51
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 6] Rural Medical College, Loni          | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  118219 | Q3: 133020.25 | High:  142869 | N:  170 | Gap:   0 | Inc:     0 | Pool:    30
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 7] K S Hegde Medical Academy, Mangalore | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  137935 | Q3: 153020.25 | High:  165856 | N:  174 | Gap:   0 | Inc:     0 | Pool:    76
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 8] Jawaharlal Nehru Medical College,... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  145756 | Q3:  168119 | High:  181223 | N:  201 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 9] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  169332 | Q3:  204126 | High:  240367 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [#10] Amrita School of Medicine            | Haryana        | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  179189 | Q3:  219936 | High:  255782 | N:  135 | Gap:   0 | Inc:     0 | Pool:    15
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [REALISTIC] RECOMMENDATIONS (Total Available: 37)
+----------------------------------------------------------------------------------------------------
+  [# 1] Kasturba Medical College, Manipal    | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:   33398 | Q3:   38444 | High:   42815 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 2] Government medical College, Quthb... | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25133 | Q3:   25133 | High:   25133 | N:    1 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 3] Nagaon Medical College               | Assam          | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25134 | Q3:   25134 | High:   25134 | N:    1 | Gap:   0 | Inc:     0 | Pool:    99
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 4] Kokrajhar Medical College            | Assam          | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25203 | Q3:   25203 | High:   25203 | N:    1 | Gap:   0 | Inc:     0 | Pool:    99
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 5] Government Medical College & Hosp... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25238 | Q3:   25259 | High:   25280 | N:    3 | Gap:   0 | Inc:     0 | Pool:   147
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 6] Government Medical College, Mahes... | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25283 | Q3:   25283 | High:   25283 | N:    1 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 7] Government Medical College, Dindigul | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25287 | Q3:   25447 | High:   25607 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] Government Medical College, Naray... | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25317 | Q3:   25317 | High:   25317 | N:    1 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 9] Government Medical College, Rajan... | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25422 | Q3:   25422 | High:   25422 | N:    1 | Gap:   0 | Inc:     0 | Pool:    99
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [#10] Tinsukia Medical College - Assam ... | Assam          | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: REALISTIC   | Conf: LOW      | Med:   25463 | Q3: 25855.5 | High:   26248 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRETCH] RECOMMENDATIONS (Total Available: 12)
+----------------------------------------------------------------------------------------------------
+  [# 1] Government Medical College, Bhadr... | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   25037 | Q3:   25097 | High:   25157 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 2] Chitradurga Medical College and R... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   24873 | Q3:   24949 | High:   25025 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 3] GOVERNMENT MEDICAL COLLEGE KHAMMAM   | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   25139 | Q3:   25313 | High:   25487 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 4] Yadgiri Institute of Medical Scie... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   24651 | Q3: 24836.5 | High:   25022 | N:    3 | Gap:   0 | Inc:     0 | Pool:   147
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 5] Govt.Medical Collage Manendragarh    | Chhattisgarh   | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   24542 | Q3:   24542 | High:   24542 | N:    1 | Gap:   0 | Inc:   +50 | Pool:    49
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, NEW_INSTITUTION_2026, SEAT_INCREASE_2026, NEW_COLLEGE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [# 6] Govt. Medical College Kabeerdham     | Chhattisgarh   | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   24490 | Q3:   24490 | High:   24490 | N:    1 | Gap:   0 | Inc:   +50 | Pool:    49
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, NEW_INSTITUTION_2026, SEAT_INCREASE_2026, NEW_COLLEGE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [# 7] Government Medical College, Puduk... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   25948 | Q3:   26362 | High:   26776 | N:    3 | Gap:   0 | Inc:     0 | Pool:   147
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] Agartala Government Medical Colle... | Tripura        | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   23989 | Q3:   24171 | High:   24353 | N:    3 | Gap:   0 | Inc:   +50 | Pool:   197
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [# 9] Government medical college, vizia... | Andhra Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med:   23979 | Q3: 24757.5 | High:   25536 | N:    3 | Gap:   0 | Inc:     0 | Pool:   147
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [#10] Government Medical College, Thiru... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: EWS          | Band: STRETCH     | Conf: LOW      | Med: 23929.5 | Q3: 24067.75 | High:   24206 | N:    2 | Gap:   0 | Inc:   +50 | Pool:   148
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+
+>>> Sanity Checks: 100% Passed (Zero violations) ✅
+
+----------------------------------------------------------------------------------------------------
+COLLEGE-LEVEL SPOT CHECKS FOR THIS PROFILE
+----------------------------------------------------------------------------------------------------
+* Target: Maulana Azad Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 90 | High: 129 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: EWS | Route: MCC | Band: LOW_EVIDENCE | Med: 476 | High: 562 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Vardhman Mahavir Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 99.5 | High: 124 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: EWS | Route: MCC | Band: LOW_EVIDENCE | Med: 554.5 | High: 633 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: University College of Medical Sciences (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 247 | High: 435 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: EWS | Route: MCC | Band: LOW_EVIDENCE | Med: 1160 | High: 1271 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: King George's Medical University (UP) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1194.5 | High: 1349 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: EWS | Route: MCC | Band: LOW_EVIDENCE | Med: 2448 | High: 2507 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Grant Medical College, Mumbai (Maharashtra) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1863 | High: 2379 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: EWS | Route: MCC | Band: LOW_EVIDENCE | Med: 3779 | High: 4065 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Gandhi Medical College, Bhopal (MP) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 4210 | High: 5072 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: EWS | Route: MCC | Band: LOW_EVIDENCE | Med: 6594.5 | High: 6990 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+
+
+====================================================================================================
+Profile 4: SC (AIR 65,000, SC, Non-PwD, Maharashtra Domicile)
+====================================================================================================
+- Student AIR: 65,000 | Category: SC | PwD: false | Domicile: Maharashtra | Goal: GET_SEAT
+- Total Evaluated Evidence: 1032 | Execution Time: 529ms
+- Summary Counts:
+  * STRONG:          66
+  * REALISTIC:      188
+  * STRETCH:         32
+  * LOW_EVIDENCE:   746
+  * TOTAL:         1032
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRONG] RECOMMENDATIONS (Total Available: 66)
+----------------------------------------------------------------------------------------------------
+  [# 1] JSS Medical College, Mysore          | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  111416 | Q3:  131467 | High:  154521 | N:  199 | Gap:   0 | Inc:     0 | Pool:    51
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 2] Rural Medical College, Loni          | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  118219 | Q3: 133020.25 | High:  142869 | N:  170 | Gap:   0 | Inc:     0 | Pool:    30
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 3] K S Hegde Medical Academy, Mangalore | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  137935 | Q3: 153020.25 | High:  165856 | N:  174 | Gap:   0 | Inc:     0 | Pool:    76
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 4] Jawaharlal Nehru Medical College,... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  145756 | Q3:  168119 | High:  181223 | N:  201 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 5] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  169332 | Q3:  204126 | High:  240367 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 6] Amrita School of Medicine            | Haryana        | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  179189 | Q3:  219936 | High:  255782 | N:  135 | Gap:   0 | Inc:     0 | Pool:    15
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 7] Kalinga Institute of Medical Scie... | Odisha         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  188235 | Q3:  224730 | High:  257176 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 8] Amrita School of Medicine, Elamka... | Kerala         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  190289 | Q3:  222310 | High:  257880 | N:  126 | Gap:   0 | Inc:     0 | Pool:    23
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 9] Sri Ramachandra Medical College &... | Tamil Nadu     | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  225841 | Q3: 281103.25 | High:  329861 | N:  212 | Gap:   0 | Inc:     0 | Pool:    38
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [#10] Shri B M Patil Medical College, H... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  226460 | Q3:  259299 | High:  294456 | N:  230 | Gap:   0 | Inc:     0 | Pool:    20
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [REALISTIC] RECOMMENDATIONS (Total Available: 188)
+----------------------------------------------------------------------------------------------------
+  [# 1] Hamdard Institute of Medical Scie... | Delhi          | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:   57615 | Q3: 65883.75 | High:   70072 | N:   52 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 2] Manipal Tata Medical College,Bari... | Jharkhand      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:   73257 | Q3:   80495 | High:   90912 | N:  210 | Gap:   0 | Inc:   +50 | Pool:    40
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 3] Mahatma Gandhi Institute of Medic... | Maharashtra    | PRIVATE    | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: MODERATE | Med:   64942 | Q3:   68912 | High:   71390 | N:    7 | Gap:   0 | Inc:     0 | Pool:    93
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 4] Burdwan Medical College, Burdwan     | West Bengal    | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: MODERATE | Med: 64016.5 | Q3: 65322.5 | High:   66920 | N:    6 | Gap:   0 | Inc:     0 | Pool:   194
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 5] Government Medical College, Akola    | Maharashtra    | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: MODERATE | Med:   68372 | Q3:   72182 | High:   72318 | N:    5 | Gap:   0 | Inc:     0 | Pool:   195
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 6] Government Medical College, Kadap... | Andhra Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: MODERATE | Med:   79175 | Q3: 80300.25 | High:   81826 | N:    6 | Gap:   0 | Inc:   +75 | Pool:   244
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 7] Government Medical College, Parip... | Kerala         | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: LOW      | Med: 66128.5 | Q3: 66674.75 | High:   67221 | N:    2 | Gap:   0 | Inc:     0 | Pool:   108
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] Government Medical College, Satara   | Maharashtra    | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: LOW      | Med:   67143 | Q3:   67143 | High:   67143 | N:    1 | Gap:   0 | Inc:     0 | Pool:    99
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 9] GOVERNMENT MEDICAL COLLEGE, KODANGAL | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: LOW      | Med:   67198 | Q3:   67198 | High:   67198 | N:    1 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [#10] Government Medical College, Shahj... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: REALISTIC   | Conf: LOW      | Med:   67449 | Q3: 69649.5 | High:   71850 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRETCH] RECOMMENDATIONS (Total Available: 32)
+----------------------------------------------------------------------------------------------------
+  [# 1] North Bengal Medical College, Dar... | West Bengal    | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: MODERATE | Med:   61094 | Q3: 64542.25 | High:   71947 | N:    6 | Gap:   0 | Inc:     0 | Pool:   194
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 2] Shyam Shah Medical College, Rewa     | Madhya Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: MODERATE | Med:   57752 | Q3:   61663 | High:   63320 | N:    5 | Gap:   0 | Inc:   +50 | Pool:   195
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [# 3] Government Medical College & Supe... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med:   64982 | Q3: 66075.5 | High:   67169 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 4] Shaheed Hasan Khan Mewati Governm... | Haryana        | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med:   64824 | Q3: 65561.5 | High:   66299 | N:    3 | Gap:   0 | Inc:     0 | Pool:   117
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 5] Saheed Rendo Majhi Medical Colleg... | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med:   64803 | Q3:   68544 | High:   72285 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 6] Bhagwan Mahavir Institute of Medi... | Bihar          | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med:   64725 | Q3: 66950.5 | High:   69176 | N:    3 | Gap:   0 | Inc:     0 | Pool:   117
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 7] Government Allopathic Medical Col... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med: 65676.5 | Q3: 66375.25 | High:   67074 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] Government Medical College, Nagap... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med: 64280.5 | Q3: 66270.75 | High:   68261 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 9] Government Medical College, Virud... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med:   65773 | Q3: 68575.5 | High:   71378 | N:    3 | Gap:   0 | Inc:     0 | Pool:   147
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [#10] Government Medical College, Eluru    | Andhra Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: SC           | Band: STRETCH     | Conf: LOW      | Med:   65791 | Q3: 68556.5 | High:   71322 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+
+>>> Sanity Checks: 100% Passed (Zero violations) ✅
+
+----------------------------------------------------------------------------------------------------
+COLLEGE-LEVEL SPOT CHECKS FOR THIS PROFILE
+----------------------------------------------------------------------------------------------------
+* Target: Maulana Azad Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: SC | Route: MCC | Band: LOW_EVIDENCE | Med: 1217 | High: 1834 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 90 | High: 129 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Vardhman Mahavir Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 99.5 | High: 124 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: SC | Route: MCC | Band: LOW_EVIDENCE | Med: 1121 | High: 1375 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: University College of Medical Sciences (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 247 | High: 435 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: SC | Route: MCC | Band: LOW_EVIDENCE | Med: 6497 | High: 7962 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: King George's Medical University (UP) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: SC | Route: MCC | Band: LOW_EVIDENCE | Med: 16102 | High: 17539 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1194.5 | High: 1349 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Grant Medical College, Mumbai (Maharashtra) (Found 3 pathways):
+  Path 1: Quota: All India        | Cat: SC | Route: MCC | Band: LOW_EVIDENCE | Med: 21969 | High: 22986 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1863 | High: 2379 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: State Quota (Est.) | Cat: SC | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 212 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+* Target: Gandhi Medical College, Bhopal (MP) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: SC | Route: MCC | Band: LOW_EVIDENCE | Med: 38455 | High: 39526 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 4210 | High: 5072 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+
+
+====================================================================================================
+Profile 5: ST (AIR 110,000, ST, Non-PwD, Madhya Pradesh Domicile)
+====================================================================================================
+- Student AIR: 110,000 | Category: ST | PwD: false | Domicile: Madhya Pradesh | Goal: GET_SEAT
+- Total Evaluated Evidence: 973 | Execution Time: 541ms
+- Summary Counts:
+  * STRONG:          56
+  * REALISTIC:      101
+  * STRETCH:         12
+  * LOW_EVIDENCE:   804
+  * TOTAL:          973
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRONG] RECOMMENDATIONS (Total Available: 56)
+----------------------------------------------------------------------------------------------------
+  [# 1] K S Hegde Medical Academy, Mangalore | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  137935 | Q3: 153020.25 | High:  165856 | N:  174 | Gap:   0 | Inc:     0 | Pool:    76
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 2] Jawaharlal Nehru Medical College,... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  145756 | Q3:  168119 | High:  181223 | N:  201 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 3] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  169332 | Q3:  204126 | High:  240367 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 4] Amrita School of Medicine            | Haryana        | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  179189 | Q3:  219936 | High:  255782 | N:  135 | Gap:   0 | Inc:     0 | Pool:    15
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 5] Kalinga Institute of Medical Scie... | Odisha         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  188235 | Q3:  224730 | High:  257176 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 6] Amrita School of Medicine, Elamka... | Kerala         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  190289 | Q3:  222310 | High:  257880 | N:  126 | Gap:   0 | Inc:     0 | Pool:    23
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 7] Sri Ramachandra Medical College &... | Tamil Nadu     | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  225841 | Q3: 281103.25 | High:  329861 | N:  212 | Gap:   0 | Inc:     0 | Pool:    38
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 8] Shri B M Patil Medical College, H... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  226460 | Q3:  259299 | High:  294456 | N:  230 | Gap:   0 | Inc:     0 | Pool:    20
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 9] Institute Of Medical Sciences & S... | Odisha         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  229358 | Q3: 281233.75 | High:  332063 | N:  240 | Gap:   0 | Inc:     0 | Pool:    10
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [#10] Sri Devaraj URS Medical College, ... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  230497 | Q3: 254601.75 | High:  292821 | N:  212 | Gap:   0 | Inc:   +50 | Pool:    38
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [REALISTIC] RECOMMENDATIONS (Total Available: 101)
+----------------------------------------------------------------------------------------------------
+  [# 1] JSS Medical College, Mysore          | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:  111416 | Q3:  131467 | High:  154521 | N:  199 | Gap:   0 | Inc:     0 | Pool:    51
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 2] Rural Medical College, Loni          | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:  118219 | Q3: 133020.25 | High:  142869 | N:  170 | Gap:   0 | Inc:     0 | Pool:    30
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 3] Government Medical College, Jalgaon  | Maharashtra    | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med:  110253 | Q3:  110253 | High:  110253 | N:    1 | Gap:   0 | Inc:     0 | Pool:   149
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 4] GOVERNMENT MEDICAL COLLEGE SINGRAULI | Madhya Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med:  110270 | Q3:  110270 | High:  110270 | N:    1 | Gap:   0 | Inc:     0 | Pool:    99
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 5] Government Medical College (Bhara... | Chhattisgarh   | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med:  111088 | Q3:  111088 | High:  111088 | N:    1 | Gap:   0 | Inc:     0 | Pool:   124
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 6] Government Medical College, Gondia   | Maharashtra    | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med: 111163.5 | Q3: 111826.75 | High:  112490 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 7] Rajmata Shrimata Devendra Kumari ... | Chhattisgarh   | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med:  111286 | Q3:  111286 | High:  111286 | N:    1 | Gap:   0 | Inc:     0 | Pool:   124
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] Punyashloka Lokmata Devi Ahilyaba... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med:  111415 | Q3:  111415 | High:  111415 | N:    1 | Gap:   0 | Inc:     0 | Pool:    99
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 9] Government Medical College & Hosp... | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med:  112343 | Q3:  112616 | High:  112889 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [#10] Sri Jagannath Medical College & H... | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: REALISTIC   | Conf: LOW      | Med:  112712 | Q3:  112712 | High:  112712 | N:    1 | Gap:   0 | Inc:     0 | Pool:    99
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRETCH] RECOMMENDATIONS (Total Available: 12)
+----------------------------------------------------------------------------------------------------
+  [# 1] SVIMS - Sri Padmavathi Medical Co... | Andhra Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med: 110071.5 | Q3: 112920.75 | High:  115770 | N:    2 | Gap:   0 | Inc:     0 | Pool:   173
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 2] Midnapore Medical College, Midnapore | West Bengal    | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med: 110410.5 | Q3: 111723.25 | High:  113036 | N:    2 | Gap:   0 | Inc:     0 | Pool:   198
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 3] Malda Medical College & Hospital,... | West Bengal    | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med: 110828.5 | Q3: 113616.25 | High:  116404 | N:    2 | Gap:   0 | Inc:   +25 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 4] Thanjavur Medical College, Thanjavur | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med: 111151.5 | Q3: 112732.25 | High:  114313 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 5] Government Medical College, Jagtial  | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med:  113087 | Q3:  119548 | High:  126009 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 6] Government Medical College, Ongol... | Andhra Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med: 106800.5 | Q3: 108678.25 | High:  110556 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 7] Tirunelveli Medical College, Tiru... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med:  106468 | Q3:  111656 | High:  116844 | N:    2 | Gap:   0 | Inc:     0 | Pool:   248
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] Late Shri Baliram Kashyap Memoria... | Chhattisgarh   | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med:  104399 | Q3:  104720 | High:  105041 | N:    2 | Gap:   0 | Inc:   +25 | Pool:   148
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [# 9] ACSR Government Medical College      | Andhra Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med:  104329 | Q3:  104582 | High:  104835 | N:    3 | Gap:   0 | Inc:   +25 | Pool:   197
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [#10] Chitradurga Medical College and R... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: ST           | Band: STRETCH     | Conf: LOW      | Med:  101934 | Q3: 106710.5 | High:  111487 | N:    2 | Gap:   0 | Inc:     0 | Pool:   148
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, CATEGORY_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+
+>>> Sanity Checks: 100% Passed (Zero violations) ✅
+
+----------------------------------------------------------------------------------------------------
+COLLEGE-LEVEL SPOT CHECKS FOR THIS PROFILE
+----------------------------------------------------------------------------------------------------
+* Target: Maulana Azad Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 90 | High: 129 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: ST | Route: MCC | Band: LOW_EVIDENCE | Med: 5091 | High: 5429 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Vardhman Mahavir Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 99.5 | High: 124 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: ST | Route: MCC | Band: LOW_EVIDENCE | Med: 1675 | High: 2273 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: University College of Medical Sciences (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 247 | High: 435 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: ST | Route: MCC | Band: LOW_EVIDENCE | Med: 9523.5 | High: 9945 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: King George's Medical University (UP) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1194.5 | High: 1349 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: ST | Route: MCC | Band: LOW_EVIDENCE | Med: 19691.5 | High: 24606 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Grant Medical College, Mumbai (Maharashtra) (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1863 | High: 2379 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: ST | Route: MCC | Band: LOW_EVIDENCE | Med: 47033 | High: 47680 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Gandhi Medical College, Bhopal (MP) (Found 3 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 4210 | High: 5072 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: State Quota (Est.) | Cat: ST | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 213 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+  Path 3: Quota: All India        | Cat: ST | Route: MCC | Band: LOW_EVIDENCE | Med: 48745 | High: 49940 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+
+
+====================================================================================================
+Profile 6: OBC PwD (AIR 160,000, OBC, PwD, Maharashtra Domicile)
+====================================================================================================
+- Student AIR: 160,000 | Category: OBC | PwD: true | Domicile: Maharashtra | Goal: GET_SEAT
+- Total Evaluated Evidence: 1388 | Execution Time: 553ms
+- Summary Counts:
+  * STRONG:          50
+  * REALISTIC:      311
+  * STRETCH:         10
+  * LOW_EVIDENCE:  1017
+  * TOTAL:         1388
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRONG] RECOMMENDATIONS (Total Available: 50)
+----------------------------------------------------------------------------------------------------
+  [# 1] Sri Ramachandra Medical College &... | Tamil Nadu     | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  225841 | Q3: 281103.25 | High:  329861 | N:  212 | Gap:   0 | Inc:     0 | Pool:    38
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 2] Shri B M Patil Medical College, H... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  226460 | Q3:  259299 | High:  294456 | N:  230 | Gap:   0 | Inc:     0 | Pool:    20
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 3] Institute Of Medical Sciences & S... | Odisha         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  229358 | Q3: 281233.75 | High:  332063 | N:  240 | Gap:   0 | Inc:     0 | Pool:    10
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 4] Sri Devaraj URS Medical College, ... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  230497 | Q3: 254601.75 | High:  292821 | N:  212 | Gap:   0 | Inc:   +50 | Pool:    38
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 5] Mahatma Gandhi Mission Medical Co... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  252317 | Q3:  281401 | High:  307390 | N:   85 | Gap:   0 | Inc:     0 | Pool:    15
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 6] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  257977 | Q3:  295680 | High:  333154 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 7] Maharishi Markandeshwar Institute... | Haryana        | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  277848 | Q3:  332414 | High:  366214 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 8] Institute of Medical Sciences & S... | Odisha         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  282944 | Q3:  326359 | High:  349173 | N:  245 | Gap:   0 | Inc:     0 | Pool:     5
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 9] Sri Siddhartha Medical College, T... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  285328 | Q3: 323025.5 | High:  353346 | N:  212 | Gap:   0 | Inc:     0 | Pool:    38
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [#10] Yenepoya Medical College, Mangalore  | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med: 303170.5 | Q3: 342087.5 | High:  375767 | N:  110 | Gap:   0 | Inc:     0 | Pool:   140
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [REALISTIC] RECOMMENDATIONS (Total Available: 311)
+----------------------------------------------------------------------------------------------------
+  [# 1] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:  169332 | Q3:  204126 | High:  240367 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 2] Jawaharlal Nehru Medical College,... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:  145756 | Q3:  168119 | High:  181223 | N:  201 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 3] Amrita School of Medicine            | Haryana        | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:  179189 | Q3:  219936 | High:  255782 | N:  135 | Gap:   0 | Inc:     0 | Pool:    15
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 4] Kalinga Institute of Medical Scie... | Odisha         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:  188235 | Q3:  224730 | High:  257176 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 5] Amrita School of Medicine, Elamka... | Kerala         | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: REALISTIC   | Conf: HIGH     | Med:  190289 | Q3:  222310 | High:  257880 | N:  126 | Gap:   0 | Inc:     0 | Pool:    23
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 6] All India Institute of Medical Sc... | Haryana        | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: REALISTIC   | Conf: LOW      | Med:  166314 | Q3:  166314 | High:  166314 | N:    1 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 7] MP Shah Medical College, Jamnagar    | Gujarat        | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN (PwD)   | Band: REALISTIC   | Conf: LOW      | Med:  166885 | Q3:  166885 | High:  166885 | N:    1 | Gap:   0 | Inc:     0 | Pool:   249
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] AIIMS, Madurai, AIIMS MADURAI        | Tamil Nadu     | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: REALISTIC   | Conf: LOW      | Med:  167218 | Q3:  167218 | High:  167218 | N:    1 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 9] Shri Atal Bihari Vajapayee Medica... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN (PwD)   | Band: REALISTIC   | Conf: LOW      | Med:  171906 | Q3:  171906 | High:  171906 | N:    1 | Gap:   0 | Inc:     0 | Pool:   199
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [#10] Osmania Medical College, Hyderabad   | Telangana      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN (PwD)   | Band: REALISTIC   | Conf: LOW      | Med:  172565 | Q3:  172565 | High:  172565 | N:    1 | Gap:   0 | Inc:     0 | Pool:   249
+       Reason: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRETCH] RECOMMENDATIONS (Total Available: 10)
+----------------------------------------------------------------------------------------------------
+  [# 1] K S Hegde Medical Academy, Mangalore | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRETCH     | Conf: HIGH     | Med:  137935 | Q3: 153020.25 | High:  165856 | N:  174 | Gap:   0 | Inc:     0 | Pool:    76
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, OPEN_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 2] Institute of Medical Sciences, BH... | Uttar Pradesh  | GOVERNMENT | MCC            | Quota: Open Seat Quota    | Cat: OBC (PwD)    | Band: STRETCH     | Conf: LOW      | Med: 160897.5 | Q3: 174653.75 | High:  188410 | N:    2 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 3] AIIMS, Nagpur, PLOT NO 2 SECTOR 2... | Maharashtra    | INI        | MCC            | Quota: Open Seat Quota    | Cat: OBC (PwD)    | Band: STRETCH     | Conf: LOW      | Med:  155791 | Q3: 167117.5 | High:  178444 | N:    2 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 4] AIIMS, Kalyani, NH-34 Connector, ... | West Bengal    | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: STRETCH     | Conf: LOW      | Med:  154303 | Q3: 180847.5 | High:  207392 | N:    3 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 5] AIIMS Bathinda , Jodhpur Romana n... | Punjab         | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: STRETCH     | Conf: LOW      | Med:  168078 | Q3: 189969.5 | High:  211861 | N:    2 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 6] AIIMS Guwahati, PO-CHANGSARI, DIS... | Assam          | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: STRETCH     | Conf: LOW      | Med: 168396.5 | Q3: 178776.25 | High:  189156 | N:    2 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 7] AIIMS, Raipur, Tatibandh, G E Roa... | Chhattisgarh   | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: STRETCH     | Conf: LOW      | Med:  169299 | Q3: 179195.5 | High:  189092 | N:    3 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 8] AIIMS, Patna, Phulwarisharif, Pat... | Bihar          | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: STRETCH     | Conf: LOW      | Med: 149157.5 | Q3: 179869.25 | High:  210581 | N:    2 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [# 9] AIIMS, Bhubaneswar, AT - Sijua, P... | Odisha         | INI        | MCC            | Quota: Open Seat Quota    | Cat: OBC (PwD)    | Band: STRETCH     | Conf: LOW      | Med:  175099 | Q3:  191091 | High:  207083 | N:    2 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+  [#10] AIIMS, Rai Bareli , All India Ins... | Uttar Pradesh  | INI        | MCC            | Quota: Open Seat Quota    | Cat: OPEN (PwD)   | Band: STRETCH     | Conf: LOW      | Med:  220767 | Q3: 225390.5 | High:  230014 | N:    3 | Gap:   0 | Inc:     0 | Pool:   N/A
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: SMALL_SAMPLE_CAUTION, ORDINARY_MERIT_POOL, PWD_RESERVED_PATHWAY, OPEN_PWD_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE, DOWNGRADED_DUE_TO_SAMPLE_SIZE]
+
+>>> Sanity Checks: 100% Passed (Zero violations) ✅
+
+----------------------------------------------------------------------------------------------------
+COLLEGE-LEVEL SPOT CHECKS FOR THIS PROFILE
+----------------------------------------------------------------------------------------------------
+* Target: Maulana Azad Medical College (Found 3 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 382 | High: 429 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 90 | High: 129 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: All India        | Cat: OPEN (PwD) | Route: MCC | Band: LOW_EVIDENCE | Med: 42205 | High: 42205 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Vardhman Mahavir Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 313 | High: 345 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 99.5 | High: 124 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: University College of Medical Sciences (Found 4 pathways):
+  Path 1: Quota: All India        | Cat: OBC (PwD) | Route: MCC | Band: REALISTIC    | Med: 272768 | High: 272768 | Summary: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification."
+  Path 2: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 721.5 | High: 926 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 247 | High: 435 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 4: Quota: All India        | Cat: OPEN (PwD) | Route: MCC | Band: LOW_EVIDENCE | Med: 116602 | High: 116602 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: King George's Medical University (UP) (Found 4 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 1955 | High: 2087 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1194.5 | High: 1349 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: All India        | Cat: OBC (PwD) | Route: MCC | Band: LOW_EVIDENCE | Med: 127800 | High: 127800 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 4: Quota: All India        | Cat: OPEN (PwD) | Route: MCC | Band: LOW_EVIDENCE | Med: 12492 | High: 12492 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Grant Medical College, Mumbai (Maharashtra) (Found 3 pathways):
+  Path 1: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 3770 | High: 4108 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1863 | High: 2379 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: State Quota (Est.) | Cat: OBC (PwD) | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 212 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+* Target: Gandhi Medical College, Bhopal (MP) (Found 3 pathways):
+  Path 1: Quota: All India        | Cat: OBC (PwD) | Route: MCC | Band: REALISTIC    | Med: 458399 | High: 458399 | Summary: "Your AIR is within the stronger historical range, but limited sample size warrants a realistic rather than strong classification."
+  Path 2: Quota: All India        | Cat: OBC | Route: MCC | Band: LOW_EVIDENCE | Med: 6407 | High: 6807 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 4210 | High: 5072 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+
+
+====================================================================================================
+Profile 7: Delhi DU-Internal Candidate (AIR 8,000, OPEN, Non-PwD, Delhi Domicile, DU Internal: True)
+====================================================================================================
+- Student AIR: 8,000 | Category: OPEN | PwD: false | Domicile: Delhi | Goal: GET_SEAT
+- Total Evaluated Evidence: 524 | Execution Time: 713ms
+- Summary Counts:
+  * STRONG:         301
+  * REALISTIC:       51
+  * STRETCH:         12
+  * LOW_EVIDENCE:   160
+  * TOTAL:          524
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRONG] RECOMMENDATIONS (Total Available: 301)
+----------------------------------------------------------------------------------------------------
+  [# 1] Kasturba Medical College, Manipal    | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   33398 | Q3:   38444 | High:   42815 | N:  213 | Gap:   0 | Inc:     0 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 2] Symbiosis Medical College for Wom... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   45935 | Q3: 50640.25 | High:   56144 | N:  128 | Gap:   0 | Inc:     0 | Pool:    22
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 3] Kasturba Medical College, Mangalore  | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med: 49966.5 | Q3: 54616.25 | High:   59030 | N:  160 | Gap:   0 | Inc:     0 | Pool:    90
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 4] Hamdard Institute of Medical Scie... | Delhi          | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   57615 | Q3: 65883.75 | High:   70072 | N:   52 | Gap:   0 | Inc:     0 | Pool:    98
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 5] Manipal Tata Medical College,Bari... | Jharkhand      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:   73257 | Q3:   80495 | High:   90912 | N:  210 | Gap:   0 | Inc:   +50 | Pool:    40
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 6] JSS Medical College, Mysore          | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  111416 | Q3:  131467 | High:  154521 | N:  199 | Gap:   0 | Inc:     0 | Pool:    51
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 7] Rural Medical College, Loni          | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  118219 | Q3: 133020.25 | High:  142869 | N:  170 | Gap:   0 | Inc:     0 | Pool:    30
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 8] K S Hegde Medical Academy, Mangalore | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  137935 | Q3: 153020.25 | High:  165856 | N:  174 | Gap:   0 | Inc:     0 | Pool:    76
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [# 9] Jawaharlal Nehru Medical College,... | Karnataka      | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  145756 | Q3:  168119 | High:  181223 | N:  201 | Gap:   0 | Inc:     0 | Pool:    49
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+  [#10] Mahatma Gandhi Missions Medical C... | Maharashtra    | PRIVATE    | MCC            | Quota: Self-Financed Merit | Cat: OPEN         | Band: STRONG      | Conf: HIGH     | Med:  169332 | Q3:  204126 | High:  240367 | N:  213 | Gap:   0 | Inc:   +50 | Pool:    37
+       Reason: "Your AIR is within the stronger quartile (<= Q1) of the observed Round-1 allotment distribution for this pathway with robust sample size." [Codes: LARGE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_STRONG_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [REALISTIC] RECOMMENDATIONS (Total Available: 51)
+----------------------------------------------------------------------------------------------------
+  [# 1] Government Medical College & Hosp... | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    7984 | Q3:    9376 | High:    9497 | N:    5 | Gap:   0 | Inc:     0 | Pool:    95
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 2] Bhagwan Mahavir Institute of Medi... | Bihar          | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:  8031.5 | Q3: 8306.25 | High:    8727 | N:    8 | Gap:   0 | Inc:     0 | Pool:   112
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 3] Government Medical College, Alwar    | Rajasthan      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:  7943.5 | Q3: 8061.25 | High:    8212 | N:    6 | Gap:   0 | Inc:     0 | Pool:    94
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 4] NAMO Medical Education and Resear... | Dadra and Nagar Haveli and Daman and Diu | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    8073 | Q3:    8707 | High:    9157 | N:    9 | Gap:   0 | Inc:     0 | Pool:   168
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 5] College of Medicine and Sagore Du... | West Bengal    | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    8080 | Q3:    8348 | High:    8626 | N:    9 | Gap:   0 | Inc:   +25 | Pool:   141
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 6] Belagavi Institute of Medical Sci... | Karnataka      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    7918 | Q3: 8693.75 | High:    9305 | N:   10 | Gap:   0 | Inc:     0 | Pool:   190
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 7] KanyaKumari Government Medical Co... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:  8104.5 | Q3:  8356.5 | High:    8759 | N:    8 | Gap:   0 | Inc:     0 | Pool:   142
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 8] BPS Government Medical College fo... | Haryana        | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    7891 | Q3:  8015.5 | High:    8454 | N:    6 | Gap:   0 | Inc:     0 | Pool:   114
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [# 9] Government Medical College, Nahan... | Himachal Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:  7880.5 | Q3: 8139.75 | High:    8415 | N:    6 | Gap:   0 | Inc:     0 | Pool:   114
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+  [#10] Shri Atal Bihari Vajpayee Governm... | Haryana        | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: REALISTIC   | Conf: MODERATE | Med:    8194 | Q3:    8754 | High:    8767 | N:    6 | Gap:   0 | Inc:     0 | Pool:    94
+       Reason: "Your AIR falls within the typical middle range (Q1 to Q3) of observed Round-1 allotments for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_TYPICAL_R1_RANGE]
+
+----------------------------------------------------------------------------------------------------
+TOP 10 [STRETCH] RECOMMENDATIONS (Total Available: 12)
+----------------------------------------------------------------------------------------------------
+  [# 1] Darbhanga Medical College, Lehria... | Bihar          | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    7626 | Q3: 7682.25 | High:    7915 | N:   10 | Gap:   0 | Inc:   +30 | Pool:   140
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [# 2] Government Medical College, Churu    | Rajasthan      | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    7561 | Q3:    7681 | High:    8131 | N:    9 | Gap:   0 | Inc:     0 | Pool:   141
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 3] Theni Government Medical College,... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    7314 | Q3:  7729.5 | High:    8054 | N:    7 | Gap:   0 | Inc:     0 | Pool:    93
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 4] Dr. Radhakrishnan Government Medi... | Himachal Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    7309 | Q3:    7454 | High:    8145 | N:    7 | Gap:   0 | Inc:     0 | Pool:   113
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 5] Government Dharmapuri Medical Col... | Tamil Nadu     | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    7111 | Q3:    7631 | High:    8909 | N:    5 | Gap:   0 | Inc:     0 | Pool:    95
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 6] Government Medical College, Jammu    | Jammu & Kashmir | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:  6889.5 | Q3: 7161.75 | High:    7536 | N:   14 | Gap:   0 | Inc:   +50 | Pool:   236
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+  [# 7] Sri Jagannath Medical College & H... | Odisha         | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    6744 | Q3:  7110.5 | High:    8157 | N:    6 | Gap:   0 | Inc:     0 | Pool:    94
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 8] Kurnool Medical College, Kurnool     | Andhra Pradesh | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    6730 | Q3:  7199.5 | High:    8311 | N:   15 | Gap:   0 | Inc:     0 | Pool:   235
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [# 9] RG Kar Medical College, Kolkata      | West Bengal    | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    6450 | Q3:  7656.5 | High:    8078 | N:   15 | Gap:   0 | Inc:     0 | Pool:   235
+       Reason: "Your AIR is in the outer tail (Q3 to Highest AIR) of the observed Round-1 allotment range for this pathway." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, FULLY_FILLED_R1, AIR_WITHIN_OBSERVED_R1_TAIL]
+  [#10] Pt. J N M Medical College, Raipur    | Chhattisgarh   | GOVERNMENT | MCC            | Quota: All India          | Cat: OPEN         | Band: STRETCH     | Conf: MODERATE | Med:    6117 | Q3: 6780.25 | High:    7525 | N:   14 | Gap:   0 | Inc:   +20 | Pool:   236
+       Reason: "Your AIR is slightly beyond the observed Round-1 highest rank, but 2026 capacity increase or seat movement makes this a viable stretch option." [Codes: MODERATE_SAMPLE_CONFIDENCE, ORDINARY_MERIT_POOL, ORDINARY_MERIT_PATHWAY, CAPACITY_INCREASE_2026, SEAT_INCREASE_2026, FULLY_FILLED_R1, AIR_BEYOND_OBSERVED_R1, SUPPORTED_BY_EXPANSION_SIGNAL]
+
+>>> Sanity Checks: 100% Passed (Zero violations) ✅
+
+----------------------------------------------------------------------------------------------------
+COLLEGE-LEVEL SPOT CHECKS FOR THIS PROFILE
+----------------------------------------------------------------------------------------------------
+* Target: Maulana Azad Medical College (Found 3 pathways):
+  Path 1: Quota: Delhi University Quota | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1493.5 | High: 2662 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 90 | High: 129 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 3: Quota: State Quota (Est.) | Cat: OPEN | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 6 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+* Target: Vardhman Mahavir Medical College (Found 2 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 99.5 | High: 124 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: State Quota (Est.) | Cat: OPEN | Route: STATE_ESTIMATE | Band: LOW_EVIDENCE | Med: N/A | High: N/A | Summary: "Approximately 6 seats appear to be outside the MCC Round-1 pool for this college. State-specific Round-1 rank/category data has not yet been incorporated, so your competitiveness for this college cannot currently be estimated."
+* Target: University College of Medical Sciences (Found 2 pathways):
+  Path 1: Quota: Delhi University Quota | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 3802.5 | High: 4952 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+  Path 2: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 247 | High: 435 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: King George's Medical University (UP) (Found 1 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1194.5 | High: 1349 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Grant Medical College, Mumbai (Maharashtra) (Found 1 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 1863 | High: 2379 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+* Target: Gandhi Medical College, Bhopal (MP) (Found 1 pathways):
+  Path 1: Quota: All India        | Cat: OPEN | Route: MCC | Band: LOW_EVIDENCE | Med: 4210 | High: 5072 | Summary: "Your AIR is beyond the observed Round-1 range for this pathway without sufficient seat expansion signals to classify as a stretch."
+
+
+====================================================================================================
+OVERALL SEQUENCE 5C HARNESS SUMMARY
+====================================================================================================
+- Profiles Evaluated: 7
+- Total Sanity Violations: 0 (Target: 0) ✅
+- Safety Language Compliance: 100% Verified ✅
+====================================================================================================

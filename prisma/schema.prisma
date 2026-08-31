@@ -441,3 +441,443 @@ model AdminCertificateRecord {
   @@index([mobileNumber])
   @@index([email])
 }
+
+model MBBSProfessionalSurveyResponse {
+  id                            String   @id @default(cuid())
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+  surveyVersion                 String   @default("v1")
+
+  // Source / Entry Route
+  source                        String?
+
+  // Professional Profile
+  roles                         Json
+  specialty                     String?
+  teachingExperience            String?
+  institutionName               String?
+  city                          String?
+  state                         String?
+  stateCode                     String?
+
+  // Survey Responses
+  surveyResponses               Json
+
+  // Contributor / Follow-up Fields
+  interestedInContributing      Boolean  @default(false)
+  contributionInterests         Json?
+  willingToShareReadinessSurvey Boolean  @default(false)
+
+  // Optional Contact Information
+  respondentName                String?
+  email                         String?
+  mobileWhatsapp                String?
+
+  // Consent
+  consentForFollowup            Boolean  @default(false)
+
+  // Future Referral Support
+  referralCode                  String?
+
+  // Duplicate / Abuse Protection Readiness
+  submissionFingerprint         String?
+
+  @@index([createdAt])
+  @@index([source])
+  @@index([state])
+  @@index([interestedInContributing])
+  @@index([willingToShareReadinessSurvey])
+}
+
+model MBBSStudentVoiceSurveyResponse {
+  id                       String   @id @default(cuid())
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  surveyVersion            String   @default("v1")
+  source                   String?
+
+  trainingStage            String
+  collegeType              String?
+  state                    String?
+  stateCode                String?
+
+  surveyResponses          Json
+
+  interestedInContributing Boolean  @default(false)
+  contributionInterests    Json?
+
+  consentForFollowup       Boolean  @default(false)
+  respondentName           String?
+  email                    String?
+  mobileWhatsapp           String?
+
+  referralCode             String?
+  submissionFingerprint    String?
+
+  @@index([createdAt])
+  @@index([source])
+  @@index([trainingStage])
+  @@index([state])
+  @@index([interestedInContributing])
+}
+
+// ============================================================================
+// NEET-UG COUNSELLING DECISION-SUPPORT DOMAIN (ADDITIVE FOUNDATION)
+// ============================================================================
+
+enum CounsellingManagementType {
+  GOVERNMENT
+  PRIVATE
+  DEEMED
+  CENTRAL
+  INI
+  OTHER
+}
+
+enum CounsellingAuthorityType {
+  MCC
+  STATE
+  UNIVERSITY
+  OTHER
+}
+
+enum CounsellingRoundType {
+  ROUND_1
+  ROUND_2
+  ROUND_3
+  STRAY
+  OTHER
+}
+
+enum CounsellingRoundStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+}
+
+enum CounsellingDataType {
+  CAPACITY
+  SEAT_MATRIX
+  ALLOTMENT
+  VACANCY
+  CUTOFF
+  NEW_SEATS
+  OTHER
+}
+
+enum CounsellingImportStatus {
+  IMPORTED
+  VALIDATED
+  ACTIVE
+  SUPERSEDED
+  FAILED
+}
+
+enum CounsellingSourceStatus {
+  OFFICIAL
+  REVISED
+  SUPERSEDED
+}
+
+enum CounsellingMatchConfidence {
+  EXACT
+  VERIFIED
+  PROBABLE
+  UNRESOLVED
+}
+
+enum CounsellingSeatCategory {
+  OPEN
+  OBC
+  EWS
+  SC
+  ST
+  OTHER
+}
+
+enum CounsellingVacancyType {
+  CLEAR
+  VIRTUAL
+  NEWLY_ADDED
+  CONVERTED
+  REVERTED
+  OTHER
+}
+
+enum CounsellingOpportunityBand {
+  STRONG
+  REALISTIC
+  STRETCH
+  LOW_EVIDENCE
+}
+
+model College {
+  id                  String                    @id @default(cuid())
+  nmcCollegeCode      String?                   @unique
+  mccInstituteCode    String?
+  slug                String                    @unique
+  collegeName         String
+  shortName           String?
+  state               String
+  city                String?
+  managementType      CounsellingManagementType
+  instituteType       String?
+  isINI               Boolean                   @default(false)
+  isDeemed            Boolean                   @default(false)
+  isCentralUniversity Boolean                   @default(false)
+  isESIC              Boolean                   @default(false)
+  genderRestriction   String?
+  establishmentYear   Int?
+  isActive            Boolean                   @default(true)
+  createdAt           DateTime                  @default(now())
+  updatedAt           DateTime                  @updatedAt
+
+  aliases            CollegeAlias[]
+  capacities         CollegeAnnualCapacity[]
+  seatMatrixRecords  SeatMatrixRecord[]
+  allotmentRecords   AllotmentRecord[]
+  vacancyRecords     VacancyRecord[]
+  analyticsSnapshots AnalyticsSnapshot[]
+
+  @@index([state])
+  @@index([managementType])
+  @@index([isActive])
+  @@index([mccInstituteCode])
+}
+
+model CollegeAlias {
+  id                   String                     @id @default(cuid())
+  collegeId            String
+  sourceAuthority      CounsellingAuthorityType
+  sourceName           String
+  sourceInstituteCode  String?
+  normalizedName       String
+  matchConfidence      CounsellingMatchConfidence
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
+
+  college College @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId])
+  @@index([sourceAuthority, sourceInstituteCode])
+  @@index([sourceAuthority, normalizedName])
+}
+
+model CollegeAnnualCapacity {
+  id                 String                  @id @default(cuid())
+  collegeId          String
+  academicYear       Int
+  approvedSeats      Int
+  renewedSeats       Int?
+  increasedSeats     Int?
+  isNewEstablishment Boolean                 @default(false)
+  sourceImportId     String?
+  sourceDate         DateTime?
+  status             CounsellingSourceStatus @default(OFFICIAL)
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  college      College                @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  sourceImport CounsellingDataImport? @relation(fields: [sourceImportId], references: [id], onDelete: SetNull)
+
+  @@index([collegeId, academicYear])
+  @@index([sourceImportId])
+  @@index([status])
+}
+
+model CounsellingAuthority {
+  id            String                   @id @default(cuid())
+  name          String                   @unique
+  shortName     String?
+  authorityType CounsellingAuthorityType
+  state         String?
+  website       String?
+  isActive      Boolean                  @default(true)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  rounds             CounsellingRound[]
+  imports            CounsellingDataImport[]
+  analyticsSnapshots AnalyticsSnapshot[]
+
+  @@index([authorityType])
+  @@index([state])
+  @@index([isActive])
+}
+
+model CounsellingRound {
+  id                  String                 @id @default(cuid())
+  academicYear        Int
+  authorityId         String
+  roundType           CounsellingRoundType
+  status              CounsellingRoundStatus @default(UPCOMING)
+  seatMatrixPublished Boolean                @default(false)
+  allotmentPublished  Boolean                @default(false)
+  vacancyPublished    Boolean                @default(false)
+  publishedAt         DateTime?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  authority CounsellingAuthority @relation(fields: [authorityId], references: [id], onDelete: Cascade)
+
+  imports            CounsellingDataImport[]
+  seatMatrixRecords  SeatMatrixRecord[]
+  allotmentRecords   AllotmentRecord[]
+  vacancyRecords     VacancyRecord[]
+  analyticsSnapshots AnalyticsSnapshot[]
+
+  @@unique([authorityId, academicYear, roundType])
+  @@index([academicYear, status])
+  @@index([authorityId])
+}
+
+model CounsellingDataImport {
+  id             String                  @id @default(cuid())
+  academicYear   Int
+  authorityId    String
+  roundId        String?
+  dataType       CounsellingDataType
+  sourceFileName String
+  sourceDate     DateTime?
+  isOfficial     Boolean                 @default(true)
+  revisionNumber Int                     @default(1)
+  status         CounsellingImportStatus @default(IMPORTED)
+  rowCount       Int?
+  errorCount     Int?
+  notes          String?
+  importedAt     DateTime                @default(now())
+  activatedAt    DateTime?
+  supersededAt   DateTime?
+
+  authority CounsellingAuthority @relation(fields: [authorityId], references: [id], onDelete: Cascade)
+  round     CounsellingRound?     @relation(fields: [roundId], references: [id], onDelete: SetNull)
+
+  capacities        CollegeAnnualCapacity[]
+  seatMatrixRecords SeatMatrixRecord[]
+  allotmentRecords  AllotmentRecord[]
+  vacancyRecords    VacancyRecord[]
+
+  @@index([authorityId, academicYear, dataType])
+  @@index([roundId])
+  @@index([status])
+}
+
+model SeatMatrixRecord {
+  id                  String                  @id @default(cuid())
+  roundId             String
+  collegeId           String
+  sourceImportId      String
+  course              String                  @default("MBBS")
+  quota               String
+  seatCategory        CounsellingSeatCategory
+  isPwD               Boolean                 @default(false)
+  gender              String?
+  specialPathway      String?
+  seatCount           Int
+  sourceInstituteName String?
+  sourceInstituteCode String?
+  sourceCategoryLabel String?
+  isOfficial          Boolean                 @default(true)
+  revisionNumber      Int                     @default(1)
+  createdAt           DateTime                @default(now())
+
+  round        CounsellingRound      @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  college      College               @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  sourceImport CounsellingDataImport @relation(fields: [sourceImportId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId, roundId])
+  @@index([roundId, quota, seatCategory, isPwD])
+  @@index([sourceImportId])
+}
+
+model AllotmentRecord {
+  id                          String                  @id @default(cuid())
+  roundId                     String
+  collegeId                   String
+  sourceImportId              String
+  candidateRank               Int
+  course                      String                  @default("MBBS")
+  quota                       String
+  allottedCategory            CounsellingSeatCategory
+  allottedPwD                 Boolean                 @default(false)
+  candidateCategory           CounsellingSeatCategory
+  candidatePwD                Boolean                 @default(false)
+  specialPathway              String?
+  allotmentStatus             String?
+  sourceSerialNumber          Int?
+  sourceInstituteName         String?
+  sourceQuotaLabel            String?
+  sourceAllottedCategoryLabel String?
+  sourceCandidateCategoryLabel String?
+  rawSourceText               String?
+  createdAt                   DateTime                @default(now())
+
+  round        CounsellingRound      @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  college      College               @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  sourceImport CounsellingDataImport @relation(fields: [sourceImportId], references: [id], onDelete: Cascade)
+
+  @@index([roundId, collegeId])
+  @@index([roundId, quota, allottedCategory, allottedPwD])
+  @@index([candidateRank])
+  @@index([sourceImportId])
+}
+
+model VacancyRecord {
+  id                  String                  @id @default(cuid())
+  roundId             String
+  collegeId           String
+  sourceImportId      String
+  quota               String
+  seatCategory        CounsellingSeatCategory
+  isPwD               Boolean                 @default(false)
+  specialPathway      String?
+  gender              String?
+  vacancyType         CounsellingVacancyType
+  seatCount           Int
+  sourceCategoryLabel String?
+  isOfficial          Boolean                 @default(true)
+  revisionNumber      Int                     @default(1)
+  createdAt           DateTime                @default(now())
+
+  round        CounsellingRound      @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  college      College               @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  sourceImport CounsellingDataImport @relation(fields: [sourceImportId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId, roundId])
+  @@index([roundId, quota, seatCategory, isPwD, vacancyType])
+  @@index([sourceImportId])
+}
+
+model AnalyticsSnapshot {
+  id                 String                  @id @default(cuid())
+  collegeId          String
+  authorityId        String
+  roundId            String
+  quota              String
+  seatCategory       CounsellingSeatCategory
+  isPwD              Boolean                 @default(false)
+  specialPathway     String?
+  seatsOffered       Int
+  seatsAllotted      Int
+  matrixGap          Int
+  fillRate           Float
+  sampleSize         Int
+  bestAIR            Int?
+  q1AIR              Float?
+  medianAIR          Float?
+  q3AIR              Float?
+  highestAIR         Int?
+  calculationVersion String                  @default("v1")
+  calculatedAt       DateTime                @default(now())
+
+  college   College              @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  authority CounsellingAuthority @relation(fields: [authorityId], references: [id], onDelete: Cascade)
+  round     CounsellingRound     @relation(fields: [roundId], references: [id], onDelete: Cascade)
+
+  @@index([collegeId, authorityId, roundId])
+  @@index([roundId, quota, seatCategory, isPwD])
+  @@index([highestAIR])
+  @@index([authorityId])
+}
+

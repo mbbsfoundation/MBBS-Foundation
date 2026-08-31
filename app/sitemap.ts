@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
+import { prisma } from "@/lib/prisma";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://mbbsfoundation.com";
   const now = new Date();
 
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: now,
@@ -23,6 +24,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/neet-to-mbbs/counselling/round-2-planner`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/neet-to-mbbs/choosing-a-medical-college`,
@@ -59,7 +66,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${baseUrl}/book`,
       lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.85,
     },
     {
       url: `${baseUrl}/about`,
@@ -92,4 +99,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.6,
     },
   ];
+
+  try {
+    const colleges = await prisma.college.findMany({
+      where: { isActive: true },
+      select: { slug: true, updatedAt: true },
+      orderBy: { collegeName: "asc" },
+      take: 500,
+    });
+
+    const collegeRoutes: MetadataRoute.Sitemap = colleges.map((c) => ({
+      url: `${baseUrl}/neet-to-mbbs/colleges/${c.slug}/counselling-2026`,
+      lastModified: c.updatedAt || now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
+
+    return [...staticRoutes, ...collegeRoutes];
+  } catch (error) {
+    console.error("Error generating college sitemap entries:", error);
+    return staticRoutes;
+  }
 }
