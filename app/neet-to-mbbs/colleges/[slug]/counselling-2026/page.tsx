@@ -16,7 +16,7 @@ import type { CollegeRound1CategoryProfile } from "@/lib/counselling/evidenceTyp
 
 export const dynamic = "force-dynamic";
 
-const COLLEGE_OG_VERSION = "v3";
+const STATIC_OG_IMAGE_URL = "https://mbbsfoundation.com/images/og-neet-planner-2026-custom.png?v=2";
 
 interface Props {
   params: Promise<{
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const ogDescription = openBenchmark
       ? `Explore Typical (Median) AIR, Best AIR, Last Observed AIR and 2026 MBBS seat information for ${college.collegeName} using MCC Round-1 evidence.`
       : `Explore 2026 MBBS seat information and available counselling evidence for ${college.collegeName} on MBBS Foundation™.`;
-    const ogImageUrl = `https://mbbsfoundation.com/neet-to-mbbs/colleges/${college.slug}/counselling-2026/opengraph-image?v=${COLLEGE_OG_VERSION}`;
+    const ogImageUrl = STATIC_OG_IMAGE_URL;
 
     return {
       title,
