@@ -13,6 +13,8 @@ import CollegeEvidenceCard from "@/components/neet-to-mbbs/CollegeEvidenceCard";
 import NeetSubNav from "@/components/neet-to-mbbs/NeetSubNav";
 import type { CollegeRound1CategoryProfile } from "@/lib/counselling/evidenceTypes";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{
     slug: string;
@@ -284,10 +286,7 @@ export default async function CollegeCounsellingPage({ params }: Props) {
 
         {/* Highlight Factual Card */}
         <div className="max-w-xl">
-          <CollegeEvidenceCard
-            college={college}
-            onViewDetails={() => {}}
-          />
+          <CollegeEvidenceCard college={college} />
         </div>
 
         {/* Explanatory Methodology Note for Searchers */}
