@@ -407,11 +407,19 @@ export default function MedicalCollegeExplorer({
             <button
               type="button"
               onClick={handleClearFilters}
-              className="ml-auto text-[11px] font-bold text-red-600 hover:text-red-800 underline"
+              className="text-[11px] font-bold text-red-600 hover:text-red-800 underline"
             >
               Reset Filters
             </button>
           )}
+
+          <Link
+            href="/neet-to-mbbs/counselling/neet-choice-index-2026"
+            className="ml-auto inline-flex items-center gap-1 text-[11px] font-extrabold text-blue-700 hover:text-blue-900 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200 transition shrink-0"
+          >
+            <span>See NEET Choice Index</span>
+            <span>→</span>
+          </Link>
         </div>
       </div>
 

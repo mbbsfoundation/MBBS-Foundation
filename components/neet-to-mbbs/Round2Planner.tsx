@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition, useCallback } from "react";
+import Link from "next/link";
 import type { CounsellingRecommendation, OpportunityBand } from "@/lib/counselling/recommendationEngine";
 import Round1EvidenceExplorer from "./Round1EvidenceExplorer";
 import MedicalCollegeExplorer from "./MedicalCollegeExplorer";
@@ -533,6 +534,30 @@ export default function Round2Planner() {
             <span>Official Round-2 Vacancy: Awaiting Release</span>
           </div>
         </div>
+      </div>
+
+      {/* Discovery Banner: NEET Choice Index 2026 */}
+      <div className="no-print">
+        <Link
+          href="/neet-to-mbbs/counselling/neet-choice-index-2026"
+          className="flex items-center justify-between gap-3 rounded-2xl border border-blue-200 bg-linear-to-r from-blue-50/80 via-indigo-50/40 to-white px-4 py-3 text-xs sm:text-sm text-slate-800 hover:border-blue-300 hover:shadow-xs transition group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="inline-flex items-center rounded-md bg-blue-600 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white shrink-0">
+              NEW
+            </span>
+            <span className="font-bold text-slate-900 truncate">
+              NEET Choice Index 2026:
+            </span>
+            <span className="text-slate-600 hidden sm:inline truncate">
+              See how Round-1 AIR patterns compare with NIRF Medical Rankings
+            </span>
+          </div>
+          <span className="font-bold text-blue-700 shrink-0 group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+            <span>Explore Index</span>
+            <span>→</span>
+          </span>
+        </Link>
       </div>
 
       {/* 2. Primary Entry Choices (Prominent Radio-Cards) */}

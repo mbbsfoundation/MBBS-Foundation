@@ -32,6 +32,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
+      url: `${baseUrl}/neet-to-mbbs/counselling/neet-choice-index-2026`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.92,
+    },
+    {
       url: `${baseUrl}/neet-to-mbbs/choosing-a-medical-college`,
       lastModified: now,
       changeFrequency: "weekly",
