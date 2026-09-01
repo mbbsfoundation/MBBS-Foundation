@@ -268,3 +268,42 @@ export function isPrimaryOpenBenchmark(
   const primaryBenchmark = getPrimaryOpenBenchmark(allProfiles);
   return primaryBenchmark === profile;
 }
+
+/**
+ * Safely sanitizes raw college names for SEO metadata and display without altering source database records.
+ * Specifically removes raw address fragments from imported AIIMS/INI records.
+ */
+export function getCleanCollegeDisplayName(collegeName: string, shortName?: string | null): string {
+  if (!collegeName) return "";
+  const raw = collegeName.trim();
+
+  // If it's an AIIMS or JIPMER record with address strings, sanitize to clean institution name
+  if (raw.startsWith("AIIMS") || raw.startsWith("JIPMER")) {
+    if (raw.includes("ANSARI NAGAR") || raw.includes("New Delhi")) return "AIIMS New Delhi";
+    if (raw.includes("BASNI PHASE") || raw.includes("Jodhpur")) return "AIIMS Jodhpur";
+    if (raw.includes("SAKET NAGAR") || raw.includes("Bhopal")) return "AIIMS Bhopal";
+    if (raw.includes("Sijua") || raw.includes("Bhubaneswar") || raw.includes("BHUBANESWAR")) return "AIIMS Bhubaneswar";
+    if (raw.includes("MIHAN") || raw.includes("Nagpur")) return "AIIMS Nagpur";
+    if (raw.includes("Tatibandh") || raw.includes("Raipur")) return "AIIMS Raipur";
+    if (raw.includes("Phulwarisharif") || raw.includes("Patna")) return "AIIMS Patna";
+    if (raw.includes("RISHIKESH") || raw.includes("Rishikesh")) return "AIIMS Rishikesh";
+    if (raw.includes("MANGALAGIRI") || raw.includes("Mangalagiri") || raw.includes("TADEPALLI")) return "AIIMS Mangalagiri";
+    if (raw.includes("Bathinda") || raw.includes("Jodhpur Romana")) return "AIIMS Bathinda";
+    if (raw.includes("Guwahati") || raw.includes("CHANGSARI")) return "AIIMS Guwahati";
+    if (raw.includes("Bibi Nagar") || raw.includes("Bibinagar")) return "AIIMS Bibinagar";
+    if (raw.includes("KALYANI") || raw.includes("Kalyani")) return "AIIMS Kalyani";
+    if (raw.includes("GORAKHPUR") || raw.includes("Gorakhpur")) return "AIIMS Gorakhpur";
+    if (raw.includes("RAEBARELI") || raw.includes("Raebareli") || raw.includes("Rai Bareli")) return "AIIMS Raebareli";
+    if (raw.includes("DEOGHAR") || raw.includes("Deoghar") || raw.includes("Deogarh")) return "AIIMS Deoghar";
+    if (raw.includes("BILASPUR") || raw.includes("Bilaspur") || raw.includes("Kothipura") || raw.includes("KOTHIPURA")) return "AIIMS Bilaspur";
+    if (raw.includes("RAJKOT") || raw.includes("Rajkot") || raw.includes("Khand")) return "AIIMS Rajkot";
+    if (raw.includes("JAMMU") || raw.includes("Jammu") || raw.includes("Vijaypur") || raw.includes("VIJAYPUR")) return "AIIMS Jammu";
+    if (raw.includes("MADURAI") || raw.includes("Madurai")) return "AIIMS Madurai";
+    if (raw.includes("AWANTIPORA") || raw.includes("Awantipora")) return "AIIMS Awantipora";
+    if (raw.includes("Dhanvantari Nagar") || (raw.includes("JIPMER") && (raw.includes("Puducherry") || raw.includes("PUDUCHERRY")))) return "JIPMER Puducherry";
+    if (raw.includes("Karaikal") || raw.includes("KARAIKAL")) return "JIPMER Karaikal";
+  }
+
+  return raw;
+}
+

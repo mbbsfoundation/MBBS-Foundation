@@ -8,6 +8,7 @@ import {
   getPathwayGroup,
   isPrimaryOpenBenchmark,
   sortCategoryProfiles,
+  getCleanCollegeDisplayName,
 } from "@/lib/counselling/pathwayOrdering";
 import CollegeEvidenceCard from "@/components/neet-to-mbbs/CollegeEvidenceCard";
 import NeetSubNav from "@/components/neet-to-mbbs/NeetSubNav";
@@ -54,18 +55,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
 
+    const cleanName = getCleanCollegeDisplayName(college.collegeName, college.shortName);
     const openBenchmark = getPrimaryOpenBenchmark(college.allCategoryProfiles || []);
-    const medianStr = openBenchmark?.medianAIR ? openBenchmark.medianAIR.toLocaleString("en-IN") : "N/A";
+    const medianStr = openBenchmark?.medianAIR ? openBenchmark.medianAIR.toLocaleString("en-IN") : null;
     const seatStr = college.totalMBBSSeats2026 > 0 ? `${college.totalMBBSSeats2026} MBBS seats` : "MBBS capacity";
 
-    const title = `${college.collegeName} NEET 2026 | Round-1 AIR Pattern & MBBS Seats`;
-    const description = `View ${college.collegeName}, ${college.state} (${seatStr}). Official MCC Round-1 Open Typical Median AIR: ${medianStr}, Best AIR, Last Observed AIR, and complete category-wise allotment evidence.`;
+    const title = `${cleanName} NEET 2026 | Round-1 AIR Pattern & MBBS Seats`;
+
+    let description: string;
+    if (openBenchmark && medianStr) {
+      if (
+        college.isDeemed ||
+        openBenchmark.quota.toLowerCase().includes("self-financed") ||
+        openBenchmark.quota.toLowerCase().includes("management") ||
+        openBenchmark.quota.toLowerCase().includes("paid")
+      ) {
+        description = `View ${cleanName}, ${college.state} (${seatStr}). Official MCC Round-1 Self-Financed Merit Typical Median AIR: ${medianStr}, Best AIR, Last Observed AIR, and complete category-wise allotment evidence.`;
+      } else {
+        description = `View ${cleanName}, ${college.state} (${seatStr}). Official MCC Round-1 Open Typical Median AIR: ${medianStr}, Best AIR, Last Observed AIR, and complete category-wise allotment evidence.`;
+      }
+    } else {
+      description = `View ${cleanName}, ${college.state} (${seatStr}). Approved 2026 MBBS intake, management type, and available counselling evidence on MBBS Foundation™.`;
+    }
+
     const canonical = `https://mbbsfoundation.com/neet-to-mbbs/colleges/${college.slug}/counselling-2026`;
 
-    const ogTitle = `${college.collegeName} — NEET-UG 2026 Round-1 AIR Pattern`;
+    const ogTitle = `${cleanName} — NEET-UG 2026 Round-1 AIR Pattern`;
     const ogDescription = openBenchmark
-      ? `Explore Typical (Median) AIR, Best AIR, Last Observed AIR and 2026 MBBS seat information for ${college.collegeName} using MCC Round-1 evidence.`
-      : `Explore 2026 MBBS seat information and available counselling evidence for ${college.collegeName} on MBBS Foundation™.`;
+      ? `Explore Typical (Median) AIR, Best AIR, Last Observed AIR and 2026 MBBS seat information for ${cleanName} using MCC Round-1 evidence.`
+      : `Explore 2026 MBBS seat information and available counselling evidence for ${cleanName} on MBBS Foundation™.`;
     const ogImageUrl = STATIC_OG_IMAGE_URL;
 
     return {
@@ -75,11 +93,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         canonical,
       },
       keywords: [
-        `${college.collegeName} NEET 2026`,
-        `${college.collegeName} cutoff 2026`,
-        `${college.collegeName} closing rank`,
-        `${college.collegeName} Round 1 AIR`,
-        `${college.collegeName} MBBS seats`,
+        `${cleanName} NEET 2026`,
+        `${cleanName} cutoff 2026`,
+        `${cleanName} closing rank`,
+        `${cleanName} Round 1 AIR`,
+        `${cleanName} MBBS seats`,
         `${college.state} medical college counselling`,
         "NEET UG 2026 counselling",
       ],
@@ -95,7 +113,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             url: ogImageUrl,
             width: 1200,
             height: 630,
-            alt: `${college.collegeName} NEET-UG 2026 Round-1 AIR Pattern & MBBS Seats`,
+            alt: `${cleanName} NEET-UG 2026 Round-1 AIR Pattern & MBBS Seats`,
             type: "image/png",
           },
         ],

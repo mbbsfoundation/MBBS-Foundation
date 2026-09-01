@@ -856,6 +856,7 @@ export async function searchMedicalCollegesEvidence(
  */
 export const getCollegeEvidenceBySlug = cache(async (slug: string): Promise<(DomicileCollegeSummary & {
   slug: string;
+  shortName: string | null;
   city: string | null;
   establishmentYear: number | null;
   nmcCollegeCode: string | null;
@@ -912,6 +913,7 @@ export const getCollegeEvidenceBySlug = cache(async (slug: string): Promise<(Dom
     collegeId: col.id,
     slug: col.slug,
     collegeName: col.collegeName,
+    shortName: col.shortName,
     state: col.state,
     city: col.city,
     managementType: col.managementType,

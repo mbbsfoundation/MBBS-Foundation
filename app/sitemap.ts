@@ -111,7 +111,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { isActive: true },
       select: { slug: true, updatedAt: true },
       orderBy: { collegeName: "asc" },
-      take: 500,
     });
 
     const collegeRoutes: MetadataRoute.Sitemap = colleges.map((c) => ({
