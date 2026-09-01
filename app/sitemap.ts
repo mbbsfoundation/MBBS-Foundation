@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { getAllStateHubSlugs } from "@/lib/counselling/stateHubService";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://mbbsfoundation.com";
@@ -113,6 +114,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       orderBy: { collegeName: "asc" },
     });
 
+    const stateSlugs = getAllStateHubSlugs();
+    const stateRoutes: MetadataRoute.Sitemap = stateSlugs.map((slug) => ({
+      url: `${baseUrl}/neet-to-mbbs/counselling/state/${slug}`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    }));
+
     const collegeRoutes: MetadataRoute.Sitemap = colleges.map((c) => ({
       url: `${baseUrl}/neet-to-mbbs/colleges/${c.slug}/counselling-2026`,
       lastModified: c.updatedAt || now,
@@ -120,7 +129,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticRoutes, ...collegeRoutes];
+    return [...staticRoutes, ...stateRoutes, ...collegeRoutes];
   } catch (error) {
     console.error("Error generating college sitemap entries:", error);
     return staticRoutes;

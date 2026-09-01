@@ -10,6 +10,10 @@ import {
   sortCategoryProfiles,
   getCleanCollegeDisplayName,
 } from "@/lib/counselling/pathwayOrdering";
+import {
+  getStateSlug,
+  CANONICAL_STATES,
+} from "@/lib/counselling/stateHubService";
 import CollegeEvidenceCard from "@/components/neet-to-mbbs/CollegeEvidenceCard";
 import NeetSubNav from "@/components/neet-to-mbbs/NeetSubNav";
 import ShareCollegeButton from "@/components/neet-to-mbbs/ShareCollegeButton";
@@ -178,6 +182,9 @@ export default async function CollegeCounsellingPage({ params }: Props) {
   const specialPwd = specialProfiles.filter((p) => p.isPwD);
 
   const canonicalUrl = `https://mbbsfoundation.com/neet-to-mbbs/colleges/${college.slug}/counselling-2026`;
+  const stateSlug = getStateSlug(college.state);
+  const stateName = CANONICAL_STATES[stateSlug] || college.state;
+  const cleanCollegeName = getCleanCollegeDisplayName(college.collegeName, college.shortName);
 
   // JSON-LD Structured Data
   const jsonLd = {
@@ -207,13 +214,13 @@ export default async function CollegeCounsellingPage({ params }: Props) {
           {
             "@type": "ListItem",
             "position": 4,
-            "name": "NEET Counselling Planner",
-            "item": "https://mbbsfoundation.com/neet-to-mbbs/counselling/round-2-planner",
+            "name": `${stateName} Medical Colleges`,
+            "item": `https://mbbsfoundation.com/neet-to-mbbs/counselling/state/${stateSlug}`,
           },
           {
             "@type": "ListItem",
             "position": 5,
-            "name": college.collegeName,
+            "name": cleanCollegeName,
             "item": canonicalUrl,
           },
         ],
@@ -330,11 +337,11 @@ export default async function CollegeCounsellingPage({ params }: Props) {
             Counselling
           </Link>
           <span>/</span>
-          <Link href="/neet-to-mbbs/counselling/round-2-planner" className="hover:text-slate-900 transition">
-            Counselling Planner
+          <Link href={`/neet-to-mbbs/counselling/state/${stateSlug}`} className="hover:text-slate-900 transition">
+            {stateName}
           </Link>
           <span>/</span>
-          <span className="text-slate-900 font-bold truncate max-w-xs sm:max-w-md">{college.collegeName}</span>
+          <span className="text-slate-900 font-bold truncate max-w-xs sm:max-w-md">{cleanCollegeName}</span>
         </nav>
 
         {/* Page Header */}
@@ -364,7 +371,13 @@ export default async function CollegeCounsellingPage({ params }: Props) {
                   ESIC Institution
                 </span>
               )}
-              <span className="text-xs text-slate-500 font-semibold">📍 {college.city ? `${college.city}, ${college.state}` : college.state}</span>
+              <Link
+                href={`/neet-to-mbbs/counselling/state/${stateSlug}`}
+                className="text-xs text-blue-700 hover:text-blue-900 font-semibold transition underline underline-offset-2"
+                title={`Explore all medical colleges in ${stateName}`}
+              >
+                📍 {college.city ? `${college.city}, ${stateName}` : stateName} →
+              </Link>
             </div>
 
             <ShareCollegeButton

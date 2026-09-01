@@ -428,6 +428,33 @@ export default function NeetToMbbsMasterHubPage() {
               Start Challenge →
             </Link>
           </div>
+
+          {/* 3D. STATE MEDICAL COLLEGES DIRECTORY CALLOUT */}
+          <div className="mt-4 rounded-2xl border border-blue-200/80 bg-gradient-to-r from-blue-50/70 via-white to-slate-50 p-5 sm:p-6 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-block rounded-lg bg-blue-800 text-white px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                  State Hubs
+                </span>
+                <span className="text-xs font-semibold text-slate-500">
+                  34 States &amp; UTs • 847 Medical Colleges
+                </span>
+              </div>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                Explore Medical Colleges &amp; Seat Capacity by State
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-2xl">
+                Browse government vs. private seat matrices, approved MBBS capacities, and official MCC Round-1 allotment AIR patterns for every Indian state.
+              </p>
+            </div>
+
+            <Link
+              href="/neet-to-mbbs/counselling#state-directories"
+              className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-blue-700 transition shrink-0"
+            >
+              Explore States →
+            </Link>
+          </div>
         </div>
       </section>
 

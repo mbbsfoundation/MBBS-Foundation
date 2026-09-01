@@ -4,6 +4,7 @@ import NeetSubNav from "@/components/neet-to-mbbs/NeetSubNav";
 import PrevNextNav from "@/components/neet-to-mbbs/PrevNextNav";
 import ShareSection from "@/components/neet-to-mbbs/ShareSection";
 import VerificationNotice from "@/components/neet-to-mbbs/VerificationNotice";
+import { getAllStateHubSummaries } from "@/lib/counselling/stateHubService";
 
 export const metadata: Metadata = {
   title: "NEET Counselling 2026: Process, Choice Filling, AIQ vs State Quota & Allotment Rules",
@@ -313,7 +314,8 @@ const FAQ_STRUCTURED_DATA = {
   })),
 };
 
-export default function NeetCounsellingGuidePage() {
+export default async function NeetCounsellingGuidePage() {
+  const stateSummaries = await getAllStateHubSummaries();
   return (
     <main className="min-h-screen bg-white text-slate-900">
       <script
@@ -820,6 +822,48 @@ export default function NeetCounsellingGuidePage() {
             <span className="font-mono text-[11px] text-slate-400">
               Last verified: 2026 | Official source: MCC & NMC Guidelines
             </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 10B. EXPLORE NEET COUNSELLING BY STATE */}
+      {/* ========================================================================= */}
+      <section id="state-directories" className="py-14 sm:py-20 px-4 sm:px-6 bg-slate-50 border-b border-slate-200/80">
+        <div className="mx-auto max-w-5xl">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
+              State Directories &amp; Seat Matrices
+            </p>
+            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
+              Explore NEET Counselling by State
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
+              Explore server-rendered medical college directories, government vs. private seat capacity breakdowns, and official MCC Round-1 allotment AIR patterns for all 34 States and Union Territories.
+            </p>
+          </div>
+
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {stateSummaries.map((st) => (
+              <Link
+                key={st.stateSlug}
+                href={`/neet-to-mbbs/counselling/state/${st.stateSlug}`}
+                className="group flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-4 shadow-2xs transition-all duration-150 hover:border-blue-500 hover:shadow-md"
+              >
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition">
+                    {st.stateName}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {st.totalColleges} {st.totalColleges === 1 ? "College" : "Colleges"} • ~{st.totalSeats.toLocaleString("en-IN")} Seats
+                  </p>
+                </div>
+                <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-blue-600 pt-2 border-t border-slate-100">
+                  <span>View Directory</span>
+                  <span aria-hidden="true" className="group-hover:translate-x-0.5 transition-transform">→</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
