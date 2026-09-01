@@ -327,7 +327,7 @@ export default async function NeetCounsellingGuidePage() {
       {/* ========================================================================= */}
       {/* 1. HEADER & BREADCRUMB */}
       {/* ========================================================================= */}
-      <section className="border-b border-slate-100 bg-gradient-to-b from-slate-50/80 via-white to-white px-4 pt-8 pb-12 sm:px-6 sm:pt-12 sm:pb-16">
+      <section className="border-b border-slate-100 bg-gradient-to-b from-slate-50/80 via-white to-white px-4 pt-5 pb-6 sm:px-6 sm:pt-7 sm:pb-8">
         <div className="mx-auto max-w-4xl">
           {/* Breadcrumb Navigation */}
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -342,29 +342,29 @@ export default async function NeetCounsellingGuidePage() {
           </nav>
 
           {/* Eyebrow */}
-          <div className="mt-6 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-3 py-1 text-xs font-bold uppercase tracking-widest text-red-800">
+          <div className="mt-3 sm:mt-4 flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-3 py-0.5 text-xs font-bold uppercase tracking-widest text-red-800">
               <span className="h-1.5 w-1.5 rounded-full bg-red-600"></span>
               Stage 1 • Core Guide
             </span>
             <span className="text-xs font-medium text-slate-500">
-              Educational & Independent
+              Educational &amp; Independent
             </span>
           </div>
 
           {/* Heading */}
-          <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl md:text-5xl leading-tight">
+          <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl md:text-4xl leading-tight">
             NEET Counselling Made Simple
           </h1>
 
           {/* Subheading */}
-          <p className="mt-4 text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed font-normal">
-            A clear step-by-step guide to understanding registration, choice filling, seat allotment, reporting and the counselling journey after NEET.
+          <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+            Understand the counselling process, explore medical colleges by state, and use available 2026 Round-1 evidence to plan your options.
           </p>
 
           {/* Regulatory Disclaimer Notice */}
-          <div className="mt-8 rounded-2xl bg-amber-50/80 border border-amber-200/90 p-4 sm:p-5 flex items-start gap-3.5 text-xs sm:text-sm text-amber-950 shadow-xs">
-            <span className="text-lg shrink-0 mt-0.5" aria-hidden="true">
+          <div className="mt-4 rounded-xl bg-amber-50/80 border border-amber-200/90 p-3 sm:p-3.5 flex items-start gap-2.5 text-xs text-amber-950 shadow-2xs">
+            <span className="text-base shrink-0 mt-0.5" aria-hidden="true">
               ⚖️
             </span>
             <p className="leading-relaxed">
@@ -376,9 +376,51 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. WHAT IS NEET COUNSELLING? */}
+      {/* 2. EXPLORE NEET COUNSELLING BY STATE */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 border-b border-slate-100">
+      <section id="state-directories" className="py-8 sm:py-10 px-4 sm:px-6 bg-slate-50 border-b border-slate-200/80">
+        <div className="mx-auto max-w-5xl">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
+              State Directories &amp; Seat Matrices
+            </p>
+            <h2 className="mt-1.5 text-xl sm:text-2xl font-extrabold text-slate-950 tracking-tight">
+              Explore NEET Counselling by State
+            </h2>
+            <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Explore medical colleges, approved MBBS seats and available MCC Round-1 AIR patterns across 34 States and Union Territories.
+            </p>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-3.5">
+            {stateSummaries.map((st) => (
+              <Link
+                key={st.stateSlug}
+                href={`/neet-to-mbbs/counselling/state/${st.stateSlug}`}
+                className="group flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-3.5 shadow-2xs transition-all duration-150 hover:border-blue-500 hover:shadow-md"
+              >
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition">
+                    {st.stateName}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    {st.totalColleges} {st.totalColleges === 1 ? "College" : "Colleges"} • ~{st.totalSeats.toLocaleString("en-IN")} Seats
+                  </p>
+                </div>
+                <div className="mt-2.5 flex items-center justify-between text-[11px] font-semibold text-blue-600 pt-2 border-t border-slate-100">
+                  <span>View Directory</span>
+                  <span aria-hidden="true" className="group-hover:translate-x-0.5 transition-transform">→</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* 3. WHAT IS NEET COUNSELLING? */}
+      {/* ========================================================================= */}
+      <section className="py-8 sm:py-12 px-4 sm:px-6 border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-6 sm:p-8">
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
@@ -395,9 +437,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 3. WHICH COUNSELLING APPLIES TO ME? */}
+      {/* 4. WHICH COUNSELLING APPLIES TO ME? */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-white border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-white border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
             Counselling Streams
@@ -499,9 +541,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. THE COUNSELLING JOURNEY (9-STEP ROADMAP) */}
+      {/* 5. THE COUNSELLING JOURNEY (9-STEP ROADMAP) */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-slate-50/50 border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-slate-50/50 border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
             Step-by-Step Flow
@@ -537,9 +579,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 5. IMPORTANT CHOICE-FILLING PRINCIPLE */}
+      {/* 6. IMPORTANT CHOICE-FILLING PRINCIPLE */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-white border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-white border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-2xl border-2 border-red-100 bg-gradient-to-br from-red-50/50 via-white to-slate-50 p-6 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
@@ -578,9 +620,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. BEFORE YOU FILL YOUR CHOICES */}
+      {/* 7. BEFORE YOU FILL YOUR CHOICES */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-slate-50/40 border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-slate-50/40 border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
             Pre-Submission Checklist
@@ -619,9 +661,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 7. KEEP YOUR DOCUMENTS READY */}
+      {/* 8. KEEP YOUR DOCUMENTS READY */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-white border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-white border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
             Verification Readiness
@@ -670,9 +712,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 8. COMMON MISTAKES TO AVOID */}
+      {/* 9. COMMON MISTAKES TO AVOID */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-slate-50/50 border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-slate-50/50 border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
             Caution Points
@@ -703,9 +745,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 9. FREQUENTLY ASKED QUESTIONS (FAQ) */}
+      {/* 10. FREQUENTLY ASKED QUESTIONS (FAQ) */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-white border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-white border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
             Clear Answers
@@ -736,9 +778,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 10. OFFICIAL RESOURCES (VERIFY BEFORE YOU ACT) */}
+      {/* 11. OFFICIAL RESOURCES (VERIFY BEFORE YOU ACT) */}
       {/* ========================================================================= */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 bg-slate-50/60 border-b border-slate-100">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 bg-slate-50/60 border-b border-slate-100">
         <div className="mx-auto max-w-4xl">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
             Official Channels
@@ -827,51 +869,9 @@ export default async function NeetCounsellingGuidePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 10B. EXPLORE NEET COUNSELLING BY STATE */}
+      {/* 12. NEXT STEP: WHICH COLLEGE SHOULD YOU CHOOSE? */}
       {/* ========================================================================= */}
-      <section id="state-directories" className="py-14 sm:py-20 px-4 sm:px-6 bg-slate-50 border-b border-slate-200/80">
-        <div className="mx-auto max-w-5xl">
-          <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-700">
-              State Directories &amp; Seat Matrices
-            </p>
-            <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">
-              Explore NEET Counselling by State
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">
-              Explore server-rendered medical college directories, government vs. private seat capacity breakdowns, and official MCC Round-1 allotment AIR patterns for all 34 States and Union Territories.
-            </p>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-            {stateSummaries.map((st) => (
-              <Link
-                key={st.stateSlug}
-                href={`/neet-to-mbbs/counselling/state/${st.stateSlug}`}
-                className="group flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-4 shadow-2xs transition-all duration-150 hover:border-blue-500 hover:shadow-md"
-              >
-                <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition">
-                    {st.stateName}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    {st.totalColleges} {st.totalColleges === 1 ? "College" : "Colleges"} • ~{st.totalSeats.toLocaleString("en-IN")} Seats
-                  </p>
-                </div>
-                <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-blue-600 pt-2 border-t border-slate-100">
-                  <span>View Directory</span>
-                  <span aria-hidden="true" className="group-hover:translate-x-0.5 transition-transform">→</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 11. NEXT STEP: WHICH COLLEGE SHOULD YOU CHOOSE? */}
-      {/* ========================================================================= */}
-      <section className="py-14 sm:py-20 px-4 sm:px-6 bg-white">
+      <section className="py-10 sm:py-14 px-4 sm:px-6 bg-white">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-950 p-8 sm:p-10 text-white shadow-xl">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-red-400">
