@@ -693,7 +693,7 @@ export default function SanjeevaniAdminPortalPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
       {/* Top Header */}
-      <section className="bg-gradient-to-r from-teal-950 via-teal-900 to-indigo-950 text-white py-12 px-6 border-b border-teal-700/50 shadow-md">
+      <section className="no-print bg-gradient-to-r from-teal-950 via-teal-900 to-indigo-950 text-white py-12 px-6 border-b border-teal-700/50 shadow-md">
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
