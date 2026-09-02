@@ -228,7 +228,13 @@ export function normalizeDisplayVenue(rawVenue: string): string {
 export function normalizeDisplayState(rawState: string): string {
   if (!rawState || typeof rawState !== "string") return "";
   const s = rawState.trim().toLowerCase();
-  if (s === "andaman & nikobar island" || s === "andaman & nicobar islands" || s === "andaman & nicobar") {
+  if (
+    s === "andaman & nikobar island" ||
+    s === "andaman & nicobar islands" ||
+    s === "andaman and nicobar islands" ||
+    s === "andaman & nicobar" ||
+    s === "andaman and nicobar"
+  ) {
     return "Andaman & Nicobar Islands";
   }
   if (s === "jammu and kashmir" || s === "jammu & kashmir") {

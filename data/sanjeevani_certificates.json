@@ -202,5 +202,22 @@
     "generatedAt": "2026-08-26T18:24:44.184Z",
     "createdAt": "2026-08-26T18:24:44.184Z",
     "updatedAt": "2026-08-26T18:24:44.184Z"
+  },
+  {
+    "id": "cert_ind_1788376038341_j2jy0",
+    "certificateId": "IAPCPR/CC/AS/0108",
+    "sequenceNumber": 108,
+    "stateCode": "AS",
+    "category": "CPR_DAY",
+    "participantName": "DR RAJKUMAR PAUL",
+    "normalizedName": "dr rajkumar paul",
+    "date": "21 July 2026",
+    "venue": "Pratiksha Day Care",
+    "city": "Guwahati",
+    "state": "Assam",
+    "status": "VALID",
+    "generatedAt": "2026-09-02T19:07:18.341Z",
+    "createdAt": "2026-09-02T19:07:18.341Z",
+    "updatedAt": "2026-09-02T19:07:18.341Z"
   }
 ]

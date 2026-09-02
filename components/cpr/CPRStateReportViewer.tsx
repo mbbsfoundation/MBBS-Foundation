@@ -130,7 +130,7 @@ export default function CPRStateReportViewer({
               National IAP CPR Day 2026 — State Reports
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-slate-600">
-              Select any of the 28 authoritative States/UTs to generate a clean A4 Landscape official programme report.
+              Select any of the 28 authoritative States/UTs to generate a clean A4 Portrait official programme report.
             </p>
           </div>
 
@@ -179,7 +179,7 @@ export default function CPRStateReportViewer({
                   type="button"
                   onClick={handlePrint}
                   className="rounded-xl bg-gradient-to-r from-teal-700 to-indigo-900 px-5 py-2.5 text-xs sm:text-sm font-black text-white shadow-lg hover:from-teal-800 hover:to-indigo-950 transition flex items-center gap-1.5 cursor-pointer"
-                  title="Print or Save as PDF in A4 Landscape format"
+                  title="Print or Save as PDF in A4 Portrait format"
                 >
                   🖨️ Print / Save as PDF
                 </button>
@@ -236,128 +236,169 @@ export default function CPRStateReportViewer({
         )}
       </section>
 
-      {/* 2. Official A4 Landscape Report Sheet (Print Optimized) */}
+      {/* 2. Official A4 Portrait Report Sheet (Print Optimized) */}
       {report && (
-        <div className="printable-report-wrapper">
-          <div className="printable-report-sheet relative overflow-hidden bg-white border border-slate-300 sm:rounded-2xl p-6 sm:p-10 shadow-lg text-slate-900 font-sans">
-            {/* Subtle Print-Safe Background Watermark (Rendered on DRAFT) */}
+        <div className="printable-report-wrapper mx-auto max-w-4xl">
+          <div className="printable-report-sheet relative overflow-hidden bg-white border border-slate-300 sm:rounded-2xl p-5 sm:p-8 md:p-9 shadow-lg text-slate-900 font-sans">
+            {/* Prominent Diagonal DRAFT Watermark Overlay (Rendered in front of all content, pointer-events: none) */}
             {reportStatus === "DRAFT" && (
-              <div className="report-watermark-container select-none pointer-events-none" aria-hidden="true">
+              <div className="report-watermark-overlay select-none pointer-events-none" aria-hidden="true">
+                <div className="report-watermark-text">DRAFT</div>
+                <div className="report-watermark-text">DRAFT</div>
+                <div className="report-watermark-text">DRAFT</div>
                 <div className="report-watermark-text">DRAFT</div>
               </div>
             )}
 
-            <div className="relative z-10">
-              {/* Header / Banner */}
-              <div className="border-b-2 border-slate-900 pb-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="text-xs font-black tracking-widest uppercase text-teal-800">
-                      Indian Academy of Pediatrics
-                    </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 uppercase mt-0.5">
-                      National IAP CPR Day 2026
-                    </h1>
-                    <div className="text-sm sm:text-base font-bold text-slate-700 tracking-wide mt-0.5">
-                      CPR SANJEEVANI — STATE PROGRAMME REPORT
-                    </div>
-
-                    {reportStatus === "DRAFT" ? (
-                      <>
-                        <div className="mt-1.5 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-100 border border-amber-300/80 px-2.5 py-0.5 text-xs font-black text-amber-900 tracking-wider uppercase">
-                            <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
-                            DRAFT REPORT – FOR STATE VERIFICATION
-                          </span>
-                        </div>
-                        <p className="mt-1.5 text-[11px] sm:text-xs text-slate-600 italic font-medium leading-relaxed max-w-3xl">
-                          Draft report for verification of centre, participant, Course Coordinator and CPR Champion records. Please communicate corrections before finalisation.
-                        </p>
-                      </>
-                    ) : (
-                      <div className="mt-1.5">
-                        <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-xs font-black text-emerald-900 tracking-wider uppercase">
-                          OFFICIAL FINAL REPORT
-                        </span>
-                      </div>
-                    )}
+            <div className="relative z-10 report-content-root">
+              {/* Header / Programme Title Block */}
+              <div className="border-b-2 border-slate-900 pb-4 report-header-block">
+                <div>
+                  <div className="text-xs font-black tracking-widest uppercase text-teal-800">
+                    Indian Academy of Pediatrics
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950 uppercase mt-0.5">
+                    National IAP CPR Day 2026
+                  </h1>
+                  <div className="text-sm sm:text-base font-bold text-slate-700 tracking-wide mt-0.5">
+                    CPR SANJEEVANI — STATE PROGRAMME REPORT
                   </div>
 
-                  <div className="text-right shrink-0">
-                    <span className="inline-block rounded-lg bg-slate-900 text-white font-black text-lg sm:text-xl px-4 py-1.5 tracking-wider uppercase">
-                      {report.canonicalState}
-                    </span>
-                    <div className="text-xs font-semibold text-slate-500 mt-1">
-                      {report.zone}
+                  {reportStatus === "DRAFT" ? (
+                    <>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-md bg-amber-100 border border-amber-300/80 px-2.5 py-0.5 text-xs font-black text-amber-900 tracking-wider uppercase">
+                          <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
+                          DRAFT REPORT – FOR STATE VERIFICATION
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-[11px] sm:text-xs text-slate-600 italic font-medium leading-relaxed max-w-3xl">
+                        Draft report for verification of centre, participant, Course Coordinator and CPR Champion records. Please communicate corrections before finalisation.
+                      </p>
+                    </>
+                  ) : (
+                    <div className="mt-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-xs font-black text-emerald-900 tracking-wider uppercase">
+                        OFFICIAL FINAL REPORT
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3-Column Leadership Strip (Present in DRAFT and FINAL) */}
+                <div className="mt-4 pt-3 pb-2.5 border-t border-slate-200 bg-slate-50/80 rounded-xl px-3 sm:px-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 text-center sm:divide-x sm:divide-slate-200">
+                    <div className="px-1 flex flex-col justify-center">
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
+                        President
+                      </div>
+                      <div className="text-xs sm:text-sm font-black text-slate-900 mt-0.5">
+                        Dr. Neelam Mohan
+                      </div>
+                    </div>
+                    <div className="px-1 flex flex-col justify-center">
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
+                        General Secretary
+                      </div>
+                      <div className="text-xs sm:text-sm font-black text-slate-900 mt-0.5">
+                        Dr. Ruchira Gupta
+                      </div>
+                    </div>
+                    <div className="px-1 flex flex-col justify-center">
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500 leading-tight">
+                        National Convener &amp; Course Director
+                      </div>
+                      <div className="text-xs sm:text-sm font-black text-slate-900 mt-0.5">
+                        Dr. Lokesh Tiwari
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Authoritative State Metrics Cards */}
-                <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-100/90 p-4 rounded-xl border border-slate-300">
-                  <div className="text-center sm:text-left border-r border-slate-300/80 pr-2">
-                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-600">
-                      Centres / Records
+                {/* State / Zone & Census Summary */}
+                <div className="mt-4 bg-slate-100/90 p-3 sm:p-4 rounded-xl border border-slate-300">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-300/80 pb-3 mb-3">
+                    <div>
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
+                        State / Union Territory
+                      </div>
+                      <div className="text-xl sm:text-2xl font-black text-slate-950 uppercase tracking-tight">
+                        {report.canonicalState}
+                      </div>
                     </div>
-                    <div className="text-xl sm:text-2xl font-black text-slate-950">
-                      {report.lockedCensusTotals?.officialCentres ?? report.censusCentres}
+                    <div className="text-right">
+                      <span className="inline-block rounded-lg bg-slate-900 text-white font-black text-xs sm:text-sm px-3.5 py-1 tracking-wider uppercase">
+                        {report.zone}
+                      </span>
                     </div>
-                    <div className="text-[9px] text-teal-700 font-semibold">Locked Official Census</div>
                   </div>
 
-                  <div className="text-center sm:text-left border-r border-slate-300/80 pr-2">
-                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-600">
-                      Participants Trained
+                  {/* 4 Authoritative State Metrics Cards */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="bg-white/90 p-2.5 rounded-lg border border-slate-200 text-center sm:text-left">
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-600">
+                        Centres / Records
+                      </div>
+                      <div className="text-lg sm:text-xl font-black text-slate-950">
+                        {report.lockedCensusTotals?.officialCentres ?? report.censusCentres}
+                      </div>
+                      <div className="text-[8.5px] text-teal-700 font-semibold">Locked Official Census</div>
                     </div>
-                    <div className="text-xl sm:text-2xl font-black text-teal-900">
-                      {(report.lockedCensusTotals?.officialParticipants ?? report.censusParticipants).toLocaleString()}
-                    </div>
-                    <div className="text-[9px] text-teal-700 font-semibold">Derived Census Total</div>
-                  </div>
 
-                  <div className="text-center sm:text-left border-r border-slate-300/80 pr-2">
-                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-600">
-                      Course Coordinators
+                    <div className="bg-white/90 p-2.5 rounded-lg border border-slate-200 text-center sm:text-left">
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-600">
+                        Participants Trained
+                      </div>
+                      <div className="text-lg sm:text-xl font-black text-teal-900">
+                        {(report.lockedCensusTotals?.officialParticipants ?? report.censusParticipants).toLocaleString()}
+                      </div>
+                      <div className="text-[8.5px] text-teal-700 font-semibold">Derived Census Total</div>
                     </div>
-                    <div className="text-xl sm:text-2xl font-black text-slate-950">
-                      {report.totalUniqueCoordinators}
-                    </div>
-                    <div className="text-[9px] text-slate-500 font-medium">Distinct Coordinators</div>
-                  </div>
 
-                  <div className="text-center sm:text-left">
-                    <div className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-600">
-                      CPR Champions
+                    <div className="bg-white/90 p-2.5 rounded-lg border border-slate-200 text-center sm:text-left">
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-600">
+                        Course Coordinators
+                      </div>
+                      <div className="text-lg sm:text-xl font-black text-slate-950">
+                        {report.totalUniqueCoordinators}
+                      </div>
+                      <div className="text-[8.5px] text-slate-500 font-medium">Distinct Coordinators</div>
                     </div>
-                    <div className="text-xl sm:text-2xl font-black text-slate-950">
-                      {report.totalUniqueChampions}
+
+                    <div className="bg-white/90 p-2.5 rounded-lg border border-slate-200 text-center sm:text-left">
+                      <div className="text-[9.5px] font-bold uppercase tracking-wider text-slate-600">
+                        CPR Champions
+                      </div>
+                      <div className="text-lg sm:text-xl font-black text-slate-950">
+                        {report.totalUniqueChampions}
+                      </div>
+                      <div className="text-[8.5px] text-slate-500 font-medium">Cumulative Champions</div>
                     </div>
-                    <div className="text-[9px] text-slate-500 font-medium">Cumulative Champions</div>
                   </div>
                 </div>
               </div>
 
               {/* Centre-wise Programme Details Table */}
               <div className="mt-5">
-                <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center justify-between mb-2">
                   <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800">
                     Centre-Wise Programme &amp; Faculty Details ({report.centres.length} Training Sessions)
                   </h3>
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Showing all session centres for {report.canonicalState}
+                  <span className="text-[10.5px] text-slate-500 font-medium">
+                    Showing all centres for {report.canonicalState}
                   </span>
                 </div>
 
                 <div className="overflow-x-auto border border-slate-300 rounded-lg">
-                  <table className="w-full text-left text-xs border-collapse">
+                  <table className="w-full text-left text-xs border-collapse table-fixed">
                     <thead>
                       <tr className="bg-slate-800 text-white font-bold border-b border-slate-900">
-                        <th className="py-2.5 px-2.5 text-center w-12 border-r border-slate-700">S.No</th>
-                        <th className="py-2.5 px-3 w-[28%] border-r border-slate-700">Centre / Training Venue</th>
-                        <th className="py-2.5 px-3 w-[15%] border-r border-slate-700">City / District</th>
-                        <th className="py-2.5 px-3 w-[22%] border-r border-slate-700">Course Coordinator(s)</th>
-                        <th className="py-2.5 px-3 w-[25%] border-r border-slate-700">CPR Champions</th>
-                        <th className="py-2.5 px-2.5 text-right w-16">Trained</th>
+                        <th className="py-2 px-1 text-center w-[5%] border-r border-slate-700 text-[10px]">S.No</th>
+                        <th className="py-2 px-2 w-[26%] border-r border-slate-700 text-[10.5px]">Centre / Training Venue</th>
+                        <th className="py-2 px-2 w-[13%] border-r border-slate-700 text-[10.5px]">City / District</th>
+                        <th className="py-2 px-2 w-[17%] border-r border-slate-700 text-[10.5px]">Course Coordinator(s)</th>
+                        <th className="py-2 px-2.5 w-[32%] border-r border-slate-700 text-[10.5px]">CPR Champions</th>
+                        <th className="py-2 px-1.5 text-right w-[7%] text-[10.5px]">Trained</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
@@ -366,48 +407,35 @@ export default function CPRStateReportViewer({
                           key={`${c.serialNumber}_${idx}`}
                           className={`hover:bg-slate-50 transition ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}
                         >
-                          <td className="py-2 px-2.5 text-center font-mono text-[11px] font-bold text-slate-600 border-r border-slate-200">
+                          <td className="py-1.5 px-1 text-center font-mono text-[10px] font-bold text-slate-600 border-r border-slate-200 align-top">
                             {c.serialNumber}
                           </td>
-                          <td className="py-2 px-3 font-bold text-slate-900 border-r border-slate-200">
+                          <td className="py-1.5 px-2 font-bold text-slate-900 border-r border-slate-200 align-top text-[10.5px] leading-snug break-words">
                             <div>{c.venue}</div>
                             {c.supplementalFromLive && (
-                              <span className="no-print inline-block mt-0.5 text-[9px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-1.5 py-0.2 rounded">
+                              <span className="no-print inline-block mt-0.5 text-[8px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-1 py-0.2 rounded">
                                 + Live Data
                               </span>
                             )}
                           </td>
-                          <td className="py-2 px-3 font-semibold text-slate-700 border-r border-slate-200">
+                          <td className="py-1.5 px-2 font-semibold text-slate-700 border-r border-slate-200 align-top text-[10px] break-words">
                             {c.city || "—"}
                           </td>
-                          <td className="py-2 px-3 text-slate-800 border-r border-slate-200 leading-tight">
+                          <td className="py-1.5 px-2 text-slate-800 border-r border-slate-200 align-top text-[10px] leading-tight break-words">
                             {c.coordinators && c.coordinators.length > 0 ? (
-                              <div className="space-y-0.5">
-                                {c.coordinators.map((coord, cIdx) => (
-                                  <div key={cIdx} className="font-semibold text-[11px]">
-                                    {coord}
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <span className="text-slate-400 italic text-[11px]">—</span>
-                            )}
-                          </td>
-                          <td className="py-2 px-3 text-slate-700 border-r border-slate-200 leading-tight text-[11px]">
-                            {c.champions && c.champions.length > 0 ? (
-                              <div className="flex flex-wrap gap-x-1.5 gap-y-0.5">
-                                {c.champions.map((champ, chIdx) => (
-                                  <span key={chIdx} className="inline-block">
-                                    {champ}
-                                    {chIdx < c.champions.length - 1 ? "," : ""}
-                                  </span>
-                                ))}
-                              </div>
+                              <span className="font-semibold">{c.coordinators.join(", ")}</span>
                             ) : (
                               <span className="text-slate-400 italic">—</span>
                             )}
                           </td>
-                          <td className="py-2 px-2.5 text-right font-mono font-bold text-teal-950">
+                          <td className="py-1.5 px-2.5 text-slate-700 border-r border-slate-200 align-top text-[10px] leading-tight break-words">
+                            {c.champions && c.champions.length > 0 ? (
+                              <span>{c.champions.join(", ")}</span>
+                            ) : (
+                              <span className="text-slate-400 italic">—</span>
+                            )}
+                          </td>
+                          <td className="py-1.5 px-1.5 text-right font-mono font-bold text-teal-950 align-top text-[10.5px]">
                             {c.participantsTrained > 0 ? c.participantsTrained.toLocaleString() : "—"}
                           </td>
                         </tr>
@@ -415,10 +443,10 @@ export default function CPRStateReportViewer({
                     </tbody>
                     <tfoot>
                       <tr className="bg-slate-100 font-black border-t-2 border-slate-400 text-slate-950">
-                        <td colSpan={5} className="py-2.5 px-3 text-right uppercase tracking-wider text-xs">
+                        <td colSpan={5} className="py-2 px-2 text-right uppercase tracking-wider text-[10.5px]">
                           State Total ({report.centres.length} Training Sessions):
                         </td>
-                        <td className="py-2.5 px-2.5 text-right font-mono text-sm text-teal-950">
+                        <td className="py-2 px-1.5 text-right font-mono text-xs text-teal-950">
                           {(report.lockedCensusTotals?.officialParticipants ?? report.censusParticipants).toLocaleString()}
                         </td>
                       </tr>
@@ -428,7 +456,7 @@ export default function CPRStateReportViewer({
               </div>
 
               {/* Official Report Footer */}
-              <div className="mt-8 pt-4 border-t border-slate-300 flex flex-wrap items-center justify-between text-[11px] text-slate-500 font-medium">
+              <div className="mt-8 pt-4 border-t border-slate-300 flex flex-wrap items-center justify-between text-[10.5px] text-slate-500 font-medium">
                 <div>
                   <strong className="text-slate-700">National IAP CPR Day 2026</strong> • CPR Sanjeevani
                   {reportStatus === "DRAFT" ? (
@@ -436,7 +464,7 @@ export default function CPRStateReportViewer({
                   ) : (
                     <> • <span className="font-bold text-emerald-800">Official State Census Record</span></>
                   )}
-                  <div className="text-[10px] text-slate-400">
+                  <div className="text-[9.5px] text-slate-400 mt-0.5">
                     Data generated from CPR Sanjeevani Programme Records &amp; Baseline Census
                   </div>
                 </div>
@@ -450,33 +478,38 @@ export default function CPRStateReportViewer({
         </div>
       )}
 
-      {/* Embedded Print Stylesheet for Clean A4 Landscape Printing */}
+      {/* Embedded Print Stylesheet for Clean A4 Portrait Printing */}
       <style jsx global>{`
         @page {
-          size: A4 landscape;
-          margin: 12mm 10mm 12mm 10mm;
+          size: A4 portrait;
+          margin: 10mm 10mm 12mm 10mm;
         }
 
-        .report-watermark-container {
+        .report-watermark-overlay {
           position: absolute;
           inset: 0;
           display: flex;
+          flex-direction: column;
           align-items: center;
-          justify-content: center;
+          justify-content: space-evenly;
           pointer-events: none;
           user-select: none;
-          z-index: 1;
+          z-index: 25;
           overflow: hidden;
+          padding: 4rem 0;
         }
 
         .report-watermark-text {
-          font-size: 11rem;
+          font-size: 7.5rem;
           font-weight: 900;
           letter-spacing: 0.18em;
           text-transform: uppercase;
-          color: rgba(15, 23, 42, 0.035);
-          transform: rotate(-30deg);
+          color: rgba(15, 23, 42, 0.075);
+          transform: rotate(-35deg);
           white-space: nowrap;
+          line-height: 1;
+          pointer-events: none;
+          user-select: none;
         }
 
         @media print {
@@ -497,6 +530,7 @@ export default function CPRStateReportViewer({
 
           .printable-report-wrapper {
             width: 100% !important;
+            max-width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
           }
@@ -508,33 +542,46 @@ export default function CPRStateReportViewer({
             margin: 0 !important;
             border-radius: 0 !important;
             overflow: visible !important;
+            max-width: 100% !important;
           }
 
-          .report-watermark-container {
+          .report-watermark-overlay {
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            z-index: 0 !important;
+            z-index: 9999 !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             pointer-events: none !important;
+            padding: 0 !important;
+          }
+
+          .report-watermark-overlay .report-watermark-text:not(:first-child) {
+            display: none !important;
           }
 
           .report-watermark-text {
-            font-size: 10rem !important;
+            font-size: 8.5rem !important;
             font-weight: 900 !important;
-            letter-spacing: 0.2em !important;
-            color: rgba(0, 0, 0, 0.035) !important;
-            transform: rotate(-30deg) !important;
+            letter-spacing: 0.22em !important;
+            color: rgba(0, 0, 0, 0.07) !important;
+            transform: rotate(-35deg) !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            margin: 0 !important;
+          }
+
+          .report-header-block {
+            break-inside: avoid;
+            page-break-inside: avoid;
           }
 
           table {
             page-break-inside: auto;
+            width: 100% !important;
           }
 
           tr {

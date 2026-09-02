@@ -104,10 +104,10 @@ Sr.No.,Corrected Venue Name,City,State,Zone,Coordinator Name,Champion 1,Champion
 103,VIBRANT PHYSIOTHERAPY,Surat,Gujarat,West Zone,Dr. Prashant Kariya,,,,,,Dr. Prashant Kariya,Dr Ashwini Shah,92
 104,MILLENNIUM SCHOOL,Surat,Gujarat,West Zone,Dr. Prashant Kariya,,,,,,,,174
 105,MILLENNIUM SCHOOL,Surat,Gujarat,West Zone,Dr. Prashant Kariya,,,,,,,,224
-106,"MEDICAL COLLEGE BUILDING, 5TH FLOOR",kurukshetra,Haryana,North Zone,Dr. Baljeet Maini,Dr. Priyanka Kadian,Dr. Viresh Vohra,Dr. Pooja Singh,DR. VIVEK MITTAL,DR. TARANPREET SINGH,Dr Gurdeep singh dhanjal,DR. AJAY KUMAR,110
-106,"MEDICAL COLLEGE BUILDING, 5TH FLOOR",kurukshetra,Haryana,North Zone,Dr. Baljeet Maini,,,,DR. REECHA PANGHAL,DR. RUSHAL,DR. AMANDEEP KAUR,,
-107,"PATHANIA PUBLIC SCHOOL, ROHTAK",Rohtak,Haryana,North Zone,Dr Manoj Rawal,Dr Dinesh Tomar,Dr Ravinder Hooda,Dr Sonika Lamba,DR. AMIT MANN,DR. NEHA SINHA,Naveen Malhotra,Monica Chikkara,202
-107,"PATHANIA PUBLIC SCHOOL, ROHTAK",Rohtak,Haryana,North Zone,,,,,DR. AMIT RANA,DR. SMRIOHI DUBE,,,
+106,"MEDICAL COLLEGE BUILDING, 5TH FLOOR",Kurukshetra,Haryana,North Zone,Dr. Baljeet Maini,Dr. Priyanka Kadian,Dr. Viresh Vohra,Dr. Pooja Singh,DR. VIVEK MITTAL,DR. TARANPREET SINGH,Dr Gurdeep singh dhanjal,DR. AJAY KUMAR,55
+106,"MEDICAL COLLEGE BUILDING, 5TH FLOOR",Kurukshetra,Haryana,North Zone,Dr. Baljeet Maini,,,,DR. REECHA PANGHAL,DR. RUSHAL,DR. AMANDEEP KAUR,,55
+107,"PATHANIA PUBLIC SCHOOL, ROHTAK",Rohtak,Haryana,North Zone,Dr Manoj Rawal,Dr Dinesh Tomar,Dr Ravinder Hooda,Dr Sonika Lamba,DR. AMIT MANN,DR. NEHA SINHA,Naveen Malhotra,Monica Chikkara,102
+107,"PATHANIA PUBLIC SCHOOL, ROHTAK",Rohtak,Haryana,North Zone,,,,,DR. AMIT RANA,DR. SMRIOHI DUBE,,,100
 108,"INDIRA GANDHI MEDICAL COLLEGE, SHIMLA",Shimla,Himachal Pradesh,North Zone,Dr. Parveen Bhardawaj,Dr Ambika Sood,Dr Vipin Roach,MOHAMMAD ASIF,,,Dr. Parveen Bhardawaj,,36
 109,"ALL INDIA INSTITUTE OF MEDICAL SCIENCES, VIJAYPUR, JAMMU","Vijaypur, Jammu",Jammu & Kashmir,North Zone,Dr Samriti Gupta,Dr Vivek Pandita,Dr Radhika Uppal,Dr Simmi,DR. PRATEEK BOBHATE,DR. LIZA,DR. RUPAYAN PODDAR,DR. SUNIL ISHER,60
 110,"GOVERNMENT MEDICAL COLLEGE, JAMMU",Baramulla,Jammu & Kashmir,North Zone,Dr Irshad,DR. IMRAN HABIB,DR. M.D. TOUSIF AKVARI,DR JAKIR AHMAD,DR. WASEEM IQBAL,,Dr Irshad,,135
@@ -279,7 +279,7 @@ Sr.No.,Corrected Venue Name,City,State,Zone,Coordinator Name,Champion 1,Champion
 278,St. John High School,Chandigarh,Chandigarh,North Zone,Dr. Gunjan Bhaveja,Dr. Neeraj Dhawan,Dr. Ruchi,,,,,,135
 279,"Govt. Medical College, Agartala",AGARTALA,Tripura,South Zone,Dr. Chaiyan Chakma,,,,,,,,39
 280,Gomti District Hospital,AGARTALA,Tripura,South Zone,Dr. Abhijeet Dutta,Dr. Niripam Shukla Baidya,,,,,Dr. Abhijeet Dutta,,10
-281,Bankura,Bankura,West Bengal,East Zone,Dr. Shilpi Siddhanta,,,,,,Dr. Shilpi Siddhanta,,51
+281,"Eastern Railway Hospital Liluah, Howrah",Kolkata,West Bengal,East Zone,Dr. Shilpi Siddhanta,,,,,,Dr. Shilpi Siddhanta,,51
 282,"MVPS's SHRI CHHATRAPATI SHIVAJI MAHARAJ MADHYAMIK ANI UCHHMADHYAMIK VIDYALAY, MAKHMALABAD, NASHIK",Nashik,Maharashtra,West Zone,Dr Rahul Koppikar,Dr Deepa Joshi,Dr Nishigandha Gaikwad,,,,,,85
 283,"Dept of Pediatrics, GMC Anantnag",Anantnag,Jammu & Kashmir,North Zone,Dr. Showkat Hussain Tali,Dr. Wani Shahid Hussain,Dr. Mehbooba Rasool,Dr. Junaid Ahmad Ahangar,Dr. Uzma Ashraf,Dr. Owvass Hameed Dar,Dr. Saima Habeeb,Dr. Shaugufta Aara,189
 284,"Command Hospital, Kolkata",Kolkata,West Bengal,East Zone,Dr. Talwinder,Dr. Ismail,Dr. Aastha,,,,Dr. Smarde Pati,,110
@@ -309,11 +309,11 @@ Sr.No.,Corrected Venue Name,City,State,Zone,Coordinator Name,Champion 1,Champion
 308,RRP INDORE,INDORE,Madhya Pradesh,Central Zone,DR.ANURADHA JAIN,,,,,,,,80
 309,GOVT. ANM TRAINING CENTER,Shahdol,Madhya Pradesh,Central Zone,DR. SUNIL KUMAR MAMGALE,DR. MUKUND CHATTERJEE,DR. T. N. CHATURVEDI,DR UMESH NAMDEV,,,SATEYSH,,80
 310,BAGRIYA HEALTH COMLEX,"BYAMATHANG, KARGIL",Ladakh,North Zone,Dr Iftikhar Ali,HABIBULLAH,DR. NARGIS BANO,DR. SAJAYAT ALI,,,DR. SHAZIA NAAZ,,71
-311,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mrs. Ambalika Bhattacharyya,Mr. Biswajit Malo,Dr. Rohit Bhowmick,DR NIHAR RANJAN MISHRA,,Prof Poonam Joshi,,1328
-312,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mr. Nidhin AV,Mrs. Akshita R.,,,,Miss Swati Sonam,,
-313,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mrs. Poonam Kumari,Miss Mandabi Sarkar,,DR NIHAR RANJAN MISHRA,,Miss Roji Mandal,,
-314,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mrs. Purnima Hembram,Miss Moumita Maji,,DR NIHAR RANJAN MISHRA,,Miss Nidhi,,
-315,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Miss Ananya Dey,Miss Prama Chatterjee,,DR NIHAR RANJAN MISHRA,,Miss Meenakshi A.,,
+311,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mrs. Ambalika Bhattacharyya,Mr. Biswajit Malo,Dr. Rohit Bhowmick,DR NIHAR RANJAN MISHRA,,Prof Poonam Joshi,,268
+312,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mr. Nidhin AV,Mrs. Akshita R.,,,,Miss Swati Sonam,,265
+313,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mrs. Poonam Kumari,Miss Mandabi Sarkar,,DR NIHAR RANJAN MISHRA,,Miss Roji Mandal,,265
+314,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Mrs. Purnima Hembram,Miss Moumita Maji,,DR NIHAR RANJAN MISHRA,,Miss Nidhi,,265
+315,BEDIBHAWAN RABITIRTHA VIDYALAYA,Kantaganj,West Bengal,East Zone,DR NIHAR RANJAN MISHRA,Miss Ananya Dey,Miss Prama Chatterjee,,DR NIHAR RANJAN MISHRA,,Miss Meenakshi A.,,265
 316,THE CATERPILLER CLUB HOUSE,"KALYANI, NADIA",West Bengal,East Zone,Dr. Aditi Das,Mr. Satyajit Nandi,Mr. Shuva Kumar Sen,Mr. Akash Dome,,,Dr. Aditi Das,,22
 317,AIIMS BHOPAL,Bhopal,Madhya Pradesh,Central Zone,DR. GIRISH BHATT,Dr. Athira,DR. AMBER KUMAR,DR. ATHIRA P,DR. APARNA KV,,,,50
 318,CHOITHRAM HOSPITAL AND RESEARCH CENTER INDORE,INDORE,Madhya Pradesh,Central Zone,DR. RASHMI SHAD,DR. JENISHA JAIN,DR AKBAR HASAN,DR VANI MISHRA,,,DR. MADHU GOYAL,,138
@@ -323,7 +323,7 @@ Sr.No.,Corrected Venue Name,City,State,Zone,Coordinator Name,Champion 1,Champion
 322,LNCT WORLD SCHOOL,Bhopal,Madhya Pradesh,Central Zone,DR. MANJARI GUPTA,DR. PRIYANKA SHRIVASTAVA,DR. AKSHITA JAIN,DR. SRASHTI GUPTA,DR. SABRINA JOSEPH,DR. ASHISH SAHU,DR. SWETA ANAND,DR. RUMA KHANDELWAL,96
 323,NANDKUMAR SINGH CHAUHAN GOVERNMENT MEDICAL COLLEGE KHANDWA,Khandwa,Madhya Pradesh,Central Zone,DR. GARIMA A VARSHNEY,DR. ANIL MORI,DR. GAYATRI JORAM,DR. DEEPIKA VERMA,DR. PURTHI AGRAWAL,DR. POOJA SOLANKI,DR. GARIMA A VARSHNEY,,72
 324,LOTUS HALL SAIMS INDORE,INDORE,Madhya Pradesh,Central Zone,DR. SHRUTI SAXENA,DR. SHUBHAM,,,,,DR. GUNJAN KELA,,105
-325,,Guwahati,Assam,East Zone,DR RAJKUMAR PAUL,DR. FASMIM,DR. AMRITA,DR. SURANJANA,DEEPSHIKHA ROY,DR. GULSHAN,DR. ANJALI,DR. MANSHI,165
+325,PRATIKSHA DAYCARE GUWAHATI,Guwahati,Assam,East Zone,DR RAJKUMAR PAUL,DR. FASMIM,DR. AMRITA,DR. SURANJANA,DEEPSHIKHA ROY,DR. GULSHAN,DR. ANJALI,DR. MANSHI,165
 326,AIIMS GUWAHATI,Guwahati,Assam,East Zone,DR. BIPUL KUMAR DAS,,,,,,DR. BIPUL KUMAR DAS,DR. MURCHANA,118
 327,KGMT GHUWATI,Guwahati,Assam,East Zone,DR. BHABESH DOLEY,DR. NIBEDITA GOSWAMI,MR. NAJMUL,USHA SARMAH,MAAN LAMNIANG,,,,41
 328,DAV SCHOOL,LUDHIANA,Punjab,North Zone,DR. KAMAL ARORA,DR. HARINDER SINGH,MANJU LAL,SEEMA GUPTA,SUMAN VERMA,"SAVI SETIA,",KHUSHI SINGLA,DR. GS DHOORIA,268
@@ -332,14 +332,14 @@ Sr.No.,Corrected Venue Name,City,State,Zone,Coordinator Name,Champion 1,Champion
 331,"GOVERNMENT MEDICAL COLLEGE AND HOSPITAL , CHNADIGARH",Chandigarh,Chandigarh,North Zone,Dr Geetanjali Jindal,DR. SUNITA GOLECCHA GUGLANI,DR. PAVITTRRA S,,,,Dr Geetanjali Jindal,DR. PANKAJ KUMAR,100
 332,"Homi Baba Tata Memorial Cancer Hospital, New Chandigarh",Chandigarh,Chandigarh,North Zone,Manoj Kumar,GEETANJALI,GURJINDER KAUR,MOHINI,AMRIT,MANPREET KAUR,SARITA,"ANIL MANDIWAL, DEVENDRA KUMAR SAINI, GAGANDEEP SINGH",150
 333,"Adarsh Higher Secondary School, Amalori, Durg",Bhilai,Chhattisgarh,Central Zone,,,,,,,,,80
-334,Shri Krishna Medical College,Muzaffarpur,Bihar,East Zone,SANJEETA KR. YADAV,JITENDRA KUMAR SINGH,KUMARI RINKOO SINGH,ZAKIR QURESHI,DR. RAHUL,,DR. RATNESH KR,,300
-335,SSB CAMP MUZAFFARPUR,Muzaffarpur,Bihar,East Zone,SANJEETA KR. YADAV,JITENDRA KUMAR SINGH,KUMARI RINKOO SINGH,,,,,,
-336,INNER WHEEL CLUB MUZAFFARPUR,Muzaffarpur,Bihar,East Zone,SANJEETA KR. YADAV,JITENDRA KUMAR SINGH,KUMARI RINKOO SINGH,,,,,,
-337,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,Dr SANDEEP GORE,Dr BHARAT PATIDAR,TITO N MATTHEW,,,,,328
-338,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,Dr MANJEET SINGH,JOVITHA D SOUZA,ASHRA SHARMA,,,,,
-339,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,AVINASH BHATT,TUSHAR BEDSE,CYRUS GOMES,,,,,
-340,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,JESAL SHETH,RACHANA ZULASNA,AYUSH KUMAR,,,,,
-341,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,AMIT GUPTA,NITHYA VERHESE,SOPHIE BARRETTO,,,,,
+334,Shri Krishna Medical College,Muzaffarpur,Bihar,East Zone,SANJEETA KR. YADAV,JITENDRA KUMAR SINGH,KUMARI RINKOO SINGH,ZAKIR QURESHI,DR. RAHUL,,DR. RATNESH KR,,100
+335,SSB CAMP MUZAFFARPUR,Muzaffarpur,Bihar,East Zone,SANJEETA KR. YADAV,JITENDRA KUMAR SINGH,KUMARI RINKOO SINGH,,,,,,100
+336,INNER WHEEL CLUB MUZAFFARPUR,Muzaffarpur,Bihar,East Zone,SANJEETA KR. YADAV,JITENDRA KUMAR SINGH,KUMARI RINKOO SINGH,,,,,,100
+337,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,Dr SANDEEP GORE,Dr BHARAT PATIDAR,TITO N MATTHEW,,,,,68
+338,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,Dr MANJEET SINGH,JOVITHA D SOUZA,ASHRA SHARMA,,,,,65
+339,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,AVINASH BHATT,TUSHAR BEDSE,CYRUS GOMES,,,,,65
+340,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,Dr JESAL SHETH,RACHANA ZULASNA,AYUSH KUMAR,,,,,65
+341,"Fortis Hospital, Mulund",Mumbai,Maharashtra,West Zone,Dr Sameer Sadavarte,AMIT GUPTA,NITHYA VERHESE,SOPHIE BARRETTO,,,,,65
 342,Civil Hospital,Bhiwani,Haryana,North Zone,Dr Raj Mehta,Dr Ayush Agrawal,Dr Reeta,DR. POOJA AHLAWAT,DR. SUMAN,,,,65
 343,Millenium Public School Bidar,Bidar,Karnataka,South Zone,Dr Srinivas Bacha,Dr Nageshwar Rao,Dr Vrushali Kulkarni,Dr Karun Kumar,Dr Sachin,MR. GIRISH,Dr Nageshwar Rao,Dr Srinivas Bacha,187
 344,Mysore West Line Sevaniketan School,Mysore,Karnataka,South Zone,Dr Yashwanth Raju HN,Dr Shankar Prasad,Dr Krishna Kumar HC,Dr Anupama Pandey,Dr Anusha Raj K.,,Dr Sarshikiran KB,Dr Shiva P,150
@@ -347,46 +347,46 @@ Sr.No.,Corrected Venue Name,City,State,Zone,Coordinator Name,Champion 1,Champion
 346,Akkare Hospital,Mysore,Karnataka,South Zone,Dr Revathi B,Dr Arun Kumar,Dr Yashwanth Raju HN,Dr Avinash,Dr Richa BHAVATASH,DR. MEGHA ANNAIAH HR,Dr Yashwanth Raju HN,,34
 347,MRMC Skill Lab,Kalaburagi,Karnataka,South Zone,"Dr Rani KN,",Dr Apurva AB,,DR. SANNIDHI,,,DR.VINOD U,DR. KIRAN H,56
 348,KLE CENTENARY CHARITABLE HOSPITAL,Belagavi,Karnataka,South Zone,Dr Santosh Kumar Karamasi,DR. SOWMYA VERNEKAR,DR. ANITA MODAGE,DR. SHARAD SRESTI,,,,,110
-,GOVERNMENT SDV SCHOOL VANDANAM,Alappuzha,Kerala,South Zone,Dr.Anu Marie Peter,Dr.Ansha A S,,,DR. JOSE O,,Dr.Anu Marie Peter,Dr.Jyothi Jayaram,50
-,GENERAL HOSPITAL ALAPPUZHA,Alappuzha,Kerala,South Zone,Dr.Anu Marie Peter,DR. ANIL VINCENT,DR. SANGEETHA,,,,,,40
-,IMA HOUSE Cherthala,Cherthala,Kerala,South Zone,Dr.Anu Marie Peter,DR. SANGEETHA JOSEPH,,,,,ANIL VINCENT,"DR. PRAVEEN, DR. SUDEEP",35
-,KULAPATHI MUNSHI BVB SCHOOL,Thrissur,Kerala,South Zone,DR. NITHYA T,DR. RAKHEESH P,,,,,,,90
-,"Thiruvalayannur HS, Vadakkekad",Thrissur,Kerala,South Zone,DR. NITHYA T,,,,,,DR. MUKESH KR,,120
-,CNN HIGH SCHOOL CHERPU,Thrissur,Kerala,South Zone,DR. NITHYA T,,,,,,DR. SUNDARAN,,90
-,KIMS HEALTH,Trivandrum,Kerala,South Zone,DR. UMA TILAK,DR. SHREEHARI U.K,DR. COLLETTE JOSH,DR.PRIJO PHILIP,DR. GREESHMA,MISS. RESMI,DR. SREEJITH,MISS. SEENA,30
-,KIMS HEALTH,Trivandrum,Kerala,South Zone,DR. UMA TILAK,DR. NEETU GUPTA,DR. PRAMEELA JOJI,DR. EMILY ABRAHAM,DR. SUHEENA P.A.,DR. NAHIDA HASSAN,Dr. Arafath HaJI,DIWAKAR JOSH,65
-,"MAHARAJA AGRASEN HOSPITAL, PUNJABI BAGH",Delhi,Delhi,North Zone,DR DEEPAK SINGLA,MS SAGRIKA SINGH,MS JAGDEEP KAUR,MS SEEMA SHARMA,,,,,64
-,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,DR SANDEEP,DR JASKEERAT KAUR SANDHU,Ms SAVITA,KAMALPREET KAUR,,,,100
-,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,DR VIKRAM,SUKHWANT KAUR,BALJIT KAUR,PROF VANDANA,RAKESH DHAWAN,,,100
-,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,,AMANPREET KAUR,Ms SAVITA,NISHTHA GANDHI,,,,109
-,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SMATI,TUTOR HARPREET,TUTOR MORRIS,BALJIT KAUR,ARSHMOOL MOHAMMAD,,,,100
-,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SMATI,TUTOR HARPREET,TUTOR MORRIS,BALJIT KAUR,,,,,100
-,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,DR SANDEEP,DR VIKRAMJOT,,,,,,19
-,KCBN Hospital Sanganer,Jaipur,Rajasthan,North Zone,Dr Surendra Vyas,,,,,,,,96
-,Mahatma Gandhi Medical College and Hospital,Jaipur,Rajasthan,North Zone,Dr Rajpreet Soni,,,,,,,,66
-332,"Homi Baba Tata Memorial Cancer Hospital, New Chandigarh",Chandigarh,Chandigarh,North Zone,Manoj Kumar,,,,,GAGANDEEP SINGH,DEVENDRA KUMAR SAINI,ANIL MANDIWA,149
-,Kaushalya Hospital,Thane,Maharashtra,West Zone,DR. PARUL SHUKLA,,,,,DR. POOJA SHARMA,,DR. MANISH DOSHI,104
-,MRR CHILDREN'S HOSPITAL,Thane,Maharashtra,West Zone,DR. SUDESHA BONDRE,MR. KAMLESH,DR. ASHWIN,DR. SUMANT,,DR. POOJA SHARMA,,DR. GEETA BHATT,57
-,AIIMS NAGPUR,NAGPUR,Maharashtra,West Zone,DR. AKASH BANG,DR. ABHIJIT CHOUDHARY,DR. BALKISHAN CHOUDHARY,DR. ANKITA PATIL,DR. PRIYANKA PUDO,DR. ANSH BHARATHI,DR. SUCHARITHA,DR. AKASH BANG,106
-,CHHATRAPATI RAJARAM MAHARAJ AIRPORT,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Virinchi Reddy,Dr Mohammad amar,Dr Suryakant,Dr narendra nanivadekar,,Dr suhas kulkarni,36
-,ALANKAR AUDITORIUM POLICE ACADEMY,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Deepa Phirke,Dr Virinchi Reddy,Dr Sai Krishna,Dr Nivedita Patil,,Dr Vijay Gavade,75
-,"JNMC, SAWANGI",WARDHA,Maharashtra,West Zone,DR. DINESH HINGE,DR. AMAR TAKSANDE,,,DR. ABHIRAJ,DR. R.S. MESHRAM,DR. DINESH HINGE,DR. SHANTANU,211
-,SHREE VASANTRAO JAYWANTRAO DESHMUKH HIGHSCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Sai krishna,Dr Virinchi Reddy,Dr Mohammad amar,,Dr Anup Moruskar,Dr Shradha kulkarni,49
-,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. GAYATRI BHIDE,,DR. SANJAY BAFNA,DR. VINOD SHELAR,,,DR. BHAKTI SARANGI,DR. NOOPUR KULKARNI,400
-,VDGMC,Latur,Maharashtra,West Zone,DR. KIRAN BAISARE,,DR. SUPRIYA KHOSE,DR. TUKARAM NARWATE,DR. SIDDHESHWAR LAKHE,,,DR. KIRAN BAISARE,75
-,MAISAHEB BAVDEKAR SCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Virinchi Reddy,Dr Sai krishna,Dr Suryakant,,Dr mandar patil,Dr milind sadavarte,50
-,MVP'S SHRI CHHATRAPATI SHIVAJI MAHARAJ MADHYAMIK ANI UCHHMADHYAMIK VIDYALAY,Nashik,Maharashtra,West Zone,DR. RAHUL KOPIKAR,,DR. SAGAR BHALERAO,DR. NISHIGANDHA GAIKWAD,DR. RAVINDRA S. SONAWANE,,,DR. DEEPA JOSHI,154
-,PODAR INTERNATIONAL SCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Sai krishna,Dr Suryakant,Dr Mohammad amar,,Dr Amol Girwalkar,Dr Milind sadavarte,125
-,PRIVATE ENGLISH SCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Sai krishna,Dr Suryakant,Dr Mohammad amar,,Dr Narendra Nanivadekar,Dr Vijay Gavade,132
-,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. SAGAR LAD,,DR. SANJAY BAFNA,DR. VINOD SHELAR,,DR. SANTOSH KAIT,DR. MITHILESH TIWARI,DR. SANGEETA CHIVALE,100
-,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. SANJAY BAFNA,,DR. SAGAR LAD,SANDESH RUNWAL,,DR. NEHA SHAH,DR. ANKITA AGARWAL,DR. AVINASH PANDEY,100
-,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. SANJAY BAFNA,,DR. SAGAR LAD,SANDESH RUNWAL,,DR. BHAKTI SARANGI,,DR. GAYATRI BHIDE,100
-,ALPHONSA SCHOOL,Sangli,Maharashtra,West Zone,Dr. Mateen Shaikh,Dr. Deepa Phirke,Dr. swapnil Amnapure,Dr. priyanka patil,Dr. izhar,dr.Yash kokane,dr. mehul Mutha,Dr. Mateen Shaikh,119
-,"Sanyogita Patil Cambridge School and Junior College, Miraj",Sangli,Maharashtra,West Zone,Dr. Mateen Shaikh,Dr. Deepa Phirke,Dr. Harshal wagh,Dr.Thasneem,Dr Nagarjuna,Dr sohan,Dr shreeprasad,Dr. Mateen Shaikh,71
-,GULABRAO PATIL HOMEOPATHY MEDICAL COLLAGE MIRAJ,MIRAJ,Maharashtra,West Zone,Dr. Mateen Ramjan,Dr. Bhavesh shah,Dr. Mateen Shaikh,Dr. Rashmi Shah,,,,,110
-,TMC SCHOOL NO 21,Thane,Maharashtra,West Zone,DR. AMRUTA,,DR. GRIVITA,DR. SUDESHA BONDRE,,,,DR. MANDOV JAMDAV,190
-,"Government High School, IRC Village",BHUBANESWAR,Odisha,East Zone,DR. MRUTUNJAY DAS,DR. ISHA PANDA,DR. SUBHAM MOHRANA,,,DR. MRUTUNJAY DAS,,,85
-,"GSS SCHOOL, GARHA ROAD",Jalandhar,Punjab,North Zone,DR. ANURADHA BANSAL,MS. VEENA VADHAN,DR. VERONIKA BANAL,,,,,DR. ANURADHA BANSAL,100
-,APEEJAY SCHOOL,Jalandhar,Punjab,North Zone,DR. ANURADHA BANSAL,DR. RAJESH CHANDAL,DR. ASHA ANAND,,,,,DR. ANURADHA BANSAL,130
-,MANAV SAHYOG SCHOOL,Jalandhar,Punjab,North Zone,DR. ANURADHA BANSAL,SAPNA KUMAR,,,,,,DR. ANURADHA BANSAL,100
-,ADESH MEDICAL COLLEGE AND HOSPITAL,Kurukshetra,Haryana,North Zone,Dr. Baljeet Maini,DR. VIVEK MITTAL,Dr. Priyanka Kadian,DR. TARANPREET,Dr. Pooja Singh,DR. REECHA PANGHAL,DR. RUSHAL,DR. AMANDEEP KAUR,110
+349,GOVERNMENT SDV SCHOOL VANDANAM,Alappuzha,Kerala,South Zone,Dr.Anu Marie Peter,Dr.Ansha A S,,,DR. JOSE O,,Dr.Anu Marie Peter,Dr.Jyothi Jayaram,50
+350,GENERAL HOSPITAL ALAPPUZHA,Alappuzha,Kerala,South Zone,Dr.Anu Marie Peter,DR. ANIL VINCENT,DR. SANGEETHA,,,,,,40
+351,IMA HOUSE Cherthala,Cherthala,Kerala,South Zone,Dr.Anu Marie Peter,DR. SANGEETHA JOSEPH,,,,,ANIL VINCENT,"DR. PRAVEEN, DR. SUDEEP",35
+352,KULAPATHI MUNSHI BVB SCHOOL,Thrissur,Kerala,South Zone,DR. NITHYA T,DR. RAKHEESH P,,,,,,,90
+353,"Thiruvalayannur HS, Vadakkekad",Thrissur,Kerala,South Zone,DR. NITHYA T,,,,,,DR. MUKESH KR,,120
+354,CNN HIGH SCHOOL CHERPU,Thrissur,Kerala,South Zone,DR. NITHYA T,,,,,,DR. SUNDARAN,,90
+355,KIMS HEALTH,Trivandrum,Kerala,South Zone,DR. UMA TILAK,DR. SHREEHARI U.K,DR. COLLETTE JOSH,DR.PRIJO PHILIP,DR. GREESHMA,MISS. RESMI,DR. SREEJITH,MISS. SEENA,30
+356,KIMS HEALTH,Trivandrum,Kerala,South Zone,DR. UMA TILAK,DR. NEETU GUPTA,DR. PRAMEELA JOJI,DR. EMILY ABRAHAM,DR. SUHEENA P.A.,DR. NAHIDA HASSAN,Dr. Arafath HaJI,DIWAKAR JOSH,65
+357,"MAHARAJA AGRASEN HOSPITAL, PUNJABI BAGH",Delhi,Delhi,North Zone,DR DEEPAK SINGLA,MS SAGRIKA SINGH,MS JAGDEEP KAUR,MS SEEMA SHARMA,,,,,64
+358,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,DR SANDEEP,DR JASKEERAT KAUR SANDHU,Ms SAVITA,KAMALPREET KAUR,,,,100
+359,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,DR VIKRAM,SUKHWANT KAUR,BALJIT KAUR,PROF VANDANA,RAKESH DHAWAN,,,100
+360,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,,AMANPREET KAUR,Ms SAVITA,NISHTHA GANDHI,,,,109
+361,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SMATI,TUTOR HARPREET,TUTOR MORRIS,BALJIT KAUR,ARSHMOOL MOHAMMAD,,,,100
+362,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SMATI,TUTOR HARPREET,TUTOR MORRIS,BALJIT KAUR,,,,,100
+363,DASHMESH PUBLIC SCHOOL,FARIDKOT,Punjab,North Zone,DR SEEMA RAI,DR SANDEEP,DR VIKRAMJOT,,,,,,19
+364,KCBN Hospital Sanganer,Jaipur,Rajasthan,North Zone,Dr Surendra Vyas,,,,,,,,96
+365,Mahatma Gandhi Medical College and Hospital,Jaipur,Rajasthan,North Zone,Dr Rajpreet Soni,,,,,,,,66
+366,"Homi Baba Tata Memorial Cancer Hospital, New Chandigarh",Chandigarh,Chandigarh,North Zone,Manoj Kumar,,,,,GAGANDEEP SINGH,DEVENDRA KUMAR SAINI,ANIL MANDIWA,149
+367,Kaushalya Hospital,Thane,Maharashtra,West Zone,DR. PARUL SHUKLA,,,,,DR. POOJA SHARMA,,DR. MANISH DOSHI,104
+368,MRR CHILDREN'S HOSPITAL,Thane,Maharashtra,West Zone,DR. SUDESHA BONDRE,MR. KAMLESH,DR. ASHWIN,DR. SUMANT,,DR. POOJA SHARMA,,DR. GEETA BHATT,57
+369,AIIMS NAGPUR,NAGPUR,Maharashtra,West Zone,DR. AKASH BANG,DR. ABHIJIT CHOUDHARY,DR. BALKISHAN CHOUDHARY,DR. ANKITA PATIL,DR. PRIYANKA PUDO,DR. ANSH BHARATHI,DR. SUCHARITHA,DR. AKASH BANG,106
+370,CHHATRAPATI RAJARAM MAHARAJ AIRPORT,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Virinchi Reddy,Dr Mohammad amar,Dr Suryakant,Dr narendra nanivadekar,,Dr suhas kulkarni,36
+371,ALANKAR AUDITORIUM POLICE ACADEMY,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Deepa Phirke,Dr Virinchi Reddy,Dr Sai Krishna,Dr Nivedita Patil,,Dr Vijay Gavade,75
+372,"JNMC, SAWANGI",WARDHA,Maharashtra,West Zone,DR. DINESH HINGE,DR. AMAR TAKSANDE,,,DR. ABHIRAJ,DR. R.S. MESHRAM,DR. DINESH HINGE,DR. SHANTANU,211
+373,SHREE VASANTRAO JAYWANTRAO DESHMUKH HIGHSCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Sai krishna,Dr Virinchi Reddy,Dr Mohammad amar,,Dr Anup Moruskar,Dr Shradha kulkarni,49
+374,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. GAYATRI BHIDE,,DR. SANJAY BAFNA,DR. VINOD SHELAR,,,DR. BHAKTI SARANGI,DR. NOOPUR KULKARNI,400
+375,VDGMC,Latur,Maharashtra,West Zone,DR. KIRAN BAISARE,,DR. SUPRIYA KHOSE,DR. TUKARAM NARWATE,DR. SIDDHESHWAR LAKHE,,,DR. KIRAN BAISARE,75
+376,MAISAHEB BAVDEKAR SCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Virinchi Reddy,Dr Sai krishna,Dr Suryakant,,Dr mandar patil,Dr milind sadavarte,50
+377,MVP'S SHRI CHHATRAPATI SHIVAJI MAHARAJ MADHYAMIK ANI UCHHMADHYAMIK VIDYALAY,Nashik,Maharashtra,West Zone,DR. RAHUL KOPIKAR,,DR. SAGAR BHALERAO,DR. NISHIGANDHA GAIKWAD,DR. RAVINDRA S. SONAWANE,,,DR. DEEPA JOSHI,154
+378,PODAR INTERNATIONAL SCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Sai krishna,Dr Suryakant,Dr Mohammad amar,,Dr Amol Girwalkar,Dr Milind sadavarte,125
+379,PRIVATE ENGLISH SCHOOL,KOLHAPUR,Maharashtra,West Zone,Dr Nivedita Patil,,Dr Sai krishna,Dr Suryakant,Dr Mohammad amar,,Dr Narendra Nanivadekar,Dr Vijay Gavade,132
+380,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. SAGAR LAD,,DR. SANJAY BAFNA,DR. VINOD SHELAR,,DR. SANTOSH KAIT,DR. MITHILESH TIWARI,DR. SANGEETA CHIVALE,100
+381,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. SANJAY BAFNA,,DR. SAGAR LAD,SANDESH RUNWAL,,DR. NEHA SHAH,DR. ANKITA AGARWAL,DR. AVINASH PANDEY,100
+382,ALANKARAN HALL,Pune,Maharashtra,West Zone,DR. SANJAY BAFNA,,DR. SAGAR LAD,SANDESH RUNWAL,,DR. BHAKTI SARANGI,,DR. GAYATRI BHIDE,100
+383,ALPHONSA SCHOOL,Sangli,Maharashtra,West Zone,Dr. Mateen Shaikh,Dr. Deepa Phirke,Dr. swapnil Amnapure,Dr. priyanka patil,Dr. izhar,dr.Yash kokane,dr. mehul Mutha,Dr. Mateen Shaikh,119
+384,"Sanyogita Patil Cambridge School and Junior College, Miraj",Sangli,Maharashtra,West Zone,Dr. Mateen Shaikh,Dr. Deepa Phirke,Dr. Harshal wagh,Dr.Thasneem,Dr Nagarjuna,Dr sohan,Dr shreeprasad,Dr. Mateen Shaikh,71
+385,GULABRAO PATIL HOMEOPATHY MEDICAL COLLAGE MIRAJ,MIRAJ,Maharashtra,West Zone,Dr. Mateen Ramjan,Dr. Bhavesh shah,Dr. Mateen Shaikh,Dr. Rashmi Shah,,,,,110
+386,TMC SCHOOL NO 21,Thane,Maharashtra,West Zone,DR. AMRUTA,,DR. GRIVITA,DR. SUDESHA BONDRE,,,,DR. MANDOV JAMDAV,190
+387,"Government High School, IRC Village",BHUBANESWAR,Odisha,East Zone,DR. MRUTUNJAY DAS,DR. ISHA PANDA,DR. SUBHAM MOHRANA,,,DR. MRUTUNJAY DAS,,,85
+388,"GSS SCHOOL, GARHA ROAD",Jalandhar,Punjab,North Zone,DR. ANURADHA BANSAL,MS. VEENA VADHAN,DR. VERONIKA BANAL,,,,,DR. ANURADHA BANSAL,100
+389,APEEJAY SCHOOL,Jalandhar,Punjab,North Zone,DR. ANURADHA BANSAL,DR. RAJESH CHANDAL,DR. ASHA ANAND,,,,,DR. ANURADHA BANSAL,130
+390,MANAV SAHYOG SCHOOL,Jalandhar,Punjab,North Zone,DR. ANURADHA BANSAL,SAPNA KUMAR,,,,,,DR. ANURADHA BANSAL,100
+391,ADESH MEDICAL COLLEGE AND HOSPITAL,Kurukshetra,Haryana,North Zone,Dr. Baljeet Maini,DR. VIVEK MITTAL,Dr. Priyanka Kadian,DR. TARANPREET,Dr. Pooja Singh,DR. REECHA PANGHAL,DR. RUSHAL,DR. AMANDEEP KAUR,110
