@@ -42,13 +42,14 @@ export const SURVEY_INTRODUCTIONS = {
     ],
   },
   cpr: {
-    badge: "CPR Network Consultation",
-    heading: "Consultation on Student Readiness & Lifesaving Skills in MBBS",
+    badge: "CPR Educator & Leader Consultation",
+    heading: "Extending Your Contribution: From Lifesaving Skills to Building Future Doctors",
     lead: "Dear Colleague / CPR Educator,",
     paragraphs: [
-      "As a vital part of the national CPR and emergency preparedness network, your perspective on hands-on practical skills, team dynamics, and emergency readiness among medical students is invaluable.",
-      "This consultation gathers insights from healthcare leaders and educators to ensure that basic lifesaving preparedness, patient communication, and professional conduct are effectively reinforced before students begin clinical postings.",
-      "The survey takes approximately 8–12 minutes. You may respond anonymously or provide contact details if you wish to collaborate as a contributor or workshop facilitator.",
+      "You have already contributed to lifesaving education through CPR training and awareness. MBBS Foundation now invites you to extend that contribution into the broader preparation and development of future doctors.",
+      "This national professional consultation is helping identify the gaps students face while entering MBBS and shape a practical MBBS Foundation Workshop that complements formal medical education.",
+      "Your experience as a Course Coordinator, CPR Champion, instructor, clinician or educator can help define what future doctors need most — and how experienced professionals can contribute.",
+      "The consultation takes approximately 8–12 minutes. You may respond anonymously or provide contact details if you wish to collaborate as a contributor, faculty member, coordinator, collaborator or advocate.",
     ],
   },
   direct: {

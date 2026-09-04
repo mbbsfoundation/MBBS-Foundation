@@ -204,3 +204,35 @@ export function normalizeMobileNumber(raw: string): string {
   return digits;
 }
 
+/**
+ * Generates the official generic WhatsApp message for Course Coordinator verification.
+ */
+export function getWhatsAppVerificationMessage(stateName: string): string {
+  const slug = stateNameToSlug(stateName);
+  const stateUrl = `https://mbbsfoundation.com/cprsanjeevani/verify/${slug}`;
+
+  return `National IAP CPR Day 2026 — State Report Verification
+
+Dear Course Coordinators,
+
+Thank you for your valuable contribution to National IAP CPR Day 2026.
+
+The Draft Programme Report for ${stateName} is now available for verification.
+
+Please review the complete State Report, locate the course/venue coordinated by you, and either:
+✓ Verify the information as correct, or
+✎ Suggest any required correction.
+
+If your course is missing, please use ‘Report Missing Course’.
+
+Last date for submission:
+7 September 2026 • 23:59 hrs IST
+
+Verification link:
+${stateUrl}
+
+Your feedback will be reviewed before the programme report is finalised.
+
+Thank you for helping us build an accurate National CPR Day record.`;
+}
+

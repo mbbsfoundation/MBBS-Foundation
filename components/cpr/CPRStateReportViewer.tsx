@@ -10,7 +10,7 @@ import {
   LockedStateCensusEntry,
 } from "@/lib/cprStateCensus";
 import CPRVerificationInbox from "@/components/cpr/CPRVerificationInbox";
-import { stateNameToSlug } from "@/lib/cprSlug";
+import { stateNameToSlug, getWhatsAppVerificationMessage } from "@/lib/cprSlug";
 
 export type ReportStatus = "DRAFT" | "FINAL";
 
@@ -35,6 +35,7 @@ export default function CPRStateReportViewer({
   const [error, setError] = useState<string | null>(null);
   const [generationDate, setGenerationDate] = useState<string>("");
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const [copiedWaMsg, setCopiedWaMsg] = useState<boolean>(false);
 
   // Venue Reconciliation Review Workspace State
   const [reviewItems, setReviewItems] = useState<VenueReviewSnapshotItem[]>([]);
@@ -401,6 +402,33 @@ export default function CPRStateReportViewer({
                       title="Copy clean canonical link for sharing in State WhatsApp group"
                     >
                       {copiedLink ? "✓ LINK COPIED!" : "📋 COPY VERIFICATION LINK"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const msg = getWhatsAppVerificationMessage(selectedState);
+                        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+                        window.open(waUrl, "_blank");
+                      }}
+                      className="rounded-xl bg-emerald-600 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-white shadow hover:bg-emerald-700 transition flex items-center gap-1.5 cursor-pointer"
+                      title="Open WhatsApp with complete pre-formatted State verification message"
+                    >
+                      💬 SHARE ON WHATSAPP
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const msg = getWhatsAppVerificationMessage(selectedState);
+                        navigator.clipboard.writeText(msg);
+                        setCopiedWaMsg(true);
+                        setTimeout(() => setCopiedWaMsg(false), 2000);
+                      }}
+                      className="rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-emerald-900 hover:bg-emerald-100 transition flex items-center gap-1.5 cursor-pointer"
+                      title="Copy complete pre-formatted WhatsApp announcement message"
+                    >
+                      {copiedWaMsg ? "✓ MESSAGE COPIED!" : "📑 COPY WHATSAPP MESSAGE"}
                     </button>
                   </>
                 )}

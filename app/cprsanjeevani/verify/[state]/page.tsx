@@ -141,6 +141,14 @@ export default function StateCoordinatorVerificationPage() {
   const [missingSuccessMsg, setMissingSuccessMsg] = useState<string | null>(null);
   const [missingErrorMsg, setMissingErrorMsg] = useState<string | null>(null);
 
+  // Post-Submission Success State (Acknowledgement + MBBS Foundation Workshop Contribution)
+  const [submissionSuccess, setSubmissionSuccess] = useState<{
+    type: string;
+    venue?: string;
+    city?: string;
+    submissionId?: string;
+  } | null>(null);
+
   // Load state report data
   const loadStateData = async () => {
     setLoading(true);
@@ -309,7 +317,6 @@ export default function StateCoordinatorVerificationPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setModalSuccessMsg(data.message || "Feedback submitted successfully!");
         // Refresh local status map
         setRowStatusMap((prev) => ({
           ...prev,
@@ -319,9 +326,13 @@ export default function StateCoordinatorVerificationPage() {
           },
         }));
 
-        setTimeout(() => {
-          setTargetRow(null);
-        }, 1800);
+        setSubmissionSuccess({
+          type: modalTab,
+          venue: targetRow.venue,
+          city: targetRow.city,
+          submissionId: data.submissionId,
+        });
+        setTargetRow(null);
       } else {
         setModalErrorMsg(data.error || "Failed to submit verification feedback.");
       }
@@ -383,17 +394,20 @@ export default function StateCoordinatorVerificationPage() {
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setMissingSuccessMsg(data.message || "Missing course reported successfully for Admin Review!");
-        setTimeout(() => {
-          setShowMissingModal(false);
-          setMissingVenue("");
-          setMissingCity("");
-          setMissingTrained("");
-          setMissingOtherCoords("");
-          setMissingChamps("");
-          setMissingComments("");
-          setMissingEvidenceNote("");
-        }, 1800);
+        setSubmissionSuccess({
+          type: "MISSING_COURSE",
+          venue: missingVenue.trim(),
+          city: missingCity.trim(),
+          submissionId: data.submissionId,
+        });
+        setShowMissingModal(false);
+        setMissingVenue("");
+        setMissingCity("");
+        setMissingTrained("");
+        setMissingOtherCoords("");
+        setMissingChamps("");
+        setMissingComments("");
+        setMissingEvidenceNote("");
       } else {
         setMissingErrorMsg(data.error || "Failed to submit missing course report.");
       }
@@ -418,17 +432,25 @@ export default function StateCoordinatorVerificationPage() {
 
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6 text-slate-800">
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-6 text-slate-800 font-sans">
         <div className="max-w-md bg-white p-8 rounded-2xl shadow-lg border border-red-200 text-center">
           <span className="text-4xl block mb-3">⚠️</span>
           <h2 className="text-xl font-black text-slate-900 mb-2">Report Not Found</h2>
           <p className="text-sm text-slate-600 mb-6">{error || "Unable to retrieve state programme census."}</p>
-          <Link
-            href="/cprsanjeevani"
-            className="inline-block px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs uppercase tracking-wider shadow"
-          >
-            ← Return to CPR Sanjeevani
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+            <button
+              onClick={loadStateData}
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs uppercase tracking-wider shadow cursor-pointer"
+            >
+              🔄 Retry Loading
+            </button>
+            <Link
+              href="/"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs uppercase tracking-wider shadow text-center"
+            >
+              ← MBBS Foundation Home
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -441,20 +463,23 @@ export default function StateCoordinatorVerificationPage() {
 
   return (
     <div className="min-h-screen bg-slate-100/80 text-slate-900 pb-20 font-sans">
-      {/* Top Banner Navigation */}
-      <header className="sticky top-0 z-30 bg-gradient-to-r from-slate-950 via-teal-950 to-slate-900 text-white shadow-md border-b border-teal-800/40">
-        <div className="max-w-6xl mx-auto px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-3">
+      {/* Top Banner Navigation (Task-Specific, No Misleading Admin/Portal Links) */}
+      <header className="sticky top-0 z-30 bg-gradient-to-r from-slate-950 via-slate-900 to-teal-950 text-white shadow-md border-b border-teal-800/40">
+        <div className="max-w-5xl mx-auto px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Link
-              href="/cprsanjeevani"
-              className="text-xs font-bold text-teal-300 hover:text-white transition flex items-center gap-1"
-            >
-              <span>←</span> CPR Sanjeevani
-            </Link>
-            <span className="text-slate-600">|</span>
-            <span className="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-              <span className="inline-block w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-              State Verification Mode
+            <span className="text-xl">🩺</span>
+            <div>
+              <div className="text-xs font-black uppercase tracking-wider text-teal-300">
+                National IAP CPR Day 2026
+              </div>
+              <div className="text-[11px] font-semibold text-slate-300">
+                Official State Verification Portal
+              </div>
+            </div>
+            <span className="hidden sm:inline-block text-slate-600">|</span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-[11px] font-bold text-amber-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              {stateName || "State"} Verification Mode
             </span>
           </div>
 
@@ -473,8 +498,65 @@ export default function StateCoordinatorVerificationPage() {
         </div>
       </header>
 
-      {/* Main Printable Report Wrapper */}
-      <main className="max-w-5xl mx-auto px-3 sm:px-6 mt-6">
+      {/* Main Container */}
+      <main className="max-w-5xl mx-auto px-3 sm:px-6 mt-6 space-y-6">
+        {/* Prominent Action Needed Hero Panel */}
+        <section className="bg-gradient-to-br from-white via-amber-50/40 to-teal-50/30 border-2 border-amber-400/80 rounded-2xl p-5 sm:p-7 shadow-md relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full blur-2xl pointer-events-none" />
+          
+          <div className="relative z-10">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-amber-500 text-slate-950 font-black text-xs tracking-wider uppercase shadow-sm">
+                <span>⚡</span> ACTION NEEDED
+              </div>
+
+              {/* Deadline Display */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-900 font-bold text-xs shadow-sm">
+                <span className="text-sm">⏳</span>
+                <span>
+                  VERIFICATION DEADLINE:{" "}
+                  <strong className="font-black text-red-700 font-mono">
+                    7 SEPTEMBER 2026 • 23:59 HRS IST
+                  </strong>
+                </span>
+              </div>
+            </div>
+
+            <h2 className="text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
+              Verify Your National IAP CPR Day 2026 Course Details
+            </h2>
+
+            <p className="mt-2 text-sm text-slate-700 leading-relaxed font-medium">
+              Thank you for your contribution to National IAP CPR Day 2026. Course Coordinators are requested to review the complete Draft State Programme Report below and verify the course/venue information relevant to them.
+            </p>
+
+            {/* Step-by-Step Instructions */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-sm flex items-start gap-2.5">
+                <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">1</span>
+                <span className="text-xs text-slate-800 font-medium">Locate the course/venue you coordinated.</span>
+              </div>
+              <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-sm flex items-start gap-2.5">
+                <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">2</span>
+                <span className="text-xs text-slate-800 font-medium">Click <strong>‘Verify / Suggest Edit’</strong> in that row.</span>
+              </div>
+              <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-sm flex items-start gap-2.5">
+                <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">3</span>
+                <span className="text-xs text-slate-800 font-medium">Confirm the information if correct, or submit the required correction.</span>
+              </div>
+              <div className="bg-white/90 rounded-xl p-3 border border-slate-200/80 shadow-sm flex items-start gap-2.5">
+                <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-black text-xs flex items-center justify-center shrink-0 mt-0.5">4</span>
+                <span className="text-xs text-slate-800 font-medium">Use <strong>‘Report Missing Course’</strong> if your programme is not listed.</span>
+              </div>
+            </div>
+
+            <div className="mt-3 text-[11.5px] text-slate-600 italic bg-amber-50/60 p-2 rounded-lg border border-amber-200/60">
+              ℹ️ All submitted feedback will be reviewed by the National Admin team before any change is incorporated.
+            </div>
+          </div>
+        </section>
+
+        {/* Main Printable Report Wrapper */}
         <div className="printable-report-sheet relative overflow-hidden bg-white border border-slate-300 rounded-2xl p-5 sm:p-8 md:p-9 shadow-lg text-slate-900">
           {/* Watermark */}
           <div className="report-watermark-overlay select-none pointer-events-none opacity-5" aria-hidden="true">
@@ -755,6 +837,26 @@ export default function StateCoordinatorVerificationPage() {
             </div>
           </div>
         </div>
+
+        {/* Subtle Bottom-of-Page Contribution Panel */}
+        <section className="mt-8 rounded-2xl bg-white border border-slate-200 p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h3 className="text-sm sm:text-base font-black text-slate-900">
+              Interested in contributing beyond CPR Day?
+            </h3>
+            <p className="text-xs text-slate-600 max-w-xl">
+              Help shape the MBBS Foundation Workshop for future medical students as an educator, author, scenario contributor, or workshop facilitator.
+            </p>
+          </div>
+          <a
+            href="/mbbs-foundation/consultation/professional?source=cpr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs uppercase tracking-wider shadow transition whitespace-nowrap"
+          >
+            CONTRIBUTE AS A MEDICAL EDUCATOR →
+          </a>
+        </section>
       </main>
 
       {/* ------------------------------------------------------------------ */}
@@ -1305,6 +1407,94 @@ export default function StateCoordinatorVerificationPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------------ */}
+      {/* 3. MODAL: POST-SUBMISSION ACKNOWLEDGEMENT & EXTEND CONTRIBUTION    */}
+      {/* ------------------------------------------------------------------ */}
+      {submissionSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200 text-slate-900">
+            {/* Top Acknowledgement Header */}
+            <div className="bg-gradient-to-r from-teal-950 via-slate-900 to-teal-900 text-white p-6 sm:p-8 text-center relative">
+              <div className="w-16 h-16 bg-emerald-500/20 border-2 border-emerald-400 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
+                <span className="text-3xl font-black text-emerald-300">✓</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
+                THANK YOU
+              </h3>
+              <p className="mt-2 text-sm sm:text-base text-teal-100/90 max-w-lg mx-auto leading-relaxed font-medium">
+                Thank you for reviewing the National IAP CPR Day 2026 programme record and for the wonderful work you contributed to CPR Sanjeevani.
+              </p>
+              <p className="mt-2 text-xs sm:text-sm text-amber-200/90 font-semibold max-w-md mx-auto">
+                Your feedback has been received and will be reviewed by the National Admin team before finalisation.
+              </p>
+              {submissionSuccess.submissionId && (
+                <div className="mt-3 inline-block font-mono text-[11px] bg-slate-800/80 px-3 py-1 rounded-full border border-slate-700 text-slate-300">
+                  Submission ID: {submissionSuccess.submissionId}
+                </div>
+              )}
+            </div>
+
+            {/* Extend Your Contribution Section */}
+            <div className="p-6 sm:p-8 bg-slate-50/80 space-y-4">
+              <div className="bg-white rounded-2xl p-5 sm:p-6 border border-teal-200/80 shadow-sm relative">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 border border-teal-300 text-teal-900 text-[11px] font-black uppercase tracking-wider mb-2">
+                  <span>🌱</span> EXTEND YOUR CONTRIBUTION
+                </div>
+
+                <h4 className="text-lg sm:text-xl font-black text-slate-950">
+                  From Lifesaving Skills to Building Future Doctors
+                </h4>
+
+                <p className="mt-2 text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
+                  Your contribution to CPR education has already helped strengthen lifesaving skills in the community. We now invite you to extend this contribution to the broader development of future doctors through the MBBS Foundation Workshop initiative — as a contributor, faculty member, coordinator, collaborator or advocate.
+                </p>
+
+                {/* Primary CTA */}
+                <div className="mt-5 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <a
+                    href="/mbbs-foundation/consultation/professional?source=cpr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 px-5 py-3.5 rounded-xl bg-gradient-to-r from-teal-700 to-indigo-900 hover:from-teal-800 hover:to-indigo-950 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition text-center cursor-pointer"
+                  >
+                    🚀 CONTRIBUTE TO MBBS FOUNDATION WORKSHOP →
+                  </a>
+                </div>
+
+                {/* Subtle Book Reference */}
+                <div className="mt-4 pt-3 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                  <span className="italic font-medium">
+                    MBBS Foundation: Your First Book of Medicine
+                  </span>
+                  <Link
+                    href="/book"
+                    target="_blank"
+                    className="text-teal-700 hover:text-teal-900 font-bold hover:underline"
+                  >
+                    Learn More ↗
+                  </Link>
+                </div>
+              </div>
+
+              {/* Secondary Action: Back to State Report */}
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSubmissionSuccess(null);
+                    setTargetRow(null);
+                    setShowMissingModal(false);
+                  }}
+                  className="px-6 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs uppercase tracking-wider shadow-sm transition cursor-pointer"
+                >
+                  ← Back to State Report
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

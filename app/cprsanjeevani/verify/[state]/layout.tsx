@@ -10,8 +10,8 @@ export async function generateMetadata({
   const rawSlug = resolvedParams?.state || "";
   const canonicalState = slugToCanonicalState(rawSlug) || "State";
 
-  const title = `National IAP CPR Day 2026 — ${canonicalState} Verification`;
-  const description = `Course Coordinators are requested to review the Draft CPR Sanjeevani programme report for ${canonicalState} and verify or suggest corrections for their course/venue records.`;
+  const title = `National IAP CPR Day 2026 — ${canonicalState} Report Verification`;
+  const description = `Course Coordinators are requested to review the Draft State Programme Report and verify or suggest corrections for their course/venue details by 7 September 2026, 23:59 hrs IST.`;
   const ogImageUrl = "https://mbbsfoundation.com/cprday/og-cprday.jpg";
 
   return {
