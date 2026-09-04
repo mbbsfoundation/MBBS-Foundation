@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Error in POST /api/cprsanjeevani/verify:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to process verification submission." },
+      { success: false, error: error?.message || "Failed to process verification submission." },
       { status: 500 }
     );
   }
