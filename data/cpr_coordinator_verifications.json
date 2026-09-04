@@ -1,0 +1,122 @@
+[
+  {
+    "submissionType": "VERIFY_CORRECT",
+    "state": "Maharashtra",
+    "stateCode": "MH",
+    "canonicalVenueId": "CANON-MH-001",
+    "venue": "Test Medical College Hospital",
+    "city": "Mumbai",
+    "mappedCoordinatorName": "Diana Raheesh",
+    "submittedByName": "Diana Raheesh",
+    "submittedByMobile": "9876543210",
+    "submittedByEmail": "coord@example.com",
+    "identityStatus": "MAPPED_COORDINATOR_MOBILE_NOT_AVAILABLE",
+    "currentDataJson": {
+      "venue": "Test Medical College Hospital",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "participantsTrained": 150,
+      "coordinators": [
+        "Diana Raheesh"
+      ],
+      "champions": [
+        "Dr. Champion A"
+      ],
+      "coursesCount": 1
+    },
+    "id": "VERIF-1788518334940-3WVY",
+    "submissionStatus": "ACCEPTED",
+    "createdAt": "2026-09-04T10:38:54.940Z",
+    "updatedAt": "2026-09-04T10:38:54.941Z",
+    "adminReviewedBy": "Administrator",
+    "adminReviewedAt": "2026-09-04T10:38:54.941Z",
+    "adminNote": "Verified against state roster",
+    "adminDecision": "ACCEPTED"
+  },
+  {
+    "submissionType": "SUBMIT_CORRECTION",
+    "state": "Maharashtra",
+    "stateCode": "MH",
+    "canonicalVenueId": "CANON-MH-001",
+    "venue": "Test Medical College Hospital",
+    "city": "Mumbai",
+    "mappedCoordinatorName": "Diana Raheesh",
+    "submittedByName": "Diana Raheesh",
+    "submittedByMobile": "9876543210",
+    "identityStatus": "MAPPED_COORDINATOR_MOBILE_NOT_AVAILABLE",
+    "currentDataJson": {
+      "venue": "Test Medical College Hospital",
+      "city": "Mumbai",
+      "participantsTrained": 150
+    },
+    "proposedChangesJson": {
+      "participantsTrained": 180,
+      "fieldsModified": [
+        "trainedCount"
+      ]
+    },
+    "correctionNote": "30 additional nurses trained in afternoon batch",
+    "id": "VERIF-1788518334941-6B0J",
+    "submissionStatus": "REJECTED",
+    "createdAt": "2026-09-04T10:38:54.941Z",
+    "updatedAt": "2026-09-04T10:38:54.941Z",
+    "adminReviewedBy": "Administrator",
+    "adminReviewedAt": "2026-09-04T10:38:54.941Z",
+    "adminNote": "Discrepancy in batch list",
+    "adminDecision": "REJECTED"
+  },
+  {
+    "submissionType": "MISSING_COURSE",
+    "state": "Madhya Pradesh",
+    "stateCode": "MP",
+    "venue": "District Hospital Gwalior",
+    "city": "Gwalior",
+    "mappedCoordinatorName": "Dr. Gwalior Lead",
+    "submittedByName": "Dr. Gwalior Lead",
+    "submittedByMobile": "9123456780",
+    "identityStatus": "OTHER_MANUAL_REVIEW",
+    "proposedChangesJson": {
+      "venue": "District Hospital Gwalior",
+      "city": "Gwalior",
+      "courseDate": "2026-07-21",
+      "participantsTrained": 75,
+      "coordinators": [
+        "Dr. Gwalior Lead"
+      ],
+      "champions": [
+        "Dr. Trainer 1",
+        "Dr. Trainer 2"
+      ]
+    },
+    "correctionNote": "Course conducted on CPR day but not reported in initial email",
+    "id": "VERIF-1788518334941-WARY",
+    "submissionStatus": "NEEDS_CLARIFICATION",
+    "createdAt": "2026-09-04T10:38:54.941Z",
+    "updatedAt": "2026-09-04T10:38:54.941Z",
+    "adminReviewedBy": "Administrator",
+    "adminReviewedAt": "2026-09-04T10:38:54.941Z",
+    "adminNote": "Please attach attendance register scan",
+    "adminDecision": "NEEDS_CLARIFICATION"
+  },
+  {
+    "submissionType": "SUBMIT_CORRECTION",
+    "state": "Maharashtra",
+    "stateCode": "MH",
+    "canonicalVenueId": "CANON-MH-001",
+    "venue": "Test Medical College Hospital",
+    "city": "Mumbai",
+    "mappedCoordinatorName": "Diana Raheesh",
+    "submittedByName": "Diana Raheesh",
+    "submittedByMobile": "9876543210",
+    "identityStatus": "MAPPED_COORDINATOR_MOBILE_NOT_AVAILABLE",
+    "correctionNote": "Updated note regarding champions list",
+    "id": "VERIF-1788518334941-WAAU",
+    "submissionStatus": "IMPLEMENTED",
+    "createdAt": "2026-09-04T10:38:54.941Z",
+    "updatedAt": "2026-09-04T10:38:54.941Z",
+    "adminReviewedBy": "Administrator",
+    "adminReviewedAt": "2026-09-04T10:38:54.941Z",
+    "adminNote": "Manually updated in administrative tracking roster",
+    "adminDecision": "IMPLEMENTED"
+  }
+]

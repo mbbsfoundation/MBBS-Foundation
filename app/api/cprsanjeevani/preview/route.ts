@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as XLSX from "xlsx";
-import { generatePreview, SanjeevaniInputRow, CertificateCategory } from "@/lib/sanjeevaniStorage";
+import {
+  generatePreview,
+  parseAndNormalizeCourseDate,
+  SanjeevaniInputRow,
+  CertificateCategory,
+} from "@/lib/sanjeevaniStorage";
 import { verifyAdminRequest } from "@/lib/adminAuth";
 
 /**
@@ -206,6 +211,11 @@ export async function POST(request: NextRequest) {
         errors.push("State Code must be 2-4 uppercase letters (e.g. ML, DL, UP).");
       }
 
+      const dateValidation = parseAndNormalizeCourseDate(date);
+      if (!dateValidation.isValid && dateValidation.error) {
+        errors.push(dateValidation.error);
+      }
+
       if (forcedCategory === "CPR_FACILITY" && !venueCode) {
         errors.push("Venue Code / Certificate ID is required for Facility certificates.");
       }
@@ -213,7 +223,7 @@ export async function POST(request: NextRequest) {
       parsedRows.push({
         rowNumber,
         name: name || venue,
-        date,
+        date: dateValidation.isValid ? dateValidation.displayDate : date,
         venue: venue || name,
         venueCode: venueCode || undefined,
         city,

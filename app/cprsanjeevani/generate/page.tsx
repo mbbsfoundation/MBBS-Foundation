@@ -1032,20 +1032,36 @@ export default function SanjeevaniAdminPortalPage() {
                               {r.city}, {r.state}
                             </td>
                             <td className="py-2 px-3 font-mono font-bold">{r.stateCode}</td>
-                            <td className="py-2 px-3 text-slate-600 max-w-[180px] truncate" title={r.courseCoordinator || r.date}>
-                              {r.courseCoordinator || r.date || "—"}
+                            <td className="py-2 px-3 text-slate-600 max-w-[180px] truncate" title={r.courseCoordinator || (r as any).normalizedCourseDate || r.date}>
+                              {moduleCategory === "FACILITY" ? r.courseCoordinator || "—" : (r as any).displayDate || r.date || "—"}
                             </td>
                             <td className="py-2 px-3 font-mono font-bold text-teal-800">
-                              {r.proposedCertificateId || "—"}
+                              {r.proposedCertificateId ? (
+                                <span>{r.proposedCertificateId}</span>
+                              ) : (
+                                <span className="text-slate-400 font-normal italic">—</span>
+                              )}
                             </td>
                             <td className="py-2 px-3">
-                              {!r.isValid ? (
-                                <span className="rounded bg-rose-100 px-2 py-0.5 font-bold text-rose-800 text-[10px]" title={r.errors.join(", ")}>
+                              {(r as any).rowStatus === "VALIDATION ERROR" || !r.isValid ? (
+                                <span className="rounded bg-rose-100 px-2 py-0.5 font-bold text-rose-800 text-[10px]" title={r.errors?.join(", ") || (r as any).statusReason}>
                                   ⚠️ Invalid
                                 </span>
-                              ) : r.isDuplicate ? (
-                                <span className="rounded bg-amber-100 px-2 py-0.5 font-bold text-amber-800 text-[10px]" title={`Already issued: ${r.existingCertificateId}`}>
-                                  Duplicate ({r.existingCertificateId})
+                              ) : (r as any).rowStatus === "ALREADY CERTIFIED" || r.isDuplicate ? (
+                                <span className="rounded bg-amber-100 px-2 py-0.5 font-bold text-amber-800 text-[10px]" title={(r as any).statusReason || `Already issued: ${r.existingCertificateId}`}>
+                                  Already Certified {r.existingCertificateId ? `(${r.existingCertificateId})` : ""}
+                                </span>
+                              ) : (r as any).rowStatus === "REVIEW REQUIRED" || (r as any).isReviewRequired ? (
+                                <span className="rounded bg-orange-100 border border-orange-300 px-2 py-0.5 font-bold text-orange-900 text-[10px]" title={(r as any).statusReason}>
+                                  ⚠️ Review Required
+                                </span>
+                              ) : (r as any).rowStatus === "NEW – CPR DAY" ? (
+                                <span className="rounded bg-emerald-100 border border-emerald-300 px-2 py-0.5 font-bold text-emerald-800 text-[10px]">
+                                  ✓ New (CPR Day)
+                                </span>
+                              ) : (r as any).rowStatus === "NEW – SANJEEVANI" ? (
+                                <span className="rounded bg-teal-100 border border-teal-300 px-2 py-0.5 font-bold text-teal-800 text-[10px]">
+                                  ✓ New (Sanjeevani)
                                 </span>
                               ) : (
                                 <span className="rounded bg-emerald-100 px-2 py-0.5 font-bold text-emerald-800 text-[10px]">

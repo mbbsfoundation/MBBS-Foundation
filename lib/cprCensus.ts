@@ -223,24 +223,51 @@ export function normalizeDisplayVenue(rawVenue: string): string {
 
 /**
  * Display-only State Normalization:
- * - Standardizes state names for grouping (e.g. "Andaman & Nikobar Island" -> "Andaman & Nicobar Islands")
+ * - Standardizes state names for grouping (e.g. "Tamilnadu" -> "Tamil Nadu", "Andaman & Nikobar Island" -> "Andaman & Nicobar Islands")
  */
 export function normalizeDisplayState(rawState: string): string {
   if (!rawState || typeof rawState !== "string") return "";
-  const s = rawState.trim().toLowerCase();
+  const s = rawState.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+
   if (
-    s === "andaman & nikobar island" ||
-    s === "andaman & nicobar islands" ||
-    s === "andaman and nicobar islands" ||
-    s === "andaman & nicobar" ||
-    s === "andaman and nicobar"
+    s === "andaman" ||
+    s === "andamanandnicobar" ||
+    s === "andamanandnicobarislands" ||
+    s === "andamannikobarisland" ||
+    s === "andamannikobarislands" ||
+    s === "an"
   ) {
     return "Andaman & Nicobar Islands";
   }
-  if (s === "jammu and kashmir" || s === "jammu & kashmir") {
-    return "Jammu & Kashmir";
-  }
-  // Title Case
+  if (s === "andhrapradesh" || s === "ap") return "Andhra Pradesh";
+  if (s === "assam" || s === "as") return "Assam";
+  if (s === "bihar" || s === "br") return "Bihar";
+  if (s === "chandigarh" || s === "ch") return "Chandigarh";
+  if (s === "chhattisgarh" || s === "cg") return "Chhattisgarh";
+  if (s === "delhi" || s === "nctofdelhi" || s === "dl") return "Delhi";
+  if (s === "gujarat" || s === "gj") return "Gujarat";
+  if (s === "haryana" || s === "hr") return "Haryana";
+  if (s === "himachalpradesh" || s === "hp") return "Himachal Pradesh";
+  if (s === "jammuandkashmir" || s === "jammukashmir" || s === "jk") return "Jammu & Kashmir";
+  if (s === "jharkhand" || s === "jh") return "Jharkhand";
+  if (s === "karnataka" || s === "ka") return "Karnataka";
+  if (s === "kerala" || s === "kl") return "Kerala";
+  if (s === "ladakh" || s === "la") return "Ladakh";
+  if (s === "madhyapradesh" || s === "mp") return "Madhya Pradesh";
+  if (s === "maharashtra" || s === "mh") return "Maharashtra";
+  if (s === "meghalaya" || s === "ml") return "Meghalaya";
+  if (s === "odisha" || s === "orissa" || s === "or") return "Odisha";
+  if (s === "punjab" || s === "pb") return "Punjab";
+  if (s === "rajasthan" || s === "rj") return "Rajasthan";
+  if (s === "sikkim" || s === "sk") return "Sikkim";
+  if (s === "tamilnadu" || s === "tamilnad" || s === "tn") return "Tamil Nadu";
+  if (s === "telangana" || s === "ts" || s === "tg") return "Telangana";
+  if (s === "tripura" || s === "tr") return "Tripura";
+  if (s === "uttarpradesh" || s === "up") return "Uttar Pradesh";
+  if (s === "uttarakhand" || s === "uk" || s === "ua") return "Uttarakhand";
+  if (s === "westbengal" || s === "wb") return "West Bengal";
+
+  // Title Case fallback
   return rawState
     .trim()
     .split(" ")
@@ -544,4 +571,57 @@ export function getAllCPRDayStateReports(): CPRDayStateReport[] {
   }
 
   return reports;
+}
+
+/**
+ * Returns the National Consolidated State Report spanning all 28 States/UTs.
+ */
+export function getCPRDayNationalConsolidatedStateReport(): CPRDayStateReport & {
+  isNational: boolean;
+  isNationalConsolidated: boolean;
+  stateSummaries: Array<{
+    sNo: number;
+    state: string;
+    canonicalState: string;
+    zone: string;
+    centres: number;
+    participants: number;
+  }>;
+} {
+  const stateReports = getAllCPRDayStateReports();
+  const lockedTotal = LOCKED_OFFICIAL_INDIA_TOTAL;
+
+  const allCoordinators = stateReports.flatMap((r) => r.centres.flatMap((c) => c.coordinators));
+  const allChampions = stateReports.flatMap((r) => r.centres.flatMap((c) => c.champions));
+
+  const totalUniqueCoordinators = deduplicatePersonNames(allCoordinators).length;
+  const totalUniqueChampions = deduplicatePersonNames(allChampions).length;
+
+  const stateSummaries = stateReports.map((r, idx) => ({
+    sNo: idx + 1,
+    state: r.state,
+    canonicalState: r.canonicalState,
+    zone: r.zone,
+    centres: r.lockedCensusTotals?.officialCentres ?? r.censusCentres,
+    participants: r.lockedCensusTotals?.officialParticipants ?? r.censusParticipants,
+  }));
+
+  return {
+    state: "All India",
+    canonicalState: "All India",
+    zone: "National Consolidation",
+    censusCentres: lockedTotal.centres,
+    censusParticipants: lockedTotal.participantsTrained,
+    totalUniqueCoordinators,
+    totalUniqueChampions,
+    centres: [],
+    lockedCensusTotals: {
+      officialCentres: lockedTotal.centres,
+      officialParticipants: lockedTotal.participantsTrained,
+      isLocked: true,
+    },
+    isNational: true,
+    isNationalConsolidated: true,
+    stateSummaries,
+  };
 }

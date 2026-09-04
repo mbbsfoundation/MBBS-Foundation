@@ -626,7 +626,15 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
           (!isCoordinatorFile || !h.includes("course coordinator"))
       );
 
-      const zoneIdx = headers.findIndex((h) => h.includes("zone"));
+      const zoneIdx = headers.findIndex(
+        (h) =>
+          h.includes("zone") ||
+          h.includes("state code") ||
+          h === "statecode" ||
+          h === "state_code" ||
+          h === "stcode" ||
+          h === "scode"
+      );
       const stateIdx = headers.findIndex((h) => h.includes("state") && !h.includes("state code"));
       const cityIdx = headers.findIndex((h) => h.includes("city") || h.includes("district"));
 
@@ -685,7 +693,15 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
         const name = cols[nameIdx >= 0 ? nameIdx : 2] || "";
         const mobile = isChampionFile || isCoordinatorFile ? "" : cols[mobileIdx >= 0 ? mobileIdx : 3] || "";
         const email = isChampionFile || isCoordinatorFile ? cols[emailIdx >= 0 ? emailIdx : 6] || "" : cols[emailIdx >= 0 ? emailIdx : 4] || "";
-        const zone = zoneIdx >= 0 ? cols[zoneIdx] || "" : "";
+        let zone = zoneIdx >= 0 ? cols[zoneIdx] || "" : "";
+        if (!zone && certId) {
+          const match =
+            certId.match(/IAPCPR[/-](?:PA|CH|CC|Sanjeevani)[/-]([A-Z]{2,4})[/-]/i) ||
+            certId.match(/Venue[/-]([A-Z]{2,4})[-_]/i);
+          if (match && match[1]) {
+            zone = match[1].toUpperCase();
+          }
+        }
         const state = cols[stateIdx >= 0 ? stateIdx : (isChampionFile || isCoordinatorFile ? 4 : 6)] || "";
         const city = cols[cityIdx >= 0 ? cityIdx : (isChampionFile || isCoordinatorFile ? 3 : 7)] || "";
         const coordinator = coordinatorIdx >= 0 ? cols[coordinatorIdx] || "" : (isCoordinatorFile ? name : "");

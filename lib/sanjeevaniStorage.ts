@@ -6,9 +6,27 @@ import {
   getHighestCPRChampionSequence,
   getHighestCPRCoordinatorSequence,
   getHighestCPRFacilitySequence,
+  getAllCPRCertificates,
 } from "@/lib/cprCertificates";
 
 export type CertificateCategory = "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY";
+
+export type PreviewRowStatus =
+  | "NEW – CPR DAY"
+  | "NEW – SANJEEVANI"
+  | "NEW – CHAMPION"
+  | "NEW – FACILITY"
+  | "ALREADY CERTIFIED"
+  | "REVIEW REQUIRED"
+  | "VALIDATION ERROR";
+
+export interface NormalizedCourseDate {
+  isValid: boolean;
+  isoDate: string; // e.g. "2026-07-21"
+  displayDate: string; // e.g. "21 July 2026"
+  isCprDay: boolean; // true if isoDate === "2026-07-21"
+  error?: string;
+}
 
 export interface SanjeevaniInputRow {
   rowNumber: number;
@@ -85,7 +103,12 @@ export interface PreviewRowResult extends SanjeevaniInputRow {
   proposedCertificateId: string;
   proposedSequence: number;
   isDuplicate: boolean;
+  isReviewRequired?: boolean;
+  rowStatus: PreviewRowStatus;
+  statusReason?: string;
   existingCertificateId?: string;
+  normalizedCourseDate: string;
+  displayDate: string;
   templateUsed: string;
 }
 
@@ -124,40 +147,349 @@ function ensureStorageFiles() {
 }
 
 /**
- * Automatically checks if a course date corresponds to National IAP CPR Day (21-07-2026).
+ * Canonical Course-Date Normalizer:
+ * Safely parses and normalizes any course date representation (Day-First Indian convention, ISO, or text)
+ * to standard ISO YYYY-MM-DD and formal display string.
  */
-export function isCprDayDate(dateStr: string): boolean {
-  if (!dateStr) return false;
-  const cleaned = dateStr.trim().toLowerCase().replace(/(\d+)(st|nd|rd|th)/g, "$1");
-
-  // Direct fast string checks
-  if (
-    cleaned.includes("21-07-2026") ||
-    cleaned.includes("21/07/2026") ||
-    cleaned.includes("21.07.2026") ||
-    cleaned.includes("21-7-2026") ||
-    cleaned.includes("21/7/2026") ||
-    cleaned.includes("2026-07-21") ||
-    cleaned.includes("2026/07/21") ||
-    cleaned.includes("21-07-26") ||
-    cleaned.includes("21/07/26")
-  ) {
-    return true;
+export function parseAndNormalizeCourseDate(
+  rawDate: string | number | Date | null | undefined
+): NormalizedCourseDate {
+  if (rawDate === null || rawDate === undefined || rawDate === "") {
+    return {
+      isValid: false,
+      isoDate: "",
+      displayDate: "",
+      isCprDay: false,
+      error: "Course date is missing.",
+    };
   }
 
-  // Textual dates (e.g. 21 July 2026)
-  const hasDay21 = /\b21\b/.test(cleaned);
-  const hasJuly = cleaned.includes("jul") || cleaned.includes("july");
-  const hasYear2026 = cleaned.includes("2026") || /\b26\b/.test(cleaned);
+  // 1. If already a JS Date object
+  if (rawDate instanceof Date) {
+    if (isNaN(rawDate.getTime())) {
+      return {
+        isValid: false,
+        isoDate: "",
+        displayDate: "",
+        isCprDay: false,
+        error: "Invalid Date object.",
+      };
+    }
+    const y = rawDate.getFullYear();
+    const m = String(rawDate.getMonth() + 1).padStart(2, "0");
+    const d = String(rawDate.getDate()).padStart(2, "0");
+    const isoDate = `${y}-${m}-${d}`;
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const displayDate = `${rawDate.getDate()} ${months[rawDate.getMonth()]} ${y}`;
+    return {
+      isValid: true,
+      isoDate,
+      displayDate,
+      isCprDay: isoDate === "2026-07-21",
+    };
+  }
 
-  return hasDay21 && hasJuly && hasYear2026;
+  // 2. Handle Excel Serial Date (e.g. 46224 is 2026-07-21 in Excel 1900 date system)
+  if (
+    typeof rawDate === "number" ||
+    (typeof rawDate === "string" && /^\d{5}(\.\d+)?$/.test(rawDate.trim()))
+  ) {
+    const serial = typeof rawDate === "number" ? rawDate : parseFloat(rawDate.trim());
+    if (serial > 20000 && serial < 80000) {
+      const utcDays = Math.floor(serial - 25569);
+      const utcValue = utcDays * 86400 * 1000;
+      const dateObj = new Date(utcValue);
+      const y = dateObj.getUTCFullYear();
+      const m = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
+      const d = String(dateObj.getUTCDate()).padStart(2, "0");
+      const isoDate = `${y}-${m}-${d}`;
+      const months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      const displayDate = `${dateObj.getUTCDate()} ${months[dateObj.getUTCMonth()]} ${y}`;
+      return {
+        isValid: true,
+        isoDate,
+        displayDate,
+        isCprDay: isoDate === "2026-07-21",
+      };
+    }
+  }
+
+  const str = String(rawDate).trim();
+  if (!str) {
+    return {
+      isValid: false,
+      isoDate: "",
+      displayDate: "",
+      isCprDay: false,
+      error: "Empty date string.",
+    };
+  }
+
+  // Clean string: strip ordinal suffixes (21st, 2nd, 3rd, 4th -> 21, 2, 3, 4)
+  const cleaned = str
+    .replace(/(\d+)(st|nd|rd|th)/gi, "$1")
+    .replace(/[,\t]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Pattern A: ISO YYYY-MM-DD or YYYY/MM/DD or YYYY.MM.DD
+  const isoMatch = cleaned.match(/^(\d{4})[-/. ](\d{1,2})[-/. ](\d{1,2})(?:[T\s].*)?$/);
+  if (isoMatch) {
+    const y = parseInt(isoMatch[1], 10);
+    const m = parseInt(isoMatch[2], 10);
+    const d = parseInt(isoMatch[3], 10);
+    return validateAndFormatDate(y, m, d);
+  }
+
+  // Pattern B: DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY, or 2-digit years (DD-MM-YY, DD/MM/YY, DD.MM.YY)
+  // Day-First Indian convention
+  const dmyMatch = cleaned.match(/^(\d{1,2})[-/. ](\d{1,2})[-/. ](\d{2,4})$/);
+  if (dmyMatch) {
+    const d = parseInt(dmyMatch[1], 10);
+    const m = parseInt(dmyMatch[2], 10);
+    let y = parseInt(dmyMatch[3], 10);
+    if (y < 100) {
+      y = y <= 50 ? 2000 + y : 1900 + y;
+    }
+    return validateAndFormatDate(y, m, d);
+  }
+
+  // Pattern C: Textual Month (e.g. "21 July 2026", "21-Jul-2026", "July 21 2026", "21-Jul-26")
+  const MONTH_MAP: Record<string, number> = {
+    jan: 1,
+    january: 1,
+    feb: 2,
+    february: 2,
+    mar: 3,
+    march: 3,
+    apr: 4,
+    april: 4,
+    may: 5,
+    jun: 6,
+    june: 6,
+    jul: 7,
+    july: 7,
+    aug: 8,
+    august: 8,
+    sep: 9,
+    sept: 9,
+    september: 9,
+    oct: 10,
+    october: 10,
+    nov: 11,
+    november: 11,
+    dec: 12,
+    december: 12,
+  };
+
+  // Case 1: "21 July 2026" / "21-Jul-2026" / "21/Jul/26"
+  const textMatch1 = cleaned.match(/^(\d{1,2})[-/. ]+([a-zA-Z]+)[-/. ]+(\d{2,4})$/);
+  if (textMatch1) {
+    const d = parseInt(textMatch1[1], 10);
+    const mStr = textMatch1[2].toLowerCase();
+    let y = parseInt(textMatch1[3], 10);
+    if (y < 100) y = y <= 50 ? 2000 + y : 1900 + y;
+    const m = MONTH_MAP[mStr];
+    if (m) {
+      return validateAndFormatDate(y, m, d);
+    }
+  }
+
+  // Case 2: "July 21 2026" / "Jul 21, 2026"
+  const textMatch2 = cleaned.match(/^([a-zA-Z]+)[-/. ]+(\d{1,2})[-/. ]+(\d{2,4})$/);
+  if (textMatch2) {
+    const mStr = textMatch2[1].toLowerCase();
+    const d = parseInt(textMatch2[2], 10);
+    let y = parseInt(textMatch2[3], 10);
+    if (y < 100) y = y <= 50 ? 2000 + y : 1900 + y;
+    const m = MONTH_MAP[mStr];
+    if (m) {
+      return validateAndFormatDate(y, m, d);
+    }
+  }
+
+  return {
+    isValid: false,
+    isoDate: "",
+    displayDate: str,
+    isCprDay: false,
+    error: `Unrecognized course date format: "${str}". Please use DD-MM-YYYY (e.g. 21-07-2026).`,
+  };
+}
+
+function validateAndFormatDate(year: number, month: number, day: number): NormalizedCourseDate {
+  if (year < 1900 || year > 2100) {
+    return {
+      isValid: false,
+      isoDate: "",
+      displayDate: "",
+      isCprDay: false,
+      error: `Invalid year in course date: ${year}`,
+    };
+  }
+  if (month < 1 || month > 12) {
+    return {
+      isValid: false,
+      isoDate: "",
+      displayDate: "",
+      isCprDay: false,
+      error: `Invalid month in course date: ${month}`,
+    };
+  }
+  if (day < 1 || day > 31) {
+    return {
+      isValid: false,
+      isoDate: "",
+      displayDate: "",
+      isCprDay: false,
+      error: `Invalid day in course date: ${day}`,
+    };
+  }
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  if (day > daysInMonth) {
+    return {
+      isValid: false,
+      isoDate: "",
+      displayDate: "",
+      isCprDay: false,
+      error: `Invalid date: Month ${month} only has ${daysInMonth} days.`,
+    };
+  }
+
+  const mm = String(month).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  const isoDate = `${year}-${mm}-${dd}`;
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const displayDate = `${day} ${months[month - 1]} ${year}`;
+
+  return {
+    isValid: true,
+    isoDate,
+    displayDate,
+    isCprDay: isoDate === "2026-07-21",
+  };
 }
 
 /**
- * Normalizes state code to uppercase trimmed 2-3 letter code.
+ * Checks if a course date corresponds to National IAP CPR Day (21-07-2026).
  */
-export function normalizeStateCode(code: string): string {
-  const cleaned = (code || "").trim().toUpperCase().replace(/[^A-Z]/g, "");
+export function isCprDayDate(dateStr: string): boolean {
+  return parseAndNormalizeCourseDate(dateStr).isCprDay;
+}
+
+/**
+ * Centralized Certificate Category Resolver.
+ */
+export function resolveCertificateCategory(
+  rawDate: string,
+  forcedCategory?: CertificateCategory
+): { category: CertificateCategory; normalizedDate: NormalizedCourseDate } {
+  const normalizedDate = parseAndNormalizeCourseDate(rawDate);
+  if (forcedCategory) {
+    return { category: forcedCategory, normalizedDate };
+  }
+  const category: CertificateCategory = normalizedDate.isCprDay ? "CPR_DAY" : "SANJEEVANI";
+  return { category, normalizedDate };
+}
+
+const STATE_TO_CODE: Record<string, string> = {
+  "andaman & nicobar islands": "AN",
+  "andaman and nicobar islands": "AN",
+  "andaman & nicobar": "AN",
+  "andaman & nikobar island": "AN",
+  "andhra pradesh": "AP",
+  "arunachal pradesh": "AR",
+  "assam": "AS",
+  "bihar": "BR",
+  "chandigarh": "CH",
+  "chhattisgarh": "CG",
+  "dadra and nagar haveli and daman and diu": "DD",
+  "delhi": "DL",
+  "goa": "GA",
+  "gujarat": "GJ",
+  "haryana": "HR",
+  "himachal pradesh": "HP",
+  "jammu and kashmir": "JK",
+  "jammu & kashmir": "JK",
+  "jharkhand": "JH",
+  "karnataka": "KA",
+  "kerala": "KL",
+  "ladakh": "LA",
+  "lakshadweep": "LD",
+  "madhya pradesh": "MP",
+  "maharashtra": "MH",
+  "manipur": "MN",
+  "meghalaya": "ML",
+  "mizoram": "MZ",
+  "nagaland": "NL",
+  "odisha": "OR",
+  "puducherry": "PY",
+  "punjab": "PB",
+  "rajasthan": "RJ",
+  "sikkim": "SK",
+  "tamil nadu": "TN",
+  "telangana": "TS",
+  "tripura": "TR",
+  "uttar pradesh": "UP",
+  "uttarakhand": "UK",
+  "west bengal": "WB",
+};
+
+/**
+ * Normalizes state code or state name to standard 2-4 letter state code.
+ */
+export function normalizeStateCode(codeOrName: string): string {
+  if (!codeOrName) return "XX";
+  const trimmed = codeOrName.trim();
+  const lower = trimmed.toLowerCase();
+  if (STATE_TO_CODE[lower]) {
+    return STATE_TO_CODE[lower];
+  }
+  const cleaned = trimmed.toUpperCase().replace(/[^A-Z]/g, "");
+  if (cleaned.length >= 2 && cleaned.length <= 4) {
+    return cleaned;
+  }
   return cleaned || "XX";
 }
 
@@ -507,8 +839,239 @@ export async function saveSingleIndividualCertificate(params: {
   return newRecord;
 }
 
+export interface DuplicateIndexItem {
+  certificateId: string;
+  participantName: string;
+  venue: string;
+  city: string;
+  state: string;
+}
+
+export interface UnifiedDuplicateMatch {
+  status: "ALREADY_CERTIFIED" | "REVIEW_REQUIRED" | "UNIQUE";
+  existingCertificateId?: string;
+  reason?: string;
+}
+
 /**
- * Finds if a participant has already received a certificate (O(1) in-memory lookup).
+ * Builds the comprehensive unified participant duplicate index across:
+ * 1. Master CSV datasets (Final_Participant_Certification_Master.csv & other master CSVs)
+ * 2. Persistent storage (sanjeevani_certificates.json)
+ * 3. Database / AdminCertificateRecord records
+ */
+export function buildUnifiedParticipantDuplicateIndex(): {
+  exactMap: Map<string, DuplicateIndexItem>;
+  venueDateMap: Map<string, DuplicateIndexItem>;
+  mobileDateMap: Map<string, DuplicateIndexItem>;
+} {
+  const exactMap = new Map<string, DuplicateIndexItem>();
+  const venueDateMap = new Map<string, DuplicateIndexItem>();
+  const mobileDateMap = new Map<string, DuplicateIndexItem>();
+
+  // 1. Index master CSV records via getAllCPRCertificates("participant")
+  try {
+    const allMasterParticipants = getAllCPRCertificates("participant");
+    for (let i = 0; i < allMasterParticipants.length; i++) {
+      const p = allMasterParticipants[i];
+      if (!p.participantName || !p.certificateNumber) continue;
+
+      const normName = normalizeParticipantName(p.participantName);
+      const normVenue = normalizeParticipantName(p.venueName);
+      const normCity = normalizeParticipantName(p.city);
+      const normState = normalizeStateCode(p.zone || p.state);
+      const dateInfo = parseAndNormalizeCourseDate(p.issueDate);
+      const isoDate = dateInfo.isValid ? dateInfo.isoDate : "2026-07-21";
+      const cleanMobile = (p.mobileNumber || "").replace(/\D/g, "");
+      const cleanMobile10 = cleanMobile.length >= 10 ? cleanMobile.slice(-10) : "";
+
+      const recordInfo: DuplicateIndexItem = {
+        certificateId: p.certificateNumber.trim(),
+        participantName: p.participantName.trim(),
+        venue: p.venueName.trim(),
+        city: p.city.trim(),
+        state: p.state.trim(),
+      };
+
+      if (normName && normState) {
+        if (normVenue) {
+          const exactKey = `${normName}|${normVenue}|${normCity}|${normState}|${isoDate}`;
+          if (!exactMap.has(exactKey)) exactMap.set(exactKey, recordInfo);
+
+          const venueDateKey = `${normName}|${normVenue}|${normState}|${isoDate}`;
+          if (!venueDateMap.has(venueDateKey)) venueDateMap.set(venueDateKey, recordInfo);
+        }
+        if (cleanMobile10) {
+          const mobileKey = `${normName}|${cleanMobile10}|${isoDate}`;
+          if (!mobileDateMap.has(mobileKey)) mobileDateMap.set(mobileKey, recordInfo);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Could not index master CSV participants for duplicate check:", err);
+  }
+
+  // 2. Index stored Sanjeevani certificates (data/sanjeevani_certificates.json)
+  const storedCerts = getAllSanjeevaniFromStorage();
+  for (let i = 0; i < storedCerts.length; i++) {
+    const c = storedCerts[i];
+    if (!c.participantName || !c.certificateId) continue;
+
+    const normName = normalizeParticipantName(c.participantName);
+    const normVenue = normalizeParticipantName(c.venue);
+    const normCity = normalizeParticipantName(c.city);
+    const normState = normalizeStateCode(c.stateCode || c.state);
+    const dateInfo = parseAndNormalizeCourseDate(c.date);
+    const isoDate = dateInfo.isValid ? dateInfo.isoDate : "2026-07-21";
+    const cleanMobile = (c.mobileNumber || "").replace(/\D/g, "");
+    const cleanMobile10 = cleanMobile.length >= 10 ? cleanMobile.slice(-10) : "";
+
+    const recordInfo: DuplicateIndexItem = {
+      certificateId: c.certificateId.trim(),
+      participantName: c.participantName.trim(),
+      venue: c.venue.trim(),
+      city: c.city.trim(),
+      state: c.state.trim(),
+    };
+
+    if (c.category === "CPR_CHAMPION") {
+      const champKey = `${normName}|${normVenue}|${normState}|CHAMPION`;
+      if (!venueDateMap.has(champKey)) venueDateMap.set(champKey, recordInfo);
+    } else if (c.category === "CPR_FACILITY") {
+      const vCode = c.certificateId ? c.certificateId.trim().toUpperCase() : `${normVenue}|${normState}`;
+      if (!exactMap.has(vCode)) exactMap.set(vCode, recordInfo);
+    } else {
+      if (normName && normState) {
+        if (normVenue) {
+          const exactKey = `${normName}|${normVenue}|${normCity}|${normState}|${isoDate}`;
+          if (!exactMap.has(exactKey)) exactMap.set(exactKey, recordInfo);
+
+          const venueDateKey = `${normName}|${normVenue}|${normState}|${isoDate}`;
+          if (!venueDateMap.has(venueDateKey)) venueDateMap.set(venueDateKey, recordInfo);
+        }
+        if (cleanMobile10) {
+          const mobileKey = `${normName}|${cleanMobile10}|${isoDate}`;
+          if (!mobileDateMap.has(mobileKey)) mobileDateMap.set(mobileKey, recordInfo);
+        }
+      }
+    }
+  }
+
+  return { exactMap, venueDateMap, mobileDateMap };
+}
+
+/**
+ * Checks a candidate record against the unified duplicate index.
+ */
+export function checkParticipantDuplicate(
+  row: {
+    name: string;
+    venue: string;
+    city: string;
+    stateCode: string;
+    date: string;
+    mobileNumber?: string;
+    category?: CertificateCategory;
+    venueCode?: string;
+  },
+  index: {
+    exactMap: Map<string, DuplicateIndexItem>;
+    venueDateMap: Map<string, DuplicateIndexItem>;
+    mobileDateMap: Map<string, DuplicateIndexItem>;
+  }
+): UnifiedDuplicateMatch {
+  const normName = normalizeParticipantName(row.name);
+  const normVenue = normalizeParticipantName(row.venue);
+  const normCity = normalizeParticipantName(row.city);
+  const normState = normalizeStateCode(row.stateCode);
+  const dateInfo = parseAndNormalizeCourseDate(row.date);
+  const isoDate = dateInfo.isValid ? dateInfo.isoDate : "2026-07-21";
+  const cleanMobile = (row.mobileNumber || "").replace(/\D/g, "");
+  const cleanMobile10 = cleanMobile.length >= 10 ? cleanMobile.slice(-10) : "";
+
+  if (row.category === "CPR_FACILITY") {
+    const vCode = (row.venueCode || "").trim().toUpperCase();
+    if (vCode && index.exactMap.has(vCode)) {
+      const match = index.exactMap.get(vCode)!;
+      return {
+        status: "ALREADY_CERTIFIED",
+        existingCertificateId: match.certificateId,
+        reason: `Facility code already issued: ${match.certificateId}`,
+      };
+    }
+    const key = `${normVenue}|${normState}`;
+    if (index.exactMap.has(key)) {
+      const match = index.exactMap.get(key)!;
+      return {
+        status: "ALREADY_CERTIFIED",
+        existingCertificateId: match.certificateId,
+        reason: `Facility already registered in ${normState}: ${match.certificateId}`,
+      };
+    }
+    return { status: "UNIQUE" };
+  }
+
+  if (row.category === "CPR_CHAMPION") {
+    const champKey = `${normName}|${normVenue}|${normState}|CHAMPION`;
+    if (index.venueDateMap.has(champKey)) {
+      const match = index.venueDateMap.get(champKey)!;
+      return {
+        status: "ALREADY_CERTIFIED",
+        existingCertificateId: match.certificateId,
+        reason: `CPR Champion certificate already issued for ${match.participantName} at ${match.venue} (${match.certificateId})`,
+      };
+    }
+    return { status: "UNIQUE" };
+  }
+
+  // 1. Exact match (Name + Venue + City + State + Course Date)
+  const exactKey = `${normName}|${normVenue}|${normCity}|${normState}|${isoDate}`;
+  if (index.exactMap.has(exactKey)) {
+    const match = index.exactMap.get(exactKey)!;
+    return {
+      status: "ALREADY_CERTIFIED",
+      existingCertificateId: match.certificateId,
+      reason: `Participant already certified: ${match.certificateId} (${match.participantName} at ${match.venue})`,
+    };
+  }
+
+  // 2. Same Name + Venue + State + Course Date (minor city variation)
+  const venueDateKey = `${normName}|${normVenue}|${normState}|${isoDate}`;
+  if (index.venueDateMap.has(venueDateKey)) {
+    const match = index.venueDateMap.get(venueDateKey)!;
+    return {
+      status: "ALREADY_CERTIFIED",
+      existingCertificateId: match.certificateId,
+      reason: `Participant already certified at ${match.venue} on ${dateInfo.displayDate}: ${match.certificateId}`,
+    };
+  }
+
+  // 3. Same Name + Mobile Number on same Course Date
+  if (cleanMobile10) {
+    const mobileKey = `${normName}|${cleanMobile10}|${isoDate}`;
+    if (index.mobileDateMap.has(mobileKey)) {
+      const match = index.mobileDateMap.get(mobileKey)!;
+      const matchNormVenue = normalizeParticipantName(match.venue);
+      if (matchNormVenue === normVenue) {
+        return {
+          status: "ALREADY_CERTIFIED",
+          existingCertificateId: match.certificateId,
+          reason: `Participant already certified with matching phone on ${dateInfo.displayDate}: ${match.certificateId}`,
+        };
+      } else {
+        return {
+          status: "REVIEW_REQUIRED",
+          existingCertificateId: match.certificateId,
+          reason: `Same participant & phone registered at different venue (${match.venue}) on ${dateInfo.displayDate}. Review required.`,
+        };
+      }
+    }
+  }
+
+  return { status: "UNIQUE" };
+}
+
+/**
+ * Finds if a participant has already received a certificate.
  */
 export async function findDuplicateParticipant(
   name: string,
@@ -528,219 +1091,260 @@ export async function findDuplicateParticipant(
 }
 
 /**
- * Ultra-Fast Preview Generator:
- * 1. Groups rows in O(N) single pass.
- * 2. Fetches starting sequences for distinct state codes in parallel.
- * 3. Uses an O(1) in-memory Hash Map index for duplicate participant detection.
+ * Hardened Preview Generator:
+ * 1. Validates and normalizes course dates and fields.
+ * 2. Runs duplicate detection against the Unified Existing Participant Index.
+ * 3. Identifies eligible NEW rows.
+ * 4. Allocates sequential IDs ONLY to eligible NEW rows (never burning sequence numbers for duplicates/errors).
+ * 5. Returns detailed row-by-row status and state summary ranges.
  */
 export async function generatePreview(
   rows: SanjeevaniInputRow[],
   forcedCategory?: CertificateCategory
 ): Promise<SanjeevaniPreviewResponse> {
-  type GroupKey = `${CertificateCategory}_${string}`;
-  const groupMap: Record<GroupKey, { category: CertificateCategory; stateCode: string; rows: SanjeevaniInputRow[] }> = {};
+  const duplicateIndex = buildUnifiedParticipantDuplicateIndex();
 
-  // 1. Single O(N) grouping pass
+  // Internal batch-level duplicate tracking
+  const batchSeenExact = new Set<string>();
+  const batchSeenMobile = new Set<string>();
+
+  interface EvaluatedRow {
+    inputRow: SanjeevaniInputRow;
+    category: CertificateCategory;
+    normalizedDate: NormalizedCourseDate;
+    rowStatus: PreviewRowStatus;
+    statusReason?: string;
+    existingCertificateId?: string;
+    isDuplicate: boolean;
+    isReviewRequired: boolean;
+    isEligibleNew: boolean;
+    templateUsed: string;
+  }
+
+  const evaluatedRows: EvaluatedRow[] = [];
+
+  // Step 1 & 2: Normalize and Evaluate Each Row
   for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    if (row.isValid) {
-      let category: CertificateCategory;
-      if (forcedCategory) {
-        category = forcedCategory;
-      } else {
-        category = isCprDayDate(row.date) ? "CPR_DAY" : "SANJEEVANI";
-      }
-
-      const normState = normalizeStateCode(row.stateCode);
-      const key: GroupKey = `${category}_${normState}`;
-
-      if (!groupMap[key]) {
-        groupMap[key] = { category, stateCode: normState, rows: [] };
-      }
-      groupMap[key].rows.push(row);
-    }
-  }
-
-  // 2. Fetch sequence offsets for unique (Category + State) groups
-  const groupKeys = Object.keys(groupMap) as GroupKey[];
-  const groupHighestMap: Record<GroupKey, number> = {};
-
-  await Promise.all(
-    groupKeys.map(async (key) => {
-      const group = groupMap[key];
-      if (group.category === "CPR_FACILITY") {
-        groupHighestMap[key] = 0;
-      } else {
-        groupHighestMap[key] = await getHighestSequenceForCategoryAndState(group.category, group.stateCode);
-      }
-    })
-  );
-
-  // 3. Build state allocation summaries and running sequence counters
-  const groupRunningOffset: Record<GroupKey, number> = {};
-  const stateSummaries: StateAllocationSummary[] = [];
-
-  for (let i = 0; i < groupKeys.length; i++) {
-    const key = groupKeys[i];
-    const group = groupMap[key];
-    const count = group.rows.length;
-    let startingSeq = 101;
-    let endingSeq = 101 + count - 1;
-    let startingCertificateId = "";
-    let endingCertificateId = "";
-    let lastCertificateId: string | null = null;
-    let lastIssuedSequence = 0;
-
-    let templateUsed = "cpr sanjeevani certificate 2.svg";
-    let categoryName = "IAP CPR Sanjeevani";
-
-    if (group.category === "CPR_DAY") {
-      templateUsed = "Lay Rescuer CPR Day.svg";
-      categoryName = "National IAP CPR Day";
-      const highest = groupHighestMap[key] || 0;
-      lastIssuedSequence = highest;
-      startingSeq = highest > 0 ? highest + 1 : 101;
-      endingSeq = startingSeq + count - 1;
-      lastCertificateId = highest > 0 ? buildCertificateId(group.category, group.stateCode, highest) : null;
-      startingCertificateId = buildCertificateId(group.category, group.stateCode, startingSeq);
-      endingCertificateId = buildCertificateId(group.category, group.stateCode, endingSeq);
-      groupRunningOffset[key] = startingSeq;
-    } else if (group.category === "CPR_CHAMPION") {
-      templateUsed = "CPR Champions.svg";
-      categoryName = "CPR Champion";
-      const highest = groupHighestMap[key] || 0;
-      lastIssuedSequence = highest;
-      startingSeq = highest > 0 ? highest + 1 : 101;
-      endingSeq = startingSeq + count - 1;
-      lastCertificateId = highest > 0 ? buildCertificateId(group.category, group.stateCode, highest) : null;
-      startingCertificateId = buildCertificateId(group.category, group.stateCode, startingSeq);
-      endingCertificateId = buildCertificateId(group.category, group.stateCode, endingSeq);
-      groupRunningOffset[key] = startingSeq;
-    } else if (group.category === "CPR_FACILITY") {
-      templateUsed = "CPR Facility Certificate.svg";
-      categoryName = "CPR Facility / Venue";
-      startingCertificateId = group.rows[0]?.venueCode || `IAP-CPR-Day/Venue/${group.stateCode}-101`;
-      endingCertificateId = group.rows[group.rows.length - 1]?.venueCode || startingCertificateId;
-      startingSeq = 1;
-      endingSeq = count;
-      groupRunningOffset[key] = 1;
-    } else {
-      const highest = groupHighestMap[key] || 0;
-      lastIssuedSequence = highest;
-      startingSeq = highest > 0 ? highest + 1 : 101;
-      endingSeq = startingSeq + count - 1;
-      lastCertificateId = highest > 0 ? buildCertificateId(group.category, group.stateCode, highest) : null;
-      startingCertificateId = buildCertificateId(group.category, group.stateCode, startingSeq);
-      endingCertificateId = buildCertificateId(group.category, group.stateCode, endingSeq);
-      groupRunningOffset[key] = startingSeq;
-    }
-
-    stateSummaries.push({
-      category: group.category,
-      categoryName,
-      stateCode: group.stateCode,
-      stateName: group.rows[0]?.state || group.stateCode,
-      lastIssuedSequence,
-      lastCertificateId,
-      startingSequence: startingSeq,
-      startingCertificateId,
-      countGenerating: count,
-      endingSequence: endingSeq,
-      endingCertificateId,
-      templateUsed,
-    });
-  }
-
-  // 4. Build an O(1) in-memory duplicate lookup Map
-  const allStoredCerts = getAllSanjeevaniFromStorage();
-  const existingParticipantMap = new Map<string, SanjeevaniCertificateRecord>();
-
-  for (let i = 0; i < allStoredCerts.length; i++) {
-    const cert = allStoredCerts[i];
-    let key = `${normalizeParticipantName(cert.participantName)}|${normalizeStateCode(cert.stateCode)}`;
-    if (cert.category === "CPR_CHAMPION") {
-      key = `${normalizeParticipantName(cert.participantName)}|${normalizeStateCode(cert.stateCode)}|${normalizeParticipantName(cert.venue)}`;
-    } else if (cert.category === "CPR_FACILITY") {
-      key = cert.certificateId ? cert.certificateId.trim().toUpperCase() : `${normalizeParticipantName(cert.venue)}|${normalizeStateCode(cert.stateCode)}`;
-    }
-    if (!existingParticipantMap.has(key)) {
-      existingParticipantMap.set(key, cert);
-    }
-  }
-
-  // 5. Single O(N) mapping pass for preview rows
-  let duplicateCount = 0;
-  const previewRows: PreviewRowResult[] = new Array(rows.length);
-
-  for (let i = 0; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row.isValid) {
-      previewRows[i] = {
-        ...row,
-        category: forcedCategory || "SANJEEVANI",
-        proposedCertificateId: "",
-        proposedSequence: 0,
-        isDuplicate: false,
-        templateUsed: "",
-      };
-      continue;
-    }
+    const r = rows[i];
+    const dateResult = parseAndNormalizeCourseDate(r.date);
 
     let category: CertificateCategory;
     if (forcedCategory) {
       category = forcedCategory;
     } else {
-      category = isCprDayDate(row.date) ? "CPR_DAY" : "SANJEEVANI";
+      category = dateResult.isCprDay ? "CPR_DAY" : "SANJEEVANI";
     }
 
-    const normState = normalizeStateCode(row.stateCode);
-    const key: GroupKey = `${category}_${normState}`;
-
-    let assignedSeq = groupRunningOffset[key]++;
-    let proposedId = "";
     let templateUsed = "cpr sanjeevani certificate 2.svg";
+    if (category === "CPR_DAY") templateUsed = "Lay Rescuer CPR Day.svg";
+    else if (category === "CPR_CHAMPION") templateUsed = "CPR Champions.svg";
+    else if (category === "CPR_FACILITY") templateUsed = "CPR Facility Certificate.svg";
 
-    if (category === "CPR_FACILITY") {
-      proposedId = (row.venueCode || "").trim();
-      if (!proposedId) {
-        proposedId = `IAP-CPR-Day/Venue/${normState}-${assignedSeq}`;
+    if (!r.isValid || !dateResult.isValid) {
+      const errList = [...r.errors];
+      if (!dateResult.isValid && dateResult.error) {
+        errList.push(dateResult.error);
       }
-      templateUsed = "CPR Facility Certificate.svg";
-    } else if (category === "CPR_DAY") {
-      proposedId = buildCertificateId(category, normState, assignedSeq);
-      templateUsed = "Lay Rescuer CPR Day.svg";
-    } else if (category === "CPR_CHAMPION") {
-      proposedId = buildCertificateId(category, normState, assignedSeq);
-      templateUsed = "CPR Champions.svg";
+      evaluatedRows.push({
+        inputRow: { ...r, isValid: false, errors: errList },
+        category,
+        normalizedDate: dateResult,
+        rowStatus: "VALIDATION ERROR",
+        statusReason: errList.join("; "),
+        isDuplicate: false,
+        isReviewRequired: false,
+        isEligibleNew: false,
+        templateUsed,
+      });
+      continue;
+    }
+
+    const normName = normalizeParticipantName(r.name);
+    const normVenue = normalizeParticipantName(r.venue);
+    const normCity = normalizeParticipantName(r.city);
+    const normState = normalizeStateCode(r.stateCode);
+    const isoDate = dateResult.isoDate;
+    const cleanMobile = (r.mobileNumber || "").replace(/\D/g, "");
+    const cleanMobile10 = cleanMobile.length >= 10 ? cleanMobile.slice(-10) : "";
+
+    // Check duplicate against Unified Index (Master CSVs + Stored JSON + DB)
+    const dupCheck = checkParticipantDuplicate(
+      {
+        name: r.name,
+        venue: r.venue,
+        city: r.city,
+        stateCode: r.stateCode,
+        date: r.date,
+        mobileNumber: r.mobileNumber,
+        category,
+        venueCode: r.venueCode,
+      },
+      duplicateIndex
+    );
+
+    const batchExactKey = `${normName}|${normVenue}|${normCity}|${normState}|${isoDate}`;
+    const isBatchExactDup = batchSeenExact.has(batchExactKey);
+
+    if (dupCheck.status === "ALREADY_CERTIFIED" || isBatchExactDup) {
+      evaluatedRows.push({
+        inputRow: r,
+        category,
+        normalizedDate: dateResult,
+        rowStatus: "ALREADY CERTIFIED",
+        statusReason: isBatchExactDup
+          ? "Duplicate entry within current upload file"
+          : dupCheck.reason || `Already certified (${dupCheck.existingCertificateId})`,
+        existingCertificateId: dupCheck.existingCertificateId,
+        isDuplicate: true,
+        isReviewRequired: false,
+        isEligibleNew: false,
+        templateUsed,
+      });
+    } else if (dupCheck.status === "REVIEW_REQUIRED") {
+      evaluatedRows.push({
+        inputRow: r,
+        category,
+        normalizedDate: dateResult,
+        rowStatus: "REVIEW REQUIRED",
+        statusReason: dupCheck.reason || "Ambiguous candidate record matches existing entry.",
+        existingCertificateId: dupCheck.existingCertificateId,
+        isDuplicate: false,
+        isReviewRequired: true,
+        isEligibleNew: false,
+        templateUsed,
+      });
     } else {
-      proposedId = buildCertificateId(category, normState, assignedSeq);
+      // Eligible NEW Record
+      let newStatus: PreviewRowStatus = "NEW – CPR DAY";
+      if (category === "SANJEEVANI") newStatus = "NEW – SANJEEVANI";
+      else if (category === "CPR_CHAMPION") newStatus = "NEW – CHAMPION";
+      else if (category === "CPR_FACILITY") newStatus = "NEW – FACILITY";
+
+      batchSeenExact.add(batchExactKey);
+      if (cleanMobile10) batchSeenMobile.add(`${normName}|${cleanMobile10}|${isoDate}`);
+
+      evaluatedRows.push({
+        inputRow: r,
+        category,
+        normalizedDate: dateResult,
+        rowStatus: newStatus,
+        statusReason: "Ready for certificate issuance",
+        isDuplicate: false,
+        isReviewRequired: false,
+        isEligibleNew: true,
+        templateUsed,
+      });
     }
-
-    // O(1) Instant Map duplicate check
-    let dupKey = `${normalizeParticipantName(row.name)}|${normState}`;
-    if (category === "CPR_CHAMPION") {
-      dupKey = `${normalizeParticipantName(row.name)}|${normState}|${normalizeParticipantName(row.venue)}`;
-    } else if (category === "CPR_FACILITY") {
-      dupKey = (row.venueCode || proposedId).trim().toUpperCase();
-    }
-
-    const dupRecord = existingParticipantMap.get(dupKey);
-    const isDup = Boolean(dupRecord);
-    if (isDup) duplicateCount++;
-
-    previewRows[i] = {
-      ...row,
-      category,
-      proposedCertificateId: proposedId,
-      proposedSequence: assignedSeq,
-      isDuplicate: isDup,
-      existingCertificateId: dupRecord?.certificateId,
-      templateUsed,
-    };
   }
 
-  const validCount = previewRows.filter((r) => r.isValid).length;
-  const errorCount = previewRows.length - validCount;
+  // Step 3: Group ONLY Eligible NEW Rows by (Category, StateCode)
+  type GroupKey = `${CertificateCategory}_${string}`;
+  const eligibleGroupMap: Record<GroupKey, { category: CertificateCategory; stateCode: string; count: number }> = {};
+
+  for (let i = 0; i < evaluatedRows.length; i++) {
+    const er = evaluatedRows[i];
+    if (er.isEligibleNew) {
+      const normState = normalizeStateCode(er.inputRow.stateCode);
+      const key: GroupKey = `${er.category}_${normState}`;
+      if (!eligibleGroupMap[key]) {
+        eligibleGroupMap[key] = { category: er.category, stateCode: normState, count: 0 };
+      }
+      eligibleGroupMap[key].count++;
+    }
+  }
+
+  // Step 4: Fetch Highest Sequences for Groups
+  const groupKeys = Object.keys(eligibleGroupMap) as GroupKey[];
+  const groupRunningOffsets: Record<GroupKey, number> = {};
+  const stateSummaries: StateAllocationSummary[] = [];
+
+  await Promise.all(
+    groupKeys.map(async (key) => {
+      const group = eligibleGroupMap[key];
+      if (group.category === "CPR_FACILITY") {
+        groupRunningOffsets[key] = 1;
+      } else {
+        const highest = await getHighestSequenceForCategoryAndState(group.category, group.stateCode);
+        const startingSeq = highest > 0 ? highest + 1 : 101;
+        groupRunningOffsets[key] = startingSeq;
+
+        let categoryName = "IAP CPR Sanjeevani";
+        let templateUsed = "cpr sanjeevani certificate 2.svg";
+        if (group.category === "CPR_DAY") {
+          categoryName = "National IAP CPR Day";
+          templateUsed = "Lay Rescuer CPR Day.svg";
+        } else if (group.category === "CPR_CHAMPION") {
+          categoryName = "CPR Champion";
+          templateUsed = "CPR Champions.svg";
+        }
+
+        const endingSeq = startingSeq + group.count - 1;
+
+        stateSummaries.push({
+          category: group.category,
+          categoryName,
+          stateCode: group.stateCode,
+          lastIssuedSequence: highest,
+          lastCertificateId: highest > 0 ? buildCertificateId(group.category, group.stateCode, highest) : null,
+          startingSequence: startingSeq,
+          startingCertificateId: buildCertificateId(group.category, group.stateCode, startingSeq),
+          countGenerating: group.count,
+          endingSequence: endingSeq,
+          endingCertificateId: buildCertificateId(group.category, group.stateCode, endingSeq),
+          templateUsed,
+        });
+      }
+    })
+  );
+
+  // Step 5: Allocate Sequential IDs ONLY to Eligible NEW Rows
+  let validCount = 0;
+  let duplicateCount = 0;
+  let errorCount = 0;
+  const previewRows: PreviewRowResult[] = new Array(evaluatedRows.length);
+
+  for (let i = 0; i < evaluatedRows.length; i++) {
+    const er = evaluatedRows[i];
+    let proposedId = "";
+    let proposedSeq = 0;
+
+    if (er.isEligibleNew) {
+      validCount++;
+      const normState = normalizeStateCode(er.inputRow.stateCode);
+      const key: GroupKey = `${er.category}_${normState}`;
+
+      if (er.category === "CPR_FACILITY") {
+        proposedId = (er.inputRow.venueCode || "").trim();
+        if (!proposedId) {
+          proposedSeq = groupRunningOffsets[key]++;
+          proposedId = `IAP-CPR-Day/Venue/${normState}-${proposedSeq}`;
+        }
+      } else {
+        proposedSeq = groupRunningOffsets[key]++;
+        proposedId = buildCertificateId(er.category, normState, proposedSeq);
+      }
+    } else if (er.isDuplicate) {
+      duplicateCount++;
+    } else {
+      errorCount++;
+    }
+
+    previewRows[i] = {
+      ...er.inputRow,
+      date: er.normalizedDate.displayDate || er.inputRow.date,
+      category: er.category,
+      proposedCertificateId: proposedId,
+      proposedSequence: proposedSeq,
+      isDuplicate: er.isDuplicate,
+      isReviewRequired: er.isReviewRequired,
+      rowStatus: er.rowStatus,
+      statusReason: er.statusReason,
+      existingCertificateId: er.existingCertificateId,
+      normalizedCourseDate: er.normalizedDate.isoDate,
+      displayDate: er.normalizedDate.displayDate || er.inputRow.date,
+      templateUsed: er.templateUsed,
+    };
+  }
 
   return {
     totalRows: rows.length,
@@ -753,7 +1357,11 @@ export async function generatePreview(
 }
 
 /**
- * Atomically allocates, saves, and creates certificates and batch record with automatic category selection.
+ * Hardened Batch Generation:
+ * 1. Validates and normalizes dates.
+ * 2. Checks duplicates against Unified Existing Participant Index.
+ * 3. Allocates sequential IDs strictly to created rows without burning numbers for duplicates.
+ * 4. Atomically saves to persistent storage and database.
  */
 export async function saveGeneratedBatch(
   originalFileName: string,
@@ -772,111 +1380,134 @@ export async function saveGeneratedBatch(
   const nowIso = now.toISOString();
   const batchId = `BATCH-${now.getTime()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  // Determine category & state-wise sequences atomically
-  type GroupKey = `${CertificateCategory}_${string}`;
-  const groupMap: Record<GroupKey, { category: CertificateCategory; stateCode: string; rows: SanjeevaniInputRow[] }> = {};
+  const duplicateIndex = buildUnifiedParticipantDuplicateIndex();
+  const batchSeenExact = new Set<string>();
 
-  for (let i = 0; i < validRows.length; i++) {
-    const row = validRows[i];
-    if (row.isValid) {
-      let category: CertificateCategory;
-      if (forcedCategory) {
-        category = forcedCategory;
-      } else {
-        category = isCprDayDate(row.date) ? "CPR_DAY" : "SANJEEVANI";
-      }
-
-      const normState = normalizeStateCode(row.stateCode);
-      const key: GroupKey = `${category}_${normState}`;
-
-      if (!groupMap[key]) {
-        groupMap[key] = { category, stateCode: normState, rows: [] };
-      }
-      groupMap[key].rows.push(row);
-    }
+  interface RowsToGenerate {
+    inputRow: SanjeevaniInputRow;
+    category: CertificateCategory;
+    normalizedDate: NormalizedCourseDate;
+    templateUsed: string;
   }
 
-  const groupKeys = Object.keys(groupMap) as GroupKey[];
-  const groupNextSeq: Record<GroupKey, number> = {};
-
-  await Promise.all(
-    groupKeys.map(async (key) => {
-      const group = groupMap[key];
-      if (group.category === "CPR_FACILITY") {
-        groupNextSeq[key] = 1;
-      } else {
-        const highest = await getHighestSequenceForCategoryAndState(group.category, group.stateCode);
-        groupNextSeq[key] = highest > 0 ? highest + 1 : 101;
-      }
-    })
-  );
-
-  // O(1) duplicate map
-  const allStoredCerts = getAllSanjeevaniFromStorage();
-  const existingParticipantMap = new Map<string, boolean>();
-  for (let i = 0; i < allStoredCerts.length; i++) {
-    const c = allStoredCerts[i];
-    let key = `${normalizeParticipantName(c.participantName)}|${normalizeStateCode(c.stateCode)}`;
-    if (c.category === "CPR_CHAMPION") {
-      key = `${normalizeParticipantName(c.participantName)}|${normalizeStateCode(c.stateCode)}|${normalizeParticipantName(c.venue)}`;
-    } else if (c.category === "CPR_FACILITY") {
-      key = c.certificateId ? c.certificateId.trim().toUpperCase() : `${normalizeParticipantName(c.venue)}|${normalizeStateCode(c.stateCode)}`;
-    }
-    existingParticipantMap.set(key, true);
-  }
-
-  const newCertificates: SanjeevaniCertificateRecord[] = [];
+  const rowsToGenerate: RowsToGenerate[] = [];
   let skippedCount = 0;
   let duplicateCount = 0;
 
+  // Step 1: Filter and Classify Eligible Rows
   for (let i = 0; i < validRows.length; i++) {
     const row = validRows[i];
-    if (!row.isValid) {
-      skippedCount++;
-      continue;
-    }
+    const dateResult = parseAndNormalizeCourseDate(row.date);
 
     let category: CertificateCategory;
     if (forcedCategory) {
       category = forcedCategory;
     } else {
-      category = isCprDayDate(row.date) ? "CPR_DAY" : "SANJEEVANI";
+      category = dateResult.isCprDay ? "CPR_DAY" : "SANJEEVANI";
     }
 
-    const normState = normalizeStateCode(row.stateCode);
-    const key: GroupKey = `${category}_${normState}`;
-
-    const seq = groupNextSeq[key]++;
-    let certId = "";
     let templateUsed = "cpr sanjeevani certificate 2.svg";
+    if (category === "CPR_DAY") templateUsed = "Lay Rescuer CPR Day.svg";
+    else if (category === "CPR_CHAMPION") templateUsed = "CPR Champions.svg";
+    else if (category === "CPR_FACILITY") templateUsed = "CPR Facility Certificate.svg";
 
-    if (category === "CPR_FACILITY") {
-      certId = (row.venueCode || "").trim();
-      if (!certId) certId = `IAP-CPR-Day/Venue/${normState}-${seq}`;
-      templateUsed = "CPR Facility Certificate.svg";
-    } else if (category === "CPR_DAY") {
-      certId = buildCertificateId(category, normState, seq);
-      templateUsed = "Lay Rescuer CPR Day.svg";
-    } else if (category === "CPR_CHAMPION") {
-      certId = buildCertificateId(category, normState, seq);
-      templateUsed = "CPR Champions.svg";
-    } else {
-      certId = buildCertificateId(category, normState, seq);
+    if (!row.isValid || !dateResult.isValid) {
+      skippedCount++;
+      continue;
     }
 
-    let dupKey = `${normalizeParticipantName(row.name)}|${normState}`;
-    if (category === "CPR_CHAMPION") {
-      dupKey = `${normalizeParticipantName(row.name)}|${normState}|${normalizeParticipantName(row.venue)}`;
-    } else if (category === "CPR_FACILITY") {
-      dupKey = certId.trim().toUpperCase();
-    }
+    const dupCheck = checkParticipantDuplicate(
+      {
+        name: row.name,
+        venue: row.venue,
+        city: row.city,
+        stateCode: row.stateCode,
+        date: row.date,
+        mobileNumber: row.mobileNumber,
+        category,
+        venueCode: row.venueCode,
+      },
+      duplicateIndex
+    );
 
-    const isDup = existingParticipantMap.has(dupKey);
+    const normName = normalizeParticipantName(row.name);
+    const normVenue = normalizeParticipantName(row.venue);
+    const normCity = normalizeParticipantName(row.city);
+    const normState = normalizeStateCode(row.stateCode);
+    const isoDate = dateResult.isoDate;
+    const batchExactKey = `${normName}|${normVenue}|${normCity}|${normState}|${isoDate}`;
 
-    if (isDup && !allowDuplicates) {
+    const isBatchDup = batchSeenExact.has(batchExactKey);
+
+    if ((dupCheck.status === "ALREADY_CERTIFIED" || isBatchDup) && !allowDuplicates) {
       duplicateCount++;
       skippedCount++;
       continue;
+    }
+
+    if (dupCheck.status === "REVIEW_REQUIRED" && !allowDuplicates) {
+      skippedCount++;
+      continue;
+    }
+
+    batchSeenExact.add(batchExactKey);
+    rowsToGenerate.push({
+      inputRow: row,
+      category,
+      normalizedDate: dateResult,
+      templateUsed,
+    });
+  }
+
+  // Step 2: Group ONLY Rows to be Generated
+  type GroupKey = `${CertificateCategory}_${string}`;
+  const groupNextSeq: Record<GroupKey, number> = {};
+  const groupKeysSet = new Set<GroupKey>();
+
+  for (let i = 0; i < rowsToGenerate.length; i++) {
+    const r = rowsToGenerate[i];
+    const normState = normalizeStateCode(r.inputRow.stateCode);
+    const key: GroupKey = `${r.category}_${normState}`;
+    groupKeysSet.add(key);
+  }
+
+  const groupKeys = Array.from(groupKeysSet);
+
+  await Promise.all(
+    groupKeys.map(async (key) => {
+      const parts = key.split("_");
+      const category = (parts.length === 3 ? `${parts[0]}_${parts[1]}` : parts[0]) as CertificateCategory;
+      const stateCode = parts[parts.length - 1];
+
+      if (category === "CPR_FACILITY") {
+        groupNextSeq[key] = 1;
+      } else {
+        const highest = await getHighestSequenceForCategoryAndState(category, stateCode);
+        groupNextSeq[key] = highest > 0 ? highest + 1 : 101;
+      }
+    })
+  );
+
+  // Step 3: Build Certificate Records with Sequential IDs
+  const newCertificates: SanjeevaniCertificateRecord[] = [];
+
+  for (let i = 0; i < rowsToGenerate.length; i++) {
+    const { inputRow: row, category, normalizedDate, templateUsed } = rowsToGenerate[i];
+    const normState = normalizeStateCode(row.stateCode);
+    const key: GroupKey = `${category}_${normState}`;
+
+    let seq = 0;
+    let certId = "";
+
+    if (category === "CPR_FACILITY") {
+      certId = (row.venueCode || "").trim();
+      if (!certId) {
+        seq = groupNextSeq[key]++;
+        certId = `IAP-CPR-Day/Venue/${normState}-${seq}`;
+      }
+    } else {
+      seq = groupNextSeq[key]++;
+      certId = buildCertificateId(category, normState, seq);
     }
 
     const venueVal = row.venue || row.name;
@@ -891,7 +1522,7 @@ export async function saveGeneratedBatch(
       templateUsed,
       participantName: participantNameVal,
       normalizedName: normalizeParticipantName(participantNameVal),
-      date: row.date.trim() || "21-07-2026",
+      date: normalizedDate.displayDate || row.date.trim() || "21 July 2026",
       venue: venueVal.trim(),
       venueCode: row.venueCode?.trim() || certId,
       city: row.city.trim(),
@@ -907,7 +1538,6 @@ export async function saveGeneratedBatch(
     };
 
     newCertificates.push(record);
-    existingParticipantMap.set(dupKey, true);
   }
 
   const batchRecord: SanjeevaniBatchRecord = {
@@ -924,7 +1554,7 @@ export async function saveGeneratedBatch(
     updatedAt: nowIso,
   };
 
-  // 1. Save to local JSON files and update cache
+  // 1. Commit to persistent JSON files & cache
   const existingCerts = getAllSanjeevaniFromStorage();
   const updatedCerts = [...existingCerts, ...newCertificates];
   fs.writeFileSync(CERTS_FILE, JSON.stringify(updatedCerts, null, 2), "utf8");
@@ -933,11 +1563,10 @@ export async function saveGeneratedBatch(
   const updatedBatches = [batchRecord, ...existingBatches];
   fs.writeFileSync(BATCHES_FILE, JSON.stringify(updatedBatches, null, 2), "utf8");
 
-  // Invalidate and reload cache
   cachedStorageCerts = updatedCerts;
   cachedStorageBatches = updatedBatches;
 
-  // 2. Synchronize to Prisma DB asynchronously without blocking response
+  // 2. Asynchronously synchronize to Prisma DB
   if (prisma) {
     (async () => {
       try {
@@ -978,7 +1607,7 @@ export async function saveGeneratedBatch(
           });
         }
       } catch (dbErr) {
-        // Safe asynchronous background sync
+        // Safe background sync
       }
     })();
   }
