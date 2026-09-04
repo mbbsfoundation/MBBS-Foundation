@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminRequest } from "@/lib/adminAuth";
 import {
-  loadAllVerifications,
-  updateVerificationStatus,
+  loadAllVerificationsAsync,
+  updateVerificationStatusAsync,
   getVerificationStatusCounts,
   VerificationSubmissionStatus,
   VerificationSubmissionType,
@@ -17,11 +17,11 @@ import {
  *   - ?status=<PENDING_ADMIN_REVIEW|ACCEPTED|REJECTED|NEEDS_CLARIFICATION|IMPLEMENTED|ALL>
  *   - ?type=<VERIFY_CORRECT|SUBMIT_CORRECTION|MISSING_COURSE|ALL>
  *   - ?q=<searchQuery>
- * - Returns submission list with full details (mobile, email, side-by-side payload) and summary counts.
+ * - Returns submission list with full details (mobile, email, side-by-side payload) and summary counts from PostgreSQL.
  *
  * POST /api/cprsanjeevani/verify/admin
  * - Body: { id: string, status: VerificationSubmissionStatus, adminNote?: string, adminReviewedBy?: string }
- * - Updates submission review status.
+ * - Updates submission review status in PostgreSQL.
  */
 
 export async function GET(request: NextRequest) {
@@ -39,44 +39,52 @@ export async function GET(request: NextRequest) {
     const typeFilter = (searchParams.get("type") || "ALL").trim().toUpperCase();
     const query = (searchParams.get("q") || "").trim().toLowerCase();
 
-    let submissions = loadAllVerifications();
+    let submissions = await loadAllVerificationsAsync({
+      state: stateFilter,
+      status: statusFilter,
+      type: typeFilter,
+      search: query,
+    });
 
-    // Sort newest first
-    submissions.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const allSubmissions = await loadAllVerificationsAsync();
+    const filteredForCounts = stateFilter && stateFilter !== "ALL" && stateFilter !== "ALL_INDIA"
+      ? allSubmissions.filter((s) => s.state.toLowerCase() === stateFilter.toLowerCase())
+      : allSubmissions;
 
-    // Apply State Filter
-    if (stateFilter && stateFilter.toUpperCase() !== "ALL" && stateFilter.toUpperCase() !== "ALL_INDIA") {
-      submissions = submissions.filter(
-        (s) => s.state.toLowerCase() === stateFilter.toLowerCase()
-      );
+    let pending = 0;
+    let needsClarification = 0;
+    let accepted = 0;
+    let rejected = 0;
+    let implemented = 0;
+
+    for (const item of filteredForCounts) {
+      switch (item.submissionStatus) {
+        case "PENDING_ADMIN_REVIEW":
+          pending++;
+          break;
+        case "NEEDS_CLARIFICATION":
+          needsClarification++;
+          break;
+        case "ACCEPTED":
+          accepted++;
+          break;
+        case "REJECTED":
+          rejected++;
+          break;
+        case "IMPLEMENTED":
+          implemented++;
+          break;
+      }
     }
 
-    // Apply Status Filter
-    if (statusFilter && statusFilter !== "ALL") {
-      submissions = submissions.filter((s) => s.submissionStatus === statusFilter);
-    }
-
-    // Apply Type Filter
-    if (typeFilter && typeFilter !== "ALL") {
-      submissions = submissions.filter((s) => s.submissionType === typeFilter);
-    }
-
-    // Apply Search Query
-    if (query) {
-      submissions = submissions.filter((s) => {
-        const matchName = (s.submittedByName || "").toLowerCase().includes(query);
-        const matchCoord = (s.mappedCoordinatorName || "").toLowerCase().includes(query);
-        const matchVenue = (s.venue || "").toLowerCase().includes(query);
-        const matchCity = (s.city || "").toLowerCase().includes(query);
-        const matchMobile = (s.submittedByMobile || "").includes(query);
-        const matchNote = (s.correctionNote || "").toLowerCase().includes(query);
-        return matchName || matchCoord || matchVenue || matchCity || matchMobile || matchNote;
-      });
-    }
-
-    const counts = getVerificationStatusCounts(stateFilter !== "ALL" ? stateFilter : undefined);
+    const counts = {
+      total: filteredForCounts.length,
+      pending,
+      needsClarification,
+      accepted,
+      rejected,
+      implemented,
+    };
 
     return NextResponse.json({
       success: true,
@@ -129,7 +137,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const updated = updateVerificationStatus(id, {
+    const updated = await updateVerificationStatusAsync(id, {
       status,
       adminReviewedBy,
       adminNote,
@@ -155,3 +163,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

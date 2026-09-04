@@ -881,3 +881,52 @@ model AnalyticsSnapshot {
   @@index([authorityId])
 }
 
+// ============================================================================
+// CPR SANJEEVANI COURSE COORDINATOR VERIFICATION & FEEDBACK SUBMISSIONS
+// ============================================================================
+
+model CPRVerificationSubmission {
+  id                     String    @id @default(cuid())
+
+  submissionType         String
+  submissionStatus       String    @default("PENDING_ADMIN_REVIEW")
+
+  state                  String
+  stateCode              String?
+
+  reportRowId            String?
+  canonicalVenueId       String?
+  courseOrSessionId      String?
+
+  venue                  String?
+  city                   String?
+
+  mappedCoordinatorName  String?
+  submittedByName        String
+  submittedByMobile      String
+  submittedByEmail       String?
+
+  identityStatus         String
+
+  currentDataJson        Json?
+  proposedChangesJson    Json?
+
+  correctionNote         String?
+  evidenceNote           String?
+
+  adminReviewedBy        String?
+  adminReviewedAt        DateTime?
+  adminNote              String?
+  adminDecision          String?
+
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@index([state, submissionStatus])
+  @@index([canonicalVenueId])
+  @@index([submittedByMobile])
+  @@index([submissionStatus])
+  @@index([createdAt])
+}
+
+

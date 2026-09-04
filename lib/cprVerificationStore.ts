@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { prisma } from "./prisma";
 import {
   getCPRDayReconciliationReport,
   loadUnifiedLiveCPRDayData,
@@ -29,12 +30,13 @@ export type SubmitterIdentityStatus =
   | "OTHER_MANUAL_REVIEW";
 
 export interface CoordinatorVerificationSubmission {
-  id: string; // e.g. "VERIF-1725448800000-A1B2"
+  id: string; // e.g. "VERIF-1725448800000-A1B2" or cuid
   submissionType: VerificationSubmissionType;
   state: string; // Canonical state name
   stateCode: string;
 
   // Course / Venue mapping references
+  reportRowId?: string;
   courseOrSessionId?: string;
   canonicalVenueId?: string;
   venue?: string;
@@ -96,11 +98,90 @@ const TMP_VERIFICATIONS_FILE_PATH = path.join(
   "cpr_coordinator_verifications.json"
 );
 
-// In-Memory Storage Cache for ultra-fast serverless operations
+// In-Memory Storage Cache for fast fallbacks
 let cachedVerifications: CoordinatorVerificationSubmission[] | null = null;
 
+function prismaToSubmission(row: any): CoordinatorVerificationSubmission {
+  return {
+    id: row.id,
+    submissionType: row.submissionType as VerificationSubmissionType,
+    submissionStatus: (row.submissionStatus || "PENDING_ADMIN_REVIEW") as VerificationSubmissionStatus,
+    state: row.state,
+    stateCode: row.stateCode || normalizeStateCode(row.state),
+    reportRowId: row.reportRowId || undefined,
+    canonicalVenueId: row.canonicalVenueId || undefined,
+    courseOrSessionId: row.courseOrSessionId || undefined,
+    venue: row.venue || undefined,
+    city: row.city || undefined,
+    mappedCoordinatorName: row.mappedCoordinatorName || "",
+    submittedByName: row.submittedByName,
+    submittedByMobile: row.submittedByMobile,
+    submittedByEmail: row.submittedByEmail || undefined,
+    identityStatus: (row.identityStatus || "OTHER_MANUAL_REVIEW") as SubmitterIdentityStatus,
+    currentDataJson: (row.currentDataJson as any) || undefined,
+    proposedChangesJson: (row.proposedChangesJson as any) || undefined,
+    correctionNote: row.correctionNote || undefined,
+    evidenceNote: row.evidenceNote || undefined,
+    adminReviewedBy: row.adminReviewedBy || undefined,
+    adminReviewedAt: row.adminReviewedAt ? new Date(row.adminReviewedAt).toISOString() : undefined,
+    adminNote: row.adminNote || undefined,
+    adminDecision: row.adminDecision as any,
+    createdAt: row.createdAt ? new Date(row.createdAt).toISOString() : new Date().toISOString(),
+    updatedAt: row.updatedAt ? new Date(row.updatedAt).toISOString() : new Date().toISOString(),
+  };
+}
+
 /**
- * Loads all coordinator verification submissions from the persistent store or memory.
+ * Loads all coordinator verification submissions from PostgreSQL via Prisma.
+ */
+export async function loadAllVerificationsAsync(options?: {
+  state?: string;
+  status?: string;
+  type?: string;
+  search?: string;
+}): Promise<CoordinatorVerificationSubmission[]> {
+  try {
+    const where: any = {};
+    if (options?.state && options.state !== "ALL" && options.state !== "ALL_INDIA") {
+      where.state = {
+        equals: options.state,
+        mode: "insensitive",
+      };
+    }
+    if (options?.status && options.status !== "ALL") {
+      where.submissionStatus = options.status;
+    }
+    if (options?.type && options.type !== "ALL") {
+      where.submissionType = options.type;
+    }
+    if (options?.search && options.search.trim()) {
+      const q = options.search.trim();
+      where.OR = [
+        { submittedByName: { contains: q, mode: "insensitive" } },
+        { mappedCoordinatorName: { contains: q, mode: "insensitive" } },
+        { venue: { contains: q, mode: "insensitive" } },
+        { city: { contains: q, mode: "insensitive" } },
+        { submittedByMobile: { contains: q } },
+        { canonicalVenueId: { contains: q, mode: "insensitive" } },
+      ];
+    }
+
+    const rows = await prisma.cPRVerificationSubmission.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
+
+    const items = rows.map(prismaToSubmission);
+    cachedVerifications = items;
+    return items;
+  } catch (error) {
+    console.error("Error loading submissions from PostgreSQL (falling back to cache):", error);
+    return loadAllVerifications();
+  }
+}
+
+/**
+ * Synchronous loader for fallback / scripts.
  */
 export function loadAllVerifications(): CoordinatorVerificationSubmission[] {
   if (cachedVerifications && Array.isArray(cachedVerifications)) {
@@ -110,7 +191,6 @@ export function loadAllVerifications(): CoordinatorVerificationSubmission[] {
   try {
     let items: CoordinatorVerificationSubmission[] = [];
 
-    // 1. Try reading from project data file
     if (fs.existsSync(VERIFICATIONS_FILE_PATH)) {
       const raw = fs.readFileSync(VERIFICATIONS_FILE_PATH, "utf-8");
       if (raw.trim()) {
@@ -118,7 +198,6 @@ export function loadAllVerifications(): CoordinatorVerificationSubmission[] {
       }
     }
 
-    // 2. Try reading from /tmp fallback if available in serverless
     if (fs.existsSync(TMP_VERIFICATIONS_FILE_PATH)) {
       try {
         const tmpRaw = fs.readFileSync(TMP_VERIFICATIONS_FILE_PATH, "utf-8");
@@ -146,42 +225,66 @@ export function loadAllVerifications(): CoordinatorVerificationSubmission[] {
 }
 
 /**
- * Persists all coordinator verification submissions to the JSON file store or serverless fallback.
+ * Persists all coordinator verification submissions to memory/tmp cache.
  */
 export function persistAllVerifications(
   items: CoordinatorVerificationSubmission[]
 ): void {
   cachedVerifications = items;
-
-  // 1. Try writing to primary data path
   try {
-    const dir = path.dirname(VERIFICATIONS_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(
-      VERIFICATIONS_FILE_PATH,
-      JSON.stringify(items, null, 2),
-      "utf-8"
-    );
-  } catch (err: any) {
-    // Expected on read-only serverless lambdas (EROFS)
+    fs.writeFileSync(TMP_VERIFICATIONS_FILE_PATH, JSON.stringify(items, null, 2), "utf-8");
+  } catch (e) {}
+}
+
+/**
+ * Persists all coordinator verification submissions to PostgreSQL.
+ */
+export async function saveVerificationSubmissionAsync(
+  sub: Omit<CoordinatorVerificationSubmission, "id" | "createdAt" | "updatedAt" | "submissionStatus"> & {
+    submissionStatus?: VerificationSubmissionStatus;
   }
+): Promise<CoordinatorVerificationSubmission> {
+  const timestamp = Date.now();
+  const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const id = `VERIF-${timestamp}-${randomSuffix}`;
 
-  // 2. Fallback to /tmp if in serverless environment
   try {
-    fs.writeFileSync(
-      TMP_VERIFICATIONS_FILE_PATH,
-      JSON.stringify(items, null, 2),
-      "utf-8"
-    );
-  } catch (tmpErr) {
-    // Memory cache remains active
+    const row = await prisma.cPRVerificationSubmission.create({
+      data: {
+        id,
+        submissionType: sub.submissionType,
+        submissionStatus: sub.submissionStatus || "PENDING_ADMIN_REVIEW",
+        state: sub.state,
+        stateCode: sub.stateCode || normalizeStateCode(sub.state),
+        reportRowId: sub.reportRowId || undefined,
+        canonicalVenueId: sub.canonicalVenueId || undefined,
+        courseOrSessionId: sub.courseOrSessionId || undefined,
+        venue: sub.venue || undefined,
+        city: sub.city || undefined,
+        mappedCoordinatorName: sub.mappedCoordinatorName || sub.submittedByName,
+        submittedByName: sub.submittedByName,
+        submittedByMobile: sub.submittedByMobile,
+        submittedByEmail: sub.submittedByEmail || undefined,
+        identityStatus: sub.identityStatus,
+        currentDataJson: sub.currentDataJson || undefined,
+        proposedChangesJson: sub.proposedChangesJson || undefined,
+        correctionNote: sub.correctionNote || undefined,
+        evidenceNote: sub.evidenceNote || undefined,
+      },
+    });
+
+    const item = prismaToSubmission(row);
+    if (!cachedVerifications) cachedVerifications = [];
+    cachedVerifications.unshift(item);
+    return item;
+  } catch (dbError) {
+    console.error("PostgreSQL write failed, falling back to file/memory:", dbError);
+    return saveVerificationSubmission(sub);
   }
 }
 
 /**
- * Appends a new coordinator verification submission.
+ * Synchronous save for backwards compatibility and offline tests.
  */
 export function saveVerificationSubmission(
   sub: Omit<CoordinatorVerificationSubmission, "id" | "createdAt" | "updatedAt" | "submissionStatus"> & {
@@ -203,12 +306,62 @@ export function saveVerificationSubmission(
   };
 
   all.push(fullRecord);
-  persistAllVerifications(all);
+  cachedVerifications = all;
+  try {
+    fs.writeFileSync(TMP_VERIFICATIONS_FILE_PATH, JSON.stringify(all, null, 2), "utf-8");
+  } catch (e) {}
   return fullRecord;
 }
 
 /**
- * Updates the admin decision / status of an existing submission.
+ * Updates the admin decision / status of an existing submission in PostgreSQL.
+ */
+export async function updateVerificationStatusAsync(
+  id: string,
+  update: {
+    status: VerificationSubmissionStatus;
+    adminReviewedBy?: string;
+    adminNote?: string;
+  }
+): Promise<CoordinatorVerificationSubmission | null> {
+  const nowIso = new Date().toISOString();
+  const decision =
+    update.status === "ACCEPTED"
+      ? "ACCEPTED"
+      : update.status === "REJECTED"
+      ? "REJECTED"
+      : update.status === "NEEDS_CLARIFICATION"
+      ? "NEEDS_CLARIFICATION"
+      : update.status === "IMPLEMENTED"
+      ? "IMPLEMENTED"
+      : undefined;
+
+  try {
+    const row = await prisma.cPRVerificationSubmission.update({
+      where: { id },
+      data: {
+        submissionStatus: update.status,
+        adminReviewedBy: update.adminReviewedBy || "Administrator",
+        adminReviewedAt: new Date(nowIso),
+        adminNote: update.adminNote,
+        adminDecision: decision,
+      },
+    });
+
+    const item = prismaToSubmission(row);
+    if (cachedVerifications) {
+      const idx = cachedVerifications.findIndex((i) => i.id === id);
+      if (idx !== -1) cachedVerifications[idx] = item;
+    }
+    return item;
+  } catch (dbError) {
+    console.error("PostgreSQL update failed, using fallback:", dbError);
+    return updateVerificationStatus(id, update);
+  }
+}
+
+/**
+ * Synchronous status updater for fallback.
  */
 export function updateVerificationStatus(
   id: string,
@@ -228,7 +381,7 @@ export function updateVerificationStatus(
   const updated: CoordinatorVerificationSubmission = {
     ...current,
     submissionStatus: update.status,
-    adminReviewedBy: update.adminReviewedBy || current.adminReviewedBy || "Admin",
+    adminReviewedBy: update.adminReviewedBy || current.adminReviewedBy || "Administrator",
     adminReviewedAt: nowIso,
     adminNote: update.adminNote !== undefined ? update.adminNote : current.adminNote,
     adminDecision:
@@ -245,72 +398,28 @@ export function updateVerificationStatus(
   };
 
   all[idx] = updated;
-  persistAllVerifications(all);
+  cachedVerifications = all;
   return updated;
 }
 
-/**
- * Normalizes an Indian phone / mobile number for uniform comparison.
- */
-export function normalizeMobileNumber(raw: string): string {
-  if (!raw || typeof raw !== "string") return "";
-  const digits = raw.replace(/\D/g, "");
-  if (digits.length === 10) return digits;
-  if (digits.length === 11 && digits.startsWith("0")) return digits.substring(1);
-  if (digits.length === 12 && digits.startsWith("91")) return digits.substring(2);
-  if (digits.length > 10) return digits.slice(-10);
-  return digits;
-}
+import {
+  stateNameToSlug,
+  slugToCanonicalState,
+  normalizePersonName,
+  normalizeMobileNumber,
+  formatCoordinatorDisplayName,
+  getNormalizedCoordinatorsForDisplay,
+} from "./cprSlug";
 
-/**
- * Normalizes a person name for comparison.
- */
-export function normalizePersonName(name: string): string {
-  if (!name || typeof name !== "string") return "";
-  return name
-    .toLowerCase()
-    .replace(/\b(dr|prof|col|capt|brig|lt|col|maj|shri|sri|smt|mr|mrs|ms)\b\.?/g, "")
-    .replace(/[^a-z\s]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+export {
+  stateNameToSlug,
+  slugToCanonicalState,
+  normalizePersonName,
+  normalizeMobileNumber,
+  formatCoordinatorDisplayName,
+  getNormalizedCoordinatorsForDisplay,
+};
 
-import { stateNameToSlug } from "./cprSlug";
-export { stateNameToSlug };
-
-/**
- * Resolves any state slug, code, or name variation to the authoritative canonical State name.
- */
-export function slugToCanonicalState(rawQuery: string): string | null {
-  if (!rawQuery || typeof rawQuery !== "string") return null;
-  const q = rawQuery.trim().toLowerCase();
-
-  const lockedStates = getLockedCensusStateList();
-  // 1. Direct slug match
-  for (const s of lockedStates) {
-    if (stateNameToSlug(s.canonicalState) === q || stateNameToSlug(s.state) === q) {
-      return s.canonicalState;
-    }
-  }
-
-  // 2. Normalization match
-  const norm = normalizeDisplayState(rawQuery);
-  if (norm) {
-    const found = lockedStates.find((s) => s.canonicalState.toLowerCase() === norm.toLowerCase());
-    if (found) return found.canonicalState;
-  }
-
-  // 3. Fallback contains or matches
-  const cleanQ = q.replace(/[^a-z0-9]/g, "");
-  for (const s of lockedStates) {
-    const cleanCanon = s.canonicalState.toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (cleanCanon === cleanQ || normalizeStateCode(s.canonicalState).toLowerCase() === q) {
-      return s.canonicalState;
-    }
-  }
-
-  return null;
-}
 
 /**
  * Retrieves all distinct, sorted Coordinator names mapped to a specific State in Draft V1.

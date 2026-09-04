@@ -3,24 +3,27 @@ import {
   getDistinctCoordinatorsForState,
   getCoordinatorCoursesForState,
   evaluateCoordinatorIdentity,
-  saveVerificationSubmission,
+  saveVerificationSubmissionAsync,
+  loadAllVerificationsAsync,
   VerificationSubmissionType,
   normalizeMobileNumber,
   slugToCanonicalState,
+  getNormalizedCoordinatorsForDisplay,
 } from "@/lib/cprVerificationStore";
 import { getLockedCensusStateList } from "@/lib/cprStateCensus";
 import { normalizeStateCode } from "@/lib/sanjeevaniStorage";
+import { getCPRDayReconciliationReport } from "@/lib/cprReporting";
 
 /**
  * Public Coordinator Verification API
  *
  * GET /api/cprsanjeevani/verify?state=<stateName>&coordinator=<coordinatorName>
- * - Returns coordinator list and mapped courses for the selected coordinator.
+ * - Returns full State Draft Report with centre-wise table, metrics, and row verification status.
  * - Privacy-protected: Never returns coordinator mobile numbers or emails.
  *
  * POST /api/cprsanjeevani/verify
  * - Receives coordinator verification, correction, or missing course submission.
- * - Validates input, evaluates identity match against known records, and queues for Admin Review.
+ * - Validates input, evaluates identity match against known records, and persists to PostgreSQL.
  */
 
 export async function GET(request: NextRequest) {
@@ -50,7 +53,31 @@ export async function GET(request: NextRequest) {
     );
 
     const stateCode = normalizeStateCode(canonicalState);
-    const coordinators = getDistinctCoordinatorsForState(canonicalState);
+    const rawCoordinators = getDistinctCoordinatorsForState(canonicalState);
+    const coordinators = getNormalizedCoordinatorsForDisplay(rawCoordinators);
+
+    // Load full official State Draft Report
+    const report = getCPRDayReconciliationReport(canonicalState);
+
+    // Load existing verification submissions for this state
+    const stateSubmissions = await loadAllVerificationsAsync({ state: canonicalState });
+
+    // Build row-level verification status mapping
+    const rowStatusMap: Record<string, { status: "AWAITING_VERIFICATION" | "VERIFICATION_SUBMITTED" | "CORRECTION_SUBMITTED"; count: number }> = {};
+
+    for (const sub of stateSubmissions) {
+      const key = sub.canonicalVenueId || sub.reportRowId || sub.venue?.toLowerCase().trim() || "";
+      if (key) {
+        const current = rowStatusMap[key] || { status: "AWAITING_VERIFICATION", count: 0 };
+        current.count++;
+        if (sub.submissionType === "SUBMIT_CORRECTION") {
+          current.status = "CORRECTION_SUBMITTED";
+        } else if (sub.submissionType === "VERIFY_CORRECT" && current.status !== "CORRECTION_SUBMITTED") {
+          current.status = "VERIFICATION_SUBMITTED";
+        }
+        rowStatusMap[key] = current;
+      }
+    }
 
     let courses: any[] = [];
     if (rawCoordinator) {
@@ -62,6 +89,8 @@ export async function GET(request: NextRequest) {
       state: canonicalState,
       stateCode,
       zone: matchedState?.zone || "",
+      report,
+      rowStatusMap,
       coordinators,
       selectedCoordinator: rawCoordinator || null,
       courses,
@@ -142,13 +171,14 @@ export async function POST(request: NextRequest) {
       cleanMobile
     );
 
-    // 3. Save Submission Record
-    const record = saveVerificationSubmission({
+    // 3. Save Submission Record into PostgreSQL
+    const record = await saveVerificationSubmissionAsync({
       submissionType,
       state: canonicalState,
       stateCode,
+      reportRowId: body.reportRowId || body.canonicalVenueId || undefined,
+      canonicalVenueId: body.canonicalVenueId || body.reportRowId || undefined,
       courseOrSessionId: body.courseOrSessionId,
-      canonicalVenueId: body.canonicalVenueId,
       venue: body.venue,
       city: body.city,
       mappedCoordinatorName,
@@ -184,3 +214,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
