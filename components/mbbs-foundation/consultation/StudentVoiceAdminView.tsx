@@ -4,8 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   StudentVoiceDashboardSummary,
-  StudentOptionMetric,
-  StudentQ8StatementMetric,
 } from "@/lib/mbbs-foundation/studentVoiceTypes";
 import {
   STUDENT_SURVEY_METADATA,
@@ -26,6 +24,7 @@ export default function StudentVoiceAdminView({
   const [selectedResponse, setSelectedResponse] = useState<any | null>(null);
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [stageFilter, setStageFilter] = useState<string>("ALL");
+  const [quoteFilter, setQuoteFilter] = useState<string>("ALL");
   const [contributorFilter, setContributorFilter] = useState<string>("ALL");
 
   // Plain-Text Modal State
@@ -35,9 +34,9 @@ export default function StudentVoiceAdminView({
   const handleCopySurveyText = () => {
     try {
       const text = generateStudentVoiceSurveyPlainText();
-      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text);
-        setCopySuccessMessage("Complete Survey 2 text copied to clipboard!");
+        setCopySuccessMessage("Complete Student Voice V2 survey text copied to clipboard!");
         setTimeout(() => setCopySuccessMessage(null), 3500);
       } else {
         setShowSurveyTextModal(true);
@@ -66,10 +65,10 @@ export default function StudentVoiceAdminView({
               🎓 {STUDENT_SURVEY_METADATA.statusBadge}
             </div>
             <h2 className="mt-2 text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-              Survey 2 — Student &amp; Intern Voice Dashboard
+              Student Voice V2 Dashboard
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-slate-600">
-              Capturing the lived experience, surprises, challenges, and guidance needs of medical students.
+              Capturing the lived transition, surprises, challenges, and advice of medical students and interns.
             </p>
           </div>
 
@@ -94,9 +93,9 @@ export default function StudentVoiceAdminView({
         {/* Empty State */}
         <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center shadow-xs space-y-3">
           <span className="text-4xl">🎓</span>
-          <h3 className="text-lg font-bold text-slate-900">No Student &amp; Intern Responses Yet</h3>
+          <h3 className="text-lg font-bold text-slate-900">No Student Voice Submissions Yet</h3>
           <p className="text-xs sm:text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-            The Student &amp; Intern Voice survey is live at{" "}
+            The Student Voice consultation is live at{" "}
             <Link
               href="/mbbs-foundation/consultation/student-voice"
               target="_blank"
@@ -114,14 +113,17 @@ export default function StudentVoiceAdminView({
   // Filter recent responses
   const filteredResponses = summary.recentResponses.filter((r) => {
     if (stageFilter !== "ALL" && r.trainingStage !== stageFilter) return false;
+    if (quoteFilter === "YES" && !r.quotePermission) return false;
+    if (quoteFilter === "NO" && r.quotePermission) return false;
     if (contributorFilter === "YES" && !r.interestedInContributing) return false;
     if (contributorFilter === "NO" && r.interestedInContributing) return false;
     if (searchFilter.trim()) {
       const q = searchFilter.toLowerCase();
       const matchName = r.respondentName?.toLowerCase().includes(q);
       const matchState = r.state?.toLowerCase().includes(q);
-      const matchWish = r.q18OneThingWishTold?.toLowerCase().includes(q);
-      if (!matchName && !matchState && !matchWish) return false;
+      const matchInst = r.institutionName?.toLowerCase().includes(q);
+      const matchWish = r.q10WishSomeoneTold?.toLowerCase().includes(q);
+      if (!matchName && !matchState && !matchInst && !matchWish) return false;
     }
     return true;
   });
@@ -143,7 +145,7 @@ export default function StudentVoiceAdminView({
             🎓 {STUDENT_SURVEY_METADATA.statusBadge}
           </div>
           <h2 className="mt-2 text-xl sm:text-2xl font-black text-slate-950 tracking-tight">
-            Survey 2 — Student &amp; Intern Voice Dashboard
+            Student Voice V2 Dashboard
           </h2>
           <p className="mt-1 text-xs sm:text-sm text-slate-600">
             Retrospective insights on what makes MBBS exciting, challenging, and what new students should know.
@@ -176,7 +178,7 @@ export default function StudentVoiceAdminView({
         </div>
       </div>
 
-      {/* Consultation Page Access Links */}
+      {/* Consultation Entry Links */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
           <span>🔗</span> Survey 2 Entry Links (For Outreach &amp; Previews)
@@ -217,8 +219,8 @@ export default function StudentVoiceAdminView({
         </div>
       </div>
 
-      {/* 5 Headline KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      {/* Headline KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Responses */}
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-1">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -228,33 +230,20 @@ export default function StudentVoiceAdminView({
             {summary.totalResponses}
           </div>
           <span className="text-[11px] font-semibold text-blue-800">
-            Student &amp; Intern voices
+            {summary.v2ResponseCount} V2 submissions • {summary.v1ResponseCount} V1
           </span>
         </div>
 
-        {/* Transition Difficult / Challenging */}
+        {/* Anonymous Quote Permission */}
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-1">
           <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Difficult Transition
-          </span>
-          <div className="text-3xl font-black text-amber-700">
-            {summary.difficultTransitionPercentage}%
-          </div>
-          <span className="text-[11px] font-semibold text-slate-600">
-            {summary.difficultTransitionCount} of {summary.totalResponses} respondents
-          </span>
-        </div>
-
-        {/* Prior Knowledge Benefit */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-1">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Prior Knowledge Benefit
+            Quote Permission
           </span>
           <div className="text-3xl font-black text-emerald-700">
-            {summary.priorKnowledgeHelpPercentage}%
+            {summary.quotePermissionPercentage}%
           </div>
           <span className="text-[11px] font-semibold text-slate-600">
-            Saying Definitely / Probably Yes
+            {summary.quotePermissionCount} granted anonymous quote permission
           </span>
         </div>
 
@@ -267,7 +256,7 @@ export default function StudentVoiceAdminView({
             {summary.interestedContributorsCount}
           </div>
           <span className="text-[11px] font-semibold text-slate-600">
-            {summary.interestedContributorsPercentage}% interested in helping
+            {summary.interestedContributorsPercentage}% joined Pass It Forward
           </span>
         </div>
 
@@ -286,104 +275,25 @@ export default function StudentVoiceAdminView({
       </div>
 
       {/* ========================================================= */}
-      {/* SECTION: Student Voice: What the Data Is Telling Us        */}
-      {/* ========================================================= */}
-      <div className="rounded-3xl border-2 border-blue-900/20 bg-gradient-to-br from-slate-900 to-blue-950 p-6 sm:p-8 text-white shadow-md space-y-6">
-        <div>
-          <span className="inline-block rounded-full bg-blue-800/80 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-blue-200">
-            Factual Summary Metrics
-          </span>
-          <h3 className="mt-2 text-2xl font-black tracking-tight text-white">
-            Student Voice: What the Data Is Telling Us
-          </h3>
-          <p className="mt-1 text-xs sm:text-sm text-slate-300">
-            Objective calculations strictly derived from respondent selections (no pre-assumed narratives).
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="rounded-2xl bg-white/10 p-4 space-y-1.5 backdrop-blur-xs border border-white/10">
-            <span className="text-xs text-blue-200 font-medium">Initial Months Experience</span>
-            <div className="text-2xl font-black text-white">
-              {summary.calculatedInsights.pctExcitingChallengingOrMixed}%
-            </div>
-            <p className="text-[11px] text-slate-300 leading-snug">
-              Reported first months were exciting but challenging, overwhelming, or mixed.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white/10 p-4 space-y-1.5 backdrop-blur-xs border border-white/10">
-            <span className="text-xs text-blue-200 font-medium">Academic Adjustment</span>
-            <div className="text-2xl font-black text-white">
-              {summary.calculatedInsights.pctMajorAcademicChallenges}%
-            </div>
-            <p className="text-[11px] text-slate-300 leading-snug">
-              Identified major academic challenges (volume, study methods, self-directed learning).
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white/10 p-4 space-y-1.5 backdrop-blur-xs border border-white/10">
-            <span className="text-xs text-blue-200 font-medium">Personal &amp; Social Gaps</span>
-            <div className="text-2xl font-black text-white">
-              {summary.calculatedInsights.pctPersonalSocialChallenges}%
-            </div>
-            <p className="text-[11px] text-slate-300 leading-snug">
-              Identified personal/social challenges (hostel life, time management, stress, comparison).
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white/10 p-4 space-y-1.5 backdrop-blur-xs border border-white/10">
-            <span className="text-xs text-blue-200 font-medium">Early Guidance Timing</span>
-            <div className="text-2xl font-black text-white">
-              {summary.calculatedInsights.pctWantingGuidanceEarly}%
-            </div>
-            <p className="text-[11px] text-slate-300 leading-snug">
-              Stated guidance would be most useful before joining, during admissions, or in month 1.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white/10 p-4 space-y-1.5 backdrop-blur-xs border border-white/10">
-            <span className="text-xs text-blue-200 font-medium">Value of Structured Guide</span>
-            <div className="text-2xl font-black text-white">
-              {summary.calculatedInsights.pctGuideVeryOrExtremelyUseful}%
-            </div>
-            <p className="text-[11px] text-slate-300 leading-snug">
-              Rated a structured guide on MBBS academic/social reality as Very or Extremely Useful.
-            </p>
-          </div>
-
-          <div className="rounded-2xl bg-white/10 p-4 space-y-1.5 backdrop-blur-xs border border-white/10">
-            <span className="text-xs text-blue-200 font-medium">Advance Knowledge Impact</span>
-            <div className="text-2xl font-black text-emerald-400">
-              {summary.calculatedInsights.pctAdvanceKnowledgeDefinitelyOrProbablyHelped}%
-            </div>
-            <p className="text-[11px] text-slate-300 leading-snug">
-              Confirmed that knowing about challenges in advance would definitely/probably have helped.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================= */}
-      {/* DETAILED SURVEY 2 VISUAL BREAKDOWNS                       */}
+      {/* VISUAL BREAKDOWNS (SECTIONS 2 THROUGH 6)                  */}
       {/* ========================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* A. Rewarding Experiences (Q4) */}
+        {/* Q3: Rewarding Experiences */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-              Section 2 — The Good Part
+              Section 2 — Rewarding Experiences
             </span>
             <h4 className="text-base font-black text-slate-900">
-              Q4. Most Exciting &amp; Rewarding Experiences
+              Q3. What Turned Out More Exciting / Rewarding
             </h4>
           </div>
           <div className="space-y-3 text-xs">
-            {summary.q4RewardingBreakdown.slice(0, 8).map((item) => (
+            {summary.q3RewardingBreakdown.slice(0, 8).map((item) => (
               <div key={item.option} className="space-y-1">
                 <div className="flex justify-between font-semibold text-slate-700">
-                  <span>{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.count} ({item.percentage}%)</span>
+                  <span className="pr-2">{item.option}</span>
+                  <span className="font-bold text-slate-900 shrink-0">{item.count} ({item.percentage}%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
@@ -396,50 +306,22 @@ export default function StudentVoiceAdminView({
           </div>
         </div>
 
-        {/* Overall First Month Feeling (Q5) */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-          <div className="border-b border-slate-100 pb-3">
-            <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-              Section 2 — Initial Months Feeling
-            </span>
-            <h4 className="text-base font-black text-slate-900">
-              Q5. Overall First Months of MBBS
-            </h4>
-          </div>
-          <div className="space-y-3 text-xs">
-            {summary.q5FeelingBreakdown.map((item) => (
-              <div key={item.option} className="space-y-1">
-                <div className="flex justify-between font-semibold text-slate-700">
-                  <span>{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.count} ({item.percentage}%)</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-blue-600 transition-all duration-300"
-                    style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* B. Harder-Than-Expected Aspects (Q6) */}
+        {/* Q4: Harder Than Expected */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
-              Section 3 — Challenges
+              Section 2 — Challenges
             </span>
             <h4 className="text-base font-black text-slate-900">
-              Q6. Harder Than Expected Aspects
+              Q4. Harder Than Expected Aspects
             </h4>
           </div>
           <div className="space-y-3 text-xs">
-            {summary.q6HarderBreakdown.slice(0, 8).map((item) => (
+            {summary.q4HarderBreakdown.slice(0, 8).map((item) => (
               <div key={item.option} className="space-y-1">
                 <div className="flex justify-between font-semibold text-slate-700">
-                  <span>{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.count} ({item.percentage}%)</span>
+                  <span className="pr-2">{item.option}</span>
+                  <span className="font-bold text-slate-900 shrink-0">{item.count} ({item.percentage}%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
@@ -452,22 +334,22 @@ export default function StudentVoiceAdminView({
           </div>
         </div>
 
-        {/* C. Most Unexpected (Q7) */}
+        {/* Q5: Surprises */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <span className="text-xs font-bold text-purple-900 uppercase tracking-wider">
               Section 3 — Surprises
             </span>
             <h4 className="text-base font-black text-slate-900">
-              Q7. Most Different from Imagined
+              Q5. Surprises After Entering Medical College
             </h4>
           </div>
           <div className="space-y-3 text-xs">
-            {summary.q7UnexpectedBreakdown.slice(0, 8).map((item) => (
+            {summary.q5SurprisesBreakdown.slice(0, 8).map((item) => (
               <div key={item.option} className="space-y-1">
                 <div className="flex justify-between font-semibold text-slate-700">
-                  <span>{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.count} ({item.percentage}%)</span>
+                  <span className="pr-2">{item.option}</span>
+                  <span className="font-bold text-slate-900 shrink-0">{item.count} ({item.percentage}%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
@@ -479,21 +361,49 @@ export default function StudentVoiceAdminView({
             ))}
           </div>
         </div>
+
+        {/* Q7: Next Batch Priorities */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
+              Section 5 — Priorities for Next Batch
+            </span>
+            <h4 className="text-base font-black text-slate-900">
+              Q7. What Students Should Understand in 3 Hours
+            </h4>
+          </div>
+          <div className="space-y-3 text-xs">
+            {summary.q7NextBatchBreakdown.slice(0, 8).map((item) => (
+              <div key={item.option} className="space-y-1">
+                <div className="flex justify-between font-semibold text-slate-700">
+                  <span className="pr-2">{item.option}</span>
+                  <span className="font-bold text-slate-900 shrink-0">{item.count} ({item.percentage}%)</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-blue-600 transition-all duration-300"
+                    style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ========================================================= */}
-      {/* D. Q8 Matrix: 10 Statement Adjustment & Emotional Feelings */}
+      {/* Q6 Matrix: 8 Evaluation Statements Frequency Table        */}
       {/* ========================================================= */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs space-y-5">
         <div className="border-b border-slate-100 pb-3">
           <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-            Section 3 — First-Year Adjustment Matrix
+            Section 4 — Early Transition Matrix
           </span>
           <h4 className="text-lg font-black text-slate-900">
-            Q8. Frequency of First-Year Experiences (10 Evaluation Statements)
+            Q6. Frequency of Early Experiences in MBBS (8 Locked Statements)
           </h4>
           <p className="text-xs text-slate-500 mt-0.5">
-            Ranked by high frequency (Often + Very Often) across academic, emotional, and positive growth domains.
+            Ranked by high frequency (Often + Very often) across adjustment, independent study, and emotional confidence.
           </p>
         </div>
 
@@ -503,7 +413,7 @@ export default function StudentVoiceAdminView({
               <tr className="border-b border-slate-200 bg-slate-50/80 text-[11px] font-black uppercase text-slate-600">
                 <th className="py-2.5 px-3">Statement</th>
                 <th className="py-2.5 px-2 text-center">Never</th>
-                <th className="py-2.5 px-2 text-center">Occasionally</th>
+                <th className="py-2.5 px-2 text-center">Rarely</th>
                 <th className="py-2.5 px-2 text-center">Sometimes</th>
                 <th className="py-2.5 px-2 text-center font-bold text-amber-800">Often</th>
                 <th className="py-2.5 px-2 text-center font-bold text-red-800">Very Often</th>
@@ -511,7 +421,7 @@ export default function StudentVoiceAdminView({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {summary.q8RatingsBreakdown.map((st) => (
+              {summary.q6MatrixBreakdown.map((st) => (
                 <tr key={st.id} className="hover:bg-slate-50/50">
                   <td className="py-3 px-3">
                     <div className="font-bold text-slate-900 flex items-center gap-1.5">
@@ -522,14 +432,14 @@ export default function StudentVoiceAdminView({
                     </div>
                   </td>
                   <td className="py-3 px-2 text-center text-slate-600">{st.ratings["Never"] || 0}</td>
-                  <td className="py-3 px-2 text-center text-slate-600">{st.ratings["Occasionally"] || 0}</td>
+                  <td className="py-3 px-2 text-center text-slate-600">{st.ratings["Rarely"] || 0}</td>
                   <td className="py-3 px-2 text-center text-slate-600">{st.ratings["Sometimes"] || 0}</td>
                   <td className="py-3 px-2 text-center font-bold text-amber-800">{st.ratings["Often"] || 0}</td>
                   <td className="py-3 px-2 text-center font-bold text-red-800">{st.ratings["Very often"] || 0}</td>
                   <td className="py-3 px-3 text-right font-black text-slate-900">
                     <span
                       className={`inline-block px-2 py-0.5 rounded-md text-[11px] ${
-                        st.category === "positive_growth"
+                        st.code === "7" || st.code === "8"
                           ? "bg-emerald-100 text-emerald-900"
                           : st.highFrequencyPercentage > 40
                           ? "bg-red-100 text-red-900"
@@ -547,118 +457,29 @@ export default function StudentVoiceAdminView({
       </div>
 
       {/* ========================================================= */}
-      {/* E & F: Guidance Needs, Optimal Formats & Timing            */}
-      {/* ========================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Q9: Understand Before */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-          <div className="border-b border-slate-100 pb-3">
-            <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-              Section 4 — Core Priorities
-            </span>
-            <h4 className="text-sm font-black text-slate-900">
-              Q9. What Students Must Understand Before Starting
-            </h4>
-          </div>
-          <div className="space-y-2.5 text-xs">
-            {summary.q9UnderstandBeforeBreakdown.slice(0, 6).map((item) => (
-              <div key={item.option} className="space-y-1">
-                <div className="flex justify-between font-semibold text-slate-700">
-                  <span className="pr-2">{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.percentage}%</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-blue-700"
-                    style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Q10: Guidance Formats */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-          <div className="border-b border-slate-100 pb-3">
-            <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-              Section 4 — Formats
-            </span>
-            <h4 className="text-sm font-black text-slate-900">
-              Q10. Preferred Guidance Formats
-            </h4>
-          </div>
-          <div className="space-y-2.5 text-xs">
-            {summary.q10GuidanceTypesBreakdown.slice(0, 6).map((item) => (
-              <div key={item.option} className="space-y-1">
-                <div className="flex justify-between font-semibold text-slate-700">
-                  <span className="pr-2">{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.percentage}%</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-teal-700"
-                    style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Q11: Optimal Timing */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-          <div className="border-b border-slate-100 pb-3">
-            <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-              Section 4 — Timing
-            </span>
-            <h4 className="text-sm font-black text-slate-900">
-              Q11. Optimal Guidance Timing
-            </h4>
-          </div>
-          <div className="space-y-2.5 text-xs">
-            {summary.q11TimingBreakdown.map((item) => (
-              <div key={item.option} className="space-y-1">
-                <div className="flex justify-between font-semibold text-slate-700">
-                  <span className="pr-2">{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.percentage}%</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-indigo-700"
-                    style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================= */}
-      {/* G & H: Structured Guide Value & Transition Evaluation      */}
+      {/* SECTION 6: Preparation Formats & Optimal Timing           */}
       {/* ========================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Q12 & Q13: Guide Value & Essential Components */}
+        {/* Q8: Useful Preparation Formats */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
           <div className="border-b border-slate-100 pb-3">
             <span className="text-xs font-bold text-blue-900 uppercase tracking-wider">
-              Section 4 — Guide Content
+              Section 6 — Formats
             </span>
             <h4 className="text-base font-black text-slate-900">
-              Q13. Essential Components for MBBS Guide
+              Q8. Useful Preparation Formats
             </h4>
           </div>
           <div className="space-y-3 text-xs">
-            {summary.q13ComponentsBreakdown.slice(0, 8).map((item) => (
+            {summary.q8PreparationTypesBreakdown.slice(0, 8).map((item) => (
               <div key={item.option} className="space-y-1">
                 <div className="flex justify-between font-semibold text-slate-700">
-                  <span>{item.option}</span>
-                  <span className="font-bold text-slate-900">{item.percentage}%</span>
+                  <span className="pr-2">{item.option}</span>
+                  <span className="font-bold text-slate-900 shrink-0">{item.count} ({item.percentage}%)</span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-slate-100 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-blue-600"
+                    className="h-full rounded-full bg-teal-600 transition-all duration-300"
                     style={{ width: `${Math.min(item.percentage, 100)}%` }}
                   ></div>
                 </div>
@@ -667,27 +488,27 @@ export default function StudentVoiceAdminView({
           </div>
         </div>
 
-        {/* Q14 & Q15: Overall Transition & Contributor Interests */}
+        {/* Q9: Optimal Timing & Contributor Pathways */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-6">
           <div>
             <div className="border-b border-slate-100 pb-3">
-              <span className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
-                Section 5 — Transition Reflections
+              <span className="text-xs font-bold text-indigo-900 uppercase tracking-wider">
+                Section 6 — Timing
               </span>
               <h4 className="text-base font-black text-slate-900">
-                Q14. Overall Transition Fit
+                Q9. When Preparation Helps Most
               </h4>
             </div>
             <div className="space-y-2.5 text-xs pt-3">
-              {summary.q14TransitionBreakdown.map((item) => (
+              {summary.q9TimingBreakdown.map((item) => (
                 <div key={item.option} className="space-y-1">
                   <div className="flex justify-between font-semibold text-slate-700">
                     <span className="pr-2">{item.option}</span>
-                    <span className="font-bold text-slate-900">{item.percentage}%</span>
+                    <span className="font-bold text-slate-900 shrink-0">{item.percentage}%</span>
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-emerald-700"
+                      className="h-full rounded-full bg-indigo-700"
                       style={{ width: `${Math.min(item.percentage, 100)}%` }}
                     ></div>
                   </div>
@@ -698,10 +519,10 @@ export default function StudentVoiceAdminView({
 
           <div className="pt-2 border-t border-slate-100">
             <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 mb-2">
-              Q17. How Students Want to Help (Contributors)
+              Pass It Forward Contributor Pathways
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              {summary.q17HelpMethodsBreakdown.slice(0, 6).map((item) => (
+              {summary.contributionMethodsBreakdown.slice(0, 6).map((item) => (
                 <div key={item.option} className="p-2.5 rounded-lg bg-slate-50 border border-slate-100 flex justify-between items-center">
                   <span className="font-medium text-slate-700 pr-1">{item.option}</span>
                   <span className="font-bold text-blue-900 shrink-0">{item.count}</span>
@@ -719,10 +540,10 @@ export default function StudentVoiceAdminView({
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
           <div>
             <h3 className="text-lg font-black text-slate-950">
-              Recent Student &amp; Intern Responses
+              Recent Student &amp; Intern Submissions
             </h3>
             <p className="text-xs text-slate-500">
-              Showing {filteredResponses.length} of {summary.totalResponses} submissions.
+              Showing {filteredResponses.length} of {summary.totalResponses} responses.
             </p>
           </div>
 
@@ -742,9 +563,18 @@ export default function StudentVoiceAdminView({
               <option value="ALL">All Stages</option>
               <option value="First MBBS">First MBBS</option>
               <option value="Second MBBS">Second MBBS</option>
-              <option value="Third MBBS — Part I">Third MBBS — Part I</option>
-              <option value="Final MBBS / Third MBBS — Part II">Final MBBS</option>
-              <option value="Internship / CRRI">Internship / CRRI</option>
+              <option value="Third MBBS Part I">Third MBBS Part I</option>
+              <option value="Final MBBS">Final MBBS</option>
+              <option value="Internship">Internship</option>
+            </select>
+            <select
+              value={quoteFilter}
+              onChange={(e) => setQuoteFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-800 focus:outline-none"
+            >
+              <option value="ALL">All Quote Status</option>
+              <option value="YES">Quote Permitted</option>
+              <option value="NO">No Permission</option>
             </select>
           </div>
         </div>
@@ -754,10 +584,9 @@ export default function StudentVoiceAdminView({
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-black uppercase text-slate-600">
                 <th className="py-2.5 px-3">Date</th>
-                <th className="py-2.5 px-3">Stage &amp; State</th>
-                <th className="py-2.5 px-3">First Months (Q5)</th>
-                <th className="py-2.5 px-3">Prior Knowledge (Q15)</th>
-                <th className="py-2.5 px-3">One Thing Wish Told (Q18)</th>
+                <th className="py-2.5 px-3">Stage &amp; College</th>
+                <th className="py-2.5 px-3">Q10 Reflection</th>
+                <th className="py-2.5 px-3 text-center">Quote Permission</th>
                 <th className="py-2.5 px-3 text-center">Contributor</th>
                 <th className="py-2.5 px-3 text-right">Action</th>
               </tr>
@@ -774,21 +603,26 @@ export default function StudentVoiceAdminView({
                   <td className="py-3 px-3 font-bold text-slate-900">
                     <div>{r.trainingStage}</div>
                     <div className="text-[11px] text-slate-500 font-normal">
-                      {[r.collegeType, r.state].filter(Boolean).join(" • ") || "—"}
+                      {[r.institutionName, r.collegeType, r.state].filter(Boolean).join(" • ") || "—"}
                     </div>
                   </td>
-                  <td className="py-3 px-3 text-slate-700">
-                    <span className="font-medium">{r.q5FirstMonthsFeeling}</span>
+                  <td className="py-3 px-3 text-slate-700 max-w-xs truncate italic">
+                    {r.q10WishSomeoneTold ? `“${r.q10WishSomeoneTold}”` : "—"}
                   </td>
-                  <td className="py-3 px-3 font-semibold text-slate-900">
-                    {r.q15PriorKnowledgeWouldHaveHelped}
-                  </td>
-                  <td className="py-3 px-3 text-slate-600 max-w-xs truncate italic">
-                    {r.q18OneThingWishTold ? `"${r.q18OneThingWishTold}"` : "—"}
+                  <td className="py-3 px-3 text-center">
+                    {r.quotePermission ? (
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-bold">
+                        ✓ Permitted (Anon)
+                      </span>
+                    ) : (
+                      <span className="inline-block px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px]">
+                        Not Granted
+                      </span>
+                    )}
                   </td>
                   <td className="py-3 px-3 text-center">
                     {r.interestedInContributing ? (
-                      <span className="inline-block px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                      <span className="inline-block px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold">
                         Yes
                       </span>
                     ) : (
@@ -819,7 +653,7 @@ export default function StudentVoiceAdminView({
             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
               <div>
                 <span className="text-[11px] font-bold uppercase tracking-wider text-blue-800">
-                  Student Voice Submission Detail
+                  Student Voice Submission Detail ({selectedResponse.surveyVersion?.toUpperCase() || "V2"})
                 </span>
                 <h3 className="text-xl font-black text-slate-950 mt-0.5">
                   {selectedResponse.respondentName || "Anonymous Student / Intern"}
@@ -836,75 +670,106 @@ export default function StudentVoiceAdminView({
               </button>
             </div>
 
-            {/* Contact info if present */}
-            {(selectedResponse.email || selectedResponse.mobileWhatsapp) && (
-              <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-xs space-y-1">
-                <span className="font-bold text-amber-900 uppercase tracking-wider text-[11px]">
-                  Contributor Contact Information
+            {/* Quote Permission Alert */}
+            <div
+              className={`rounded-xl border p-3.5 text-xs font-bold flex items-center justify-between ${
+                selectedResponse.quotePermission
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+                  : "bg-slate-50 border-slate-200 text-slate-600"
+              }`}
+            >
+              <span>
+                Anonymous Quotation Status:{" "}
+                <strong>
+                  {selectedResponse.quotePermission ? "PERMITTED (Anonymous)" : "NOT PERMITTED"}
+                </strong>
+              </span>
+              <span className="text-sm">{selectedResponse.quotePermission ? "✓" : "✕"}</span>
+            </div>
+
+            {/* Q10 Reflection */}
+            {selectedResponse.q10WishSomeoneTold && (
+              <div className="rounded-xl bg-blue-50/70 border border-blue-200 p-4 space-y-1">
+                <span className="font-bold text-blue-900 uppercase tracking-wider text-[11px]">
+                  Q10. “Before I started MBBS, I wish someone had told me that...”
                 </span>
-                <div className="text-slate-800">
-                  Email: <strong>{selectedResponse.email || "N/A"}</strong> | Mobile:{" "}
-                  <strong>{selectedResponse.mobileWhatsapp || "N/A"}</strong>
-                </div>
+                <p className="text-sm font-semibold text-slate-900 italic leading-relaxed pt-1">
+                  “{selectedResponse.q10WishSomeoneTold}”
+                </p>
               </div>
             )}
 
-            {/* Q18 Reflection */}
-            {selectedResponse.q18OneThingWishTold && (
-              <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 space-y-1">
-                <span className="font-bold text-blue-900 uppercase tracking-wider text-[11px]">
-                  Q18. One Thing Wish Told Before Starting:
+            {/* Contributor Contact info if present */}
+            {(selectedResponse.email || selectedResponse.mobileWhatsapp || selectedResponse.respondentName) && (
+              <div className="rounded-xl bg-amber-50 border border-amber-200 p-4 text-xs space-y-2">
+                <span className="font-bold text-amber-900 uppercase tracking-wider text-[11px]">
+                  Pass It Forward Contributor Details
                 </span>
-                <p className="text-sm font-semibold text-slate-900 italic">
-                  "{selectedResponse.q18OneThingWishTold}"
-                </p>
+                <div className="text-slate-800">
+                  Name: <strong>{selectedResponse.respondentName || "N/A"}</strong> | Email:{" "}
+                  <strong>{selectedResponse.email || "N/A"}</strong> | Mobile:{" "}
+                  <strong>{selectedResponse.mobileWhatsapp || "N/A"}</strong>
+                </div>
+                {selectedResponse.contributionInterests && selectedResponse.contributionInterests.length > 0 && (
+                  <div className="pt-1">
+                    <span className="font-bold text-amber-950">Interests:</span>{" "}
+                    {selectedResponse.contributionInterests.join(", ")}
+                  </div>
+                )}
               </div>
             )}
 
             {/* Answers Breakdown */}
             <div className="space-y-4 text-xs">
               <div className="space-y-1">
-                <span className="font-bold text-slate-700">Q4. Rewarding Experiences:</span>
+                <span className="font-bold text-slate-700">Q3. Rewarding Experiences:</span>
                 <p className="bg-slate-50 p-2.5 rounded-lg text-slate-900 font-medium">
-                  {Array.isArray(selectedResponse.surveyResponses?.q4RewardingExperiences)
-                    ? selectedResponse.surveyResponses.q4RewardingExperiences.join(", ")
+                  {Array.isArray(selectedResponse.surveyResponses?.q3RewardingExperiences)
+                    ? selectedResponse.surveyResponses.q3RewardingExperiences.join("; ")
                     : "—"}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <span className="font-bold text-slate-700">Q6. Harder Than Expected:</span>
+                <span className="font-bold text-slate-700">Q4. Harder Than Expected:</span>
                 <p className="bg-slate-50 p-2.5 rounded-lg text-slate-900 font-medium">
-                  {Array.isArray(selectedResponse.surveyResponses?.q6HarderAspects)
-                    ? selectedResponse.surveyResponses.q6HarderAspects.join(", ")
+                  {Array.isArray(selectedResponse.surveyResponses?.q4HarderAspects)
+                    ? selectedResponse.surveyResponses.q4HarderAspects.join("; ")
                     : "—"}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <span className="font-bold text-slate-700">Q7. Most Unexpected:</span>
+                <span className="font-bold text-slate-700">Q5. Surprises:</span>
                 <p className="bg-slate-50 p-2.5 rounded-lg text-slate-900 font-medium">
-                  {Array.isArray(selectedResponse.surveyResponses?.q7UnexpectedAspects)
-                    ? selectedResponse.surveyResponses.q7UnexpectedAspects.join(", ")
+                  {Array.isArray(selectedResponse.surveyResponses?.q5Surprises)
+                    ? selectedResponse.surveyResponses.q5Surprises.join("; ")
                     : "—"}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <span className="font-bold text-slate-700">Q9. Must Understand Before:</span>
+                <span className="font-bold text-slate-700">Q7. Priorities to Prepare Next Batch:</span>
                 <p className="bg-slate-50 p-2.5 rounded-lg text-slate-900 font-medium">
-                  {Array.isArray(selectedResponse.surveyResponses?.q9ShouldUnderstandBefore)
-                    ? selectedResponse.surveyResponses.q9ShouldUnderstandBefore.join(", ")
+                  {Array.isArray(selectedResponse.surveyResponses?.q7NextBatchPriorities)
+                    ? selectedResponse.surveyResponses.q7NextBatchPriorities.join("; ")
                     : "—"}
                 </p>
               </div>
 
               <div className="space-y-1">
-                <span className="font-bold text-slate-700">Q13. Guide Essential Components:</span>
+                <span className="font-bold text-slate-700">Q8. Useful Preparation Formats:</span>
                 <p className="bg-slate-50 p-2.5 rounded-lg text-slate-900 font-medium">
-                  {Array.isArray(selectedResponse.surveyResponses?.q13GuideEssentialComponents)
-                    ? selectedResponse.surveyResponses.q13GuideEssentialComponents.join(", ")
+                  {Array.isArray(selectedResponse.surveyResponses?.q8UsefulPreparationTypes)
+                    ? selectedResponse.surveyResponses.q8UsefulPreparationTypes.join("; ")
                     : "—"}
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <span className="font-bold text-slate-700">Q9. When Preparation Helps Most:</span>
+                <p className="bg-slate-50 p-2.5 rounded-lg text-slate-900 font-medium">
+                  {selectedResponse.surveyResponses?.q9BestTiming || "—"}
                 </p>
               </div>
             </div>
@@ -912,7 +777,7 @@ export default function StudentVoiceAdminView({
             <div className="pt-4 border-t border-slate-100 text-right">
               <button
                 onClick={() => setSelectedResponse(null)}
-                className="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-black transition"
+                className="px-5 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-black transition cursor-pointer"
               >
                 Close
               </button>
@@ -930,7 +795,7 @@ export default function StudentVoiceAdminView({
             <div className="flex items-start justify-between border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-xl font-black text-slate-950">
-                  Survey 2 Plain Text Questionnaire (Q1–Q18)
+                  Student Voice V2 Plain Text Questionnaire (Q1–Q10)
                 </h3>
                 <p className="text-xs text-slate-500">
                   Copy and paste into ChatGPT, Google Docs, or review briefs.
@@ -958,7 +823,7 @@ export default function StudentVoiceAdminView({
                   setTimeout(() => setCopySuccessMessage(null), 3000);
                   setShowSurveyTextModal(false);
                 }}
-                className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition"
+                className="px-5 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs shadow-xs transition cursor-pointer"
               >
                 Copy to Clipboard &amp; Close
               </button>

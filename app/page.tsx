@@ -549,6 +549,33 @@ Forever!
   </div>
 
 </section>
+
+{/* ================= HELP SHAPE MBBS FOUNDATION (NATIONAL CONSULTATION) ================= */}
+<section className="mx-auto max-w-6xl px-6 py-10">
+  <div className="rounded-3xl border border-slate-200/90 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-8 sm:p-10 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <div className="max-w-2xl space-y-2">
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-red-400">
+        HELP SHAPE MBBS FOUNDATION
+      </p>
+      <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+        National Consultation &amp; Student Voice
+      </h3>
+      <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
+        Medical education works best when the voices of both teachers and students are heard. Join the National Professional Consultation or Student Voice initiative and help us understand how students can begin MBBS better prepared.
+      </p>
+    </div>
+    <div className="shrink-0 w-full md:w-auto">
+      <a
+        href="/mbbs-foundation/consultation"
+        className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-6 py-3.5 text-sm font-black text-white shadow-md transition"
+      >
+        <span>JOIN THE CONSULTATION</span>
+        <span>→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section className="mx-auto max-w-6xl px-6 pb-20 pt-10">
 
   <div className="rounded-3xl bg-slate-950 p-10 text-white md:p-14">

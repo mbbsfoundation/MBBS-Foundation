@@ -5,7 +5,7 @@ import { validateProfessionalSurveyPayload } from "@/lib/mbbs-foundation/profess
 /**
  * POST /api/mbbs-foundation/consultation/professional
  *
- * Public endpoint for persisting validated Professional Consultation Survey responses.
+ * Public endpoint for persisting validated Professional Consultation Survey V2 responses.
  * Strictly decoupled from all CPR and user authentication models.
  */
 export async function POST(request: NextRequest) {
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     // 2. Persist to PostgreSQL database via Prisma
     const record = await prisma.mBBSProfessionalSurveyResponse.create({
       data: {
-        surveyVersion: "v1",
+        surveyVersion: d.surveyVersion || "v2",
         source: d.source,
         roles: d.roles,
         specialty: d.specialty,

@@ -1163,10 +1163,10 @@ export default function ConsultationAdminDashboard() {
             <div className="flex items-center justify-between border-b border-slate-200 p-5">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                  {SURVEY_METADATA.version} Questionnaire Text
+                  {SURVEY_METADATA.version.toUpperCase()} Questionnaire Text
                 </span>
                 <h3 className="text-lg font-black text-slate-950 mt-0.5">
-                  Complete Survey 1 Plain-Text (Q1–Q28)
+                  Complete Professional Consultation Plain-Text (V2 Locked)
                 </h3>
               </div>
               <button

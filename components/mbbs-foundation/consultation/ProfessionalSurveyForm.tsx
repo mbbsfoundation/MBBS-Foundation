@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ConsultationSource,
@@ -12,21 +12,15 @@ import {
   INDIAN_STATES_AND_UTS,
   READINESS_DOMAINS,
   READINESS_RATING_OPTIONS,
-  Q8_OPTIONS,
-  Q11_OPTIONS,
-  Q15_OPTIONS,
-  Q16_LIMITATIONS_OPTIONS,
-  Q17_WORKSHOP_FORMATS_OPTIONS,
-  Q19_CONTRIBUTION_INTEREST_OPTIONS,
-  Q20_CONTRIBUTION_TYPES_OPTIONS,
-  Q22_TIME_COMMITMENT_OPTIONS,
-  Q23_STUDENT_CONNECTION_OPTIONS,
-  Q24_READINESS_SHARING_OPTIONS,
+  Q7_FOUNDATION_COURSE_OPTIONS,
+  Q8_LIMITATIONS_OPTIONS,
+  Q10_WORKSHOP_FORMATS_OPTIONS,
+  Q11_CONTRIBUTION_INTEREST_OPTIONS,
+  Q12_CONTRIBUTION_PATHWAYS,
   Q28_CONSENT_OPTIONS,
 } from "@/lib/mbbs-foundation/consultationTypes";
 import {
   SURVEY_SECTIONS_CONFIG,
-  SURVEY_INTRODUCTIONS,
   SUCCESS_SCREEN_CONFIG,
   SURVEY_METADATA,
 } from "@/lib/mbbs-foundation/professionalSurveyConfig";
@@ -37,6 +31,7 @@ interface ProfessionalSurveyFormProps {
 }
 
 const SECTION_TITLES = SURVEY_SECTIONS_CONFIG.map((s) => s.title);
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ProfessionalSurveyForm({
   initialSource = "direct",
@@ -47,11 +42,83 @@ export default function ProfessionalSurveyForm({
     source: initialSource,
   });
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [isCompletedPreview, setIsCompletedPreview] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmittedSuccess, setIsSubmittedSuccess] = useState<boolean>(false);
-  const [submittedResponseId, setSubmittedResponseId] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  // College lookup state
+  const [collegesList, setCollegesList] = useState<string[]>([]);
+  const [loadingColleges, setLoadingColleges] = useState<boolean>(false);
+  const [selectedCollegeChoice, setSelectedCollegeChoice] = useState<string>("");
+  const [otherInstitutionText, setOtherInstitutionText] = useState<string>("");
+
+  // Fetch colleges when state changes
+  useEffect(() => {
+    if (!formData.state || formData.state === "Outside India / International") {
+      setCollegesList([]);
+      return;
+    }
+    let isMounted = true;
+    async function loadColleges() {
+      try {
+        setLoadingColleges(true);
+        const res = await fetch(
+          `/api/counselling/colleges?state=${encodeURIComponent(formData.state || "")}&pageSize=200`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.items) {
+            const names = data.items
+              .map((c: any) => c.collegeName)
+              .filter(Boolean)
+              .sort((a: string, b: string) => a.localeCompare(b));
+            setCollegesList(names);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load colleges for state", e);
+      } finally {
+        if (isMounted) setLoadingColleges(false);
+      }
+    }
+    loadColleges();
+    return () => {
+      isMounted = false;
+    };
+  }, [formData.state]);
+
+  // Handle college selection change
+  const handleCollegeChoiceChange = (choice: string) => {
+    setSelectedCollegeChoice(choice);
+    if (choice === "OTHER") {
+      setFormData((prev) => ({
+        ...prev,
+        institutionName: otherInstitutionText.trim(),
+      }));
+    } else if (choice === "") {
+      setFormData((prev) => ({
+        ...prev,
+        institutionName: "",
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        institutionName: choice,
+      }));
+    }
+    setValidationError(null);
+  };
+
+  const handleOtherInstitutionTextChange = (text: string) => {
+    setOtherInstitutionText(text);
+    if (selectedCollegeChoice === "OTHER" || !formData.state || formData.state === "Outside India / International") {
+      setFormData((prev) => ({
+        ...prev,
+        institutionName: text.trim(),
+      }));
+    }
+  };
 
   // -------------------------------------------------------------
   // FORM MUTATION HELPERS
@@ -79,7 +146,7 @@ export default function ProfessionalSurveyForm({
     setValidationError(null);
   };
 
-  const handleQ9EmphasisToggle = (domainId: string) => {
+  const handleQ6EmphasisToggle = (domainId: string) => {
     setFormData((prev) => {
       const exists = prev.q9EmphasisAreas.includes(domainId);
       if (exists) {
@@ -89,7 +156,8 @@ export default function ProfessionalSurveyForm({
         };
       }
       if (prev.q9EmphasisAreas.length >= 5) {
-        return prev; // Max 5 limit
+        setValidationError("You can select up to 5 priority areas in Q6.");
+        return prev;
       }
       return {
         ...prev,
@@ -99,7 +167,7 @@ export default function ProfessionalSurveyForm({
     setValidationError(null);
   };
 
-  const handleQ16LimitationsToggle = (item: string) => {
+  const handleQ8LimitationsToggle = (item: string) => {
     setFormData((prev) => {
       const exists = prev.q16Limitations.includes(item);
       if (exists) {
@@ -109,7 +177,8 @@ export default function ProfessionalSurveyForm({
         };
       }
       if (prev.q16Limitations.length >= 3) {
-        return prev; // Max 3 limit
+        setValidationError("You can select up to 3 limitations in Q8.");
+        return prev;
       }
       return {
         ...prev,
@@ -119,7 +188,7 @@ export default function ProfessionalSurveyForm({
     setValidationError(null);
   };
 
-  const handleQ17FormatsToggle = (item: string) => {
+  const handleQ10FormatsToggle = (item: string) => {
     setFormData((prev) => {
       const exists = prev.q17UsefulFormats.includes(item);
       if (exists) {
@@ -129,7 +198,8 @@ export default function ProfessionalSurveyForm({
         };
       }
       if (prev.q17UsefulFormats.length >= 5) {
-        return prev; // Max 5 limit
+        setValidationError("You can select up to 5 learning approaches in Q10.");
+        return prev;
       }
       return {
         ...prev,
@@ -139,7 +209,20 @@ export default function ProfessionalSurveyForm({
     setValidationError(null);
   };
 
-  const handleQ20ContributionTypeToggle = (type: string) => {
+  const handleQ11Change = (value: string) => {
+    const isInterested = value !== "Not at present";
+    setFormData((prev) => ({
+      ...prev,
+      q19InterestedInContributing: value,
+      interestedInContributing: isInterested,
+      // If not interested, clear contribution types
+      q20ContributionTypes: isInterested ? prev.q20ContributionTypes : [],
+      q21PersonalTopicInterest: isInterested ? prev.q21PersonalTopicInterest : "",
+    }));
+    setValidationError(null);
+  };
+
+  const handleQ12ContributionTypeToggle = (type: string) => {
     setFormData((prev) => {
       const exists = prev.q20ContributionTypes.includes(type);
       const updated = exists
@@ -149,27 +232,7 @@ export default function ProfessionalSurveyForm({
     });
   };
 
-  const handleQ19Change = (value: string) => {
-    const isInterested = value !== "Not at present";
-    setFormData((prev) => ({
-      ...prev,
-      q19InterestedInContributing: value,
-      interestedInContributing: isInterested,
-    }));
-    setValidationError(null);
-  };
-
-  const handleQ24Change = (value: string) => {
-    const isWilling = value === "Yes" || value === "Possibly";
-    setFormData((prev) => ({
-      ...prev,
-      q24WillingToShareReadiness: value,
-      willingToShareReadinessSurvey: isWilling,
-    }));
-    setValidationError(null);
-  };
-
-  const handleQ28ConsentChange = (value: string) => {
+  const handleConsentChange = (value: string) => {
     const isConsenting = value === "Yes";
     setFormData((prev) => ({
       ...prev,
@@ -186,95 +249,102 @@ export default function ProfessionalSurveyForm({
   const validateCurrentStep = (): boolean => {
     setValidationError(null);
 
-    // Step 1 Validation
+    // Section 1: About You
     if (currentStep === 1) {
       if (formData.roles.length === 0) {
         setValidationError("Please select at least one professional role in Q1.");
         return false;
       }
+      if (!formData.specialty || !formData.specialty.trim()) {
+        setValidationError("Please select your broad specialty or department in Q2.");
+        return false;
+      }
+      if (!formData.teachingExperience || !formData.teachingExperience.trim()) {
+        setValidationError("Please select your teaching/training experience in Q3.");
+        return false;
+      }
+      if (!formData.state || !formData.state.trim()) {
+        setValidationError("Please select your State or Union Territory in Q4.");
+        return false;
+      }
     }
 
-    // Step 2 Validation
+    // Section 2: How Prepared Are Students?
     if (currentStep === 2) {
-      // Check all 14 domains in Q7
       const missingDomain = READINESS_DOMAINS.find(
-        (d) => !formData.readinessRatings[d.id]
+        (domain) => !formData.readinessRatings[domain.id]
       );
       if (missingDomain) {
         setValidationError(
-          `Please provide a rating for item ${missingDomain.code} ("${missingDomain.label.substring(0, 40)}...") in Q7.`
+          `Please rate all 14 transition areas in Q5 (missing: "${missingDomain.title || missingDomain.label}").`
         );
         return false;
       }
-
-      if (!formData.q8OrientationEffectiveness) {
-        setValidationError("Please answer Q8 regarding orientation effectiveness.");
-        return false;
-      }
-
       if (formData.q9EmphasisAreas.length === 0) {
-        setValidationError("Please select at least one area in Q9 (up to 5).");
+        setValidationError("Please select 1 to 5 priority areas in Q6.");
         return false;
       }
-
-      if (!formData.q11NeedForComplementaryResource) {
-        setValidationError("Please answer Q11 regarding the need for a complementary resource.");
+      if (formData.q9EmphasisAreas.length > 5) {
+        setValidationError("A maximum of 5 priority areas can be selected in Q6.");
         return false;
       }
     }
 
-    // Step 3 Validation
+    // Section 3: Current Foundation Course
     if (currentStep === 3) {
-      if (!formData.q13WishTaughtAtBeginning.trim()) {
-        setValidationError("Please share at least a short response for Q13.");
+      if (!formData.q15FoundationCourseDescription || !formData.q15FoundationCourseDescription.trim()) {
+        setValidationError("Please select your observation in Q7.");
+        return false;
+      }
+      if (formData.q16Limitations.length > 3) {
+        setValidationError("A maximum of 3 limitations can be selected in Q8.");
         return false;
       }
     }
 
-    // Step 4 Validation
+    // Section 4: Your Experience Matters
     if (currentStep === 4) {
-      if (!formData.q15FoundationCourseDescription) {
-        setValidationError("Please select an option for Q15.");
+      if (!formData.q13WishTaughtAtBeginning || !formData.q13WishTaughtAtBeginning.trim()) {
+        setValidationError("Please share your observation or recommendation in Q9.");
         return false;
       }
     }
 
-    // Step 5 Validation (Q17 & Q18 are optional / recommended, no hard block unless needed)
+    // Section 5: Building the MBBS Foundation Workshop
+    if (currentStep === 5) {
+      if (formData.q17UsefulFormats.length > 5) {
+        setValidationError("A maximum of 5 learning approaches can be selected in Q10.");
+        return false;
+      }
+    }
 
-    // Step 6 Validation
+    // Section 6: Extend Your Contribution
     if (currentStep === 6) {
-      if (!formData.q19InterestedInContributing) {
-        setValidationError("Please select an option for Q19 regarding contribution interest.");
+      if (!formData.q19InterestedInContributing || !formData.q19InterestedInContributing.trim()) {
+        setValidationError("Please select your contribution interest in Q11.");
         return false;
       }
     }
 
-    // Step 7 Validation
+    // Section 7: Stay Connected
     if (currentStep === 7) {
-      if (!formData.q23ConnectedWithNewStudents) {
-        setValidationError("Please answer Q23 regarding student connection.");
+      if (!formData.respondentName || !formData.respondentName.trim()) {
+        setValidationError("Name & Academic Title is required in Section 7.");
         return false;
       }
-      if (!formData.q24WillingToShareReadiness) {
-        setValidationError("Please answer Q24 regarding the Readiness Check.");
+      const hasEmail = Boolean(formData.email && formData.email.trim());
+      const hasMobile = Boolean(formData.mobileWhatsapp && formData.mobileWhatsapp.trim());
+      if (!hasEmail && !hasMobile) {
+        setValidationError("Please provide at least one contact method (Email or Mobile / WhatsApp).");
         return false;
       }
-    }
-
-    // Step 8 Validation
-    if (currentStep === 8) {
-      if (!formData.q28ConsentForContact) {
-        setValidationError("Please select Yes or No for Q28 regarding contact permission.");
+      if (hasEmail && !EMAIL_REGEX.test(formData.email!.trim())) {
+        setValidationError("Please enter a valid email address.");
         return false;
       }
-
-      // If email is provided, validate format
-      if (formData.email && formData.email.trim().length > 0) {
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailPattern.test(formData.email.trim())) {
-          setValidationError("Please enter a valid email address, or leave it blank.");
-          return false;
-        }
+      if (!formData.q28ConsentForContact || !formData.q28ConsentForContact.trim()) {
+        setValidationError("Please indicate whether we may contact you regarding this consultation.");
+        return false;
       }
     }
 
@@ -282,369 +352,250 @@ export default function ProfessionalSurveyForm({
   };
 
   const handleNext = () => {
-    if (!validateCurrentStep()) {
-      window.scrollTo({ top: 300, behavior: "smooth" });
-      return;
-    }
-
-    if (currentStep < 8) {
-      setCurrentStep((prev) => prev + 1);
-      window.scrollTo({ top: 300, behavior: "smooth" });
-    } else {
-      // Reached final review
-      setIsCompletedPreview(true);
-      window.scrollTo({ top: 300, behavior: "smooth" });
+    if (validateCurrentStep()) {
+      setCurrentStep((prev) => Math.min(prev + 1, 7));
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  const handlePrevious = () => {
+  const handleBack = () => {
     setValidationError(null);
-    if (isCompletedPreview) {
-      setIsCompletedPreview(false);
-      setCurrentStep(8);
-      return;
-    }
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
-      window.scrollTo({ top: 300, behavior: "smooth" });
-    }
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const shouldShowContributionBranch =
-    formData.q19InterestedInContributing &&
-    formData.q19InterestedInContributing !== "Not at present";
+  // -------------------------------------------------------------
+  // SUBMIT HANDLER
+  // -------------------------------------------------------------
 
-  const handleSubmit = async () => {
-    if (isSubmitting) return;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateCurrentStep()) return;
+
     setIsSubmitting(true);
     setSubmitError(null);
 
     try {
+      const payload = {
+        surveyVersion: "v2",
+        source: formData.source || initialSource,
+        roles: formData.roles,
+        specialty: formData.specialty,
+        teachingExperience: formData.teachingExperience,
+        institutionName: formData.institutionName || null,
+        city: null,
+        state: formData.state,
+        stateCode: formData.stateCode || null,
+        readinessRatings: formData.readinessRatings,
+        q9EmphasisAreas: formData.q9EmphasisAreas,
+        q15FoundationCourseDescription: formData.q15FoundationCourseDescription,
+        q16Limitations: formData.q16Limitations,
+        q13WishTaughtAtBeginning: formData.q13WishTaughtAtBeginning,
+        q17UsefulFormats: formData.q17UsefulFormats,
+        q19InterestedInContributing: formData.q19InterestedInContributing,
+        interestedInContributing: formData.interestedInContributing,
+        q20ContributionTypes: formData.q20ContributionTypes,
+        q21PersonalTopicInterest: formData.q21PersonalTopicInterest || null,
+        respondentName: formData.respondentName,
+        email: formData.email || null,
+        mobileWhatsapp: formData.mobileWhatsapp || null,
+        q28ConsentForContact: formData.q28ConsentForContact,
+        consentForFollowup: formData.consentForFollowup,
+      };
+
       const res = await fetch("/api/mbbs-foundation/consultation/professional", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) {
-        setSubmitError(
-          data.error ||
-            (data.errors && data.errors.join(". ")) ||
-            "We could not submit your response just now. Your answers remain on this page. Please try again."
-        );
-        return;
-      }
 
-      setSubmittedResponseId(data.responseId || null);
-      setIsSubmittedSuccess(true);
-      setIsCompletedPreview(false);
-      window.scrollTo({ top: 300, behavior: "smooth" });
-    } catch {
-      setSubmitError(
-        "We could not submit your response just now. Your answers remain on this page. Please try again."
-      );
+      if (res.ok && data.success) {
+        setIsSubmittedSuccess(true);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        setSubmitError(
+          data.errors?.join(" ") ||
+            data.error ||
+            "Unable to submit consultation response. Please verify your entries and try again."
+        );
+      }
+    } catch (err: any) {
+      console.error("Submission failed:", err);
+      setSubmitError("A network error occurred. Please check your internet connection and try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   // -------------------------------------------------------------
-  // SUCCESS SCREEN (PROMPT 6 POST-SUBMISSION THANK YOU FLOW)
+  // POST-SUBMISSION SUCCESS SCREEN
   // -------------------------------------------------------------
+
   if (isSubmittedSuccess) {
-    const isInterestedInContributing =
-      formData.q19InterestedInContributing &&
-      formData.q19InterestedInContributing !== "Not at present";
-
     return (
-      <div className="space-y-6 animate-in fade-in duration-300">
-        <section className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-10 shadow-sm space-y-6">
-          {/* Header & Confirmation */}
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
-              <span>✓</span> Response Confirmed
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-950">
-              Thank You for Helping Shape a Better Beginning in Medicine
-            </h1>
-
-            <div className="rounded-xl border border-emerald-200/80 bg-emerald-50/70 p-4 sm:p-5 text-xs sm:text-sm text-emerald-950 space-y-2">
-              <p className="font-bold text-sm sm:text-base text-emerald-900">
-                Your response has been securely received.
-              </p>
-              <p className="text-emerald-800 leading-relaxed">
-                Your experience and suggestions will contribute to the development of the <strong>MBBS Foundation Workshop and supporting learning resources for incoming medical students</strong>.
-              </p>
-            </div>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm space-y-8 animate-in fade-in zoom-in-95 duration-200">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
+            <span>✓</span> {SUCCESS_SCREEN_CONFIG.badge}
           </div>
 
-          {/* Conditional Contributor Message */}
-          {isInterestedInContributing && (
-            <div className="rounded-2xl border border-red-200/80 bg-red-50/40 p-5 sm:p-6 space-y-2.5">
-              <div className="flex items-center gap-2">
-                <span className="text-base">🤝</span>
-                <h2 className="text-sm sm:text-base font-black text-red-950">
-                  You May Be Part of the Next Step
-                </h2>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                You indicated that you may be interested in contributing to the MBBS Foundation initiative.
-              </p>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
-                As workshop modules, scenarios, learning activities, videos and review opportunities are developed, <strong>AHA India may contact you according to the areas you selected and the needs of the programme</strong>.
-              </p>
-            </div>
-          )}
+          <h2 className="text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
+            {SUCCESS_SCREEN_CONFIG.heading}
+          </h2>
 
-          {/* Next-Generation Section */}
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-5 sm:p-6 space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">🎓</span>
-              <h2 className="text-sm sm:text-base font-black text-slate-900">
-                Help Us Hear From the Next Generation
-              </h2>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
-              The next phase of the initiative will include an <strong>MBBS Entry Readiness Check</strong> for newly admitted and first-year MBBS students.
-            </p>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              It will help students reflect on their preparedness for the transition into medical college while helping us understand the actual needs of the incoming MBBS cohort.
-            </p>
-            <div className="pt-1">
-              <button
-                type="button"
-                disabled
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-200 text-slate-500 font-bold px-5 py-2.5 text-xs sm:text-sm border border-slate-300 cursor-not-allowed"
-              >
-                <span>🔒</span>
-                <span>MBBS Entry Readiness Check — Coming Soon</span>
-              </button>
-            </div>
+          <p className="text-base sm:text-lg font-bold text-red-800">
+            {SUCCESS_SCREEN_CONFIG.leadMessage}
+          </p>
+        </div>
+
+        <div className="space-y-4 text-sm sm:text-base text-slate-700 leading-relaxed max-w-2xl mx-auto border-t border-b border-slate-100 py-6">
+          {SUCCESS_SCREEN_CONFIG.paragraphs.map((p, idx) => (
+            <p key={idx}>{p}</p>
+          ))}
+        </div>
+
+        {/* Post-Submission Student Voice Action Block */}
+        <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 sm:p-8 space-y-4 shadow-md max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 rounded-md bg-red-600/30 border border-red-500/50 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-red-200">
+            <span>🎓</span> Next Step
           </div>
 
-          {/* About the MBBS Foundation Initiative Card */}
-          <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 space-y-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900">
-              About the MBBS Foundation Initiative
-            </h3>
-            <p>
-              <strong>MBBS Foundation</strong> is being developed as a structured student-readiness and transition initiative supporting young learners as they move from entrance preparation into medical education, clinical exposure and professional development.
-            </p>
-            <p>
-              <strong>Ayurvigyan Health Academy India Foundation (AHA India)</strong> is facilitating the consultation, workshop development and educational collaboration.
-            </p>
-            <p>
-              <strong>MBBS Foundation: Your First Book of Medicine</strong> serves as the principal structured reference resource for the initiative.
-            </p>
-          </div>
+          <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white">
+            {SUCCESS_SCREEN_CONFIG.studentVoiceBlock.heading}
+          </h3>
 
-          {/* Return & Navigation Options */}
-          <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs sm:text-sm text-slate-200 leading-relaxed whitespace-pre-line">
+            {SUCCESS_SCREEN_CONFIG.studentVoiceBlock.text}
+          </p>
+
+          <div className="pt-2 flex flex-wrap items-center gap-3">
             <Link
-              href="/mbbs-foundation/consultation"
-              className="rounded-xl bg-gradient-to-r from-red-700 via-red-800 to-slate-950 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-sm hover:from-red-800 hover:to-black transition inline-flex items-center gap-2"
+              href={SUCCESS_SCREEN_CONFIG.studentVoiceBlock.ctaHref}
+              className="inline-flex items-center gap-2 rounded-xl bg-red-700 hover:bg-red-800 px-5 py-2.5 text-xs sm:text-sm font-bold text-white transition shadow-sm"
             >
-              <span>← Back to MBBS Foundation Consultation</span>
+              <span>📋</span>
+              <span>{SUCCESS_SCREEN_CONFIG.studentVoiceBlock.ctaLabel}</span>
             </Link>
 
-            <Link
-              href="/"
-              className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition inline-flex items-center gap-1.5"
+            <button
+              type="button"
+              onClick={async () => {
+                const url = `${window.location.origin}${SUCCESS_SCREEN_CONFIG.studentVoiceBlock.ctaHref}`;
+                try {
+                  await navigator.clipboard.writeText(url);
+                  setCopiedLink(true);
+                  setTimeout(() => setCopiedLink(false), 3000);
+                } catch {
+                  // Fallback
+                }
+              }}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 text-xs sm:text-sm font-semibold transition border border-white/20"
             >
-              <span>Visit MBBS Foundation Website</span>
-              <span>→</span>
-            </Link>
+              <span>{copiedLink ? "✓ Copied!" : "🔗 Copy Survey Link"}</span>
+            </button>
           </div>
-        </section>
+        </div>
+
+        <div className="text-center pt-4">
+          <Link
+            href="/mbbs-foundation/consultation"
+            className="text-xs font-bold text-slate-500 hover:text-red-700 transition"
+          >
+            ← Return to Consultation Overview
+          </Link>
+        </div>
       </div>
     );
   }
 
   // -------------------------------------------------------------
-  // REVIEW & COMPLETE SCREEN
+  // SURVEY FORM PROGRESS & STEP RENDERER
   // -------------------------------------------------------------
-  if (isCompletedPreview) {
-    return (
-      <div className="space-y-8 animate-in fade-in duration-200">
-        <section className="rounded-2xl border-2 border-slate-300 bg-white p-6 sm:p-10 shadow-sm space-y-6">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-2xl text-emerald-800 border border-emerald-300">
-              ✓
-            </span>
-            <div>
-              <span className="rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-0.5 text-xs font-black uppercase tracking-wider">
-                Review &amp; Ready to Submit
-              </span>
-              <h2 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
-                Review Your Consultation Responses
-              </h2>
-            </div>
-          </div>
 
-          {submitError && (
-            <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-xs sm:text-sm font-bold text-rose-900 flex items-start gap-2 shadow-2xs">
-              <span className="text-base leading-none">⚠️</span>
-              <div>
-                <p>{submitError}</p>
-                <p className="mt-1 text-xs font-normal text-rose-800">
-                  Your entered responses are preserved. You can adjust them or click Submit Consultation again.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Quick Summary Preview */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-3 text-xs sm:text-sm">
-            <h3 className="font-black text-slate-900 uppercase tracking-wider text-xs">
-              Response Summary
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-slate-700">
-              <div>
-                <span className="text-slate-500 font-medium">Selected Roles:</span>{" "}
-                <strong>{formData.roles.join(", ")}</strong>
-              </div>
-              <div>
-                <span className="text-slate-500 font-medium">Specialty:</span>{" "}
-                <strong>{formData.specialty || "Not specified"}</strong>
-              </div>
-              <div>
-                <span className="text-slate-500 font-medium">Emphasis Areas (Q9):</span>{" "}
-                <strong>{formData.q9EmphasisAreas.length} selected</strong>
-              </div>
-              <div>
-                <span className="text-slate-500 font-medium">Contribution Interest:</span>{" "}
-                <strong>{formData.q19InterestedInContributing || "Not answered"}</strong>
-              </div>
-              <div>
-                <span className="text-slate-500 font-medium">Willing to Share Readiness:</span>{" "}
-                <strong>{formData.q24WillingToShareReadiness || "Not answered"}</strong>
-              </div>
-              <div>
-                <span className="text-slate-500 font-medium">Follow-up Contact Consent:</span>{" "}
-                <strong>{formData.q28ConsentForContact || "Not answered"}</strong>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={handlePrevious}
-              disabled={isSubmitting}
-              className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer disabled:opacity-50"
-            >
-              ← Edit Responses
-            </button>
-
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-              className="rounded-xl bg-gradient-to-r from-red-700 via-red-800 to-slate-950 px-8 py-3 text-xs sm:text-base font-black text-white shadow-lg hover:from-red-800 hover:to-black transition flex items-center gap-2 cursor-pointer disabled:opacity-60"
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="animate-spin">⏳</span>
-                  <span>Submitting securely...</span>
-                </>
-              ) : (
-                <>
-                  <span>✓</span>
-                  <span>Submit Consultation</span>
-                </>
-              )}
-            </button>
-          </div>
-        </section>
-      </div>
-    );
-  }
-
-  // -------------------------------------------------------------
-  // MAIN MULTI-STEP SURVEY UI
-  // -------------------------------------------------------------
   return (
     <div className="space-y-6">
-      {/* Progress Indicator */}
+      {/* 7-Section Progress Bar */}
       <SurveyProgress
         currentStep={currentStep}
-        totalSteps={8}
-        stepTitle={SECTION_TITLES[currentStep - 1]}
+        totalSteps={7}
+        stepTitle={SECTION_TITLES[currentStep - 1] || "Section"}
       />
 
-      {/* Validation Error Banner */}
-      {validationError && (
-        <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-xs sm:text-sm font-bold text-rose-900 flex items-start gap-2 shadow-2xs">
-          <span className="text-base leading-none">⚠️</span>
-          <span>{validationError}</span>
-        </div>
-      )}
-
-      {/* Form Container Card */}
-      <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-9 shadow-sm space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* ========================================================= */}
-        {/* SECTION 1: ABOUT YOU */}
+        {/* SECTION 1 — ABOUT YOU                                     */}
         {/* ========================================================= */}
         {currentStep === 1 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-9 shadow-sm space-y-7">
+            <div className="border-b border-slate-100 pb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 1 of 8
+                Section 1 of 7
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight mt-0.5">
                 About You
               </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                Please help us understand your professional background and clinical/teaching perspective.
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                Please share your current academic or clinical role to help us contextualize your perspective.
               </p>
             </div>
 
-            {/* Q1. Professional Roles */}
-            <div className="space-y-3 pt-2">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q1. Which of the following best describe your current professional role? <span className="text-red-700">*</span>
+            {/* Q1 Roles (Multi-select) */}
+            <div className="space-y-3">
+              <label className="block text-sm font-black text-slate-950">
+                Q1. Which of the following best describe your professional role(s)?{" "}
+                <span className="text-red-600">*</span>
               </label>
-              <p className="text-xs text-slate-500 font-medium">Select all that apply.</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              <p className="text-xs text-slate-500">Select all that apply.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {PROFESSIONAL_ROLES_OPTIONS.map((role) => {
                   const isChecked = formData.roles.includes(role);
                   return (
-                    <label
+                    <button
+                      type="button"
                       key={role}
-                      className={`flex items-start gap-3 p-3.5 rounded-xl border transition cursor-pointer select-none ${
+                      onClick={() => handleRoleToggle(role)}
+                      className={`flex items-start gap-3 rounded-xl border p-3 text-left text-xs transition cursor-pointer ${
                         isChecked
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
+                          ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => handleRoleToggle(role)}
-                        className="mt-1 h-4 w-4 rounded border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm leading-snug">{role}</span>
-                    </label>
+                      <span
+                        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                          isChecked
+                            ? "border-red-700 bg-red-700 text-white"
+                            : "border-slate-300 bg-white"
+                        }`}
+                      >
+                        {isChecked && "✓"}
+                      </span>
+                      <span className="leading-snug">{role}</span>
+                    </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Q2. Specialty */}
-            <div className="space-y-2 pt-2 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q2. Your primary specialty / department <span className="text-xs font-normal text-slate-500">(Optional)</span>
+            {/* Q2 Specialty (Single-select) */}
+            <div className="space-y-3 pt-2">
+              <label className="block text-sm font-black text-slate-950">
+                Q2. What is your broad specialty or department?{" "}
+                <span className="text-red-600">*</span>
               </label>
+              <p className="text-xs text-slate-500">Select one primary specialty.</p>
               <select
                 value={formData.specialty || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, specialty: e.target.value }))}
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
+                onChange={(e) => {
+                  setFormData((prev) => ({ ...prev, specialty: e.target.value }));
+                  setValidationError(null);
+                }}
+                className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm font-semibold text-slate-800 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
               >
-                <option value="">Select Specialty / Department...</option>
+                <option value="">-- Select Specialty or Department --</option>
                 {SPECIALTY_OPTIONS.map((spec) => (
                   <option key={spec} value={spec}>
                     {spec}
@@ -653,76 +604,69 @@ export default function ProfessionalSurveyForm({
               </select>
             </div>
 
-            {/* Q3. Teaching Experience */}
-            <div className="space-y-3 pt-2 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q3. Your teaching / mentoring experience <span className="text-xs font-normal text-slate-500">(Optional)</span>
+            {/* Q3 Teaching Experience (Single-select) */}
+            <div className="space-y-3 pt-2">
+              <label className="block text-sm font-black text-slate-950">
+                Q3. How long have you been involved in teaching, mentoring or training medical students?{" "}
+                <span className="text-red-600">*</span>
               </label>
-
               <div className="space-y-2">
                 {TEACHING_EXPERIENCE_OPTIONS.map((exp) => {
-                  const isSelected = formData.teachingExperience === exp;
+                  const isChecked = formData.teachingExperience === exp;
                   return (
-                    <label
+                    <button
+                      type="button"
                       key={exp}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, teachingExperience: exp }));
+                        setValidationError(null);
+                      }}
+                      className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left text-xs sm:text-sm transition cursor-pointer ${
+                        isChecked
+                          ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="teachingExperience"
-                        checked={isSelected}
-                        onChange={() => setFormData((prev) => ({ ...prev, teachingExperience: exp }))}
-                        className="h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm">{exp}</span>
-                    </label>
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                          isChecked
+                            ? "border-red-700 bg-red-700 text-white"
+                            : "border-slate-300 bg-white"
+                        }`}
+                      >
+                        {isChecked && "●"}
+                      </span>
+                      <span>{exp}</span>
+                    </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Q4, Q5, Q6: Location & Institution */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
-              <div className="space-y-1.5 sm:col-span-3">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Q4. Institution / Organisation <span className="text-xs font-normal text-slate-400">(Optional)</span>
+            {/* Q4 State / UT & Medical College */}
+            <div className="space-y-4 pt-2">
+              <div>
+                <label className="block text-sm font-black text-slate-950">
+                  Q4. State / Union Territory <span className="text-red-600">*</span>
                 </label>
-                <input
-                  type="text"
-                  value={formData.institutionName || ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, institutionName: e.target.value }))}
-                  placeholder="e.g. Government Medical College / Hospital"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5 sm:col-span-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Q5. City <span className="text-xs font-normal text-slate-400">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.city || ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-                  placeholder="e.g. Pune, Indore, Patna"
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                  Q6. State / UT <span className="text-xs font-normal text-slate-400">(Optional)</span>
-                </label>
+                <p className="text-xs text-slate-500 mb-2">
+                  Select the State or UT where your institution is located.
+                </p>
                 <select
                   value={formData.state || ""}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
+                  onChange={(e) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      state: e.target.value,
+                      institutionName: "",
+                    }));
+                    setSelectedCollegeChoice("");
+                    setOtherInstitutionText("");
+                    setValidationError(null);
+                  }}
+                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm font-semibold text-slate-800 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
                 >
-                  <option value="">Select State / UT...</option>
+                  <option value="">-- Select State / Union Territory --</option>
                   {INDIAN_STATES_AND_UTS.map((st) => (
                     <option key={st} value={st}>
                       {st}
@@ -730,65 +674,112 @@ export default function ProfessionalSurveyForm({
                   ))}
                 </select>
               </div>
+
+              {/* Medical College / Institution Dropdown */}
+              {formData.state && formData.state !== "Outside India / International" && (
+                <div className="space-y-2 animate-in fade-in duration-150">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Medical College / Institution (Optional)
+                  </label>
+                  <select
+                    value={selectedCollegeChoice}
+                    onChange={(e) => handleCollegeChoiceChange(e.target.value)}
+                    disabled={loadingColleges}
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm font-semibold text-slate-800 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                  >
+                    <option value="">
+                      {loadingColleges
+                        ? "Loading medical colleges..."
+                        : `-- Select Medical College in ${formData.state} --`}
+                    </option>
+                    {collegesList.map((colName) => (
+                      <option key={colName} value={colName}>
+                        {colName}
+                      </option>
+                    ))}
+                    <option value="OTHER">Other / Not listed</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Free-text input for unlisted institution / hospital */}
+              {(selectedCollegeChoice === "OTHER" ||
+                formData.state === "Outside India / International" ||
+                (!selectedCollegeChoice && collegesList.length === 0 && formData.state)) && (
+                <div className="space-y-1 animate-in fade-in duration-150">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Other Institution / Hospital (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={otherInstitutionText}
+                    onChange={(e) => handleOtherInstitutionTextChange(e.target.value)}
+                    placeholder="e.g., Department of Paediatrics, District Hospital..."
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                  />
+                </div>
+              )}
             </div>
-          </div>
+          </section>
         )}
 
         {/* ========================================================= */}
-        {/* SECTION 2: READINESS FOR CLINICAL EXPOSURE */}
+        {/* SECTION 2 — HOW PREPARED ARE STUDENTS?                    */}
         {/* ========================================================= */}
         {currentStep === 2 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-9 shadow-sm space-y-8">
+            <div className="border-b border-slate-100 pb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 2 of 8
+                Section 2 of 7
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
-                From Entry into MBBS to Clinical Exposure: How Ready Are Our Students?
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight mt-0.5">
+                How Prepared Are Students?
               </h2>
-
-              <div className="mt-4 rounded-xl bg-slate-50 border border-slate-200/90 p-4 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2">
-                <p>
-                  The introduction of the <strong>Foundation Course, Early Clinical Exposure (ECE)</strong> and competency-based medical education has increased emphasis on preparing students not only in knowledge, but also in communication, professionalism, clinical orientation, skills and their transition into the medical profession.
-                </p>
-                <p>
-                  Implementation and student experience, however, may vary across institutions and settings.
-                </p>
-                <p className="font-semibold text-slate-900">
-                  Thinking about students <strong>by the time they begin meaningful patient interaction, ward postings or early clinical exposure</strong>, please share your experience of how prepared they generally appear in the following areas.
-                </p>
-              </div>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                Thinking about students entering medical college and progressing through the early phase of MBBS, how well prepared do you feel they are in the following areas?
+              </p>
             </div>
 
-            {/* Q7. Rating Matrix / Mobile Stacked Cards */}
-            <div className="space-y-4 pt-2">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q7. By the time MBBS students begin meaningful patient interaction, ward postings or clinical exposure, how well prepared do they generally appear in the following areas? <span className="text-red-700">*</span>
-              </label>
+            {/* Q5 Matrix Rating across 14 Domains */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-black text-slate-950">
+                  Q5. In your experience, how well prepared are students across these areas?{" "}
+                  <span className="text-red-600">*</span>
+                </label>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Rate each domain on the 5-point scale (or Unable to comment).
+                </p>
+              </div>
 
               <div className="space-y-4">
-                {READINESS_DOMAINS.map((domain) => {
+                {READINESS_DOMAINS.map((domain, index) => {
                   const currentRating = formData.readinessRatings[domain.id];
                   return (
                     <div
                       key={domain.id}
-                      className={`p-4 sm:p-5 rounded-2xl border transition ${
+                      className={`rounded-xl border p-4 transition ${
                         currentRating
-                          ? "bg-white border-slate-300 shadow-xs"
-                          : "bg-slate-50/60 border-slate-200"
+                          ? "border-slate-200 bg-slate-50/50"
+                          : "border-red-200/60 bg-red-50/20"
                       }`}
                     >
                       <div className="flex items-start gap-2.5 mb-3">
-                        <span className="h-6 w-6 shrink-0 rounded-full bg-slate-900 text-white text-xs font-black flex items-center justify-center">
-                          {domain.code}
+                        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-800 text-[10px] font-black text-white">
+                          {index + 1}
                         </span>
-                        <p className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
-                          {domain.label}
-                        </p>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-black text-slate-950">
+                            {domain.title}
+                          </h3>
+                          <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+                            {domain.description}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Tap-Friendly Rating Options */}
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 pt-1">
+                      {/* Rating Buttons */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 pt-1">
                         {READINESS_RATING_OPTIONS.map((opt) => {
                           const isSelected = currentRating === opt;
                           return (
@@ -796,10 +787,10 @@ export default function ProfessionalSurveyForm({
                               type="button"
                               key={opt}
                               onClick={() => handleReadinessRatingChange(domain.id, opt)}
-                              className={`p-2.5 rounded-xl text-center text-[11px] font-semibold transition border cursor-pointer flex items-center justify-center ${
+                              className={`rounded-lg border px-2.5 py-2 text-[11px] text-center font-medium transition cursor-pointer leading-tight ${
                                 isSelected
-                                  ? "bg-red-700 text-white border-red-700 font-bold shadow-xs scale-[1.02]"
-                                  : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-950"
+                                  ? "border-red-700 bg-red-700 text-white font-bold shadow-xs"
+                                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-100"
                               }`}
                             >
                               {opt}
@@ -813,715 +804,556 @@ export default function ProfessionalSurveyForm({
               </div>
             </div>
 
-            {/* Q8. Orientation Effectiveness */}
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q8. In your experience, how effectively do the current Foundation Course, Early Clinical Exposure and other early-MBBS orientation activities prepare students for this transition? <span className="text-red-700">*</span>
-              </label>
-
-              <div className="space-y-2">
-                {Q8_OPTIONS.map((opt) => {
-                  const isSelected = formData.q8OrientationEffectiveness === opt;
-                  return (
-                    <label
-                      key={opt}
-                      className={`flex items-start gap-3 p-3.5 rounded-xl border transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="q8Effectiveness"
-                        checked={isSelected}
-                        onChange={() => setFormData((prev) => ({ ...prev, q8OrientationEffectiveness: opt }))}
-                        className="mt-0.5 h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm leading-snug">{opt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Q9. Greater Emphasis Areas (Select up to 5) */}
+            {/* Q6 Priority Areas (Max 5) */}
             <div className="space-y-3 pt-4 border-t border-slate-100">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="block text-sm sm:text-base font-black text-slate-900">
-                  Q9. Which FIVE areas should receive greater emphasis before or during students' transition to meaningful clinical exposure? <span className="text-red-700">*</span>
+                <label className="block text-sm font-black text-slate-950">
+                  Q6. Which 3–5 areas above require the greatest emphasis during the transition into MBBS and early medical training?{" "}
+                  <span className="text-red-600">*</span>
                 </label>
-                <span className="text-xs font-bold text-red-800 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
-                  {formData.q9EmphasisAreas.length} of 5 selected
+                <span
+                  className={`text-xs font-bold font-mono px-2 py-0.5 rounded-md ${
+                    formData.q9EmphasisAreas.length >= 3 && formData.q9EmphasisAreas.length <= 5
+                      ? "bg-emerald-100 text-emerald-800"
+                      : "bg-slate-100 text-slate-600"
+                  }`}
+                >
+                  {formData.q9EmphasisAreas.length} / 5 selected
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium">Select up to five priority domains.</p>
+              <p className="text-xs text-slate-500">
+                Select up to 5 domains that require greatest emphasis.
+              </p>
 
-              <div className="space-y-2 pt-1">
-                {READINESS_DOMAINS.map((domain) => {
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {READINESS_DOMAINS.map((domain, index) => {
                   const isChecked = formData.q9EmphasisAreas.includes(domain.id);
-                  const isMaxReached = formData.q9EmphasisAreas.length >= 5 && !isChecked;
                   return (
-                    <label
+                    <button
+                      type="button"
                       key={domain.id}
-                      className={`flex items-start gap-3 p-3 rounded-xl border transition select-none ${
+                      onClick={() => handleQ6EmphasisToggle(domain.id)}
+                      className={`flex items-center gap-3 rounded-xl border p-3 text-left text-xs transition cursor-pointer ${
                         isChecked
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs cursor-pointer"
-                          : isMaxReached
-                          ? "bg-slate-50/30 border-slate-200/50 text-slate-400 cursor-not-allowed opacity-60"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80 cursor-pointer"
+                          ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        disabled={isMaxReached}
-                        onChange={() => handleQ9EmphasisToggle(domain.id)}
-                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer disabled:cursor-not-allowed"
-                      />
-                      <span className="text-xs sm:text-sm leading-snug">
-                        <strong>[{domain.code}]</strong> {domain.label}
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+                          isChecked
+                            ? "border-red-700 bg-red-700 text-white font-bold"
+                            : "border-slate-300 bg-white"
+                        }`}
+                      >
+                        {isChecked && "✓"}
                       </span>
-                    </label>
+                      <span className="leading-tight">
+                        <span className="font-bold text-slate-900 mr-1">{index + 1}.</span>
+                        {domain.title}
+                      </span>
+                    </button>
                   );
                 })}
               </div>
             </div>
-
-            {/* Q10. One Change Suggestion */}
-            <div className="space-y-2 pt-4 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q10. In your opinion, what ONE change would most improve the effectiveness of the Foundation Course / early MBBS preparation for subsequent clinical exposure? <span className="text-xs font-normal text-slate-400">(Optional)</span>
-              </label>
-              <textarea
-                rows={3}
-                value={formData.q10OneChangeSuggestion || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, q10OneChangeSuggestion: e.target.value }))}
-                placeholder="Share your primary recommendation..."
-                className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-              />
-            </div>
-
-            {/* Q11. Need for Complementary Resource */}
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q11. Overall, do you feel there is a need for a more structured, engaging and longitudinal student-readiness resource that complements the institutional Foundation Course and continues to support students as they progress towards clinical exposure? <span className="text-red-700">*</span>
-              </label>
-
-              <div className="space-y-2">
-                {Q11_OPTIONS.map((opt) => {
-                  const isSelected = formData.q11NeedForComplementaryResource === opt;
-                  return (
-                    <label
-                      key={opt}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="q11Need"
-                        checked={isSelected}
-                        onChange={() => setFormData((prev) => ({ ...prev, q11NeedForComplementaryResource: opt }))}
-                        className="h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm">{opt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Q12. Make Resource Useful */}
-            <div className="space-y-2 pt-4 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q12. What would make such a resource genuinely useful rather than simply adding another teaching requirement? <span className="text-xs font-normal text-slate-400">(Optional)</span>
-              </label>
-              <textarea
-                rows={2}
-                value={formData.q12MakeResourceUseful || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, q12MakeResourceUseful: e.target.value }))}
-                placeholder="What key characteristics would ensure high adoption and genuine value?"
-                className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-              />
-            </div>
-          </div>
+          </section>
         )}
 
         {/* ========================================================= */}
-        {/* SECTION 3: LOOKING BACK */}
+        {/* SECTION 3 — CURRENT FOUNDATION COURSE                     */}
         {/* ========================================================= */}
         {currentStep === 3 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-9 shadow-sm space-y-7">
+            <div className="border-b border-slate-100 pb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 3 of 8
+                Section 3 of 7
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
-                Looking Back
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight mt-0.5">
+                Current Foundation Course
               </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                Reflecting on personal transitions and observations of student journeys over time.
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                Your observations on the current Foundation Course implementation in medical colleges.
               </p>
             </div>
 
-            {/* Q13. One thing wish someone had taught */}
-            <div className="space-y-2 pt-2">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q13. Thinking back to your own entry into medical college: What is one thing you wish someone had taught, explained or discussed with you at the beginning? <span className="text-red-700">*</span>
+            {/* Q7 Description (Single-select) */}
+            <div className="space-y-3">
+              <label className="block text-sm font-black text-slate-950">
+                Q7. Based on your experience, how would you describe the implementation of the current Foundation Course in medical colleges?{" "}
+                <span className="text-red-600">*</span>
               </label>
-              <p className="text-xs text-slate-500 font-medium">A concise, candid response is very helpful.</p>
+              <div className="space-y-2">
+                {Q7_FOUNDATION_COURSE_OPTIONS.map((opt) => {
+                  const isChecked = formData.q15FoundationCourseDescription === opt;
+                  return (
+                    <button
+                      type="button"
+                      key={opt}
+                      onClick={() => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          q15FoundationCourseDescription: opt,
+                        }));
+                        setValidationError(null);
+                      }}
+                      className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left text-xs sm:text-sm transition cursor-pointer ${
+                        isChecked
+                          ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                          isChecked
+                            ? "border-red-700 bg-red-700 text-white"
+                            : "border-slate-300 bg-white"
+                        }`}
+                      >
+                        {isChecked && "●"}
+                      </span>
+                      <span>{opt}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Q8 Limitations (Multi-select, max 3) */}
+            <div className="space-y-3 pt-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="block text-sm font-black text-slate-950">
+                  Q8. What are the main limitations in delivering an effective Foundation Course?
+                </label>
+                <span className="text-xs font-bold font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                  {formData.q16Limitations.length} / 3 selected
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">Choose up to 3.</p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {Q8_LIMITATIONS_OPTIONS.map((lim) => {
+                  const isChecked = formData.q16Limitations.includes(lim);
+                  return (
+                    <button
+                      type="button"
+                      key={lim}
+                      onClick={() => handleQ8LimitationsToggle(lim)}
+                      className={`flex items-start gap-3 rounded-xl border p-3 text-left text-xs transition cursor-pointer ${
+                        isChecked
+                          ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span
+                        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+                          isChecked
+                            ? "border-red-700 bg-red-700 text-white font-bold"
+                            : "border-slate-300 bg-white"
+                        }`}
+                      >
+                        {isChecked && "✓"}
+                      </span>
+                      <span className="leading-snug">{lim}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================= */}
+        {/* SECTION 4 — YOUR EXPERIENCE MATTERS                       */}
+        {/* ========================================================= */}
+        {currentStep === 4 && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-9 shadow-sm space-y-6">
+            <div className="border-b border-slate-100 pb-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+                Section 4 of 7
+              </span>
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight mt-0.5">
+                Your Experience Matters
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                Reflections from your own journey and the generations of students you have mentored.
+              </p>
+            </div>
+
+            {/* Q9 Wish taught at beginning (Short textarea) */}
+            <div className="space-y-3">
+              <label className="block text-sm font-black text-slate-950">
+                Q9. Thinking about the students you have taught—and your own journey through medicine—what is ONE thing you wish every student understood or learned at the beginning of MBBS?{" "}
+                <span className="text-red-600">*</span>
+              </label>
+              <p className="text-xs text-slate-500">
+                One brief observation or recommendation is enough.
+              </p>
               <textarea
                 rows={4}
                 value={formData.q13WishTaughtAtBeginning}
-                onChange={(e) => setFormData((prev) => ({ ...prev, q13WishTaughtAtBeginning: e.target.value }))}
-                placeholder="What insight, perspective, study method, or advice would have made a big difference?"
-                className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
+                onChange={(e) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    q13WishTaughtAtBeginning: e.target.value,
+                  }));
+                  setValidationError(null);
+                }}
+                placeholder="Share your observation, insight or advice for incoming students..."
+                className="w-full rounded-xl border border-slate-300 bg-white p-4 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600 leading-relaxed"
               />
             </div>
-
-            {/* Q14. Challenge apparent later */}
-            <div className="space-y-2 pt-4 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q14. In your experience with current students, what is one challenge that tends to become apparent only after they have spent some time in medical college? <span className="text-xs font-normal text-slate-400">(Optional)</span>
-              </label>
-              <textarea
-                rows={3}
-                value={formData.q14ChallengeApparentLater || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, q14ChallengeApparentLater: e.target.value }))}
-                placeholder="e.g. burnout, clinical hesitation, exam stress, communication hurdles..."
-                className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-              />
-            </div>
-          </div>
+          </section>
         )}
 
         {/* ========================================================= */}
-        {/* SECTION 4: FOUNDATION COURSE & EARLY CLINICAL EXPOSURE */}
-        {/* ========================================================= */}
-        {currentStep === 4 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 4 of 8
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
-                Foundation Course &amp; Early Clinical Exposure
-              </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                Understanding current institutional delivery and structural challenges.
-              </p>
-            </div>
-
-            {/* Q15. Description of Foundation Course */}
-            <div className="space-y-3 pt-2">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q15. How would you describe the Foundation Course / orientation currently available to new MBBS students at institutions you are familiar with? <span className="text-red-700">*</span>
-              </label>
-
-              <div className="space-y-2">
-                {Q15_OPTIONS.map((opt) => {
-                  const isSelected = formData.q15FoundationCourseDescription === opt;
-                  return (
-                    <label
-                      key={opt}
-                      className={`flex items-start gap-3 p-3.5 rounded-xl border transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="q15Description"
-                        checked={isSelected}
-                        onChange={() => setFormData((prev) => ({ ...prev, q15FoundationCourseDescription: opt }))}
-                        className="mt-0.5 h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm leading-snug">{opt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Q16. Commonly limits effectiveness (Select up to 3) */}
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="block text-sm sm:text-base font-black text-slate-900">
-                  Q16. What commonly limits the effectiveness of MBBS-entry/Foundation Course orientation? <span className="text-xs font-normal text-slate-400">(Optional)</span>
-                </label>
-                <span className="text-xs font-bold text-red-800 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
-                  {formData.q16Limitations.length} of 3 selected
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium">Select up to three factors.</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                {Q16_LIMITATIONS_OPTIONS.map((lim) => {
-                  const isChecked = formData.q16Limitations.includes(lim);
-                  const isMaxReached = formData.q16Limitations.length >= 3 && !isChecked;
-                  return (
-                    <label
-                      key={lim}
-                      className={`flex items-start gap-3 p-3 rounded-xl border transition select-none ${
-                        isChecked
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs cursor-pointer"
-                          : isMaxReached
-                          ? "bg-slate-50/30 border-slate-200/50 text-slate-400 cursor-not-allowed opacity-60"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80 cursor-pointer"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        disabled={isMaxReached}
-                        onChange={() => handleQ16LimitationsToggle(lim)}
-                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer disabled:cursor-not-allowed"
-                      />
-                      <span className="text-xs sm:text-sm leading-snug">{lim}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* SECTION 5: BUILDING THE MBBS FOUNDATION WORKSHOP */}
+        {/* SECTION 5 — BUILDING THE MBBS FOUNDATION WORKSHOP         */}
         {/* ========================================================= */}
         {currentStep === 5 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-9 shadow-sm space-y-6">
+            <div className="border-b border-slate-100 pb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 5 of 8
+                Section 5 of 7
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight mt-0.5">
                 Building the MBBS Foundation Workshop
               </h2>
-
-              <div className="mt-4 rounded-xl bg-slate-50 border border-slate-200/90 p-4 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2">
-                <p>
-                  AHA India proposes to develop an <strong>MBBS Foundation Workshop</strong> that complements institutional orientation/Foundation Course activities.
-                </p>
-                <p>
-                  Rather than another lecture programme, it can use short discussions, scenarios, reflection, practical activities, videos, questions and faculty/near-peer interaction.
-                </p>
-                <p className="font-semibold text-slate-900">
-                  <strong>MBBS Foundation: Your First Book of Medicine</strong> will serve as the principal structured reference resource.
-                </p>
-              </div>
-            </div>
-
-            {/* Q17. Useful Formats (Select up to 5) */}
-            <div className="space-y-3 pt-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <label className="block text-sm sm:text-base font-black text-slate-900">
-                  Q17. Which formats would you consider most useful for engaging incoming MBBS students? <span className="text-xs font-normal text-slate-400">(Optional)</span>
-                </label>
-                <span className="text-xs font-bold text-red-800 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
-                  {formData.q17UsefulFormats.length} of 5 selected
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 font-medium">Select up to five preferred formats.</p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                {Q17_WORKSHOP_FORMATS_OPTIONS.map((fmt) => {
-                  const isChecked = formData.q17UsefulFormats.includes(fmt);
-                  const isMaxReached = formData.q17UsefulFormats.length >= 5 && !isChecked;
-                  return (
-                    <label
-                      key={fmt}
-                      className={`flex items-start gap-3 p-3 rounded-xl border transition select-none ${
-                        isChecked
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs cursor-pointer"
-                          : isMaxReached
-                          ? "bg-slate-50/30 border-slate-200/50 text-slate-400 cursor-not-allowed opacity-60"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80 cursor-pointer"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        disabled={isMaxReached}
-                        onChange={() => handleQ17FormatsToggle(fmt)}
-                        className="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer disabled:cursor-not-allowed"
-                      />
-                      <span className="text-xs sm:text-sm leading-snug">{fmt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Q18. Workshop Definitely Include */}
-            <div className="space-y-2 pt-4 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q18. What should an MBBS Foundation Workshop definitely include? <span className="text-xs font-normal text-slate-400">(Optional)</span>
-              </label>
-              <textarea
-                rows={3}
-                value={formData.q18WorkshopShouldInclude || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, q18WorkshopShouldInclude: e.target.value }))}
-                placeholder="Key must-have modules, interactive elements, or experiential components..."
-                className="w-full rounded-xl border border-slate-300 bg-white p-3.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================= */}
-        {/* SECTION 6: WOULD YOU LIKE TO CONTRIBUTE? */}
-        {/* ========================================================= */}
-        {currentStep === 6 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 6 of 8
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
-                Would You Like to Contribute?
-              </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                We warmly invite faculty, clinicians, and medical mentors to collaborate in co-creating learning resources.
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                The MBBS Foundation Workshop is envisaged as a practical, interactive programme that complements the formal Foundation Course and helps students navigate the transition into medical education.
               </p>
             </div>
 
-            {/* Q19. Interest in Contributing */}
-            <div className="space-y-3 pt-2">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q19. Would you be interested in contributing to the development of the MBBS Foundation initiative? <span className="text-red-700">*</span>
-              </label>
+            {/* Q10 Useful Formats (Multi-select, max 5) */}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <label className="block text-sm font-black text-slate-950">
+                  Q10. Which learning approaches would be most useful for such a workshop?
+                </label>
+                <span className="text-xs font-bold font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                  {formData.q17UsefulFormats.length} / 5 selected
+                </span>
+              </div>
+              <p className="text-xs text-slate-500">Choose up to 5.</p>
 
-              <div className="space-y-2">
-                {Q19_CONTRIBUTION_INTEREST_OPTIONS.map((opt) => {
-                  const isSelected = formData.q19InterestedInContributing === opt;
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {Q10_WORKSHOP_FORMATS_OPTIONS.map((fmt) => {
+                  const isChecked = formData.q17UsefulFormats.includes(fmt);
                   return (
-                    <label
-                      key={opt}
-                      className={`flex items-center gap-3 p-3.5 rounded-xl border transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
+                    <button
+                      type="button"
+                      key={fmt}
+                      onClick={() => handleQ10FormatsToggle(fmt)}
+                      className={`flex items-start gap-3 rounded-xl border p-3 text-left text-xs transition cursor-pointer ${
+                        isChecked
+                          ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="q19ContributionInterest"
-                        checked={isSelected}
-                        onChange={() => handleQ19Change(opt)}
-                        className="h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm">{opt}</span>
-                    </label>
+                      <span
+                        className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+                          isChecked
+                            ? "border-red-700 bg-red-700 text-white font-bold"
+                            : "border-slate-300 bg-white"
+                        }`}
+                      >
+                        {isChecked && "✓"}
+                      </span>
+                      <span className="leading-snug">{fmt}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ========================================================= */}
+        {/* SECTION 6 — EXTEND YOUR CONTRIBUTION                      */}
+        {/* ========================================================= */}
+        {currentStep === 6 && (
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-9 shadow-sm space-y-7">
+            <div className="border-b border-slate-100 pb-4">
+              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
+                Section 6 of 7
+              </span>
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight mt-0.5">
+                Extend Your Contribution
+              </h2>
+              <p className="text-xs font-bold text-red-800 mt-0.5">
+                From educating students to helping shape how future doctors begin
+              </p>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                The MBBS Foundation initiative is being developed through contributions from medical faculty, clinicians, educators and professionals from across India.
+              </p>
+            </div>
+
+            {/* Q11 Interested in contributing (Single-select) */}
+            <div className="space-y-3">
+              <label className="block text-sm font-black text-slate-950">
+                Q11. Would you be interested in contributing to the MBBS Foundation initiative?{" "}
+                <span className="text-red-600">*</span>
+              </label>
+              <div className="space-y-2">
+                {Q11_CONTRIBUTION_INTEREST_OPTIONS.map((opt) => {
+                  const isChecked = formData.q19InterestedInContributing === opt;
+                  return (
+                    <button
+                      type="button"
+                      key={opt}
+                      onClick={() => handleQ11Change(opt)}
+                      className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left text-xs sm:text-sm transition cursor-pointer ${
+                        isChecked
+                          ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                          : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                          isChecked
+                            ? "border-red-700 bg-red-700 text-white"
+                            : "border-slate-300 bg-white"
+                        }`}
+                      >
+                        {isChecked && "●"}
+                      </span>
+                      <span>{opt}</span>
+                    </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* CONDITIONAL BRANCH: Q20 - Q22 */}
-            {shouldShowContributionBranch && (
-              <div className="space-y-6 pt-4 border-t border-slate-200 bg-red-50/30 p-5 rounded-2xl border border-red-100 animate-in fade-in duration-200">
-                <div className="text-xs font-bold uppercase tracking-wider text-red-800">
-                  Contribution Preferences &amp; Scope
-                </div>
-
-                {/* Q20. How might you like to contribute? */}
-                <div className="space-y-3">
-                  <label className="block text-sm font-black text-slate-900">
-                    Q20. How might you like to contribute? <span className="text-xs font-normal text-slate-500">(Select all that interest you)</span>
+            {/* Q12 Contribution Pathways (Conditional on Q11) */}
+            {formData.interestedInContributing && (
+              <div className="space-y-6 pt-4 border-t border-slate-100 animate-in fade-in duration-200">
+                <div className="space-y-2">
+                  <label className="block text-sm font-black text-slate-950">
+                    Q12. How would you be interested in contributing?
                   </label>
+                  <p className="text-xs text-slate-500">Select all that apply.</p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {Q20_CONTRIBUTION_TYPES_OPTIONS.map((ctype) => {
-                      const isChecked = formData.q20ContributionTypes.includes(ctype);
+                  <div className="grid grid-cols-1 gap-2.5 pt-1">
+                    {Q12_CONTRIBUTION_PATHWAYS.map((p) => {
+                      const isChecked = formData.q20ContributionTypes.includes(p.title);
                       return (
-                        <label
-                          key={ctype}
-                          className={`flex items-start gap-3 p-3 rounded-xl border transition cursor-pointer select-none ${
+                        <button
+                          type="button"
+                          key={p.title}
+                          onClick={() => handleQ12ContributionTypeToggle(p.title)}
+                          className={`flex items-start gap-3 rounded-xl border p-3.5 text-left text-xs transition cursor-pointer ${
                             isChecked
-                              ? "bg-red-50/90 border-red-300 text-red-950 font-bold shadow-2xs"
-                              : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
+                              ? "border-red-600 bg-red-50/70 text-red-950 font-bold shadow-xs"
+                              : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
                           }`}
                         >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => handleQ20ContributionTypeToggle(ctype)}
-                            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                          />
-                          <span className="text-xs sm:text-sm leading-snug">{ctype}</span>
-                        </label>
+                          <span
+                            className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] ${
+                              isChecked
+                                ? "border-red-700 bg-red-700 text-white font-bold"
+                                : "border-slate-300 bg-white"
+                            }`}
+                          >
+                            {isChecked && "✓"}
+                          </span>
+                          <div>
+                            <span className="font-bold text-slate-900 block">{p.title}</span>
+                            <span className="text-slate-600 text-[11px] font-normal leading-relaxed">
+                              — {p.description}
+                            </span>
+                          </div>
+                        </button>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Q21. Particular Topic Interest */}
+                {/* Optional specific topic textarea */}
                 <div className="space-y-2 pt-2">
-                  <label className="block text-sm font-black text-slate-900">
-                    Q21. Is there a particular topic or area to which you would personally like to contribute? <span className="text-xs font-normal text-slate-400">(Optional)</span>
+                  <label className="block text-xs font-bold text-slate-900">
+                    Is there a particular topic or area in which you would like to contribute? (Optional)
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={2}
                     value={formData.q21PersonalTopicInterest || ""}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, q21PersonalTopicInterest: e.target.value }))}
-                    placeholder="e.g. Communication scenarios, ECG basics, Doctor-patient ethics, Stress management..."
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        q21PersonalTopicInterest: e.target.value,
+                      }))
+                    }
+                    placeholder="e.g., communication skills, stress management, CPR, ethics, study methods..."
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
                   />
-                </div>
-
-                {/* Q22. Time Commitment */}
-                <div className="space-y-3 pt-2">
-                  <label className="block text-sm font-black text-slate-900">
-                    Q22. Approximately how much time would you realistically be comfortable contributing initially? <span className="text-xs font-normal text-slate-400">(Optional)</span>
-                  </label>
-
-                  <div className="space-y-2">
-                    {Q22_TIME_COMMITMENT_OPTIONS.map((topt) => {
-                      const isSelected = formData.q22TimeCommitment === topt;
-                      return (
-                        <label
-                          key={topt}
-                          className={`flex items-center gap-3 p-3 rounded-xl border transition cursor-pointer select-none ${
-                            isSelected
-                              ? "bg-red-50/90 border-red-300 text-red-950 font-bold shadow-2xs"
-                              : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="q22Time"
-                            checked={isSelected}
-                            onChange={() => setFormData((prev) => ({ ...prev, q22TimeCommitment: topt }))}
-                            className="h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                          />
-                          <span className="text-xs sm:text-sm">{topt}</span>
-                        </label>
-                      );
-                    })}
-                  </div>
                 </div>
               </div>
             )}
-          </div>
+          </section>
         )}
 
         {/* ========================================================= */}
-        {/* SECTION 7: HELP US HEAR FROM STUDENTS */}
+        {/* SECTION 7 — STAY CONNECTED                                */}
         {/* ========================================================= */}
         {currentStep === 7 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-9 shadow-sm space-y-7">
+            <div className="border-b border-slate-100 pb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 7 of 8
+                Section 7 of 7
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
-                Help Us Hear from Students
+              <h2 className="text-2xl font-black text-slate-950 tracking-tight mt-0.5">
+                SECTION 7 — STAY CONNECTED
               </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                Connecting with incoming batches to understand real student transition needs.
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                Your professional and contact details will help us understand the diversity of contributors and communicate with you regarding this consultation and the MBBS Foundation initiative.
               </p>
             </div>
 
-            {/* Q23. Connected with new students */}
-            <div className="space-y-3 pt-2">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q23. Are you currently connected with newly admitted or first-year MBBS students through your institution, teaching, professional network or personal network? <span className="text-red-700">*</span>
-              </label>
-
-              <div className="space-y-2">
-                {Q23_STUDENT_CONNECTION_OPTIONS.map((opt) => {
-                  const isSelected = formData.q23ConnectedWithNewStudents === opt;
-                  return (
-                    <label
-                      key={opt}
-                      className={`flex items-center gap-3 p-3.5 rounded-xl border transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="q23Connection"
-                        checked={isSelected}
-                        onChange={() => setFormData((prev) => ({ ...prev, q23ConnectedWithNewStudents: opt }))}
-                        className="h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm">{opt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Q24. Willing to share Readiness Check */}
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <div>
-                <label className="block text-sm sm:text-base font-black text-slate-900">
-                  Q24. Would you be willing to share a brief <strong className="text-red-800">MBBS Entry Readiness Check</strong> with newly admitted / first-year MBBS students? <span className="text-red-700">*</span>
+            <div className="space-y-4">
+              {/* Name & Title (Required) */}
+              <div className="space-y-1">
+                <label className="block text-xs font-bold text-slate-900">
+                  Name &amp; Academic Title <span className="text-red-600">*</span>
                 </label>
-                <p className="mt-1.5 text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-200">
-                  The readiness check will help students reflect on their preparedness for the transition into medical college and help us understand their actual needs.
-                </p>
+                <input
+                  type="text"
+                  value={formData.respondentName || ""}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, respondentName: e.target.value }));
+                    setValidationError(null);
+                  }}
+                  placeholder="e.g., Dr. Rajesh Sharma, Professor"
+                  className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                />
               </div>
 
-              <div className="space-y-2 pt-1">
-                {Q24_READINESS_SHARING_OPTIONS.map((opt) => {
-                  const isSelected = formData.q24WillingToShareReadiness === opt;
-                  return (
-                    <label
-                      key={opt}
-                      className={`flex items-center gap-3 p-3.5 rounded-xl border transition cursor-pointer select-none ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-bold shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="q24Share"
-                        checked={isSelected}
-                        onChange={() => handleQ24Change(opt)}
-                        className="h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm">{opt}</span>
-                    </label>
-                  );
-                })}
+              {/* Email & Mobile Grid (At least one required) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-900">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email || ""}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, email: e.target.value }));
+                      setValidationError(null);
+                    }}
+                    placeholder="e.g., doctor@institution.edu.in"
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                  />
+                  <span className="text-[11px] text-slate-500">Provide Email OR Mobile.</span>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-bold text-slate-900">
+                    Mobile / WhatsApp Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.mobileWhatsapp || ""}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, mobileWhatsapp: e.target.value }));
+                      setValidationError(null);
+                    }}
+                    placeholder="e.g., 9876543210"
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
+                  />
+                  <span className="text-[11px] text-slate-500">Provide Email OR Mobile.</span>
+                </div>
+              </div>
+
+              {/* Consent for contact (Required) */}
+              <div className="space-y-2 pt-3 border-t border-slate-100">
+                <label className="block text-xs font-bold text-slate-900">
+                  May we contact you regarding the MBBS Foundation consultation, Workshop or contribution opportunities?{" "}
+                  <span className="text-red-600">*</span>
+                </label>
+                <div className="flex gap-4">
+                  {Q28_CONSENT_OPTIONS.map((opt) => {
+                    const isChecked = formData.q28ConsentForContact === opt;
+                    return (
+                      <button
+                        type="button"
+                        key={opt}
+                        onClick={() => handleConsentChange(opt)}
+                        className={`flex items-center gap-2 rounded-xl border px-5 py-2.5 text-xs font-bold transition cursor-pointer ${
+                          isChecked
+                            ? "border-red-600 bg-red-50 text-red-900 shadow-xs"
+                            : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border ${
+                            isChecked
+                              ? "border-red-700 bg-red-700 text-white"
+                              : "border-slate-300 bg-white"
+                          }`}
+                        >
+                          {isChecked && "●"}
+                        </span>
+                        <span>{opt}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Privacy Notice */}
+              <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-slate-600 text-[11px] leading-relaxed">
+                🔒 <strong>Privacy:</strong> Your contact information will be used only for communication related to the MBBS Foundation initiative and will not be shared with third parties for marketing.
               </div>
             </div>
+          </section>
+        )}
+
+        {/* Validation Error Banner */}
+        {validationError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-xs font-bold text-red-800 animate-in fade-in duration-150">
+            ⚠️ {validationError}
           </div>
         )}
 
-        {/* ========================================================= */}
-        {/* SECTION 8: STAY CONNECTED */}
-        {/* ========================================================= */}
-        {currentStep === 8 && (
-          <div className="space-y-8 animate-in fade-in duration-150">
-            <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-red-700">
-                Section 8 of 8
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 mt-1">
-                Stay Connected
-              </h2>
-              <p className="mt-1 text-xs sm:text-sm text-slate-600">
-                Contact details are optional unless you would like us to follow up regarding the MBBS Foundation consultation, workshop development, or contribution opportunities.
-              </p>
-            </div>
-
-            {/* Q25. Name */}
-            <div className="space-y-1.5 pt-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                Q25. Full Name <span className="text-xs font-normal text-slate-400">(Optional)</span>
-              </label>
-              <input
-                type="text"
-                value={formData.respondentName || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, respondentName: e.target.value }))}
-                placeholder="e.g. Dr. Ramesh Kumar"
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-              />
-            </div>
-
-            {/* Q26. Email */}
-            <div className="space-y-1.5 pt-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                Q26. Email Address <span className="text-xs font-normal text-slate-400">(Optional)</span>
-              </label>
-              <input
-                type="email"
-                value={formData.email || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                placeholder="doctor@institution.org"
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-              />
-            </div>
-
-            {/* Q27. Mobile / WhatsApp */}
-            <div className="space-y-1.5 pt-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
-                Q27. Mobile / WhatsApp Number <span className="text-xs font-normal text-slate-400">(Optional)</span>
-              </label>
-              <input
-                type="text"
-                value={formData.mobileWhatsapp || ""}
-                onChange={(e) => setFormData((prev) => ({ ...prev, mobileWhatsapp: e.target.value }))}
-                placeholder="e.g. +91 98765 43210"
-                className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none"
-              />
-            </div>
-
-            {/* Q28. Consent for Contact */}
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <label className="block text-sm sm:text-base font-black text-slate-900">
-                Q28. May AHA India contact you regarding the MBBS Foundation consultation, workshop development or contribution opportunities? <span className="text-red-700">*</span>
-              </label>
-
-              <div className="grid grid-cols-2 gap-3 max-w-sm">
-                {Q28_CONSENT_OPTIONS.map((opt) => {
-                  const isSelected = formData.q28ConsentForContact === opt;
-                  return (
-                    <label
-                      key={opt}
-                      className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition cursor-pointer select-none text-center ${
-                        isSelected
-                          ? "bg-red-50/80 border-red-300 text-red-950 font-black shadow-2xs"
-                          : "bg-slate-50/70 border-slate-200 text-slate-800 hover:bg-slate-100/80 font-bold"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="q28Consent"
-                        checked={isSelected}
-                        onChange={() => handleQ28ConsentChange(opt)}
-                        className="h-4 w-4 border-slate-300 text-red-700 focus:ring-red-600 cursor-pointer"
-                      />
-                      <span className="text-xs sm:text-sm">{opt}</span>
-                    </label>
-                  );
-                })}
-              </div>
-
-              {/* Privacy Note */}
-              <p className="mt-3 text-[11px] sm:text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed">
-                🔒 <strong>Privacy Note:</strong> Contact information will be used only for communication related to the MBBS Foundation initiative and will not be shared with third parties for marketing purposes.
-              </p>
-            </div>
+        {/* Submit Error Banner */}
+        {submitError && (
+          <div className="rounded-xl border border-red-300 bg-red-50 p-4 text-xs font-bold text-red-800 animate-in fade-in duration-150">
+            ❌ {submitError}
           </div>
         )}
 
-        {/* ========================================================= */}
-        {/* PREVIOUS / CONTINUE ACTION BUTTONS */}
-        {/* ========================================================= */}
-        <div className="pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+        {/* Navigation Buttons */}
+        <div className="flex items-center justify-between pt-2">
           {currentStep > 1 ? (
             <button
               type="button"
-              onClick={handlePrevious}
+              onClick={handleBack}
+              disabled={isSubmitting}
               className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
             >
-              ← Previous Section
+              ← Back
             </button>
           ) : (
-            <div></div>
+            <div />
           )}
 
-          <button
-            type="button"
-            onClick={handleNext}
-            className="rounded-xl bg-gradient-to-r from-red-700 via-red-800 to-slate-950 px-7 py-3 text-xs sm:text-sm font-black text-white shadow-md hover:from-red-800 hover:to-black transition flex items-center gap-2 cursor-pointer"
-          >
-            <span>{currentStep === 8 ? "Review & Complete" : "Continue to Next Section"}</span>
-            <span>→</span>
-          </button>
+          {currentStep < 7 ? (
+            <button
+              type="button"
+              onClick={handleNext}
+              className="rounded-xl bg-slate-900 hover:bg-red-700 px-7 py-2.5 text-xs sm:text-sm font-bold text-white transition shadow-sm cursor-pointer"
+            >
+              Continue to Section {currentStep + 1} →
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="rounded-xl bg-red-700 hover:bg-red-800 px-8 py-3 text-xs sm:text-sm font-bold text-white transition shadow-md cursor-pointer disabled:opacity-50"
+            >
+              {isSubmitting ? "Submitting Consultation..." : "SUBMIT PROFESSIONAL CONSULTATION"}
+            </button>
+          )}
         </div>
-      </div>
+      </form>
     </div>
   );
 }

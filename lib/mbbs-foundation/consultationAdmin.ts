@@ -373,8 +373,11 @@ export async function getConsultationDashboardSummary(): Promise<ConsultationDas
     const cinterests = (r.contributionInterests as string[]) || (r.surveyResponses as any)?.contributionTypes || [];
     if (Array.isArray(cinterests)) {
       for (const ci of cinterests) {
-        if (ctypeCounts[ci] !== undefined) {
-          ctypeCounts[ci]++;
+        for (const ctype of Q20_CONTRIBUTION_TYPES_OPTIONS) {
+          if (ci === ctype || ci.startsWith(ctype)) {
+            ctypeCounts[ctype]++;
+            break;
+          }
         }
       }
     }
@@ -382,7 +385,7 @@ export async function getConsultationDashboardSummary(): Promise<ConsultationDas
   const contributionInterestsSummary = Q20_CONTRIBUTION_TYPES_OPTIONS.map((ctype) => ({
     type: ctype,
     count: ctypeCounts[ctype],
-    percentage: Math.round((ctypeCounts[ctype] / totalResponses) * 100),
+    percentage: totalResponses > 0 ? Math.round((ctypeCounts[ctype] / totalResponses) * 100) : 0,
   }))
     .filter((c) => c.count > 0)
     .sort((a, b) => b.count - a.count);

@@ -24,8 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Student & Intern Voice",
-    disabled: true,
-    badge: "Coming Soon",
+    href: "/mbbs-foundation/consultation/student-voice",
   },
   {
     label: "Entry Readiness",

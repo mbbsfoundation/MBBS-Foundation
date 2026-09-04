@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyAdminRequest } from "@/lib/adminAuth";
-import { Q8_STATEMENTS } from "@/lib/mbbs-foundation/studentVoiceSurveyConfig";
+import { Q6_STATEMENTS } from "@/lib/mbbs-foundation/studentVoiceSurveyConfig";
 
 function escapeCsvField(field: any): string {
   if (field === null || field === undefined) {
@@ -25,7 +25,7 @@ function getSourceLabel(source?: string | null): string {
 /**
  * GET /api/admin/mbbs-foundation/consultation/student-voice/export
  *
- * Secure CSV export endpoint for Survey 2 — Student & Intern Voice responses.
+ * Secure CSV export endpoint for Student & Intern Voice responses.
  * Protected by verifyAdminRequest.
  */
 export async function GET(request: NextRequest) {
@@ -44,31 +44,29 @@ export async function GET(request: NextRequest) {
     const headers = [
       "Response ID",
       "Created At",
+      "Survey Version",
       "Source",
       "Source Label",
       "Training Stage (Q1)",
       "College Type (Q2)",
-      "State (Q3)",
-      "Rewarding Experiences (Q4)",
-      "First Months Feeling (Q5)",
-      "Harder Than Expected Aspects (Q6)",
-      "Unexpected Aspects (Q7)",
-      // Q8 10 Statements
-      ...Q8_STATEMENTS.map((s) => `Q8 [${s.code}] ${s.label}`),
-      "Should Understand Before Starting (Q9)",
-      "Helpful Guidance Formats (Q10)",
-      "Best Timing for Guidance (Q11)",
-      "Structured Guide Usefulness Rating (Q12)",
-      "Essential Guide Components (Q13)",
-      "Overall Transition Fit Statement (Q14)",
-      "Prior Knowledge Would Have Helped (Q15)",
-      "Interested in Helping Next Batch (Q16)",
-      "Help Methods (Q17)",
-      "One Thing Wish Told (Q18)",
-      "Consent for Follow-up",
-      "Respondent Name",
-      "Email",
-      "Mobile / WhatsApp",
+      "State (Q2)",
+      "Medical College / Institution (Q2)",
+      "Rewarding Experiences (Q3)",
+      "Harder Than Expected Aspects (Q4)",
+      "Surprises After Entering (Q5)",
+      // Q6 8 Statements
+      ...Q6_STATEMENTS.map((s) => `Q6 [${s.code}] ${s.label}`),
+      "Priorities to Prepare Next Batch (Q7)",
+      "Useful Preparation Formats (Q8)",
+      "Optimal Guidance Timing (Q9)",
+      "One Thing Wish Told (Q10)",
+      "Anonymous Quote Permission Granted",
+      "Interested in Contributing",
+      "Contribution Pathways",
+      "Contributor Name",
+      "Contributor Email",
+      "Contributor Mobile / WhatsApp",
+      "Consent for Contact",
     ];
 
     const rows: string[] = [headers.map(escapeCsvField).join(",")];
@@ -76,65 +74,85 @@ export async function GET(request: NextRequest) {
     for (const r of responses) {
       const resp = (r.surveyResponses as any) || {};
 
-      const q4Str = Array.isArray(resp.q4RewardingExperiences)
+      const isV2 = r.surveyVersion === "v2";
+
+      const q3Str = Array.isArray(resp.q3RewardingExperiences)
+        ? resp.q3RewardingExperiences.join("; ")
+        : Array.isArray(resp.q4RewardingExperiences)
         ? resp.q4RewardingExperiences.join("; ")
         : "";
-      const q6Str = Array.isArray(resp.q6HarderAspects)
+
+      const q4Str = Array.isArray(resp.q4HarderAspects)
+        ? resp.q4HarderAspects.join("; ")
+        : Array.isArray(resp.q6HarderAspects)
         ? resp.q6HarderAspects.join("; ")
         : "";
-      const q7Str = Array.isArray(resp.q7UnexpectedAspects)
+
+      const q5Str = Array.isArray(resp.q5Surprises)
+        ? resp.q5Surprises.join("; ")
+        : Array.isArray(resp.q7UnexpectedAspects)
         ? resp.q7UnexpectedAspects.join("; ")
         : "";
-      const q9Str = Array.isArray(resp.q9ShouldUnderstandBefore)
+
+      const q7Str = Array.isArray(resp.q7NextBatchPriorities)
+        ? resp.q7NextBatchPriorities.join("; ")
+        : Array.isArray(resp.q9ShouldUnderstandBefore)
         ? resp.q9ShouldUnderstandBefore.join("; ")
         : "";
-      const q10Str = Array.isArray(resp.q10HelpfulGuidanceTypes)
+
+      const q8Str = Array.isArray(resp.q8UsefulPreparationTypes)
+        ? resp.q8UsefulPreparationTypes.join("; ")
+        : Array.isArray(resp.q10HelpfulGuidanceTypes)
         ? resp.q10HelpfulGuidanceTypes.join("; ")
         : "";
-      const q13Str = Array.isArray(resp.q13GuideEssentialComponents)
-        ? resp.q13GuideEssentialComponents.join("; ")
-        : "";
-      const q17Str = Array.isArray(resp.q17HelpMethods)
+
+      const q9Timing = resp.q9BestTiming || resp.q11BestTimingForGuidance || "";
+
+      const q10Text = resp.q10WishSomeoneTold || resp.q18OneThingWishTold || "";
+
+      const quotePerm = resp.quotePermission ? "Yes (Anonymous)" : "No";
+
+      const contInterestsStr = Array.isArray(r.contributionInterests)
+        ? (r.contributionInterests as string[]).join("; ")
+        : Array.isArray(resp.q17HelpMethods)
         ? resp.q17HelpMethods.join("; ")
         : "";
 
-      const q8Ratings = resp.q8FirstYearFeelings || {};
+      const q6Ratings = resp.q6TransitionMatrix || resp.q8FirstYearFeelings || {};
 
       const rowValues = [
         r.id,
         r.createdAt.toISOString(),
+        r.surveyVersion || "v2",
         r.source || "direct",
         getSourceLabel(r.source),
         r.trainingStage || "",
         r.collegeType || "",
         r.state || "",
+        resp.q2InstitutionName || "",
+        q3Str,
         q4Str,
-        resp.q5FirstMonthsFeeling || "",
-        q6Str,
+        q5Str,
+        // Q6 8 statements
+        ...Q6_STATEMENTS.map((s) => q6Ratings[s.id] || ""),
         q7Str,
-        // Q8 10 statements
-        ...Q8_STATEMENTS.map((s) => q8Ratings[s.id] || ""),
-        q9Str,
-        q10Str,
-        resp.q11BestTimingForGuidance || "",
-        resp.q12GuideUsefulnessRating || "",
-        q13Str,
-        resp.q14TransitionFitStatement || "",
-        resp.q15PriorKnowledgeWouldHaveHelped || "",
-        resp.q16InterestedInHelping || "",
-        q17Str,
-        resp.q18OneThingWishTold || "",
-        r.consentForFollowup ? "Yes" : "No",
+        q8Str,
+        q9Timing,
+        q10Text,
+        quotePerm,
+        r.interestedInContributing ? "Yes" : "No",
+        contInterestsStr,
         r.respondentName || "",
         r.email || "",
         r.mobileWhatsapp || "",
+        r.consentForFollowup ? "Yes" : "No",
       ];
 
       rows.push(rowValues.map(escapeCsvField).join(","));
     }
 
     const csvContent = "\uFEFF" + rows.join("\r\n");
-    const filename = `mbbs-student-voice-survey-export-${new Date().toISOString().split("T")[0]}.csv`;
+    const filename = `mbbs-student-voice-v2-export-${new Date().toISOString().split("T")[0]}.csv`;
 
     return new NextResponse(csvContent, {
       status: 200,

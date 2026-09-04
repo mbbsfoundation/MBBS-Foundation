@@ -1,75 +1,107 @@
 /**
- * MBBS Foundation — Survey 2: Student & Intern Voice Types
+ * MBBS Foundation — Survey 2: Student & Intern Voice Types (V2 Locked)
  */
 
 export interface StudentVoiceFormData {
+  // Survey Version & Source
+  surveyVersion?: string;
+  source?: string;
+
   // Section 1: Where Are You Now?
   trainingStage: string;
   collegeType: string;
   state: string;
-  stateCode: string;
+  stateCode?: string;
+  institutionName?: string;
+  otherInstitutionText?: string;
 
-  // Section 2: The Good Part
-  q4RewardingExperiences: string[];
-  q5FirstMonthsFeeling: string;
+  // Section 2: Then MBBS Actually Started...
+  q3RewardingExperiences: string[];
+  q4HarderAspects: string[];
 
-  // Section 3: What Was Harder or More Unexpected?
-  q6HarderAspects: string[];
-  q7UnexpectedAspects: string[];
-  q8FirstYearFeelings: Record<string, string>; // statement_a ... statement_j -> rating
+  // Section 3: The Things Nobody Really Tells You
+  q5Surprises: string[];
 
-  // Section 4: What Should Students Know Before They Start?
-  q9ShouldUnderstandBefore: string[];
-  q10HelpfulGuidanceTypes: string[];
-  q11BestTimingForGuidance: string;
-  q12GuideUsefulnessRating: string;
-  q13GuideEssentialComponents: string[];
+  // Section 4: How Did the Transition Actually Feel?
+  q6TransitionMatrix: Record<string, string>; // statement_1 ... statement_8 -> frequency
 
-  // Section 5: Your Voice for the Next Batch
-  q14TransitionFitStatement: string;
-  q15PriorKnowledgeWouldHaveHelped: string;
-  q16InterestedInHelping: string;
-  interestedInContributing: boolean;
-  q17HelpMethods: string[];
-  q18OneThingWishTold: string;
+  // Section 5: If You Could Prepare the Next Batch...
+  q7NextBatchPriorities: string[];
 
-  // Optional Contributor Contact
-  consentForFollowup: boolean;
-  respondentName: string;
-  email: string;
-  mobileWhatsapp: string;
+  // Section 6: What Would Actually Have Helped?
+  q8UsefulPreparationTypes: string[];
+  q9BestTiming: string;
 
-  // Metadata
+  // Section 7: One Thing You Wish Someone Had Told You
+  q10WishSomeoneTold: string;
+  quotePermission: boolean;
+
+  // Optional custom text for 'Other' options
+  otherTexts?: Record<string, string>;
+
+  // Historical V1 compatibility fields (optional)
+  q4RewardingExperiences?: string[];
+  q5FirstMonthsFeeling?: string;
+  q6HarderAspects?: string[];
+  q7UnexpectedAspects?: string[];
+  q8FirstYearFeelings?: Record<string, string>;
+  q9ShouldUnderstandBefore?: string[];
+  q10HelpfulGuidanceTypes?: string[];
+  q11BestTimingForGuidance?: string;
+  q12GuideUsefulnessRating?: string;
+  q13GuideEssentialComponents?: string[];
+  q14TransitionFitStatement?: string;
+  q15PriorKnowledgeWouldHaveHelped?: string;
+  q16InterestedInHelping?: string;
+  q17HelpMethods?: string[];
+  q18OneThingWishTold?: string;
+
+  // Optional Contributor Contact (Post-submission)
+  interestedInContributing?: boolean;
+  contributionInterests?: string[];
+  consentForFollowup?: boolean;
+  respondentName?: string;
+  email?: string;
+  mobileWhatsapp?: string;
   referralCode?: string | null;
 }
 
 export const INITIAL_STUDENT_VOICE_FORM_DATA: StudentVoiceFormData = {
+  surveyVersion: "v2",
+  source: "direct",
   trainingStage: "",
   collegeType: "",
   state: "",
   stateCode: "",
-  q4RewardingExperiences: [],
-  q5FirstMonthsFeeling: "",
-  q6HarderAspects: [],
-  q7UnexpectedAspects: [],
-  q8FirstYearFeelings: {},
-  q9ShouldUnderstandBefore: [],
-  q10HelpfulGuidanceTypes: [],
-  q11BestTimingForGuidance: "",
-  q12GuideUsefulnessRating: "",
-  q13GuideEssentialComponents: [],
-  q14TransitionFitStatement: "",
-  q15PriorKnowledgeWouldHaveHelped: "",
-  q16InterestedInHelping: "",
+  institutionName: "",
+  otherInstitutionText: "",
+  q3RewardingExperiences: [],
+  q4HarderAspects: [],
+  q5Surprises: [],
+  q6TransitionMatrix: {},
+  q7NextBatchPriorities: [],
+  q8UsefulPreparationTypes: [],
+  q9BestTiming: "",
+  q10WishSomeoneTold: "",
+  quotePermission: false,
+  otherTexts: {},
   interestedInContributing: false,
-  q17HelpMethods: [],
-  q18OneThingWishTold: "",
+  contributionInterests: [],
   consentForFollowup: false,
   respondentName: "",
   email: "",
   mobileWhatsapp: "",
   referralCode: null,
 };
+
+export interface StudentContributorFormData {
+  responseId: string;
+  contributionInterests: string[];
+  respondentName: string;
+  email?: string;
+  mobileWhatsapp?: string;
+  consentForFollowup: boolean;
+}
 
 export interface StudentOptionMetric {
   option: string;
@@ -78,32 +110,34 @@ export interface StudentOptionMetric {
   group?: string;
 }
 
-export interface StudentQ8StatementMetric {
-  code: string;
+export interface StudentQ6StatementMetric {
   id: string;
+  code: string;
   label: string;
-  category: "academic" | "social_emotional" | "clinical" | "positive_growth";
   ratings: Record<string, number>;
   totalRated: number;
-  highFrequencyCount: number; // Often + Very Often
+  highFrequencyCount: number; // Often + Very often
   highFrequencyPercentage: number;
 }
 
+// Backward-compatibility alias
+export type StudentQ8StatementMetric = StudentQ6StatementMetric;
+
 export interface StudentVoiceCalculatedInsights {
-  pctExcitingChallengingOrMixed: number;
-  pctMajorAcademicChallenges: number;
-  pctPersonalSocialChallenges: number;
-  pctWantingGuidanceEarly: number;
-  pctGuideVeryOrExtremelyUseful: number;
-  pctAdvanceKnowledgeDefinitelyOrProbablyHelped: number;
+  pctExcitingOrRewarding: number;
+  pctMajorChallenges: number;
+  pctDifficultTransition: number;
+  pctWantingEarlyPreparation: number;
+  pctQuotePermissionGranted: number;
+  pctInterestedInContributing: number;
 }
 
 export interface StudentVoiceDashboardSummary {
   totalResponses: number;
-  difficultTransitionCount: number;
-  difficultTransitionPercentage: number;
-  priorKnowledgeHelpCount: number;
-  priorKnowledgeHelpPercentage: number;
+  v2ResponseCount: number;
+  v1ResponseCount: number;
+  quotePermissionCount: number;
+  quotePermissionPercentage: number;
   interestedContributorsCount: number;
   interestedContributorsPercentage: number;
   distinctStatesCount: number;
@@ -113,39 +147,36 @@ export interface StudentVoiceDashboardSummary {
   collegeTypeBreakdown: StudentOptionMetric[];
   stateBreakdown: StudentOptionMetric[];
 
-  q4RewardingBreakdown: StudentOptionMetric[];
-  q5FeelingBreakdown: StudentOptionMetric[];
-  q6HarderBreakdown: StudentOptionMetric[];
-  q7UnexpectedBreakdown: StudentOptionMetric[];
-  q8RatingsBreakdown: StudentQ8StatementMetric[];
+  // V2 Specific Metrics
+  q3RewardingBreakdown: StudentOptionMetric[];
+  q4HarderBreakdown: StudentOptionMetric[];
+  q5SurprisesBreakdown: StudentOptionMetric[];
+  q6MatrixBreakdown: StudentQ6StatementMetric[];
+  q7NextBatchBreakdown: StudentOptionMetric[];
+  q8PreparationTypesBreakdown: StudentOptionMetric[];
+  q9TimingBreakdown: StudentOptionMetric[];
 
-  q9UnderstandBeforeBreakdown: StudentOptionMetric[];
-  q10GuidanceTypesBreakdown: StudentOptionMetric[];
-  q11TimingBreakdown: StudentOptionMetric[];
-  q12UsefulnessBreakdown: StudentOptionMetric[];
-  q13ComponentsBreakdown: StudentOptionMetric[];
-
-  q14TransitionBreakdown: StudentOptionMetric[];
-  q15PriorKnowledgeBreakdown: StudentOptionMetric[];
-  q16ContributionInterestBreakdown: StudentOptionMetric[];
-  q17HelpMethodsBreakdown: StudentOptionMetric[];
+  // Post-submit Contributor Breakdown
+  contributionMethodsBreakdown: StudentOptionMetric[];
 
   calculatedInsights: StudentVoiceCalculatedInsights;
+
   recentResponses: Array<{
     id: string;
     createdAt: string;
+    surveyVersion: string;
     source: string;
     trainingStage: string;
     collegeType: string | null;
     state: string | null;
-    q5FirstMonthsFeeling: string;
-    q14TransitionFitStatement: string;
-    q15PriorKnowledgeWouldHaveHelped: string;
+    institutionName: string | null;
+    q10WishSomeoneTold: string | null;
+    quotePermission: boolean;
     interestedInContributing: boolean;
+    contributionInterests: string[] | null;
     respondentName: string | null;
     email: string | null;
     mobileWhatsapp: string | null;
-    q18OneThingWishTold: string | null;
     surveyResponses: any;
   }>;
 }

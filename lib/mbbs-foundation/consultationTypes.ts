@@ -131,20 +131,18 @@ export interface ConsultationFilterParams {
 }
 
 // -------------------------------------------------------------
-// SECTION 1: ABOUT YOU OPTIONS
+// SECTION 1: ABOUT YOU OPTIONS (V2 LOCKED)
 // -------------------------------------------------------------
 
 export const PROFESSIONAL_ROLES_OPTIONS = [
   "Medical college faculty",
   "Foundation Course faculty/coordinator",
-  "Medical Education Unit / MEU member",
-  "Dean / Principal / academic administrator",
-  "Clinician / practising doctor",
-  "CPR Course Coordinator",
-  "CPR Instructor / Trainer",
-  "CPR Champion",
+  "Medical Education Unit (MEU) member",
+  "Dean / Principal / Academic administrator",
+  "Clinician / Practising doctor",
   "Medical educator",
-  "Resident / postgraduate doctor",
+  "Resident / Postgraduate doctor",
+  "CPR Course Coordinator / CPR Instructor / Trainer / Champion",
   "Other healthcare professional",
   "Other",
 ] as const;
@@ -161,10 +159,10 @@ export const SPECIALTY_OPTIONS = [
   "Anaesthesiology",
   "Emergency Medicine",
   "Psychiatry",
-  "Other clinical specialty",
-  "Other pre/paraclinical specialty",
   "Medical Education",
   "Administration",
+  "Other clinical specialty",
+  "Other pre/paraclinical specialty",
   "Other",
 ] as const;
 
@@ -173,7 +171,7 @@ export const TEACHING_EXPERIENCE_OPTIONS = [
   "5–10 years",
   "11–20 years",
   "More than 20 years",
-  "Primarily clinical/training role rather than formal teaching",
+  "Primarily involved in clinical/skills training rather than formal teaching",
 ] as const;
 
 export const INDIAN_STATES_AND_UTS = [
@@ -217,85 +215,145 @@ export const INDIAN_STATES_AND_UTS = [
 ] as const;
 
 // -------------------------------------------------------------
-// SECTION 2: READINESS DOMAINS (Q7 & Q9)
+// SECTION 2: READINESS DOMAINS (Q5 & Q6 V2 LOCKED DISPLAY ORDER)
 // -------------------------------------------------------------
 
 export interface ReadinessDomainItem {
   id: string;
   code: string;
+  internalCode: string;
+  title: string;
   label: string;
+  description: string;
+  category?: string;
 }
 
 export const READINESS_DOMAINS: ReadinessDomainItem[] = [
   {
     id: "domain_a",
-    code: "A",
-    label: "Transition from examination-oriented learning to understanding and applying medical knowledge",
-  },
-  {
-    id: "domain_b",
-    code: "B",
-    label: "Self-directed learning, study skills and taking responsibility for their own learning",
-  },
-  {
-    id: "domain_c",
-    code: "C",
-    label: "Understanding their evolving role, responsibilities and identity as a future doctor",
-  },
-  {
-    id: "domain_d",
-    code: "D",
-    label: "Communicating appropriately and respectfully with patients and families",
-  },
-  {
-    id: "domain_e",
-    code: "E",
-    label: "Professional behaviour, ethics, confidentiality and appropriate boundaries",
-  },
-  {
-    id: "domain_f",
-    code: "F",
-    label: "Approaching patients with empathy, dignity and respect",
-  },
-  {
-    id: "domain_g",
-    code: "G",
-    label: "Basic clinical orientation — understanding the clinical environment, ward etiquette and how to behave during patient encounters",
-  },
-  {
-    id: "domain_h",
-    code: "H",
-    label: "Taking an appropriate introductory history and interacting with patients under supervision",
-  },
-  {
-    id: "domain_i",
-    code: "I",
-    label: "Working effectively with peers, seniors, nurses and other members of the healthcare team",
+    code: "1",
+    internalCode: "A",
+    title: "Learning & study transition",
+    label: "Learning & study transition",
+    description: "Moving from examination-oriented learning to understanding and applying medical knowledge",
+    category: "Learning & Academics",
   },
   {
     id: "domain_j",
-    code: "J",
-    label: "CPR, first aid and basic lifesaving preparedness",
+    code: "2",
+    internalCode: "J",
+    title: "CPR, first aid & lifesaving skills",
+    label: "CPR, first aid & lifesaving skills",
+    description: "Basic CPR, first aid and lifesaving preparedness for common medical emergencies",
+    category: "Emergency Skills",
+  },
+  {
+    id: "domain_b",
+    code: "3",
+    internalCode: "B",
+    title: "Self-directed learning",
+    label: "Self-directed learning",
+    description: "Developing effective study skills and taking responsibility for one's own learning",
+    category: "Learning & Academics",
+  },
+  {
+    id: "domain_c",
+    code: "4",
+    internalCode: "C",
+    title: "Professional identity",
+    label: "Professional identity",
+    description: "Understanding the evolving role, responsibilities and identity of a future doctor",
+    category: "Professional Identity",
+  },
+  {
+    id: "domain_d",
+    code: "5",
+    internalCode: "D",
+    title: "Patient communication",
+    label: "Patient communication",
+    description: "Communicating appropriately and respectfully with patients and families",
+    category: "Communication",
+  },
+  {
+    id: "domain_e",
+    code: "6",
+    internalCode: "E",
+    title: "Ethics & professionalism",
+    label: "Ethics & professionalism",
+    description: "Professional behaviour, ethics, confidentiality and appropriate boundaries",
+    category: "Ethics & Professionalism",
+  },
+  {
+    id: "domain_f",
+    code: "7",
+    internalCode: "F",
+    title: "Empathy & respect",
+    label: "Empathy & respect",
+    description: "Approaching patients with empathy, dignity and respect",
+    category: "Communication & Ethics",
+  },
+  {
+    id: "domain_g",
+    code: "8",
+    internalCode: "G",
+    title: "Clinical environment & etiquette",
+    label: "Clinical environment & etiquette",
+    description: "Understanding the hospital/clinical environment, ward etiquette and appropriate behaviour during patient encounters",
+    category: "Clinical Skills & Etiquette",
+  },
+  {
+    id: "domain_h",
+    code: "9",
+    internalCode: "H",
+    title: "Early patient interaction",
+    label: "Early patient interaction",
+    description: "Taking an introductory history and interacting appropriately with patients under supervision",
+    category: "Clinical Skills",
+  },
+  {
+    id: "domain_i",
+    code: "10",
+    internalCode: "I",
+    title: "Teamwork",
+    label: "Teamwork",
+    description: "Working effectively with peers, seniors, nurses and other healthcare professionals",
+    category: "Teamwork & Systems",
   },
   {
     id: "domain_k",
-    code: "K",
-    label: "Understanding the healthcare system and the different settings in which medical care is delivered",
+    code: "11",
+    internalCode: "K",
+    title: "Healthcare system orientation",
+    label: "Healthcare system orientation",
+    description: "Understanding how healthcare is organised and the different settings in which medical care is delivered",
+    category: "Healthcare Systems",
   },
   {
     id: "domain_l",
-    code: "L",
-    label: "Awareness of basic medicolegal responsibilities and safe professional behaviour",
+    code: "12",
+    internalCode: "L",
+    title: "Medicolegal awareness",
+    label: "Medicolegal awareness",
+    description: "Understanding basic medicolegal responsibilities and safe professional behaviour",
+    category: "Ethics & Legal",
   },
   {
     id: "domain_m",
-    code: "M",
-    label: "Coping with stress, uncertainty, mistakes, feedback, competition and setbacks",
+    code: "13",
+    internalCode: "M",
+    title: "Coping, self-care & resilience",
+    label: "Coping, self-care & resilience",
+    description: "Coping with stress, uncertainty, mistakes, feedback, competition and setbacks",
+    category: "Resilience & Wellbeing",
   },
   {
     id: "domain_n",
-    code: "N",
-    label: "Digital professionalism, responsible social-media behaviour and appropriate use of AI/digital resources in medical learning",
+    code: "14",
+    internalCode: "N",
+    title: "Digital professionalism",
+    label: "Digital professionalism",
+    description: "Responsible social-media behaviour and appropriate use of AI and digital resources in medical learning",
+    category: "Digital Professionalism",
   },
 ];
 
@@ -308,6 +366,131 @@ export const READINESS_RATING_OPTIONS = [
   "Unable to comment",
 ] as const;
 
+// -------------------------------------------------------------
+// SECTION 3: CURRENT FOUNDATION COURSE (Q7 & Q8 V2 LOCKED)
+// -------------------------------------------------------------
+
+export const Q7_FOUNDATION_COURSE_OPTIONS = [
+  "Comprehensive and highly effective",
+  "Covers most important areas effectively",
+  "Useful, but implementation is variable",
+  "Useful, but several important gaps remain",
+  "Often functions more as a formal requirement than an engaging transition programme",
+  "I do not have enough experience to comment",
+] as const;
+
+// Retained alias for V1 backward compatibility
+export const Q15_OPTIONS = Q7_FOUNDATION_COURSE_OPTIONS;
+
+export const Q8_LIMITATIONS_OPTIONS = [
+  "Limited time",
+  "Too many topics within the available time",
+  "Variable faculty engagement",
+  "Lack of standardised practical resources",
+  "Predominantly lecture-based delivery",
+  "Limited student interaction",
+  "Insufficient case/scenario-based learning",
+  "Difficulty sustaining student engagement",
+  "Limited follow-up after the Foundation Course",
+  "Variation between institutions",
+  "Limited integration with subsequent MBBS learning",
+  "No major limitation in my experience",
+  "Other",
+] as const;
+
+// Retained alias for V1 backward compatibility
+export const Q16_LIMITATIONS_OPTIONS = Q8_LIMITATIONS_OPTIONS;
+
+// -------------------------------------------------------------
+// SECTION 5: WORKSHOP LEARNING APPROACHES (Q10 V2 LOCKED)
+// -------------------------------------------------------------
+
+export const Q10_WORKSHOP_FORMATS_OPTIONS = [
+  "Interactive faculty-led sessions",
+  "Real-life scenarios and case discussions",
+  "Small-group activities and peer interaction",
+  "Practical demonstrations and skills",
+  "CPR / first-aid and lifesaving workshops",
+  "Reflection and guided discussion",
+  "Short videos and digital learning resources",
+  "Blended workshop + self-paced learning",
+  "Other",
+] as const;
+
+// Retained alias for V1 backward compatibility
+export const Q17_WORKSHOP_FORMATS_OPTIONS = Q10_WORKSHOP_FORMATS_OPTIONS;
+
+// -------------------------------------------------------------
+// SECTION 6: CONTRIBUTION OPTIONS (Q11 & Q12 V2 LOCKED)
+// -------------------------------------------------------------
+
+export const Q11_CONTRIBUTION_INTEREST_OPTIONS = [
+  "Yes, I would be interested",
+  "Possibly — depending on the topic and time required",
+  "I would first like to know more",
+  "Not at present",
+] as const;
+
+// Retained alias for V1 backward compatibility
+export const Q19_CONTRIBUTION_INTEREST_OPTIONS = Q11_CONTRIBUTION_INTEREST_OPTIONS;
+
+export interface ContributionPathwayOption {
+  title: string;
+  description: string;
+}
+
+export const Q12_CONTRIBUTION_PATHWAYS: ContributionPathwayOption[] = [
+  {
+    title: "Workshop Faculty / Facilitator",
+    description: "facilitate MBBS Foundation sessions",
+  },
+  {
+    title: "Content, Module or Scenario Contributor",
+    description: "contribute practical educational content, cases or scenarios",
+  },
+  {
+    title: "Academic Reviewer",
+    description: "review educational material, modules or assessments",
+  },
+  {
+    title: "CPR / First Aid Faculty",
+    description: "contribute to practical lifesaving-skills training",
+  },
+  {
+    title: "Institutional Coordinator",
+    description: "help introduce or coordinate the MBBS Foundation initiative within my institution",
+  },
+  {
+    title: "Student Mentor / Near-Peer Programme Contributor",
+    description: "support student transition and mentoring activities",
+  },
+  {
+    title: "Research, Evaluation & Educational Innovation",
+    description: "contribute to programme evaluation, research or educational innovation",
+  },
+  {
+    title: "Networking / Advocacy",
+    description: "help connect the initiative with other faculty or institutions",
+  },
+  {
+    title: "Other",
+    description: "other contributions",
+  },
+];
+
+export const Q20_CONTRIBUTION_TYPES_OPTIONS = [
+  "Workshop Faculty / Facilitator",
+  "Content, Module or Scenario Contributor",
+  "Academic Reviewer",
+  "CPR / First Aid Faculty",
+  "Institutional Coordinator",
+  "Student Mentor / Near-Peer Programme Contributor",
+  "Research, Evaluation & Educational Innovation",
+  "Networking / Advocacy",
+  "Other",
+] as const;
+
+// Legacy V1 option constants (kept for backward compatibility with old records)
 export const Q8_OPTIONS = [
   "Very effectively — students are generally well prepared",
   "Effectively in most important areas",
@@ -325,85 +508,6 @@ export const Q11_OPTIONS = [
   "No",
 ] as const;
 
-// -------------------------------------------------------------
-// SECTION 4: FOUNDATION COURSE & ECE (Q15, Q16)
-// -------------------------------------------------------------
-
-export const Q15_OPTIONS = [
-  "Comprehensive and highly effective",
-  "Covers most important areas",
-  "Useful but variable in implementation",
-  "Several important gaps remain",
-  "Often treated more as a formal requirement than an engaging transition programme",
-  "I do not have enough experience to comment",
-] as const;
-
-export const Q16_LIMITATIONS_OPTIONS = [
-  "Limited time",
-  "Large number of topics",
-  "Variable faculty engagement",
-  "Lack of standardised practical resources",
-  "Predominantly lecture-based delivery",
-  "Limited student interaction",
-  "Insufficient case/scenario-based learning",
-  "Difficulty sustaining student interest",
-  "Limited follow-up after the Foundation Course",
-  "Variation between institutions",
-  "Limited integration with later MBBS learning",
-  "No major limitation in my experience",
-  "Other",
-] as const;
-
-// -------------------------------------------------------------
-// SECTION 5: WORKSHOP FORMATS (Q17)
-// -------------------------------------------------------------
-
-export const Q17_WORKSHOP_FORMATS_OPTIONS = [
-  "Interactive faculty-led sessions",
-  "Real-life scenarios and case discussions",
-  "Small-group activities",
-  "Reflective exercises",
-  "Short videos",
-  "Question-and-answer modules",
-  "Quizzes and challenges",
-  "Practical demonstrations",
-  "CPR / lifesaving skills",
-  "Student / near-peer interaction",
-  "Self-paced online learning",
-  "Book-linked reading activities",
-  "Blended workshop + digital learning",
-  "Other",
-] as const;
-
-// -------------------------------------------------------------
-// SECTION 6: CONTRIBUTION OPTIONS (Q19, Q20, Q22)
-// -------------------------------------------------------------
-
-export const Q19_CONTRIBUTION_INTEREST_OPTIONS = [
-  "Yes, I would be interested",
-  "Possibly — depending on topic and time commitment",
-  "I would first like to know more",
-  "Not at present",
-] as const;
-
-export const Q20_CONTRIBUTION_TYPES_OPTIONS = [
-  "Suggest important topics/gaps",
-  "Develop a short teaching module",
-  "Contribute a clinical/professional scenario",
-  "Develop questions or quizzes",
-  "Contribute a reflective activity",
-  "Review educational content",
-  "Record a short educational video",
-  "Facilitate an MBBS Foundation Workshop",
-  "Contribute to CPR/first-aid components",
-  "Mentor students/near-peer contributors",
-  "Participate in programme evaluation/research",
-  "Help introduce the initiative within my institution",
-  "Help connect the initiative with other faculty/institutions",
-  "Contribute to digital/online learning resources",
-  "Other",
-] as const;
-
 export const Q22_TIME_COMMITMENT_OPTIONS = [
   "One small contribution of 15–30 minutes",
   "Around 1 hour",
@@ -412,10 +516,6 @@ export const Q22_TIME_COMMITMENT_OPTIONS = [
   "I may be interested in a larger/ongoing role",
   "Not sure yet",
 ] as const;
-
-// -------------------------------------------------------------
-// SECTION 7: STUDENT CONNECTION (Q23, Q24)
-// -------------------------------------------------------------
 
 export const Q23_STUDENT_CONNECTION_OPTIONS = [
   "Yes — directly",
@@ -432,7 +532,7 @@ export const Q24_READINESS_SHARING_OPTIONS = [
 ] as const;
 
 // -------------------------------------------------------------
-// SECTION 8: CONTACT & CONSENT (Q28)
+// SECTION 7: CONTACT & CONSENT (Q28 / V2 CONTACT CONSENT)
 // -------------------------------------------------------------
 
 export const Q28_CONSENT_OPTIONS = [

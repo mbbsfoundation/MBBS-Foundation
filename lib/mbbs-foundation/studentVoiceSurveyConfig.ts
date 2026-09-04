@@ -1,36 +1,33 @@
 /**
- * MBBS Foundation — Student & Intern Voice Survey (Survey 2)
- * Configuration & Human-Readable Content Source
+ * MBBS Foundation — Student & Intern Voice Survey (Survey 2) V2 Locked Configuration
  *
- * Single Source of Truth for all human-readable survey text:
- * - Titles, subtitles, metadata, completion estimate
- * - Introductory copy (free of NEET/entrance mentions and purchase CTAs)
- * - Section titles, instructions, and guidance
- * - Questions Q1 through Q18 (labels, options, category groups, selection limits)
- * - Q8 10-statement rating matrix
- * - Success screen copy and contributor follow-up
- * - Plain-text survey compiler for review / ChatGPT export
+ * Single Source of Truth for all human-readable Student Voice text:
+ * - Metadata, intro copy, 7 sections, 10 survey questions (Q1–Q10)
+ * - Exact selection limits (Q3 max 4, Q4 max 5, Q5 max 5, Q7 max 7, Q8 max 5)
+ * - Q6 8-statement matrix with 5-point scale
+ * - Q10 open text and anonymous quote permission flag
+ * - Post-submission Thank You and Pass It Forward contribution options
+ * - Plain-text compiler for export and review
  */
 
 export const STUDENT_SURVEY_METADATA = {
-  id: "survey_2_student_voice",
-  version: "v1",
-  statusBadge: "SURVEY 2 V1 — STRUCTURALLY STABLE / CONTENT EDITABLE",
+  id: "survey_2_student_voice_v2",
+  version: "v2",
+  statusBadge: "MBBS FOUNDATION — STUDENT & INTERN VOICE (V2 LOCKED)",
   publicTitle: "What I Wish I Knew Before Starting MBBS",
   subtitle: "Student & Intern Voice for the MBBS Foundation Initiative",
-  supportingLine: "The good, the difficult, the unexpected — and what could have made the journey easier.",
+  supportingLine: "What was exciting, difficult or unexpected about entering medical college — and what could have made the journey easier?",
   organization: "Ayurvigyan Health Academy India Foundation",
   estimatedTime: "3–4 minutes",
-  helperNote: "Most questions only require a tap. There are no right or wrong answers.",
+  helperNote: "A retrospective consultation for current MBBS students and interns. Most questions take only a tap.",
 };
 
 export const STUDENT_SURVEY_INTRO = {
   paragraphs: [
-    "Starting MBBS is an exciting milestone. It also brings experiences that are difficult to understand until you actually enter medical college.",
-    "Some things are inspiring. Some are challenging. Some are completely unexpected.",
-    "We are asking current medical students and interns to look back at their own journey and tell us what future students should know before they begin.",
-    "Your responses will help us develop the MBBS Foundation Workshop and supporting learning resources for students entering medical college.",
-    "Most questions take only a few seconds to answer.",
+    "Starting MBBS is an exciting milestone. It also brings experiences, surprises, and challenges that are difficult to understand until you actually enter medical college.",
+    "This consultation is for current MBBS students and interns looking back on their transition into medical college.",
+    "Your responses will be considered alongside the perspectives of clinicians and medical educators to help identify what students genuinely need when entering MBBS.",
+    "Most questions take only a few seconds to complete.",
   ],
 };
 
@@ -74,100 +71,221 @@ export const INDIA_STATES_LIST = [
   "Outside India / International",
 ] as const;
 
-export const Q8_RATING_SCALE = [
+// Q1 Options
+export const Q1_TRAINING_STAGE_OPTIONS = [
+  "First MBBS",
+  "Second MBBS",
+  "Third MBBS Part I",
+  "Final MBBS",
+  "Internship",
+] as const;
+
+// Q2 College Types
+export const Q2_COLLEGE_TYPE_OPTIONS = [
+  "Government Medical College",
+  "Central Government / Institute of National Importance",
+  "Private Medical College",
+  "Deemed University Medical College",
+  "Other",
+  "Prefer not to say",
+] as const;
+
+// Q3 Rewarding Options (Choose up to 4)
+export const Q3_REWARDING_OPTIONS = [
+  "Finally studying medicine and the human body in depth",
+  "Anatomy dissection and practical learning",
+  "Entering hospitals and seeing real clinical care",
+  "Interacting with patients",
+  "Learning practical and lifesaving skills",
+  "Meeting people with similar ambitions",
+  "Making close friends",
+  "Becoming more independent",
+  "Beginning to feel like a future doctor",
+  "Meeting inspiring teachers, seniors or doctors",
+  "Discovering subjects or areas of medicine I genuinely enjoy",
+  "College life, hostel life or other new experiences",
+  "Nothing particularly surprised me",
+  "Other",
+] as const;
+
+// Q4 Harder Aspects Options (Choose up to 5)
+export const Q4_HARDER_OPTIONS = [
+  "The sheer amount of material to learn",
+  "Figuring out how to study effectively in MBBS",
+  "Remembering what I had studied",
+  "Managing time and staying consistent",
+  "Understanding what teachers expected",
+  "Practicals, viva and assessments",
+  "Communicating with faculty or seniors",
+  "Hospital and patient interactions",
+  "Hostel life or living away from home",
+  "Making friends or fitting in",
+  "Stress, comparison and self-doubt",
+  "Sleep, health and self-care",
+  "Balancing studies with life outside academics",
+  "Taking responsibility for my own learning",
+  "Nothing was significantly harder than I expected",
+  "Other",
+] as const;
+
+// Q5 Surprises Options (Choose up to 5) — Exact locked display order with CPR 2nd
+export const Q5_SURPRISES_OPTIONS = [
+  "The way you need to learn in MBBS is very different from how you studied before entering medical college",
+  "Knowing about CPR, first aid and emergencies is very different from actually being prepared to respond",
+  "There is far more to becoming a doctor than learning from textbooks",
+  "Nobody really tells you exactly how to study in MBBS — you have to figure out much of it yourself",
+  "Being academically strong before MBBS does not automatically make the transition easy",
+  "Communication and confidence matter much more than I expected",
+  "Professional behaviour begins much earlier than I realised",
+  "You may start meeting patients before you feel fully ready",
+  "Teamwork with seniors, nurses and other healthcare professionals matters a lot",
+  "Viva, practicals and clinical discussions require a different kind of preparation",
+  "Being surrounded by high-performing peers can affect your confidence",
+  "Asking for help can sometimes feel harder than expected",
+  "Mistakes, criticism and feedback are a normal part of medical training",
+  "Taking care of your health and wellbeing can become difficult",
+  "Social media, AI and digital tools create new opportunities, problems and responsibilities",
+  "Nothing particularly surprised me",
+  "Other",
+] as const;
+
+// Q6 Frequency Rating Scale (5 choices)
+export const Q6_RATING_SCALE = [
   "Never",
-  "Occasionally",
+  "Rarely",
   "Sometimes",
   "Often",
   "Very often",
 ] as const;
 
-export interface Q8StatementConfig {
+// Q6 8 Matrix Statements
+export interface Q6StatementConfig {
   id: string;
   code: string;
   label: string;
-  category: "academic" | "social_emotional" | "clinical" | "positive_growth";
 }
 
-export const Q8_STATEMENTS: Q8StatementConfig[] = [
+export const Q6_STATEMENTS: Q6StatementConfig[] = [
   {
-    id: "statement_a",
-    code: "A",
-    label: "Unsure how to study effectively",
-    category: "academic",
+    id: "statement_1",
+    code: "1",
+    label: "I felt unsure about how to study effectively for MBBS",
   },
   {
-    id: "statement_b",
-    code: "B",
-    label: "Overwhelmed by the amount to learn",
-    category: "academic",
+    id: "statement_2",
+    code: "2",
+    label: "I felt overwhelmed by the amount I was expected to learn",
   },
   {
-    id: "statement_c",
-    code: "C",
-    label: "Worried that others were doing better than me",
-    category: "social_emotional",
+    id: "statement_3",
+    code: "3",
+    label: "I sometimes wondered whether everyone else was coping better than I was",
   },
   {
-    id: "statement_d",
-    code: "D",
-    label: "Hesitant to ask teachers/seniors for help",
-    category: "social_emotional",
+    id: "statement_4",
+    code: "4",
+    label: "I was not always sure what was expected of me as a medical student and future doctor",
   },
   {
-    id: "statement_e",
-    code: "E",
-    label: "Homesick or emotionally unsettled",
-    category: "social_emotional",
+    id: "statement_5",
+    code: "5",
+    label: "I felt unprepared for some of my early patient or hospital interactions",
   },
   {
-    id: "statement_f",
-    code: "F",
-    label: "Unsure about professional expectations",
-    category: "clinical",
+    id: "statement_6",
+    code: "6",
+    label: "I found it difficult to balance studies, health and life outside academics",
   },
   {
-    id: "statement_g",
-    code: "G",
-    label: "Unsure how to interact with patients",
-    category: "clinical",
+    id: "statement_7",
+    code: "7",
+    label: "I gradually became more confident and independent",
   },
   {
-    id: "statement_h",
-    code: "H",
-    label: "Unsure how to balance study and personal life",
-    category: "social_emotional",
-  },
-  {
-    id: "statement_i",
-    code: "I",
-    label: "More confident and independent than before",
-    category: "positive_growth",
-  },
-  {
-    id: "statement_j",
-    code: "J",
-    label: "Proud or excited to be studying medicine",
-    category: "positive_growth",
+    id: "statement_8",
+    code: "8",
+    label: "I felt excited or proud that I was finally becoming a doctor",
   },
 ];
+
+// Q7 Next Batch Preparation Priorities (Choose up to 7)
+export const Q7_NEXT_BATCH_OPTIONS = [
+  "How studying MBBS differs from preparing for NEET",
+  "How to study effectively without trying to read everything",
+  "Time management and building a sustainable routine",
+  "How exams, practicals and viva work",
+  "Independent learning and choosing useful learning resources",
+  "What the first year of MBBS is actually like",
+  "How to interact with faculty and seniors",
+  "How to communicate with patients",
+  "Hospital and ward etiquette",
+  "Professionalism, ethics and responsibilities of a medical student",
+  "Empathy and respectful patient care",
+  "Teamwork with peers, nurses and other healthcare professionals",
+  "CPR, first aid and lifesaving skills",
+  "Handling stress, comparison, mistakes and setbacks",
+  "Self-care, sleep and maintaining health",
+  "Hostel life and adjusting to living away from home",
+  "Friendships and building a support system",
+  "Responsible use of social media",
+  "Appropriate use of AI and digital learning resources",
+  "Understanding the healthcare system",
+  "Basic medicolegal awareness and safe professional behaviour",
+  "Other",
+] as const;
+
+// Q8 Useful Preparation Formats (Choose up to 5) — Neutral 1st option
+export const Q8_PREPARATION_OPTIONS = [
+  "A practical orientation to what MBBS is actually like before or around joining",
+  "Honest guidance from current medical students or interns",
+  "Sessions with experienced medical faculty or clinicians",
+  "Real-life situations and scenario-based discussions",
+  "Practical demonstrations and basic clinical orientation",
+  "CPR, first aid and lifesaving skills",
+  "Small-group interaction with other incoming students",
+  "Short videos and digital learning resources",
+  "A practical guide or checklist",
+  "Mentoring or near-peer support during the early months",
+  "I don't think additional preparation would have made much difference",
+  "Other",
+] as const;
+
+// Q9 Best Timing Options (Single select)
+export const Q9_TIMING_OPTIONS = [
+  "Before joining medical college",
+  "In the first few days after joining",
+  "During the first month",
+  "Throughout the first few months",
+  "I don't think additional preparation was necessary",
+] as const;
+
+// Post-Submission Contribution Pathways
+export const POST_SUBMISSION_CONTRIBUTION_OPTIONS = [
+  "Share my experiences and practical tips",
+  "Join a Student Voice discussion / panel",
+  "Mentor or guide incoming students",
+  "Contribute to MBBS Foundation student resources",
+  "Help with student research / evaluation",
+  "Help take Student Voice to more medical students",
+  "Other",
+] as const;
+
+// -------------------------------------------------------------
+// EXACT 7 SECTIONS CONFIGURATION
+// -------------------------------------------------------------
 
 export interface StudentSurveyQuestionConfig {
   number: string;
   key: string;
   label: string;
+  instruction?: string;
   helpText?: string;
   required: boolean;
-  type?: "single" | "multiple" | "matrix" | "text" | "textarea" | "select";
+  type: "single" | "multiple" | "matrix" | "textarea" | "select";
   maxSelections?: number;
-  options?: string[] | readonly string[];
-  groupedOptions?: Array<{
-    groupName: string;
-    items: string[];
-  }>;
+  options?: readonly string[] | string[];
   placeholder?: string;
   charLimit?: number;
-  conditionalOn?: string;
 }
 
 export interface StudentSurveySectionConfig {
@@ -184,440 +302,201 @@ export const STUDENT_SURVEY_SECTIONS_CONFIG: StudentSurveySectionConfig[] = [
     sectionNumber: 1,
     key: "where_are_you_now",
     title: "Where Are You Now?",
-    subtitle: "Your current stage and medical college background",
-    description: "Please tell us your current phase of medical education.",
+    subtitle: "Your stage in the medical journey and college background",
+    description: "Tell us where you are currently in your medical education.",
     questions: [
       {
         number: "Q1",
         key: "trainingStage",
-        label: "What is your current stage?",
-        helpText: "Select one option.",
+        label: "Where are you currently in your medical journey?",
+        instruction: "Select one option.",
         required: true,
         type: "single",
-        options: [
-          "First MBBS",
-          "Second MBBS",
-          "Third MBBS — Part I",
-          "Final MBBS / Third MBBS — Part II",
-          "Internship / CRRI",
-        ],
+        options: Q1_TRAINING_STAGE_OPTIONS,
       },
       {
         number: "Q2",
         key: "collegeType",
-        label: "What type of medical college are you studying in?",
-        helpText: "Optional",
+        label: "Tell us a little about your medical college.",
+        instruction: "College type, State/UT, and Medical College (Optional).",
         required: false,
         type: "single",
-        options: [
-          "Government medical college",
-          "Central government / institute of national importance",
-          "Private medical college",
-          "Deemed university medical college",
-          "Other",
-          "Prefer not to say",
-        ],
-      },
-      {
-        number: "Q3",
-        key: "state",
-        label: "State / Union Territory",
-        helpText: "Optional: State or UT where your medical college is located.",
-        required: false,
-        type: "select",
-        options: INDIA_STATES_LIST,
+        options: Q2_COLLEGE_TYPE_OPTIONS,
       },
     ],
   },
   {
     sectionNumber: 2,
-    key: "the_good_part",
-    title: "The Good Part of Starting MBBS",
-    subtitle: "What felt exciting, meaningful, or rewarding",
-    description: "First, tell us what felt exciting or rewarding when you entered medical college.",
+    key: "then_mbbs_started",
+    title: "Then MBBS Actually Started...",
+    subtitle: "The exciting, rewarding, and difficult realities",
+    description: "Reflect on what stood out during your initial experience of medical college.",
     questions: [
       {
+        number: "Q3",
+        key: "q3RewardingExperiences",
+        label: "What turned out to be more exciting or rewarding about MBBS than you had expected?",
+        instruction: "Choose up to 4.",
+        required: true,
+        type: "multiple",
+        maxSelections: 4,
+        options: Q3_REWARDING_OPTIONS,
+      },
+      {
         number: "Q4",
-        key: "q4RewardingExperiences",
-        label: "Which experiences made the beginning of MBBS exciting or meaningful for you? (Choose up to 5)",
-        helpText: "Select up to 5 experiences.",
+        key: "q4HarderAspects",
+        label: "Now the other side: what was harder than you expected when you entered MBBS?",
+        instruction: "Choose up to 5.",
         required: true,
         type: "multiple",
         maxSelections: 5,
-        options: [
-          "Finally becoming a medical student",
-          "Wearing the white coat / entering the medical profession",
-          "Anatomy and the dissection hall",
-          "Learning about the human body in depth",
-          "First interaction with patients",
-          "Clinical exposure / hospital environment",
-          "Learning practical skills",
-          "Meeting people with similar goals",
-          "New friendships",
-          "Living independently",
-          "Hostel/campus life",
-          "Feeling a stronger sense of purpose",
-          "Becoming more confident",
-          "Becoming more mature/responsible",
-          "Learning from inspiring teachers/doctors",
-          "Other",
-        ],
-      },
-      {
-        number: "Q5",
-        key: "q5FirstMonthsFeeling",
-        label: "Overall, how did your first few months of MBBS feel?",
-        helpText: "Select the option that best summarizes your initial months.",
-        required: true,
-        type: "single",
-        options: [
-          "Exciting and comfortable",
-          "Exciting but challenging",
-          "More difficult than expected",
-          "Overwhelming initially but improved with time",
-          "Mixed — some very good and some very difficult experiences",
-          "Difficult for a prolonged period",
-        ],
+        options: Q4_HARDER_OPTIONS,
       },
     ],
   },
   {
     sectionNumber: 3,
-    key: "what_was_harder",
-    title: "What Was Harder or More Unexpected?",
-    subtitle: "Surprises, challenges, and personal adjustments",
-    description: "Now think about the things that surprised you or took time to adjust to.",
+    key: "the_things_nobody_tells_you",
+    title: "The Things Nobody Really Tells You",
+    subtitle: "Unexpected discoveries and hidden transitions",
+    description: "Things that become apparent only after entering the medical environment.",
     questions: [
       {
-        number: "Q6",
-        key: "q6HarderAspects",
-        label: "Which aspects were harder than you expected? (Choose up to 6)",
-        helpText: "Select up to 6 challenges across learning, medical environment, and personal life.",
-        required: true,
-        type: "multiple",
-        maxSelections: 6,
-        groupedOptions: [
-          {
-            groupName: "Learning & Academics",
-            items: [
-              "Very large volume of content",
-              "Understanding how to study in MBBS",
-              "Remembering and integrating information",
-              "Self-directed learning",
-              "Managing multiple subjects simultaneously",
-              "Assessments / examinations",
-            ],
-          },
-          {
-            groupName: "Medical Environment & Training",
-            items: [
-              "Anatomy / cadaver / dissection experience",
-              "Entering hospitals/wards",
-              "Talking to patients",
-              "Medical terminology",
-              "Understanding how doctors and healthcare teams work",
-              "Professional expectations",
-            ],
-          },
-          {
-            groupName: "Personal & Social Adjustment",
-            items: [
-              "Time management",
-              "Living away from home",
-              "Hostel adjustment",
-              "Making new friends",
-              "Feeling lonely or isolated",
-              "Comparing myself with classmates",
-              "Loss of confidence",
-              "Stress / anxiety / emotional pressure",
-              "Balancing study and personal life",
-              "Asking for help when struggling",
-            ],
-          },
-          {
-            groupName: "Other",
-            items: [
-              "Nothing was particularly difficult",
-              "Other",
-            ],
-          },
-        ],
-      },
-      {
-        number: "Q7",
-        key: "q7UnexpectedAspects",
-        label: "Which things were most different from what you had imagined before joining MBBS? (Choose up to 5)",
-        helpText: "Select up to 5 things that were different from your expectations.",
+        number: "Q5",
+        key: "q5Surprises",
+        label: "Which of these surprised you after entering medical college?",
+        instruction: "Choose up to 5.",
         required: true,
         type: "multiple",
         maxSelections: 5,
-        options: [
-          "Amount of study required",
-          "Teaching and learning style",
-          "Need to study independently",
-          "Frequency of assessments",
-          "Importance of communication skills",
-          "Importance of professionalism and behaviour",
-          "Interaction with patients",
-          "Dissection/cadaver experience",
-          "Hospital culture and hierarchy",
-          "Relationship with seniors",
-          "Relationship with teachers",
-          "Emotional side of seeing illness/suffering",
-          "Importance of teamwork",
-          "Need to manage stress and uncertainty",
-          "Level of personal responsibility",
-          "Hostel/campus life",
-          "How much I changed personally",
-          "Nothing was very different",
-          "Other",
-        ],
+        options: Q5_SURPRISES_OPTIONS,
       },
+    ],
+  },
+  {
+    sectionNumber: 4,
+    key: "how_did_the_transition_feel",
+    title: "How Did the Transition Actually Feel?",
+    subtitle: "Frequency of early medical college experiences",
+    description: "Thinking back to your early months in MBBS, rate each statement.",
+    questions: [
       {
-        number: "Q8",
-        key: "q8FirstYearFeelings",
-        label: "During your first year, how often did you feel:",
-        helpText: "Quick tap rating for each of the 10 statements below.",
+        number: "Q6",
+        key: "q6TransitionMatrix",
+        label: "During your early months in MBBS, how often did you experience the following?",
+        instruction: "Rate all 8 statements on the 5-point scale.",
         required: true,
         type: "matrix",
       },
     ],
   },
   {
-    sectionNumber: 4,
-    key: "what_should_students_know",
-    title: "What Should Students Know Before They Start?",
-    subtitle: "Essential guidance, optimal formats, and timing",
-    description: "Imagine a student who is joining MBBS next month. What would genuinely help them start better?",
+    sectionNumber: 5,
+    key: "prepare_the_next_batch",
+    title: "If You Could Prepare the Next Batch...",
+    subtitle: "High-priority advice for incoming medical students",
+    description: "Imagine you have 3 hours with a NEET-qualified student before their first day of medical college.",
     questions: [
       {
-        number: "Q9",
-        key: "q9ShouldUnderstandBefore",
-        label: "Which areas should a new MBBS student understand BEFORE or during the first few weeks of medical college? (Choose up to 7)",
-        helpText: "Select up to 7 high-priority transition areas.",
+        number: "Q7",
+        key: "q7NextBatchPriorities",
+        label: "Imagine you have 3 hours with a NEET-qualified student before their first day of medical college. What would you make sure they understood?",
+        instruction: "Choose up to 7.",
         required: true,
         type: "multiple",
         maxSelections: 7,
-        options: [
-          "How MBBS learning is different from school",
-          "How to study effectively in medical college",
-          "How to manage the large volume of content",
-          "How to manage time",
-          "What happens in the dissection hall",
-          "How to approach the cadaver respectfully",
-          "What early patient interaction feels like",
-          "How to communicate with patients",
-          "How to interact with teachers and seniors",
-          "Professional behaviour and medical etiquette",
-          "Ethics, confidentiality and patient dignity",
-          "Basic CPR and first aid",
-          "Understanding the hospital and healthcare system",
-          "Basic medicolegal awareness",
-          "Teamwork",
-          "Dealing with stress and setbacks",
-          "Managing comparison and competition",
-          "Building confidence",
-          "Living away from home / hostel adjustment",
-          "Making friends and building support systems",
-          "Asking for help",
-          "Balancing study and personal life",
-          "Digital professionalism",
-          "Appropriate use of social media and AI",
-          "Understanding what becoming a doctor really involves",
-        ],
-      },
-      {
-        number: "Q10",
-        key: "q10HelpfulGuidanceTypes",
-        label: "Which type of guidance would have helped you most at the beginning? (Choose up to 5)",
-        helpText: "Select up to 5 guidance methods.",
-        required: true,
-        type: "multiple",
-        maxSelections: 5,
-        options: [
-          "A practical book written specifically for new MBBS students",
-          "Short orientation videos",
-          "Advice from senior students/interns",
-          "Real student experiences and stories",
-          "Faculty-led discussion",
-          "Small-group workshop",
-          "Practical demonstrations",
-          "Scenarios: “What would you do?”",
-          "Questions/quizzes",
-          "Checklist for the first few weeks",
-          "Guidance for parents/family",
-          "Self-paced online resource",
-          "Workshop + book + digital resources together",
-          "I did not need additional guidance",
-        ],
-      },
-      {
-        number: "Q11",
-        key: "q11BestTimingForGuidance",
-        label: "When would this guidance have been most useful?",
-        helpText: "Select one option.",
-        required: true,
-        type: "single",
-        options: [
-          "Before joining medical college",
-          "During the weeks between admission and joining",
-          "During the Foundation Course",
-          "During the first month",
-          "During the first 3 months",
-          "Throughout first MBBS",
-          "Only when specific problems arose",
-        ],
-      },
-      {
-        number: "Q12",
-        key: "q12GuideUsefulnessRating",
-        label: "If you had received a structured guide explaining the academic, professional, social and personal realities of MBBS before starting, how useful do you think it would have been?",
-        helpText: "Select one option.",
-        required: true,
-        type: "single",
-        options: [
-          "Extremely useful",
-          "Very useful",
-          "Moderately useful",
-          "Slightly useful",
-          "Probably not useful",
-        ],
-      },
-      {
-        number: "Q13",
-        key: "q13GuideEssentialComponents",
-        label: "Which components should such a guide definitely include? (Choose up to 7)",
-        helpText: "Select up to 7 components.",
-        required: true,
-        type: "multiple",
-        maxSelections: 7,
-        options: [
-          "Understanding MBBS and medical college culture",
-          "Study strategies",
-          "Anatomy/dissection orientation",
-          "First patient interaction",
-          "Communication skills",
-          "Professionalism and ethics",
-          "CPR and first aid",
-          "Hospital orientation",
-          "Healthcare system",
-          "Medicolegal basics",
-          "Stress and emotional wellbeing",
-          "Confidence and self-growth",
-          "Hostel/living-away-from-home adjustment",
-          "Friendships and peer relationships",
-          "Managing comparison/competition",
-          "Time management",
-          "Handling feedback and failure",
-          "Asking for help",
-          "Digital professionalism",
-          "Social media and AI use",
-          "Reflections from senior students",
-          "Real-life scenarios",
-          "Practical checklists",
-        ],
+        options: Q7_NEXT_BATCH_OPTIONS,
       },
     ],
   },
   {
-    sectionNumber: 5,
-    key: "your_voice",
-    title: "Your Voice for the Next Batch",
-    subtitle: "Reflections, contributor opportunities, and a word for incoming students",
-    description: "Your concluding insights will help shape guidance for the upcoming batch.",
+    sectionNumber: 6,
+    key: "what_would_actually_have_helped",
+    title: "What Would Actually Have Helped?",
+    subtitle: "Effective preparation approaches and optimal timing",
+    description: "Looking back at the weeks before you joined, what preparation would have made a difference?",
     questions: [
       {
-        number: "Q14",
-        key: "q14TransitionFitStatement",
-        label: "Looking back, which statement fits you best?",
-        helpText: "Select one statement.",
+        number: "Q8",
+        key: "q8UsefulPreparationTypes",
+        label: "If you could go back to the weeks before you entered MBBS, which kind of preparation would you genuinely have found useful?",
+        instruction: "Choose up to 5.",
         required: true,
-        type: "single",
-        options: [
-          "I adjusted comfortably and enjoyed the transition",
-          "I had some difficulties but adapted fairly quickly",
-          "I struggled initially and wish I had been better prepared",
-          "I faced significant difficulties that took time to understand/manage",
-          "My experience had both major joys and major struggles",
-        ],
-      },
-      {
-        number: "Q15",
-        key: "q15PriorKnowledgeWouldHaveHelped",
-        label: "If you had known in advance about the challenges you personally faced, would the beginning of MBBS have been easier?",
-        helpText: "Select one option.",
-        required: true,
-        type: "single",
-        options: [
-          "Definitely yes",
-          "Probably yes",
-          "Maybe",
-          "Probably not",
-          "No",
-        ],
-      },
-      {
-        number: "Q16",
-        key: "q16InterestedInHelping",
-        label: "Would you be interested in helping future MBBS students begin better?",
-        helpText: "Selecting Yes/Possibly opens contributor options below.",
-        required: true,
-        type: "single",
-        options: [
-          "Yes",
-          "Possibly",
-          "I would like to know more",
-          "Not at present",
-        ],
-      },
-      {
-        number: "Q17",
-        key: "q17HelpMethods",
-        label: "How might you like to help? (Select all that apply)",
-        helpText: "Shown when interested in contributing (Q16).",
-        conditionalOn: "q16",
-        required: false,
         type: "multiple",
-        options: [
-          "Share practical tips for new students",
-          "Share a short personal experience",
-          "Suggest important topics",
-          "Participate in student discussion/panel",
-          "Review student learning material",
-          "Record a short video/message",
-          "Help with workshop activities",
-          "Help with CPR/first-aid activities",
-          "Support near-peer/student guidance",
-          "Help evaluate the programme",
-          "Share the initiative with new MBBS students",
-          "Other",
-        ],
+        maxSelections: 5,
+        options: Q8_PREPARATION_OPTIONS,
       },
       {
-        number: "Q18",
-        key: "q18OneThingWishTold",
-        label: "Is there ONE thing you wish someone had told you before you started MBBS?",
-        helpText: "Optional — one sentence is enough.",
-        required: false,
+        number: "Q9",
+        key: "q9BestTiming",
+        label: "Looking back, when would this preparation have helped you most?",
+        instruction: "Select one option.",
+        required: true,
+        type: "single",
+        options: Q9_TIMING_OPTIONS,
+      },
+    ],
+  },
+  {
+    sectionNumber: 7,
+    key: "one_thing_wish_told",
+    title: "One Thing You Wish Someone Had Told You",
+    subtitle: "A personal word of wisdom for incoming students",
+    description: "Complete the sentence in your own words.",
+    questions: [
+      {
+        number: "Q10",
+        key: "q10WishSomeoneTold",
+        label: "Complete this sentence: “Before I started MBBS, I wish someone had told me that...”",
+        instruction: "It can be serious, practical, surprising, funny—or something you learned the hard way.",
+        required: true,
         type: "textarea",
-        placeholder: "One thing I wish I had known...",
-        charLimit: 250,
+        placeholder: "Before I started MBBS, I wish someone had told me that...",
+        charLimit: 2000,
       },
     ],
   },
 ];
 
-export const STUDENT_SUCCESS_SCREEN_CONFIG = {
-  heading: "Thank You for Helping the Next Batch Begin Better",
-  leadMessage: "Your experience has been securely received.",
-  bodyMessage: "What students enjoy, struggle with and wish they had known will help us design better guidance for those entering medical college.",
-  initiativeNote: "These insights will contribute to the development of the MBBS Foundation Workshop and supporting learning resources.",
-  contributorHeading: "Your Experience Can Help Someone Starting Out",
-  contributorMessage: "You indicated that you may be interested in contributing. AHA India may contact you about suitable student-contributor or near-peer opportunities as the initiative develops.",
-  comingNextHeading: "Coming Next",
-  comingNextDescription: "MBBS Entry Readiness Check for newly admitted and first-year MBBS students.",
-  comingNextButtonText: "Coming Soon",
-  privacyStatement: "Contact information will be used only for communication related to the MBBS Foundation initiative and will not be shared with third parties for marketing.",
+// Post-Submission Thank You and Pass It Forward Screen Copy
+export const STUDENT_POST_SUBMIT_CONFIG = {
+  thankYou: {
+    badge: "RESPONSE RECORDED",
+    headline: "Your experience can make someone else's first few months of MBBS easier.",
+    body: [
+      "Thank you for telling us what medical college was actually like for you.",
+      "Your experience will be considered alongside the perspectives of other medical students, interns, faculty and clinicians to help identify what students need when making the transition into MBBS.",
+      "And what you just shared may help the next batch begin that journey better prepared.",
+    ],
+    quoteReflectionNote: "And your answer to: ‘Before I started MBBS, I wish someone had told me that...’ may become one of the most valuable messages we can pass on to the next batch of medical students.",
+  },
+  passItForward: {
+    badge: "PASS IT FORWARD",
+    headline: "You know what it feels like to enter MBBS without knowing what lies ahead.",
+    subheadline: "Now you can make it easier for someone who comes after you.",
+    body: [
+      "MBBS Foundation is bringing together students, interns, faculty and clinicians to help future medical students begin their journey with greater clarity, confidence and practical preparedness.",
+      "Your experience matters.",
+      "You don't need to be an expert. What you learned by actually going through MBBS is precisely what an incoming student doesn't yet know.",
+    ],
+    prominentLine: "Be the senior you wish you had when you started MBBS.",
+    ctaLabel: "I'D LIKE TO CONTRIBUTE",
+  },
+  contributorForm: {
+    heading: "How would you like to contribute?",
+    subheading: "Select all that apply:",
+    options: POST_SUBMISSION_CONTRIBUTION_OPTIONS,
+    nameLabel: "Your Name",
+    namePlaceholder: "e.g., Ayush Sharma",
+    contactHeading: "Contact Details (Provide at least one)",
+    emailLabel: "Email Address",
+    emailPlaceholder: "student@medical.edu",
+    mobileLabel: "Mobile / WhatsApp Number",
+    mobilePlaceholder: "9876543210",
+    consentText: "I agree to be contacted regarding Student Voice / MBBS Foundation contribution opportunities.",
+    submitCta: "JOIN THE MBBS FOUNDATION INITIATIVE",
+    successMessage: "Thank you for joining the MBBS Foundation initiative! We will reach out with relevant student contributor and near-peer opportunities.",
+  },
 };
 
 // -------------------------------------------------------------
@@ -655,29 +534,18 @@ export function generateStudentVoiceSurveyPlainText(): string {
       lines.push(`   Internal Key: ${q.key}`);
       lines.push(`   Required: ${q.required ? "Yes" : "Optional"}`);
       lines.push(`   Type: ${q.type || "single"}${q.maxSelections ? ` (Choose up to ${q.maxSelections})` : ""}`);
+      if (q.instruction) {
+        lines.push(`   Instruction: ${q.instruction}`);
+      }
       if (q.charLimit) {
         lines.push(`   Character Limit: ${q.charLimit}`);
       }
-      if (q.helpText) {
-        lines.push(`   Guidance: ${q.helpText}`);
-      }
-      if (q.conditionalOn) {
-        lines.push(`   Condition: Displayed if respondent shows interest in Q16.`);
-      }
 
       if (q.type === "matrix") {
-        lines.push("   Rating Scale: " + Q8_RATING_SCALE.join(" | "));
-        lines.push("   10 Statements:");
-        Q8_STATEMENTS.forEach((s) => {
-          lines.push(`     [${s.code}] ${s.label} (${s.category})`);
-        });
-      } else if (q.groupedOptions) {
-        lines.push("   Grouped Options:");
-        q.groupedOptions.forEach((grp) => {
-          lines.push(`     • ${grp.groupName}:`);
-          grp.items.forEach((item) => {
-            lines.push(`       - ${item}`);
-          });
+        lines.push("   Rating Scale: " + Q6_RATING_SCALE.join(" | "));
+        lines.push("   8 Statements:");
+        Q6_STATEMENTS.forEach((s) => {
+          lines.push(`     [${s.code}] ${s.label}`);
         });
       } else if (q.options && Array.isArray(q.options)) {
         lines.push("   Options:");
@@ -686,25 +554,36 @@ export function generateStudentVoiceSurveyPlainText(): string {
         });
       }
 
+      if (q.key === "q10WishSomeoneTold") {
+        lines.push("   Optional Permission Checkbox:");
+        lines.push("   [ ] I am comfortable with this response being quoted anonymously in MBBS Foundation educational or awareness material.");
+      }
+
       lines.push("");
     });
 
     lines.push("--------------------------------------------------------------------------------\n");
   });
 
-  lines.push("--- OPTIONAL CONTRIBUTOR CONTACT ---");
-  lines.push("Shown if Q16 is Yes / Possibly / I would like to know more:");
-  lines.push("- May AHA India contact you about future student-contributor opportunities? (Yes/No)");
-  lines.push("- Full Name (Optional)");
-  lines.push("- Email Address (Optional)");
-  lines.push("- Mobile / WhatsApp Number (Optional)");
-  lines.push(`- Privacy Statement: ${STUDENT_SUCCESS_SCREEN_CONFIG.privacyStatement}`);
-  lines.push("\n--- POST-SUBMISSION MESSAGE ---");
-  lines.push(`Heading: ${STUDENT_SUCCESS_SCREEN_CONFIG.heading}`);
-  lines.push(`Lead: ${STUDENT_SUCCESS_SCREEN_CONFIG.leadMessage}`);
-  lines.push(`Body: ${STUDENT_SUCCESS_SCREEN_CONFIG.bodyMessage}`);
-  lines.push(`Initiative Note: ${STUDENT_SUCCESS_SCREEN_CONFIG.initiativeNote}`);
-  lines.push(`Contributor Note: ${STUDENT_SUCCESS_SCREEN_CONFIG.contributorMessage}`);
+  lines.push("--- SUBMISSION BUTTON ---");
+  lines.push("SUBMIT MY STUDENT VOICE\n");
+
+  lines.push("--- POST-SUBMISSION THANK YOU & PASS IT FORWARD ---");
+  lines.push(`Headline: ${STUDENT_POST_SUBMIT_CONFIG.thankYou.headline}`);
+  STUDENT_POST_SUBMIT_CONFIG.thankYou.body.forEach((b) => lines.push(b));
+  lines.push(`Quote Note: ${STUDENT_POST_SUBMIT_CONFIG.thankYou.quoteReflectionNote}`);
+  lines.push("");
+  lines.push(`Pass It Forward Headline: ${STUDENT_POST_SUBMIT_CONFIG.passItForward.headline}`);
+  lines.push(`Pass It Forward Subheadline: ${STUDENT_POST_SUBMIT_CONFIG.passItForward.subheadline}`);
+  STUDENT_POST_SUBMIT_CONFIG.passItForward.body.forEach((b) => lines.push(b));
+  lines.push(`Prominent Line: ${STUDENT_POST_SUBMIT_CONFIG.passItForward.prominentLine}`);
+  lines.push(`CTA: ${STUDENT_POST_SUBMIT_CONFIG.passItForward.ctaLabel}`);
+  lines.push("");
+  lines.push("--- OPTIONAL CONTRIBUTOR FORM ---");
+  lines.push("Options:");
+  POST_SUBMISSION_CONTRIBUTION_OPTIONS.forEach((o) => lines.push(`  - ${o}`));
+  lines.push("Fields: Name, Email OR Mobile / WhatsApp, Consent Checkbox");
+  lines.push(`CTA: ${STUDENT_POST_SUBMIT_CONFIG.contributorForm.submitCta}`);
   lines.push("================================================================================");
 
   return lines.join("\n");
