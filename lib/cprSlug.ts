@@ -233,6 +233,10 @@ ${stateUrl}
 
 Your feedback will be reviewed before the programme report is finalised.
 
-Thank you for helping us build an accurate National CPR Day record.`;
+Thank you for helping us build an accurate National CPR Day record.
+
+Dr Lokesh Tiwari
+National Convener
+IAP ALS–BLS Group`;
 }
 

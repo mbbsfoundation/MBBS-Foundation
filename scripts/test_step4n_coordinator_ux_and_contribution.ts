@@ -55,6 +55,8 @@ async function runStep4NTestSuite() {
     assert(msg.includes("✓ Verify the information as correct"), `${st.name}: Instructions contain Verify option`);
     assert(msg.includes("✎ Suggest any required correction"), `${st.name}: Instructions contain Suggest Correction option`);
     assert(msg.includes("Report Missing Course"), `${st.name}: Instructions contain Missing Course option`);
+    assert(msg.endsWith("Dr Lokesh Tiwari\nNational Convener\nIAP ALS–BLS Group"), `${st.name}: Ends with official National Convener signature`);
+    assert(msg.includes("Thank you for helping us build an accurate National CPR Day record.\n\nDr Lokesh Tiwari"), `${st.name}: Blank line precedes signature`);
   }
 
   // --------------------------------------------------------------------------
