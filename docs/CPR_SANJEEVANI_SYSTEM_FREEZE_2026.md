@@ -199,3 +199,15 @@ The following system safeguards are permanently locked:
 2. No automated script may write directly to `data/cpr_day_baseline_venues.json` or `data/cpr_census_draft_v1_snapshot.json`.
 3. Any new certificate categories must follow additive generation via `AdminCertificateRecord` without renumbering historical records.
 4. Database migrations are prohibited unless accompanied by a separately approved, isolated schema evolution plan.
+
+---
+
+## 9. Production Deployment Record
+
+- **Deployment Timestamp**: 2026-09-05 11:48:36 IST
+- **Git Branch Deployed**: `main`
+- **Frozen Commit Hash**: `57ec1f9` (`CPR Sanjeevani V1.0 — production-ready system freeze`)
+- **Deployment Status**: `SUCCESS / READY`
+- **Production Domain**: `https://mbbsfoundation.com`
+- **Live Smoke Test Result**: `PASS (All Public & Admin Routes Verified)`
+
