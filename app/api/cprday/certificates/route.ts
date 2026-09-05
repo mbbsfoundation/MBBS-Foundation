@@ -209,7 +209,21 @@ export async function GET(request: NextRequest) {
           ]
         : getCertificateStates(portal);
 
-      const uniqueStates = Array.from(new Set(states)).sort((a, b) => a.localeCompare(b));
+      if (prisma && (prisma as any).adminCertificateRecord) {
+        try {
+          const dbStates = await (prisma as any).adminCertificateRecord.findMany({
+            select: { state: true },
+            distinct: ["state"],
+          });
+          for (const s of dbStates) {
+            if (s.state && s.state.trim()) states.push(s.state.trim());
+          }
+        } catch (e) {
+          // safe db fallback
+        }
+      }
+
+      const uniqueStates = Array.from(new Set(states.map((s) => s.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
         states: uniqueStates,
@@ -227,7 +241,24 @@ export async function GET(request: NextRequest) {
           ]
         : getCertificateCities(state, portal);
 
-      const uniqueCities = Array.from(new Set(cities)).sort((a, b) => a.localeCompare(b));
+      if (prisma && (prisma as any).adminCertificateRecord && state) {
+        try {
+          const dbCities = await (prisma as any).adminCertificateRecord.findMany({
+            where: {
+              state: { equals: state, mode: "insensitive" },
+            },
+            select: { city: true },
+            distinct: ["city"],
+          });
+          for (const c of dbCities) {
+            if (c.city && c.city.trim()) cities.push(c.city.trim());
+          }
+        } catch (e) {
+          // safe db fallback
+        }
+      }
+
+      const uniqueCities = Array.from(new Set(cities.map((c) => c.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
         cities: uniqueCities,
@@ -246,7 +277,25 @@ export async function GET(request: NextRequest) {
           ]
         : getCertificateVenues(state, city, portal);
 
-      const uniqueVenues = Array.from(new Set(venues)).sort((a, b) => a.localeCompare(b));
+      if (prisma && (prisma as any).adminCertificateRecord && state && city) {
+        try {
+          const dbVenues = await (prisma as any).adminCertificateRecord.findMany({
+            where: {
+              state: { equals: state, mode: "insensitive" },
+              city: { equals: city, mode: "insensitive" },
+            },
+            select: { venueName: true },
+            distinct: ["venueName"],
+          });
+          for (const v of dbVenues) {
+            if (v.venueName && v.venueName.trim()) venues.push(v.venueName.trim());
+          }
+        } catch (e) {
+          // safe db fallback
+        }
+      }
+
+      const uniqueVenues = Array.from(new Set(venues.map((v) => v.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
         venues: uniqueVenues,
@@ -267,7 +316,25 @@ export async function GET(request: NextRequest) {
         ? []
         : getCertificateParticipants(state, city, venue, portal);
 
-      const uniqueParticipants = Array.from(new Set(participants)).sort((a, b) => a.localeCompare(b));
+      if (prisma && (prisma as any).adminCertificateRecord && state && city && venue) {
+        try {
+          const dbParticipants = await (prisma as any).adminCertificateRecord.findMany({
+            where: {
+              state: { equals: state, mode: "insensitive" },
+              city: { equals: city, mode: "insensitive" },
+              venueName: { equals: venue, mode: "insensitive" },
+            },
+            select: { name: true },
+          });
+          for (const p of dbParticipants) {
+            if (p.name && p.name.trim()) participants.push(p.name.trim());
+          }
+        } catch (e) {
+          // safe db fallback
+        }
+      }
+
+      const uniqueParticipants = Array.from(new Set(participants.map((p) => p.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b));
       return NextResponse.json({
         success: true,
         participants: uniqueParticipants,
@@ -291,6 +358,70 @@ export async function GET(request: NextRequest) {
       } else {
         const portalResults = searchCertificateByHierarchy(state, city, venue, participant, portal);
         results.push(...portalResults);
+      }
+
+      if (prisma && (prisma as any).adminCertificateRecord && state && participant) {
+        try {
+          const whereClause: any = {
+            state: { equals: state, mode: "insensitive" },
+            name: { equals: participant, mode: "insensitive" },
+          };
+          if (city) {
+            whereClause.city = { equals: city, mode: "insensitive" };
+          }
+          if (venue) {
+            whereClause.venueName = { equals: venue, mode: "insensitive" };
+          }
+
+          const dbMatches = await (prisma as any).adminCertificateRecord.findMany({
+            where: whereClause,
+          });
+
+          for (const dbRec of dbMatches) {
+            let catTitle = "CPR Aware Citizen";
+            let courseTitle = "National IAP CPR Sanjeevani Training Program";
+            let portalType: CPRCertificatePortal = "participant";
+
+            if (dbRec.category === "CPR_CHAMPION") {
+              catTitle = "CPR Champion";
+              courseTitle = "National IAP CPR Sanjeevani Champion Certificate";
+              portalType = "champion";
+            } else if (dbRec.category === "COURSE_COORDINATOR") {
+              catTitle = "Course Coordinator";
+              courseTitle = "National IAP CPR Sanjeevani Course Coordinator Certificate";
+              portalType = "coordinator";
+            } else if (dbRec.category === "CPR_FACILITY") {
+              catTitle = "CPR Facility / Venue";
+              courseTitle = "National IAP CPR Sanjeevani Training Facility";
+              portalType = "facility";
+            }
+
+            results.push({
+              srNo: "",
+              certificateNumber: dbRec.certificateId,
+              participantName: dbRec.name,
+              mobileNumber: dbRec.mobileNumber || "",
+              email: dbRec.email || "",
+              zone: "",
+              state: dbRec.state,
+              city: dbRec.city || "",
+              courseCoordinator: dbRec.courseCoordinator || "",
+              courseCoordinatorEmail: "",
+              venueName: dbRec.venueName || dbRec.name,
+              driveLink: "",
+              driveFileId: "",
+              downloadUrl: "",
+              previewUrl: "",
+              issueDate: dbRec.certificateDate || "21 July 2026",
+              status: dbRec.status || "VALID",
+              category: catTitle,
+              courseTitle,
+              portalType,
+            });
+          }
+        } catch (e) {
+          // safe db fallback
+        }
       }
 
       if (results.length > 0) {

@@ -9,7 +9,12 @@ import {
   getAllCPRCertificates,
 } from "@/lib/cprCertificates";
 
-export type CertificateCategory = "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY";
+export type CertificateCategory =
+  | "CPR_DAY"
+  | "SANJEEVANI"
+  | "CPR_CHAMPION"
+  | "CPR_FACILITY"
+  | "COURSE_COORDINATOR";
 
 export type PreviewRowStatus =
   | "NEW – CPR DAY"
@@ -135,15 +140,7 @@ export function invalidateStorageCache() {
 }
 
 function ensureStorageFiles() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(CERTS_FILE)) {
-    fs.writeFileSync(CERTS_FILE, JSON.stringify([]), "utf8");
-  }
-  if (!fs.existsSync(BATCHES_FILE)) {
-    fs.writeFileSync(BATCHES_FILE, JSON.stringify([]), "utf8");
-  }
+  // Safe no-op in runtime serverless environments to prevent EROFS read-only filesystem errors
 }
 
 /**
@@ -567,26 +564,28 @@ export function getAllSanjeevaniFromStorage(): SanjeevaniCertificateRecord[] {
   }
 
   try {
-    ensureStorageFiles();
-    const data = fs.readFileSync(CERTS_FILE, "utf8");
-    const records: any[] = JSON.parse(data || "[]");
-    cachedStorageCerts = records.map((r) => {
-      let cat: CertificateCategory = r.category;
-      if (!cat) {
-        const cId = (r.certificateId || "").toUpperCase();
-        if (cId.includes("/PA/")) cat = "CPR_DAY";
-        else if (cId.includes("/CH/")) cat = "CPR_CHAMPION";
-        else if (cId.includes("VENUE") || cId.includes("FACILITY")) cat = "CPR_FACILITY";
-        else cat = "SANJEEVANI";
-      }
-      return {
-        ...r,
-        category: cat,
-      };
-    });
-    return cachedStorageCerts;
+    if (fs.existsSync(CERTS_FILE)) {
+      const data = fs.readFileSync(CERTS_FILE, "utf8");
+      const records: any[] = JSON.parse(data || "[]");
+      cachedStorageCerts = records.map((r) => {
+        let cat: CertificateCategory = r.category;
+        if (!cat) {
+          const cId = (r.certificateId || "").toUpperCase();
+          if (cId.includes("/PA/")) cat = "CPR_DAY";
+          else if (cId.includes("/CH/")) cat = "CPR_CHAMPION";
+          else if (cId.includes("VENUE") || cId.includes("FACILITY")) cat = "CPR_FACILITY";
+          else cat = "SANJEEVANI";
+        }
+        return {
+          ...r,
+          category: cat,
+        };
+      });
+      return cachedStorageCerts;
+    }
+    return [];
   } catch (err) {
-    console.error("Error reading sanjeevani_certificates.json:", err);
+    console.warn("Could not read sanjeevani_certificates.json (using database/fallback):", err);
     return [];
   }
 }
@@ -600,12 +599,14 @@ export function getAllBatchesFromStorage(): SanjeevaniBatchRecord[] {
   }
 
   try {
-    ensureStorageFiles();
-    const data = fs.readFileSync(BATCHES_FILE, "utf8");
-    cachedStorageBatches = JSON.parse(data || "[]");
-    return cachedStorageBatches!;
+    if (fs.existsSync(BATCHES_FILE)) {
+      const data = fs.readFileSync(BATCHES_FILE, "utf8");
+      cachedStorageBatches = JSON.parse(data || "[]");
+      return cachedStorageBatches!;
+    }
+    return [];
   } catch (err) {
-    console.error("Error reading sanjeevani_batches.json:", err);
+    console.warn("Could not read sanjeevani_batches.json (using database/fallback):", err);
     return [];
   }
 }
@@ -779,18 +780,7 @@ export async function saveSingleIndividualCertificate(params: {
     updatedAt: new Date().toISOString(),
   };
 
-  // 1. Synchronously commit to JSON storage file & in-memory index
-  ensureStorageFiles();
-  const certs = getAllSanjeevaniFromStorage();
-  certs.push(newRecord);
-  cachedStorageCerts = certs;
-  try {
-    fs.writeFileSync(CERTS_FILE, JSON.stringify(certs, null, 2), "utf8");
-  } catch (fsErr) {
-    console.error("Error writing sanjeevani_certificates.json:", fsErr);
-  }
-
-  // 2. Synchronize to PostgreSQL table AdminCertificateRecord if available
+  // Synchronize to PostgreSQL table AdminCertificateRecord if available
   if (prisma && (prisma as any).adminCertificateRecord) {
     try {
       let dbCat: any = "PARTICIPANT";
@@ -960,6 +950,69 @@ export function buildUnifiedParticipantDuplicateIndex(): {
 }
 
 /**
+ * Async version that also indices database AdminCertificateRecord rows.
+ */
+export async function buildUnifiedParticipantDuplicateIndexAsync(): Promise<{
+  exactMap: Map<string, DuplicateIndexItem>;
+  venueDateMap: Map<string, DuplicateIndexItem>;
+  mobileDateMap: Map<string, DuplicateIndexItem>;
+}> {
+  const index = buildUnifiedParticipantDuplicateIndex();
+
+  if (prisma && (prisma as any).adminCertificateRecord) {
+    try {
+      const dbRecords = await (prisma as any).adminCertificateRecord.findMany();
+      for (const c of dbRecords) {
+        if (!c.name || !c.certificateId) continue;
+
+        const normName = normalizeParticipantName(c.name);
+        const normVenue = normalizeParticipantName(c.venueName || c.name);
+        const normCity = normalizeParticipantName(c.city || "");
+        const normState = normalizeStateCode(c.stateCode || c.state);
+        const dateInfo = parseAndNormalizeCourseDate(c.certificateDate);
+        const isoDate = dateInfo.isValid ? dateInfo.isoDate : "2026-07-21";
+        const cleanMobile = (c.mobileNumber || "").replace(/\D/g, "");
+        const cleanMobile10 = cleanMobile.length >= 10 ? cleanMobile.slice(-10) : "";
+
+        const recordInfo: DuplicateIndexItem = {
+          certificateId: c.certificateId.trim(),
+          participantName: c.name.trim(),
+          venue: (c.venueName || c.name).trim(),
+          city: (c.city || "").trim(),
+          state: c.state.trim(),
+        };
+
+        if (c.category === "CPR_CHAMPION") {
+          const champKey = `${normName}|${normVenue}|${normState}|CHAMPION`;
+          if (!index.venueDateMap.has(champKey)) index.venueDateMap.set(champKey, recordInfo);
+        } else if (c.category === "CPR_FACILITY") {
+          const vCode = c.certificateId ? c.certificateId.trim().toUpperCase() : `${normVenue}|${normState}`;
+          if (!index.exactMap.has(vCode)) index.exactMap.set(vCode, recordInfo);
+        } else {
+          if (normName && normState) {
+            if (normVenue) {
+              const exactKey = `${normName}|${normVenue}|${normCity}|${normState}|${isoDate}`;
+              if (!index.exactMap.has(exactKey)) index.exactMap.set(exactKey, recordInfo);
+
+              const venueDateKey = `${normName}|${normVenue}|${normState}|${isoDate}`;
+              if (!index.venueDateMap.has(venueDateKey)) index.venueDateMap.set(venueDateKey, recordInfo);
+            }
+            if (cleanMobile10) {
+              const mobileKey = `${normName}|${cleanMobile10}|${isoDate}`;
+              if (!index.mobileDateMap.has(mobileKey)) index.mobileDateMap.set(mobileKey, recordInfo);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Could not index database certificates for duplicate check:", e);
+    }
+  }
+
+  return index;
+}
+
+/**
  * Checks a candidate record against the unified duplicate index.
  */
 export function checkParticipantDuplicate(
@@ -1102,7 +1155,7 @@ export async function generatePreview(
   rows: SanjeevaniInputRow[],
   forcedCategory?: CertificateCategory
 ): Promise<SanjeevaniPreviewResponse> {
-  const duplicateIndex = buildUnifiedParticipantDuplicateIndex();
+  const duplicateIndex = await buildUnifiedParticipantDuplicateIndexAsync();
 
   // Internal batch-level duplicate tracking
   const batchSeenExact = new Set<string>();
@@ -1380,7 +1433,7 @@ export async function saveGeneratedBatch(
   const nowIso = now.toISOString();
   const batchId = `BATCH-${now.getTime()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-  const duplicateIndex = buildUnifiedParticipantDuplicateIndex();
+  const duplicateIndex = await buildUnifiedParticipantDuplicateIndexAsync();
   const batchSeenExact = new Set<string>();
 
   interface RowsToGenerate {
@@ -1554,62 +1607,63 @@ export async function saveGeneratedBatch(
     updatedAt: nowIso,
   };
 
-  // 1. Commit to persistent JSON files & cache
-  const existingCerts = getAllSanjeevaniFromStorage();
-  const updatedCerts = [...existingCerts, ...newCertificates];
-  fs.writeFileSync(CERTS_FILE, JSON.stringify(updatedCerts, null, 2), "utf8");
+  // Persist to PostgreSQL AdminCertificateRecord
+  if (prisma && (prisma as any).adminCertificateRecord) {
+    try {
+      const dbRecords = newCertificates.map((c) => {
+        let dbCat: any = "PARTICIPANT";
+        if (c.category === "CPR_CHAMPION") dbCat = "CPR_CHAMPION";
+        else if ((c.category as string) === "COURSE_COORDINATOR") dbCat = "COURSE_COORDINATOR";
+        else if (c.category === "CPR_FACILITY") dbCat = "CPR_FACILITY";
 
-  const existingBatches = getAllBatchesFromStorage();
-  const updatedBatches = [batchRecord, ...existingBatches];
-  fs.writeFileSync(BATCHES_FILE, JSON.stringify(updatedBatches, null, 2), "utf8");
+        return {
+          certificateId: c.certificateId,
+          category: dbCat,
+          name: c.participantName,
+          normalizedName: c.normalizedName,
+          certificateDate: c.date,
+          venueName: c.venue || c.participantName,
+          venueCode: c.venueCode,
+          city: c.city,
+          state: c.state,
+          stateCode: c.stateCode,
+          mobileNumber: c.mobileNumber,
+          email: c.email,
+          courseCoordinator: c.courseCoordinator,
+          status: "VALID",
+          source: "BATCH_GENERATION",
+          notes: `Batch ${batchId} (${originalFileName})`,
+        };
+      });
 
-  cachedStorageCerts = updatedCerts;
-  cachedStorageBatches = updatedBatches;
+      await (prisma as any).adminCertificateRecord.createMany({
+        data: dbRecords,
+        skipDuplicates: true,
+      });
+    } catch (dbErr) {
+      console.error("Failed to persist batch certificates to PostgreSQL AdminCertificateRecord:", dbErr);
+    }
+  }
 
-  // 2. Asynchronously synchronize to Prisma DB
-  if (prisma) {
-    (async () => {
-      try {
-        await prisma.sanjeevaniUploadBatch.create({
-          data: {
-            id: batchRecord.id,
-            originalFileName: batchRecord.originalFileName,
-            totalRows: batchRecord.totalRows,
-            validRows: batchRecord.validRows,
-            importedRows: batchRecord.importedRows,
-            duplicateRows: batchRecord.duplicateRows,
-            errorRows: batchRecord.errorRows,
-            status: batchRecord.status,
-            processingNotes: batchRecord.processingNotes,
-          },
-        });
-
-        for (let i = 0; i < newCertificates.length; i++) {
-          const c = newCertificates[i];
-          await prisma.sanjeevaniCertificate.create({
-            data: {
-              id: c.id,
-              certificateId: c.certificateId,
-              sequenceNumber: c.sequenceNumber,
-              stateCode: c.stateCode,
-              participantName: c.participantName,
-              normalizedName: c.normalizedName,
-              date: c.date,
-              venue: c.venue,
-              city: c.city,
-              state: c.state,
-              mobileNumber: c.mobileNumber,
-              email: c.email,
-              uploadBatchId: batchId,
-              status: c.status,
-              generatedAt: new Date(c.generatedAt),
-            },
-          });
-        }
-      } catch (dbErr) {
-        // Safe background sync
-      }
-    })();
+  // 3. Optional batch log persistence
+  if (prisma && (prisma as any).sanjeevaniUploadBatch) {
+    try {
+      await (prisma as any).sanjeevaniUploadBatch.create({
+        data: {
+          id: batchRecord.id,
+          originalFileName: batchRecord.originalFileName,
+          totalRows: batchRecord.totalRows,
+          validRows: batchRecord.validRows,
+          importedRows: batchRecord.importedRows,
+          duplicateRows: batchRecord.duplicateRows,
+          errorRows: batchRecord.errorRows,
+          status: batchRecord.status,
+          processingNotes: batchRecord.processingNotes,
+        },
+      });
+    } catch (batchErr) {
+      // safe fallback for batch metadata
+    }
   }
 
   return {
@@ -1636,18 +1690,71 @@ export async function searchSanjeevaniById(certificateId: string): Promise<Sanje
       (r.venueCode && r.venueCode.replace(/\//g, "-").toUpperCase() === normId)
   );
 
-  return match || null;
+  if (match) return match;
+
+  if (prisma && (prisma as any).adminCertificateRecord) {
+    try {
+      const dbRec = await (prisma as any).adminCertificateRecord.findFirst({
+        where: {
+          OR: [
+            { certificateId: { equals: normId, mode: "insensitive" } },
+            { certificateId: { equals: certificateId.trim(), mode: "insensitive" } },
+            { venueCode: { equals: normId, mode: "insensitive" } },
+          ],
+        },
+      });
+      if (dbRec) {
+        let cat: CertificateCategory = "SANJEEVANI";
+        if (dbRec.category === "CPR_CHAMPION") cat = "CPR_CHAMPION";
+        else if (dbRec.category === "COURSE_COORDINATOR") cat = "COURSE_COORDINATOR";
+        else if (dbRec.category === "CPR_FACILITY") cat = "CPR_FACILITY";
+        else if (dbRec.certificateId.includes("/PA/")) cat = "CPR_DAY";
+
+        let templateUsed = "cpr sanjeevani certificate 2.svg";
+        if (cat === "CPR_DAY") templateUsed = "Lay Rescuer CPR Day.svg";
+        else if (cat === "CPR_CHAMPION") templateUsed = "CPR Champions.svg";
+        else if (cat === "CPR_FACILITY") templateUsed = "CPR Facility Certificate.svg";
+
+        return {
+          id: dbRec.id,
+          certificateId: dbRec.certificateId,
+          sequenceNumber: 0,
+          stateCode: dbRec.stateCode,
+          category: cat,
+          templateUsed,
+          participantName: dbRec.name,
+          normalizedName: dbRec.normalizedName,
+          date: dbRec.certificateDate,
+          venue: dbRec.venueName,
+          venueCode: dbRec.venueCode || undefined,
+          city: dbRec.city || "",
+          state: dbRec.state,
+          mobileNumber: dbRec.mobileNumber || undefined,
+          email: dbRec.email || undefined,
+          courseCoordinator: dbRec.courseCoordinator || undefined,
+          status: dbRec.status || "VALID",
+          generatedAt: dbRec.createdAt ? dbRec.createdAt.toISOString() : new Date().toISOString(),
+          createdAt: dbRec.createdAt ? dbRec.createdAt.toISOString() : new Date().toISOString(),
+          updatedAt: dbRec.updatedAt ? dbRec.updatedAt.toISOString() : new Date().toISOString(),
+        };
+      }
+    } catch (e) {
+      // safe db fallback
+    }
+  }
+
+  return null;
 }
 
 /**
- * Search certificates by query (O(N) in-memory filter).
+ * Search certificates by query (O(N) in-memory filter + DB lookup).
  */
 export async function searchSanjeevaniByQuery(query: string): Promise<SanjeevaniCertificateRecord[]> {
   const cleanQ = (query || "").trim().toLowerCase();
   if (!cleanQ) return [];
 
   const storageRecords = getAllSanjeevaniFromStorage();
-  return storageRecords
+  const memoryResults = storageRecords
     .filter(
       (r) =>
         r.participantName.toLowerCase().includes(cleanQ) ||
@@ -1659,6 +1766,71 @@ export async function searchSanjeevaniByQuery(query: string): Promise<Sanjeevani
         r.city.toLowerCase().includes(cleanQ) ||
         r.state.toLowerCase().includes(cleanQ) ||
         (r.courseCoordinator && r.courseCoordinator.toLowerCase().includes(cleanQ))
-    )
-    .slice(0, 50);
+    );
+
+  const seenIds = new Set(memoryResults.map((r) => r.certificateId.toUpperCase()));
+  const combined: SanjeevaniCertificateRecord[] = [...memoryResults];
+
+  if (prisma && (prisma as any).adminCertificateRecord) {
+    try {
+      const dbRecords = await (prisma as any).adminCertificateRecord.findMany({
+        where: {
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { normalizedName: { contains: cleanQ } },
+            { mobileNumber: { contains: query } },
+            { email: { contains: cleanQ, mode: "insensitive" } },
+            { venueName: { contains: query, mode: "insensitive" } },
+            { city: { contains: query, mode: "insensitive" } },
+            { state: { contains: query, mode: "insensitive" } },
+            { certificateId: { contains: query, mode: "insensitive" } },
+          ],
+        },
+        take: 50,
+      });
+
+      for (const dbRec of dbRecords) {
+        if (!seenIds.has(dbRec.certificateId.toUpperCase())) {
+          seenIds.add(dbRec.certificateId.toUpperCase());
+          let cat: CertificateCategory = "SANJEEVANI";
+          if (dbRec.category === "CPR_CHAMPION") cat = "CPR_CHAMPION";
+          else if (dbRec.category === "COURSE_COORDINATOR") cat = "COURSE_COORDINATOR";
+          else if (dbRec.category === "CPR_FACILITY") cat = "CPR_FACILITY";
+          else if (dbRec.certificateId.includes("/PA/")) cat = "CPR_DAY";
+
+          let templateUsed = "cpr sanjeevani certificate 2.svg";
+          if (cat === "CPR_DAY") templateUsed = "Lay Rescuer CPR Day.svg";
+          else if (cat === "CPR_CHAMPION") templateUsed = "CPR Champions.svg";
+          else if (cat === "CPR_FACILITY") templateUsed = "CPR Facility Certificate.svg";
+
+          combined.push({
+            id: dbRec.id,
+            certificateId: dbRec.certificateId,
+            sequenceNumber: 0,
+            stateCode: dbRec.stateCode,
+            category: cat,
+            templateUsed,
+            participantName: dbRec.name,
+            normalizedName: dbRec.normalizedName,
+            date: dbRec.certificateDate,
+            venue: dbRec.venueName,
+            venueCode: dbRec.venueCode || undefined,
+            city: dbRec.city || "",
+            state: dbRec.state,
+            mobileNumber: dbRec.mobileNumber || undefined,
+            email: dbRec.email || undefined,
+            courseCoordinator: dbRec.courseCoordinator || undefined,
+            status: dbRec.status || "VALID",
+            generatedAt: dbRec.createdAt ? dbRec.createdAt.toISOString() : new Date().toISOString(),
+            createdAt: dbRec.createdAt ? dbRec.createdAt.toISOString() : new Date().toISOString(),
+            updatedAt: dbRec.updatedAt ? dbRec.updatedAt.toISOString() : new Date().toISOString(),
+          });
+        }
+      }
+    } catch (e) {
+      // safe db fallback
+    }
+  }
+
+  return combined.slice(0, 50);
 }
