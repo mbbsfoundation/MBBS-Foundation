@@ -236,25 +236,26 @@ export function validateProfessionalSurveyPayload(
     errors.push("Name & Academic Title is required in Section 7.");
   }
 
-  // Contact Method: At least Email OR Mobile/WhatsApp required
+  // Email (Required)
   const rawEmail = typeof payload.email === "string" && payload.email.trim()
     ? payload.email.trim()
     : null;
   let email: string | null = null;
-  if (rawEmail) {
-    if (!EMAIL_REGEX.test(rawEmail)) {
-      errors.push("Please enter a valid email address.");
-    } else {
-      email = rawEmail.toLowerCase();
-    }
+  if (!rawEmail) {
+    errors.push("Email Address is required in Section 7.");
+  } else if (!EMAIL_REGEX.test(rawEmail)) {
+    errors.push("Please enter a valid email address.");
+  } else {
+    email = rawEmail.toLowerCase();
   }
 
+  // Mobile / WhatsApp (Required)
   const mobileWhatsapp = typeof payload.mobileWhatsapp === "string" && payload.mobileWhatsapp.trim()
     ? payload.mobileWhatsapp.trim()
     : null;
 
-  if (!email && !mobileWhatsapp) {
-    errors.push("Please provide at least one contact method (Email or Mobile/WhatsApp) in Section 7.");
+  if (!mobileWhatsapp) {
+    errors.push("Mobile / WhatsApp Number is required in Section 7.");
   }
 
   // Consent for contact (Required)

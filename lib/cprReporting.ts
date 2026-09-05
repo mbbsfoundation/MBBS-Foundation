@@ -28,6 +28,7 @@ import {
 } from "./cprVenueRegistry";
 import {
   getFrozenVenueReviewSnapshot,
+  getVenueMetadataOverridesMap,
   ReconciliationDecisionType,
   CPRDAY_CENSUS_DRAFT_VERSION,
   StateVerificationStatus,
@@ -163,6 +164,7 @@ export interface CPRDayVenueSummary {
  * Backward-compatible CentreReconciliationItem for UI consumers
  */
 export interface CentreReconciliationItem {
+  canonicalVenueId?: string;
   serialNumber: string;
   venue: string;
   normalizedVenue: string;
@@ -810,27 +812,43 @@ export function getCPRDayReconciliationReport(
   let totalReconciledParticipantsTrained = 0;
   let totalMatchedParticipantsCertified = 0;
   let baselineMatchedVenuesCount = 0;
+  const metaOverrides = getVenueMetadataOverridesMap();
 
   for (const b of stateVenues) {
+    const vOverride = metaOverrides.get(b.canonicalVenueId);
+    const displayVenueName = vOverride?.venueName || b.canonicalVenueName;
+    const displayCity = vOverride?.city || b.city;
+
+    const baseCoords = b.coordinators || [];
+    const overrideCoords = vOverride?.additionalCoordinators || [];
+    const addCoords = Array.from(canonAdditionalCoords.get(b.canonicalVenueId) || []).filter(
+      (c) =>
+        !baseCoords.some((bc: string) => bc.toLowerCase() === c.toLowerCase()) &&
+        !overrideCoords.some((oc: string) => oc.toLowerCase() === c.toLowerCase())
+    );
+    const allCoords = deduplicatePersonNames([...baseCoords, ...overrideCoords, ...addCoords]);
+
+    const baseChamps = b.champions || [];
+    const overrideChamps = vOverride?.additionalChampions || [];
+    const addChamps = Array.from(canonAdditionalChamps.get(b.canonicalVenueId) || []).filter(
+      (c) =>
+        !baseChamps.some((bc: string) => bc.toLowerCase() === c.toLowerCase()) &&
+        !overrideChamps.some((oc: string) => oc.toLowerCase() === c.toLowerCase())
+    );
+    const allChamps = deduplicatePersonNames([...baseChamps, ...overrideChamps, ...addChamps]);
+
+    const trainedAdjustment = vOverride?.verifiedTrainedAdjustment || 0;
+    const effectiveBaselineTrained = b.baselineReportedTrained + trainedAdjustment;
+    const courseAdjustment = vOverride?.verifiedCourseCountAdjustment || 0;
+    const effectiveCourseCount = Math.max(1, b.baselineCourseCount + courseAdjustment);
+
     const certs = canonCerts.get(b.canonicalVenueId) || new Set<string>();
     const participantsCertified = certs.size;
-    const participantsTrained = Math.max(b.baselineReportedTrained, participantsCertified);
+    const participantsTrained = Math.max(effectiveBaselineTrained, participantsCertified);
 
     totalReconciledParticipantsTrained += participantsTrained;
     totalMatchedParticipantsCertified += participantsCertified;
     if (participantsCertified > 0) baselineMatchedVenuesCount += 1;
-
-    const baseCoords = b.coordinators || [];
-    const addCoords = Array.from(canonAdditionalCoords.get(b.canonicalVenueId) || []).filter(
-      (c) => !baseCoords.some((bc: string) => bc.toLowerCase() === c.toLowerCase())
-    );
-    const allCoords = deduplicatePersonNames([...baseCoords, ...addCoords]);
-
-    const baseChamps = b.champions || [];
-    const addChamps = Array.from(canonAdditionalChamps.get(b.canonicalVenueId) || []).filter(
-      (c) => !baseChamps.some((bc: string) => bc.toLowerCase() === c.toLowerCase())
-    );
-    const allChamps = deduplicatePersonNames([...baseChamps, ...addChamps]);
 
     const matchingRows = stateBaselineRows.filter((r) =>
       b.baselineSessionIds.includes(r.serialNumber) || b.baselineSessionIds.includes((r as any).sessionId)
@@ -842,27 +860,27 @@ export function getCPRDayReconciliationReport(
       state: canonicalState,
       canonicalState,
       stateCode,
-      city: b.city,
-      venue: b.canonicalVenueName,
-      normalizedVenue: normalizeVenueKey(b.canonicalVenueName, b.city),
-      baselineCourseCount: b.baselineCourseCount,
+      city: displayCity,
+      venue: displayVenueName,
+      normalizedVenue: normalizeVenueKey(displayVenueName, displayCity),
+      baselineCourseCount: effectiveCourseCount,
       supplementaryCourseCount: 0,
-      totalCourseCount: b.baselineCourseCount,
-      baselineReportedTrained: b.baselineReportedTrained,
+      totalCourseCount: effectiveCourseCount,
+      baselineReportedTrained: effectiveBaselineTrained,
       participantsCertified,
       supplementaryTrained: 0,
       participantsTrained,
       isApprovedSupplementaryNewCourse: false,
       classification: "BASELINE_MATCH",
       classificationReason:
-        participantsCertified > b.baselineReportedTrained
-          ? `Baseline session(s) verified: Certified roster exceeds reported (+${participantsCertified - b.baselineReportedTrained})`
-          : `Baseline session(s) verified (${b.baselineCourseCount} course${b.baselineCourseCount > 1 ? "s" : ""})`,
+        participantsCertified > effectiveBaselineTrained
+          ? `Baseline session(s) verified: Certified roster exceeds reported (+${participantsCertified - effectiveBaselineTrained})`
+          : `Baseline session(s) verified (${effectiveCourseCount} course${effectiveCourseCount > 1 ? "s" : ""})`,
       baselineCoordinators: baseCoords,
-      additionalLiveCoordinators: addCoords,
+      additionalLiveCoordinators: [...overrideCoords, ...addCoords],
       allCoordinators: allCoords,
       baselineChampions: baseChamps,
-      additionalLiveChampions: addChamps,
+      additionalLiveChampions: [...overrideChamps, ...addChamps],
       allChampions: allChamps,
       baselineRows: matchingRows,
       sampleCertificateIds: canonSampleCertIds.get(b.canonicalVenueId) || [],
@@ -882,6 +900,7 @@ export function getCPRDayReconciliationReport(
   );
 
   const centres: CentreReconciliationItem[] = allStateVenues.map((v) => ({
+    canonicalVenueId: v.venueId,
     serialNumber: v.serialNumber,
     venue: v.venue,
     normalizedVenue: v.normalizedVenue,

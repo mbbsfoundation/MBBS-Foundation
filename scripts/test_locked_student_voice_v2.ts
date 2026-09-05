@@ -327,21 +327,33 @@ async function main() {
     responseId: testRecord.id,
     respondentName: "Test Student",
     email: "test.student@example.com",
+    mobileWhatsapp: "9876543210",
     consentForFollowup: false,
   });
   if (invalidContributorNoConsent.isValid) {
     throw new Error("Contributor without consent should have failed validation.");
   }
 
-  const invalidContributorNoContact = validateStudentContributorPayload({
+  const invalidContributorNoEmail = validateStudentContributorPayload({
     responseId: testRecord.id,
     respondentName: "Test Student",
+    mobileWhatsapp: "9876543210",
     consentForFollowup: true,
   });
-  if (invalidContributorNoContact.isValid) {
-    throw new Error("Contributor without email or mobile should have failed validation.");
+  if (invalidContributorNoEmail.isValid) {
+    throw new Error("Contributor without email should have failed validation.");
   }
-  console.log("✅ Contributor validation rules enforced (Name, Email OR Mobile, Explicit Consent).");
+
+  const invalidContributorNoMobile = validateStudentContributorPayload({
+    responseId: testRecord.id,
+    respondentName: "Test Student",
+    email: "test.student@example.com",
+    consentForFollowup: true,
+  });
+  if (invalidContributorNoMobile.isValid) {
+    throw new Error("Contributor without mobile should have failed validation.");
+  }
+  console.log("✅ Contributor validation rules enforced (Name + Email + Mobile + Explicit Consent mandatory).");
 
   // Step 3: Apply Contributor Update (PATCH simulation)
   const validContributor = validateStudentContributorPayload({

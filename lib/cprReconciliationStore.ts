@@ -453,3 +453,85 @@ export function resetVenueReconciliationDecision(reviewId: string): VenueReviewS
   const all = getFrozenVenueReviewSnapshot();
   return all.find((i) => i.reviewId === reviewId) || null;
 }
+
+export interface VenueMetadataOverride {
+  canonicalVenueId: string;
+  state: string;
+  venueName?: string;
+  city?: string;
+  additionalCoordinators?: string[];
+  additionalChampions?: string[];
+  verifiedTrainedAdjustment?: number;
+  verifiedCourseCountAdjustment?: number;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+  evidenceReference?: string;
+  originatingSubmissionId?: string;
+}
+
+const METADATA_OVERRIDES_FILE_PATH = path.join(process.cwd(), "data", "cpr_venue_metadata_overrides.json");
+
+let memoryOverridesCache: Map<string, VenueMetadataOverride> | null = null;
+
+export function loadPersistedMetadataOverrides(): Map<string, VenueMetadataOverride> {
+  if (memoryOverridesCache) return memoryOverridesCache;
+
+  const map = new Map<string, VenueMetadataOverride>();
+  try {
+    if (fs.existsSync(METADATA_OVERRIDES_FILE_PATH)) {
+      const raw = fs.readFileSync(METADATA_OVERRIDES_FILE_PATH, "utf-8");
+      const list = JSON.parse(raw);
+      if (Array.isArray(list)) {
+        list.forEach((item: VenueMetadataOverride) => {
+          if (item.canonicalVenueId) map.set(item.canonicalVenueId, item);
+        });
+      }
+    }
+  } catch (err) {
+    console.warn("Could not read venue metadata overrides file, using in-memory store:", err);
+  }
+
+  memoryOverridesCache = map;
+  return map;
+}
+
+export function persistMetadataOverridesToFile(map: Map<string, VenueMetadataOverride>): void {
+  try {
+    const list = Array.from(map.values());
+    const dir = path.dirname(METADATA_OVERRIDES_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(METADATA_OVERRIDES_FILE_PATH, JSON.stringify(list, null, 2), "utf-8");
+  } catch (err) {
+    console.warn("Could not write venue metadata overrides file:", err);
+  }
+}
+
+export function getVenueMetadataOverridesMap(): Map<string, VenueMetadataOverride> {
+  return loadPersistedMetadataOverrides();
+}
+
+export function saveVenueMetadataOverride(override: VenueMetadataOverride): VenueMetadataOverride {
+  const map = loadPersistedMetadataOverrides();
+  const existing = map.get(override.canonicalVenueId) || { canonicalVenueId: override.canonicalVenueId, state: override.state };
+
+  const updated: VenueMetadataOverride = {
+    ...existing,
+    ...override,
+    reviewedAt: new Date().toISOString(),
+  };
+
+  map.set(override.canonicalVenueId, updated);
+  persistMetadataOverridesToFile(map);
+  return updated;
+}
+
+export function resetVenueMetadataOverride(canonicalVenueId: string): boolean {
+  const map = loadPersistedMetadataOverrides();
+  const deleted = map.delete(canonicalVenueId);
+  persistMetadataOverridesToFile(map);
+  return deleted;
+}
+

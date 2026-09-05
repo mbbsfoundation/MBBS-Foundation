@@ -106,8 +106,8 @@ async function runTestSuite() {
   // Section 7 questions
   const sec7 = SURVEY_SECTIONS_CONFIG[6].questions;
   assert(sec7.some((q: any) => q.key === "respondentName" && q.required === true), "Section 7 Name is required");
-  assert(sec7.some((q: any) => q.key === "email"), "Section 7 Email exists");
-  assert(sec7.some((q: any) => q.key === "mobileWhatsapp"), "Section 7 Mobile/WhatsApp exists");
+  assert(sec7.some((q: any) => q.key === "email" && q.required === true), "Section 7 Email is required");
+  assert(sec7.some((q: any) => q.key === "mobileWhatsapp" && q.required === true), "Section 7 Mobile/WhatsApp is required");
   assert(sec7.some((q: any) => q.key === "q28ConsentForContact" && q.required === true), "Section 7 Contact Consent is required");
 
   // --------------------------------------------------------------------------
@@ -200,20 +200,25 @@ async function runTestSuite() {
   assert(validResult.sanitizedData?.interestedInContributing === true, "interestedInContributing flag is true");
   assert(validResult.sanitizedData?.consentForFollowup === true, "consentForFollowup flag is true");
 
-  // Test Email Only (without Mobile)
+  // Test Rejection: Email Only (without Mobile)
   const emailOnlyPayload = { ...validMockPayload, mobileWhatsapp: "" };
   const emailOnlyResult = validateProfessionalSurveyPayload(emailOnlyPayload);
-  assert(emailOnlyResult.isValid === true, "Valid payload with Email only (no mobile) passes validation");
+  assert(emailOnlyResult.isValid === false, "Fails validation with Email only (missing mobile)");
 
-  // Test Mobile Only (without Email)
+  // Test Rejection: Mobile Only (without Email)
   const mobileOnlyPayload = { ...validMockPayload, email: "" };
   const mobileOnlyResult = validateProfessionalSurveyPayload(mobileOnlyPayload);
-  assert(mobileOnlyResult.isValid === true, "Valid payload with Mobile only (no email) passes validation");
+  assert(mobileOnlyResult.isValid === false, "Fails validation with Mobile only (missing email)");
 
   // Test Rejection: Missing Name
   const missingNamePayload = { ...validMockPayload, respondentName: "" };
   const missingNameResult = validateProfessionalSurveyPayload(missingNamePayload);
   assert(missingNameResult.isValid === false, "Fails validation when respondentName is missing");
+
+  // Test Rejection: Missing Consent
+  const missingConsentPayload = { ...validMockPayload, q28ConsentForContact: "" };
+  const missingConsentResult = validateProfessionalSurveyPayload(missingConsentPayload);
+  assert(missingConsentResult.isValid === false, "Fails validation when consent is unanswered");
 
   // Test Rejection: Missing both Email and Mobile
   const noContactPayload = { ...validMockPayload, email: "", mobileWhatsapp: "" };

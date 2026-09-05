@@ -554,7 +554,7 @@ export default function NeetAfterAdmissionPage() {
               </Link>
 
               <Link
-                href="/cprsanjeevani"
+                href="/cprday#certificate-access"
                 className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition underline underline-offset-2 py-2"
               >
                 Verify CPR Certificates

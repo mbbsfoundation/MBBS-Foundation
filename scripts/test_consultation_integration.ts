@@ -67,7 +67,56 @@ async function main() {
   if (!subNavContent.includes("/mbbs-foundation/consultation/professional")) {
     throw new Error("ConsultationSubNav must link to Professional Consultation");
   }
-  console.log("✅ ConsultationSubNav navigation links verified.");
+
+  // Locked descriptions in SubNav
+  const lockedSubNavDescriptions = [
+    "Explore the MBBS Foundation consultation and choose the pathway relevant to you.",
+    "For faculty, clinicians and medical educators helping identify how students can begin MBBS better prepared.",
+    "For current MBBS students and interns to share what they wish they had known when they started.",
+    "A future readiness experience for students preparing to enter medical college.",
+  ];
+  for (const d of lockedSubNavDescriptions) {
+    if (!subNavContent.includes(d)) {
+      throw new Error(`ConsultationSubNav missing locked description: "${d}"`);
+    }
+  }
+  console.log("✅ ConsultationSubNav navigation links and locked descriptions verified.");
+
+  // Check SiteHeader Global Gateway
+  console.log("\n[1B] Auditing Global SiteHeader Gateway...");
+  const siteHeaderPath = path.join(process.cwd(), "components/SiteHeader.tsx");
+  const siteHeaderContent = fs.readFileSync(siteHeaderPath, "utf8");
+  if (!siteHeaderContent.includes('label: "Consultation"') || !siteHeaderContent.includes('href: "/mbbs-foundation/consultation"')) {
+    throw new Error("SiteHeader must include Consultation link pointing to /mbbs-foundation/consultation");
+  }
+  console.log("✅ SiteHeader contains global Consultation entry pointing to /mbbs-foundation/consultation.");
+
+  // Check Survey Client Forms for pageSize=100 and ref-based smooth scroll
+  console.log("\n[1C] Auditing Survey Form Technical Safeguards (pageSize=100 & Scroll Positioning)...");
+  const profFormPath = path.join(process.cwd(), "components/mbbs-foundation/consultation/ProfessionalSurveyForm.tsx");
+  const profFormContent = fs.readFileSync(profFormPath, "utf8");
+  if (profFormContent.includes("pageSize=200")) {
+    throw new Error("ProfessionalSurveyForm must not request pageSize=200");
+  }
+  if (!profFormContent.includes("pageSize=100")) {
+    throw new Error("ProfessionalSurveyForm must request pageSize=100");
+  }
+  if (!profFormContent.includes("scrollToSurveyTop")) {
+    throw new Error("ProfessionalSurveyForm must use scrollToSurveyTop on section navigation");
+  }
+
+  const studentFormPath = path.join(process.cwd(), "components/mbbs-foundation/consultation/StudentVoiceSurveyForm.tsx");
+  const studentFormContent = fs.readFileSync(studentFormPath, "utf8");
+  if (studentFormContent.includes("pageSize=200")) {
+    throw new Error("StudentVoiceSurveyForm must not request pageSize=200");
+  }
+  if (!studentFormContent.includes("pageSize=100")) {
+    throw new Error("StudentVoiceSurveyForm must request pageSize=100");
+  }
+  if (!studentFormContent.includes("scrollToSurveyTop")) {
+    throw new Error("StudentVoiceSurveyForm must use scrollToSurveyTop on section navigation");
+  }
+  console.log("✅ Both survey forms request pageSize=100 and use survey-anchor scrollToSurveyTop.");
 
   // ============================================================================
   // 2. CPR -> PROFESSIONAL CONSULTATION (verify/[state])

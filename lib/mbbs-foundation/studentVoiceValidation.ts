@@ -162,18 +162,15 @@ export function validateStudentContributorPayload(
   const emailTrimmed = (data.email || "").trim().toLowerCase();
   const mobileTrimmed = (data.mobileWhatsapp || "").trim();
 
-  const hasEmail = Boolean(emailTrimmed);
-  const hasMobile = Boolean(mobileTrimmed);
-
-  if (!hasEmail && !hasMobile) {
-    errors.push({ field: "contact", message: "Please provide at least one contact method (Email or Mobile / WhatsApp)." });
-  }
-
-  if (hasEmail && !EMAIL_REGEX.test(emailTrimmed)) {
+  if (!emailTrimmed) {
+    errors.push({ field: "email", message: "Please enter your email address." });
+  } else if (!EMAIL_REGEX.test(emailTrimmed)) {
     errors.push({ field: "email", message: "Please enter a valid email address." });
   }
 
-  if (hasMobile && mobileTrimmed.length < 7) {
+  if (!mobileTrimmed) {
+    errors.push({ field: "mobileWhatsapp", message: "Please enter your mobile / WhatsApp number." });
+  } else if (mobileTrimmed.length < 7) {
     errors.push({ field: "mobileWhatsapp", message: "Please enter a valid mobile / WhatsApp number." });
   }
 
@@ -188,8 +185,8 @@ export function validateStudentContributorPayload(
   const sanitizedContributorData = {
     responseId: data.responseId!.trim(),
     respondentName: data.respondentName!.trim(),
-    email: hasEmail ? emailTrimmed : null,
-    mobileWhatsapp: hasMobile ? mobileTrimmed : null,
+    email: emailTrimmed,
+    mobileWhatsapp: mobileTrimmed,
     contributionInterests: Array.isArray(data.contributionInterests) ? data.contributionInterests : [],
     consentForFollowup: true,
     interestedInContributing: true,

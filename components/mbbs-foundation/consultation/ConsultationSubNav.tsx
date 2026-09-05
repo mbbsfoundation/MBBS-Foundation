@@ -10,6 +10,7 @@ interface NavItem {
   exact?: boolean;
   disabled?: boolean;
   badge?: string;
+  description: string;
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -17,19 +18,23 @@ const NAV_ITEMS: NavItem[] = [
     label: "Overview",
     href: "/mbbs-foundation/consultation",
     exact: true,
+    description: "Explore the MBBS Foundation consultation and choose the pathway relevant to you.",
   },
   {
     label: "Professional Consultation",
     href: "/mbbs-foundation/consultation/professional",
+    description: "For faculty, clinicians and medical educators helping identify how students can begin MBBS better prepared.",
   },
   {
     label: "Student & Intern Voice",
     href: "/mbbs-foundation/consultation/student-voice",
+    description: "For current MBBS students and interns to share what they wish they had known when they started.",
   },
   {
     label: "Entry Readiness",
     disabled: true,
     badge: "Coming Soon",
+    description: "A future readiness experience for students preparing to enter medical college.",
   },
 ];
 
@@ -55,7 +60,8 @@ export default function ConsultationSubNav() {
                   <span
                     key={idx}
                     className="h-9 inline-flex items-center gap-1.5 rounded-xl px-3 sm:px-3.5 text-xs font-medium text-slate-400 bg-slate-100/70 border border-slate-200/60 cursor-not-allowed whitespace-nowrap"
-                    title="Coming soon in the next phase"
+                    title={item.description}
+                    aria-label={`${item.label} (${item.badge || "Coming Soon"}) — ${item.description}`}
                   >
                     <span>{item.label}</span>
                     {item.badge && (
@@ -63,6 +69,7 @@ export default function ConsultationSubNav() {
                         {item.badge}
                       </span>
                     )}
+                    <span className="sr-only">: {item.description}</span>
                   </span>
                 );
               }
@@ -75,6 +82,8 @@ export default function ConsultationSubNav() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  title={item.description}
+                  aria-label={`${item.label} — ${item.description}`}
                   className={`h-9 inline-flex items-center rounded-xl px-3.5 sm:px-4 text-xs sm:text-sm font-bold transition-all whitespace-nowrap border ${
                     isActive
                       ? "bg-slate-900 text-white border-slate-900 shadow-xs"
@@ -82,7 +91,8 @@ export default function ConsultationSubNav() {
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  <span className="sr-only">: {item.description}</span>
                 </Link>
               );
             })}

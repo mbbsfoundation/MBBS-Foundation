@@ -15,8 +15,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "🎓 NEET to MBBS", href: "/neet-to-mbbs", special: "neet" },
   { label: "About", href: "/about" },
   { label: "Book", href: "/book" },
+  { label: "Consultation", href: "/mbbs-foundation/consultation" },
   { label: "CPR Day", href: "/cprday" },
-  { label: "Sanjeevani Certificates", href: "/cprsanjeevani", special: "cpr" },
   { label: "Resources", href: "/resources" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
@@ -29,9 +29,9 @@ export default function SiteHeader() {
   const isNavActive = (item: NavItem) => {
     if (!pathname) return false;
     if (item.href === "/neet-to-mbbs") return pathname.startsWith("/neet-to-mbbs");
-    if (item.href === "/cprsanjeevani") return pathname.startsWith("/cprsanjeevani");
+    if (item.href === "/mbbs-foundation/consultation") return pathname.startsWith("/mbbs-foundation/consultation");
     if (item.href === "/blog") return pathname.startsWith("/blog");
-    if (item.href === "/cprday") return pathname === "/cprday" || (pathname.startsWith("/cprday") && !pathname.startsWith("/cprsanjeevani"));
+    if (item.href === "/cprday") return pathname === "/cprday" || pathname.startsWith("/cprday");
     return pathname === item.href;
   };
 
@@ -84,23 +84,6 @@ export default function SiteHeader() {
                         active
                           ? "bg-red-700 text-white shadow-2xs border border-red-700"
                           : "bg-red-50/80 text-red-800 border border-red-200/90 hover:bg-red-100 hover:text-red-900"
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                }
-
-                // Sanjeevani Certificates Special Tab
-                if (item.special === "cpr") {
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`inline-flex items-center justify-center whitespace-nowrap rounded-xl px-2.5 xl:px-3 py-1.5 text-xs xl:text-[13px] font-semibold transition-all duration-150 ${
-                        active
-                          ? "bg-teal-800 text-white font-bold shadow-2xs border border-teal-800"
-                          : "text-slate-700 border border-transparent hover:bg-teal-50 hover:text-teal-900 hover:border-teal-200"
                       }`}
                     >
                       {item.label}
@@ -175,24 +158,6 @@ export default function SiteHeader() {
                           active
                             ? "bg-red-700 text-white"
                             : "bg-red-50 text-red-800 border border-red-200"
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        <span>→</span>
-                      </Link>
-                    );
-                  }
-
-                  if (item.special === "cpr") {
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 font-semibold transition ${
-                          active
-                            ? "bg-teal-800 text-white font-bold"
-                            : "text-slate-700 bg-teal-50/50 hover:bg-teal-50 hover:text-teal-900 border border-teal-100"
                         }`}
                       >
                         <span>{item.label}</span>

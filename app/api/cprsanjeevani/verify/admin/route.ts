@@ -137,6 +137,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (status === "IMPLEMENTED" && (!adminNote || adminNote.trim().length === 0)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "A mandatory implementation note is required when marking a submission as IMPLEMENTED to document what downstream action was completed.",
+        },
+        { status: 400 }
+      );
+    }
+
     const updated = await updateVerificationStatusAsync(id, {
       status,
       adminReviewedBy,

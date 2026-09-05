@@ -219,9 +219,20 @@ export default function RootLayout({
               </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-200/70 text-xs text-slate-500 space-y-1">
-              <p>© 2026 MBBS Foundation™. All rights reserved.</p>
-              <p className="text-[11px] text-slate-400">MBBS Foundation™ is a trademark-applied brand.</p>
+            <div className="mt-8 pt-6 border-t border-slate-200/70 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="space-y-1">
+                <p>© 2026 MBBS Foundation™. All rights reserved.</p>
+                <p className="text-[11px] text-slate-400">MBBS Foundation™ is a trademark-applied brand.</p>
+              </div>
+              <div>
+                <a
+                  href="/admin"
+                  className="text-[11px] text-slate-400 hover:text-slate-600 transition"
+                  title="Master Admin Portal"
+                >
+                  Admin Portal
+                </a>
+              </div>
             </div>
           </div>
         </footer>

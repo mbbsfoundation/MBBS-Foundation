@@ -13,6 +13,7 @@ import {
 } from "@/lib/mbbs-foundation/professionalSurveyConfig";
 import StudentVoiceAdminView from "@/components/mbbs-foundation/consultation/StudentVoiceAdminView";
 import { StudentVoiceDashboardSummary } from "@/lib/mbbs-foundation/studentVoiceTypes";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 export default function ConsultationAdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -264,8 +265,11 @@ export default function ConsultationAdminDashboard() {
   // -------------------------------------------------------------
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-slate-900 text-white border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-3.5 shadow-md">
+      {/* Shared Admin Navigation Header */}
+      <AdminHeader currentSection="mbbs" onLogout={handleLogout} />
+
+      {/* Module Navbar */}
+      <header className="bg-slate-900 text-white border-b border-slate-800 px-4 sm:px-6 lg:px-8 py-3.5 shadow-sm">
         <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-700 text-white font-black text-sm">

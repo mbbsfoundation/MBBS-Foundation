@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   ConsultationSource,
@@ -46,6 +46,17 @@ export default function ProfessionalSurveyForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmittedSuccess, setIsSubmittedSuccess] = useState<boolean>(false);
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
+  const surveyContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSurveyTop = () => {
+    requestAnimationFrame(() => {
+      if (surveyContainerRef.current) {
+        const yOffset = -80;
+        const y = surveyContainerRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      }
+    });
+  };
 
   // College lookup state
   const [collegesList, setCollegesList] = useState<string[]>([]);
@@ -63,8 +74,11 @@ export default function ProfessionalSurveyForm({
     async function loadColleges() {
       try {
         setLoadingColleges(true);
+        const queryState = formData.state === "Dadra & Nagar Haveli and Daman & Diu"
+          ? "Dadra and Nagar Haveli and Daman and Diu"
+          : (formData.state || "");
         const res = await fetch(
-          `/api/counselling/colleges?state=${encodeURIComponent(formData.state || "")}&pageSize=200`
+          `/api/counselling/colleges?state=${encodeURIComponent(queryState)}&pageSize=100`
         );
         if (res.ok) {
           const data = await res.json();
@@ -332,14 +346,16 @@ export default function ProfessionalSurveyForm({
         setValidationError("Name & Academic Title is required in Section 7.");
         return false;
       }
-      const hasEmail = Boolean(formData.email && formData.email.trim());
-      const hasMobile = Boolean(formData.mobileWhatsapp && formData.mobileWhatsapp.trim());
-      if (!hasEmail && !hasMobile) {
-        setValidationError("Please provide at least one contact method (Email or Mobile / WhatsApp).");
+      if (!formData.email || !formData.email.trim()) {
+        setValidationError("Email Address is required in Section 7.");
         return false;
       }
-      if (hasEmail && !EMAIL_REGEX.test(formData.email!.trim())) {
+      if (!EMAIL_REGEX.test(formData.email.trim())) {
         setValidationError("Please enter a valid email address.");
+        return false;
+      }
+      if (!formData.mobileWhatsapp || !formData.mobileWhatsapp.trim()) {
+        setValidationError("Mobile / WhatsApp Number is required in Section 7.");
         return false;
       }
       if (!formData.q28ConsentForContact || !formData.q28ConsentForContact.trim()) {
@@ -354,14 +370,14 @@ export default function ProfessionalSurveyForm({
   const handleNext = () => {
     if (validateCurrentStep()) {
       setCurrentStep((prev) => Math.min(prev + 1, 7));
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollToSurveyTop();
     }
   };
 
   const handleBack = () => {
     setValidationError(null);
     setCurrentStep((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToSurveyTop();
   };
 
   // -------------------------------------------------------------
@@ -517,7 +533,7 @@ export default function ProfessionalSurveyForm({
   // -------------------------------------------------------------
 
   return (
-    <div className="space-y-6">
+    <div ref={surveyContainerRef} className="space-y-6">
       {/* 7-Section Progress Bar */}
       <SurveyProgress
         currentStep={currentStep}
@@ -1225,11 +1241,11 @@ export default function ProfessionalSurveyForm({
                 />
               </div>
 
-              {/* Email & Mobile Grid (At least one required) */}
+              {/* Email & Mobile Grid (Required) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-900">
-                    Email Address
+                    Email Address <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="email"
@@ -1241,12 +1257,11 @@ export default function ProfessionalSurveyForm({
                     placeholder="e.g., doctor@institution.edu.in"
                     className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
                   />
-                  <span className="text-[11px] text-slate-500">Provide Email OR Mobile.</span>
                 </div>
 
                 <div className="space-y-1">
                   <label className="block text-xs font-bold text-slate-900">
-                    Mobile / WhatsApp Number
+                    Mobile / WhatsApp Number <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="tel"
@@ -1258,7 +1273,6 @@ export default function ProfessionalSurveyForm({
                     placeholder="e.g., 9876543210"
                     className="w-full rounded-xl border border-slate-300 bg-white p-3 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:border-red-600 focus:outline-none focus:ring-1 focus:ring-red-600"
                   />
-                  <span className="text-[11px] text-slate-500">Provide Email OR Mobile.</span>
                 </div>
               </div>
 

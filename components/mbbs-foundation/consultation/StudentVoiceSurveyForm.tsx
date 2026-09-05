@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   STUDENT_SURVEY_METADATA,
@@ -45,6 +45,17 @@ export default function StudentVoiceSurveyForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmittedSuccess, setIsSubmittedSuccess] = useState<boolean>(false);
   const [submittedResponseId, setSubmittedResponseId] = useState<string | null>(null);
+  const surveyContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSurveyTop = () => {
+    requestAnimationFrame(() => {
+      if (surveyContainerRef.current) {
+        const yOffset = -80;
+        const y = surveyContainerRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      }
+    });
+  };
 
   // Medical College Lookup State
   const [collegesList, setCollegesList] = useState<string[]>([]);
@@ -73,8 +84,11 @@ export default function StudentVoiceSurveyForm({
     async function loadColleges() {
       try {
         setLoadingColleges(true);
+        const queryState = formData.state === "Dadra & Nagar Haveli and Daman & Diu"
+          ? "Dadra and Nagar Haveli and Daman and Diu"
+          : (formData.state || "");
         const res = await fetch(
-          `/api/counselling/colleges?state=${encodeURIComponent(formData.state || "")}&pageSize=200`
+          `/api/counselling/colleges?state=${encodeURIComponent(queryState)}&pageSize=100`
         );
         if (res.ok) {
           const data = await res.json();
@@ -300,14 +314,14 @@ export default function StudentVoiceSurveyForm({
   const handleNext = () => {
     if (validateCurrentStep(currentStep)) {
       setCurrentStep((prev) => Math.min(prev + 1, 7));
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollToSurveyTop();
     }
   };
 
   const handleBack = () => {
     setValidationError(null);
     setCurrentStep((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToSurveyTop();
   };
 
   // -------------------------------------------------------------
@@ -381,20 +395,22 @@ export default function StudentVoiceSurveyForm({
       return;
     }
 
-    const hasEmail = Boolean(contributorEmail.trim());
-    const hasMobile = Boolean(contributorMobile.trim());
-
-    if (!hasEmail && !hasMobile) {
-      setContributionError("Please provide at least one contact method (Email or Mobile / WhatsApp).");
+    if (!contributorEmail.trim()) {
+      setContributionError("Please provide your email address.");
       return;
     }
 
-    if (hasEmail && !EMAIL_REGEX.test(contributorEmail.trim())) {
+    if (!EMAIL_REGEX.test(contributorEmail.trim())) {
       setContributionError("Please enter a valid email address.");
       return;
     }
 
-    if (hasMobile && contributorMobile.trim().length < 7) {
+    if (!contributorMobile.trim()) {
+      setContributionError("Please provide your mobile / WhatsApp number.");
+      return;
+    }
+
+    if (contributorMobile.trim().length < 7) {
       setContributionError("Please enter a valid mobile / WhatsApp number.");
       return;
     }
@@ -413,8 +429,8 @@ export default function StudentVoiceSurveyForm({
         body: JSON.stringify({
           responseId: submittedResponseId,
           respondentName: contributorName.trim(),
-          email: contributorEmail.trim() || undefined,
-          mobileWhatsapp: contributorMobile.trim() || undefined,
+          email: contributorEmail.trim().toLowerCase(),
+          mobileWhatsapp: contributorMobile.trim(),
           contributionInterests: contributorInterests,
           consentForFollowup: true,
         }),
@@ -588,7 +604,7 @@ export default function StudentVoiceSurveyForm({
 
                   <div>
                     <label className="block text-xs font-bold text-slate-300 mb-1">
-                      {pConf.contributorForm.emailLabel}
+                      {pConf.contributorForm.emailLabel} <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="email"
@@ -601,7 +617,7 @@ export default function StudentVoiceSurveyForm({
 
                   <div>
                     <label className="block text-xs font-bold text-slate-300 mb-1">
-                      {pConf.contributorForm.mobileLabel}
+                      {pConf.contributorForm.mobileLabel} <span className="text-red-400">*</span>
                     </label>
                     <input
                       type="tel"
@@ -693,7 +709,7 @@ export default function StudentVoiceSurveyForm({
   const sec7 = STUDENT_SURVEY_SECTIONS_CONFIG[6];
 
   return (
-    <div className="space-y-6">
+    <div ref={surveyContainerRef} className="space-y-6">
       {/* 7-Section Progress Bar */}
       <SurveyProgress
         currentStep={currentStep}

@@ -10,6 +10,7 @@ import {
   downloadCertificatePng,
 } from "@/components/cprsanjeevani/CertificateRenderer";
 import CPRStateReportViewer from "@/components/cpr/CPRStateReportViewer";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 interface PreviewRow {
   rowNumber: number;
@@ -692,6 +693,9 @@ export default function SanjeevaniAdminPortalPage() {
   // Authenticated Admin Portal View
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      {/* Shared Admin Navigation Header */}
+      <AdminHeader currentSection="cpr" onLogout={handleAdminLogout} />
+
       {/* Top Header */}
       <section className="no-print bg-gradient-to-r from-teal-950 via-teal-900 to-indigo-950 text-white py-12 px-6 border-b border-teal-700/50 shadow-md">
         <div className="mx-auto max-w-6xl">
@@ -728,6 +732,13 @@ export default function SanjeevaniAdminPortalPage() {
                 className="rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-white/20 transition text-center"
               >
                 🔍 Master Search
+              </Link>
+              <Link
+                href="/admin/cpr/verifications"
+                className="rounded-xl border border-teal-400/40 bg-teal-900/60 hover:bg-teal-800/80 px-4 py-2.5 text-xs sm:text-sm font-bold text-teal-100 transition text-center flex items-center gap-1.5"
+                title="Open Coordinator Verification & Feedback Inbox"
+              >
+                📥 Verification Inbox
               </Link>
               <button
                 type="button"

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import UniversalCertificatePreviewModal from "@/components/cprday/UniversalCertificatePreviewModal";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 interface CertificateRecord {
   certificateNumber: string;
@@ -443,8 +444,11 @@ export default function SanjeevaniAdminProtectedPortalPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20 selection:bg-teal-500 selection:text-white">
-      {/* Top Admin Navigation Bar */}
-      <div className="bg-slate-950 text-white px-4 sm:px-8 py-3 border-b border-teal-900/60 sticky top-0 z-20 shadow">
+      {/* Shared Admin Navigation Header */}
+      <AdminHeader currentSection="cpr" onLogout={handleAdminLogout} />
+
+      {/* Module Navbar */}
+      <div className="bg-slate-950 text-white px-4 sm:px-8 py-3 border-b border-teal-900/60 shadow">
         <div className="mx-auto max-w-6xl flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
