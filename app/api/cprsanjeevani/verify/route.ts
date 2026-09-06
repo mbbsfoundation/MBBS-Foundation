@@ -53,11 +53,11 @@ export async function GET(request: NextRequest) {
     );
 
     const stateCode = normalizeStateCode(canonicalState);
-    const rawCoordinators = getDistinctCoordinatorsForState(canonicalState);
-    const coordinators = getNormalizedCoordinatorsForDisplay(rawCoordinators);
 
-    // Load full official State Draft Report
+    // Load full official State Draft Report with PostgreSQL live database integration
     const report = await getCPRDayReconciliationReportAsync(canonicalState);
+    const rawCoordinators = getDistinctCoordinatorsForState(canonicalState, report);
+    const coordinators = getNormalizedCoordinatorsForDisplay(rawCoordinators);
 
     // Load existing verification submissions for this state
     const stateSubmissions = await loadAllVerificationsAsync({ state: canonicalState });
