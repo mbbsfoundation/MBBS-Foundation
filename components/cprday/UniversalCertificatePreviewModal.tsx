@@ -49,6 +49,39 @@ export default function UniversalCertificatePreviewModal({
 
   if (!certificate) return null;
 
+  const isWithdrawn =
+    certificate.status === "WITHDRAWN" ||
+    certificate.status === "RETIRED" ||
+    certificate.status === "REVOKED" ||
+    (certificate as any).isWithdrawn ||
+    (certificate as any).isRetired;
+
+  if (isWithdrawn) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+        <div className="w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 text-center space-y-4 shadow-2xl border-2 border-amber-400">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600 text-3xl font-bold shadow-sm">
+            ⚠️
+          </div>
+          <h3 className="text-xl sm:text-2xl font-black text-slate-900">Certificate Withdrawn</h3>
+          <p className="text-sm text-slate-600 leading-relaxed">
+            This CPR Champion certificate has been withdrawn by the national administration and is no longer valid.
+          </p>
+          <div className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-xs font-mono text-slate-700">
+            {certificate.certificateNumber} • {certificate.participantName}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-800 transition cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const isDriveHosted = Boolean(certificate.driveLink && !certificate.svg);
   const driveFileId = certificate.driveLink ? extractGoogleDriveFileId(certificate.driveLink) : "";
   const embedDriveUrl = driveFileId

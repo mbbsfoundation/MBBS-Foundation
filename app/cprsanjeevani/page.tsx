@@ -841,91 +841,156 @@ export default function SanjeevaniAdminProtectedPortalPage() {
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {certificatesList.map((cert, index) => (
-                    <div
-                      key={cert.certificateNumber || index}
-                      className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 hover:border-teal-500 transition shadow-sm space-y-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-mono text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-md">
-                          {cert.certificateNumber}
-                        </span>
-                        <span
-                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${
-                            cert.category === "CPR Facility / Venue"
-                              ? "bg-indigo-700 text-white"
-                              : cert.category === "CPR Champion"
-                              ? "bg-amber-100 text-amber-900"
-                              : "bg-teal-100 text-teal-900"
-                          }`}
+                  {certificatesList.map((cert, index) => {
+                    const isWithdrawn =
+                      cert.status === "WITHDRAWN" ||
+                      cert.status === "RETIRED" ||
+                      cert.status === "REVOKED" ||
+                      Boolean((cert as any).isWithdrawn) ||
+                      Boolean((cert as any).isRetired);
+
+                    if (isWithdrawn) {
+                      return (
+                        <div
+                          key={cert.certificateNumber || index}
+                          className="rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-5 shadow-sm space-y-3"
                         >
-                          {cert.category || "Participant"}
-                        </span>
-                      </div>
-
-                      <div>
-                        <h4 className="text-base font-bold text-slate-900">
-                          {cert.participantName}
-                        </h4>
-                        <p className="text-xs text-teal-700 font-semibold mt-0.5">
-                          {cert.courseTitle}
-                        </p>
-                      </div>
-
-                      <div className="text-xs text-slate-600 space-y-1 pt-1 border-t border-slate-200">
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Venue:</span>
-                          <span className="font-semibold text-slate-800 text-right max-w-[200px] truncate" title={cert.venueName}>
-                            {cert.venueName || "—"}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Location:</span>
-                          <span className="font-semibold text-slate-800">
-                            {cert.city ? `${cert.city}, ${cert.state}` : cert.state}
-                          </span>
-                        </div>
-
-                        <div className="flex justify-between">
-                          <span className="text-slate-500">Date:</span>
-                          <span className="font-semibold text-slate-800">{cert.issueDate}</span>
-                        </div>
-
-                        {cert.courseCoordinator && (
-                          <div className="flex justify-between">
-                            <span className="text-slate-500">Coordinator:</span>
-                            <span className="font-semibold text-slate-800 text-right max-w-[200px] truncate" title={cert.courseCoordinator}>
-                              {cert.courseCoordinator}
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-md">
+                              {cert.certificateNumber}
+                            </span>
+                            <span className="rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-red-100 border border-red-300 text-red-800">
+                              ⛔ WITHDRAWN
                             </span>
                           </div>
-                        )}
-                      </div>
 
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenPreview(cert)}
-                          className="flex-1 rounded-xl bg-teal-800 py-2.5 text-xs font-bold text-white hover:bg-teal-900 transition text-center cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
-                        >
-                          👁️ Preview
-                        </button>
+                          <div>
+                            <h4 className="text-base font-bold text-slate-900">
+                              {cert.participantName}
+                            </h4>
+                            <p className="text-xs text-amber-800 font-semibold mt-0.5">
+                              {cert.courseTitle}
+                            </p>
+                          </div>
 
-                        {cert.driveLink && (
-                          <a
-                            href={cert.downloadUrl || cert.driveLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download
-                            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition flex items-center justify-center gap-1"
-                            title="Download Certificate"
+                          <div className="rounded-xl border border-amber-300 bg-amber-100/70 p-3 text-xs text-amber-950 font-medium">
+                            ⚠️ This certificate has been withdrawn by the national administration and is no longer valid.
+                          </div>
+
+                          <div className="text-xs text-slate-600 space-y-1 pt-1 border-t border-amber-200">
+                            {cert.venueName && (
+                              <div className="flex justify-between">
+                                <span className="text-slate-500">Venue:</span>
+                                <span className="font-semibold text-slate-800 text-right max-w-[200px] truncate" title={cert.venueName}>
+                                  {cert.venueName}
+                                </span>
+                              </div>
+                            )}
+                            <div className="flex justify-between">
+                              <span className="text-slate-500">Location:</span>
+                              <span className="font-semibold text-slate-800">
+                                {cert.city ? `${cert.city}, ${cert.state}` : cert.state}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-500">Date:</span>
+                              <span className="font-semibold text-slate-800">{cert.issueDate}</span>
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-amber-200 text-center text-xs font-bold text-red-700">
+                            Downloads &amp; Verification Disabled
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={cert.certificateNumber || index}
+                        className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 hover:border-teal-500 transition shadow-sm space-y-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-md">
+                            {cert.certificateNumber}
+                          </span>
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider ${
+                              cert.category === "CPR Facility / Venue"
+                                ? "bg-indigo-700 text-white"
+                                : cert.category === "CPR Champion"
+                                ? "bg-amber-100 text-amber-900"
+                                : "bg-teal-100 text-teal-900"
+                            }`}
                           >
-                            📥 Download
-                          </a>
-                        )}
+                            {cert.category || "Participant"}
+                          </span>
+                        </div>
+
+                        <div>
+                          <h4 className="text-base font-bold text-slate-900">
+                            {cert.participantName}
+                          </h4>
+                          <p className="text-xs text-teal-700 font-semibold mt-0.5">
+                            {cert.courseTitle}
+                          </p>
+                        </div>
+
+                        <div className="text-xs text-slate-600 space-y-1 pt-1 border-t border-slate-200">
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Venue:</span>
+                            <span className="font-semibold text-slate-800 text-right max-w-[200px] truncate" title={cert.venueName}>
+                              {cert.venueName || "—"}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Location:</span>
+                            <span className="font-semibold text-slate-800">
+                              {cert.city ? `${cert.city}, ${cert.state}` : cert.state}
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Date:</span>
+                            <span className="font-semibold text-slate-800">{cert.issueDate}</span>
+                          </div>
+
+                          {cert.courseCoordinator && (
+                            <div className="flex justify-between">
+                              <span className="text-slate-500">Coordinator:</span>
+                              <span className="font-semibold text-slate-800 text-right max-w-[200px] truncate" title={cert.courseCoordinator}>
+                                {cert.courseCoordinator}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-2 border-t border-slate-200">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPreview(cert)}
+                            className="flex-1 rounded-xl bg-teal-800 py-2.5 text-xs font-bold text-white hover:bg-teal-900 transition text-center cursor-pointer shadow-xs flex items-center justify-center gap-1.5"
+                          >
+                            👁️ Preview
+                          </button>
+
+                          {cert.driveLink && (
+                            <a
+                              href={cert.downloadUrl || cert.driveLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                              className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100 transition flex items-center justify-center gap-1"
+                              title="Download Certificate"
+                            >
+                              📥 Download
+                            </a>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

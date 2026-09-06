@@ -8,6 +8,7 @@ import {
   getHighestCPRFacilitySequence,
   getAllCPRCertificates,
   searchCertificateById,
+  invalidateRetiredChampionCache,
 } from "@/lib/cprCertificates";
 
 export type CertificateCategory =
@@ -1927,6 +1928,7 @@ export async function retireChampionCertificateAsync(options: ChampionRetirement
       });
 
       invalidateStorageCache();
+      invalidateRetiredChampionCache();
       return {
         success: true,
         message: `Champion certificate ${normId} successfully retired.`,
@@ -1965,6 +1967,7 @@ export async function retireChampionCertificateAsync(options: ChampionRetirement
     });
 
     invalidateStorageCache();
+    invalidateRetiredChampionCache();
     return {
       success: true,
       message: `Historical champion certificate ${normId} successfully retired via overlay.`,
@@ -2042,6 +2045,7 @@ export async function restoreChampionCertificateAsync(options: ChampionRestoreOp
     });
 
     invalidateStorageCache();
+    invalidateRetiredChampionCache();
     return {
       success: true,
       message: `Champion certificate ${normId} restored to active status successfully.`,

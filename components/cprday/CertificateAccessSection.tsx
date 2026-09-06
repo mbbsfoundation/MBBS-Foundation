@@ -17,6 +17,8 @@ type Certificate = {
   issueDate: string;
   status: string;
   category: string;
+  isWithdrawn?: boolean;
+  isRetired?: boolean;
   driveLink?: string;
   downloadUrl?: string;
   previewUrl?: string;
@@ -750,180 +752,269 @@ export default function CertificateAccessSection() {
           {/* Display Certificate Results */}
           {certificates && certificates.length > 0 && (
             <div className="mt-8 space-y-6">
-              <div className="flex items-center justify-between border-b border-emerald-200 pb-3">
-                <h4 className="text-base sm:text-lg font-bold text-emerald-800 flex items-center gap-2">
-                  <span className="inline-block h-3 w-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                  Certificate Verified ({certificates.length})
+              <div className="flex items-center justify-between border-b border-purple-200 pb-3">
+                <h4 className="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className={`inline-block h-3 w-3 rounded-full ${certificates.some(c => c.status === "WITHDRAWN" || c.status === "RETIRED" || c.isWithdrawn || c.isRetired) ? "bg-amber-500" : "bg-emerald-500 animate-pulse"}`}></span>
+                  Certificate {certificates.some(c => c.status === "WITHDRAWN" || c.status === "RETIRED" || c.isWithdrawn || c.isRetired) ? "Status" : "Verified"} ({certificates.length})
                 </h4>
               </div>
 
-              {certificates.map((cert, index) => (
-                <div
-                  key={cert.certificateNumber || index}
-                  className="overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-50/60 via-teal-50/30 to-sky-50/40 p-5 sm:p-8 shadow-xl relative"
-                >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div className="space-y-3 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-sm">
-                          {cert.category === "CPR Facility / Venue" || isFacilityPortal
-                            ? "Venue Code:"
-                            : "Certificate ID:"}
-                        </span>
-                        <span className="font-mono text-sm sm:text-base font-black text-emerald-950">
-                          {cert.certificateNumber}
-                        </span>
-                        <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
-                          ✓ {cert.status || "VALID"}
-                        </span>
-                      </div>
+              {certificates.map((cert, index) => {
+                const isWithdrawn =
+                  cert.status === "WITHDRAWN" ||
+                  cert.status === "RETIRED" ||
+                  cert.status === "REVOKED" ||
+                  Boolean(cert.isWithdrawn) ||
+                  Boolean(cert.isRetired);
 
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-black text-slate-900">
-                          {cert.participantName}
-                        </h3>
-                        <p className="text-xs sm:text-sm font-semibold text-emerald-800 mt-0.5">
-                          {cert.courseTitle}
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700 pt-1">
-                        {!isFacilityPortal && cert.category !== "CPR Facility / Venue" && (
-                          <div>
-                            <span className="text-slate-500 font-medium">Training Venue: </span>
-                            <strong className="text-slate-900">{cert.venueName || "—"}</strong>
+                if (isWithdrawn) {
+                  return (
+                    <div
+                      key={cert.certificateNumber || index}
+                      className="overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-amber-400 bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-red-50/30 p-5 sm:p-8 shadow-xl relative"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="space-y-3 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="rounded-full bg-amber-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-sm">
+                              {cert.category === "CPR Facility / Venue" || isFacilityPortal
+                                ? "Venue Code:"
+                                : "Certificate ID:"}
+                            </span>
+                            <span className="font-mono text-sm sm:text-base font-black text-amber-950">
+                              {cert.certificateNumber}
+                            </span>
+                            <span className="rounded-full bg-red-100 border border-red-300 px-2.5 py-0.5 text-[11px] font-bold text-red-800">
+                              ⛔ Certificate Withdrawn
+                            </span>
                           </div>
-                        )}
-                        <div>
-                          <span className="text-slate-500 font-medium">Location: </span>
-                          <strong className="text-slate-900">
-                            {cert.city ? `${cert.city}, ${cert.state}` : cert.state}
-                          </strong>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 font-medium">Issue Date: </span>
-                          <strong className="text-slate-900">{cert.issueDate || "21 July 2026"}</strong>
-                        </div>
-                        {cert.courseCoordinator && (
+
                           <div>
-                            <span className="text-slate-500 font-medium">Coordinator: </span>
-                            <strong className="text-slate-900">{cert.courseCoordinator}</strong>
+                            <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                              {cert.participantName}
+                            </h3>
+                            <p className="text-xs sm:text-sm font-semibold text-amber-900 mt-0.5">
+                              {cert.courseTitle || "National IAP CPR Sanjeevani Champion Certificate"}
+                            </p>
+                          </div>
+
+                          {/* Official Withdrawal Alert Notice */}
+                          <div className="rounded-xl border border-amber-300 bg-amber-100/70 p-4 text-xs sm:text-sm text-amber-950 font-medium">
+                            <p className="font-bold text-amber-900 flex items-center gap-1.5 text-sm sm:text-base">
+                              <span>⚠️</span> Certificate Withdrawn
+                            </p>
+                            <p className="mt-1 leading-relaxed">
+                              This CPR Champion certificate has been withdrawn by the national administration and is no longer valid.
+                            </p>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700 pt-1">
+                            {!isFacilityPortal && cert.category !== "CPR Facility / Venue" && cert.venueName && (
+                              <div>
+                                <span className="text-slate-500 font-medium">Training Venue: </span>
+                                <strong className="text-slate-900">{cert.venueName}</strong>
+                              </div>
+                            )}
+                            {cert.state && (
+                              <div>
+                                <span className="text-slate-500 font-medium">Location: </span>
+                                <strong className="text-slate-900">
+                                  {cert.city ? `${cert.city}, ${cert.state}` : cert.state}
+                                </strong>
+                              </div>
+                            )}
+                            <div>
+                              <span className="text-slate-500 font-medium">Issue Date: </span>
+                              <strong className="text-slate-900">{cert.issueDate || "21 July 2026"}</strong>
+                            </div>
+                            {cert.courseCoordinator && (
+                              <div>
+                                <span className="text-slate-500 font-medium">Coordinator: </span>
+                                <strong className="text-slate-900">{cert.courseCoordinator}</strong>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Status Label - NO Action Buttons */}
+                        <div className="flex flex-col items-center justify-center p-5 rounded-2xl bg-amber-100/80 border border-amber-300/80 text-center shrink-0 min-w-[160px]">
+                          <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">Public Status</span>
+                          <span className="text-sm sm:text-base font-black text-red-700 mt-1">Invalid / Withdrawn</span>
+                          <span className="text-[10px] text-amber-700 mt-1">Downloads Disabled</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={cert.certificateNumber || index}
+                    className="overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-50/60 via-teal-50/30 to-sky-50/40 p-5 sm:p-8 shadow-xl relative"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                      <div className="space-y-3 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow-sm">
+                            {cert.category === "CPR Facility / Venue" || isFacilityPortal
+                              ? "Venue Code:"
+                              : "Certificate ID:"}
+                          </span>
+                          <span className="font-mono text-sm sm:text-base font-black text-emerald-950">
+                            {cert.certificateNumber}
+                          </span>
+                          <span className="rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">
+                            ✓ {cert.status || "VALID"}
+                          </span>
+                        </div>
+
+                        <div>
+                          <h3 className="text-xl sm:text-2xl font-black text-slate-900">
+                            {cert.participantName}
+                          </h3>
+                          <p className="text-xs sm:text-sm font-semibold text-emerald-800 mt-0.5">
+                            {cert.courseTitle}
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-slate-700 pt-1">
+                          {!isFacilityPortal && cert.category !== "CPR Facility / Venue" && (
+                            <div>
+                              <span className="text-slate-500 font-medium">Training Venue: </span>
+                              <strong className="text-slate-900">{cert.venueName || "—"}</strong>
+                            </div>
+                          )}
+                          <div>
+                            <span className="text-slate-500 font-medium">Location: </span>
+                            <strong className="text-slate-900">
+                              {cert.city ? `${cert.city}, ${cert.state}` : cert.state}
+                            </strong>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 font-medium">Issue Date: </span>
+                            <strong className="text-slate-900">{cert.issueDate || "21 July 2026"}</strong>
+                          </div>
+                          {cert.courseCoordinator && (
+                            <div>
+                              <span className="text-slate-500 font-medium">Coordinator: </span>
+                              <strong className="text-slate-900">{cert.courseCoordinator}</strong>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0">
+                        {cert.svg ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setActivePreviewCert(cert)}
+                              className="rounded-xl bg-purple-900 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-purple-800 transition flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                              👁️ Preview
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDownloadPdf(cert)}
+                              disabled={downloadingFormat === "pdf"}
+                              className="rounded-xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-center cursor-pointer disabled:opacity-50"
+                            >
+                              {downloadingFormat === "pdf" ? "Rendering..." : "📥 Download PDF"}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDownloadPng(cert)}
+                              disabled={downloadingFormat === "png"}
+                              className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition flex items-center justify-center gap-1.5 text-center cursor-pointer disabled:opacity-50"
+                            >
+                              {downloadingFormat === "png" ? "Rendering..." : "🖼️ PNG"}
+                            </button>
+                          </>
+                        ) : cert.driveLink ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setActivePreviewCert(cert)}
+                              className="rounded-xl bg-purple-900 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-purple-800 transition flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                              👁️ Preview
+                            </button>
+
+                            <a
+                              href={cert.downloadUrl || cert.driveLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                              className="rounded-xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-center"
+                            >
+                              📥 Download Certificate
+                            </a>
+                          </>
+                        ) : (
+                          <div className="text-xs font-semibold text-slate-500 italic">
+                            Official Certificate Verified
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0">
-                      {cert.svg ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => setActivePreviewCert(cert)}
-                            className="rounded-xl bg-purple-900 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-purple-800 transition flex items-center justify-center gap-2 cursor-pointer"
-                          >
-                            👁️ Preview
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadPdf(cert)}
-                            disabled={downloadingFormat === "pdf"}
-                            className="rounded-xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-center cursor-pointer disabled:opacity-50"
-                          >
-                            {downloadingFormat === "pdf" ? "Rendering..." : "📥 Download PDF"}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadPng(cert)}
-                            disabled={downloadingFormat === "png"}
-                            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs hover:bg-slate-50 transition flex items-center justify-center gap-1.5 text-center cursor-pointer disabled:opacity-50"
-                          >
-                            {downloadingFormat === "png" ? "Rendering..." : "🖼️ PNG"}
-                          </button>
-                        </>
-                      ) : cert.driveLink ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => setActivePreviewCert(cert)}
-                            className="rounded-xl bg-purple-900 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-purple-800 transition flex items-center justify-center gap-2 cursor-pointer"
-                          >
-                            👁️ Preview
-                          </button>
-
-                          <a
-                            href={cert.downloadUrl || cert.driveLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download
-                            className="rounded-xl bg-emerald-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-emerald-800 transition flex items-center justify-center gap-2 text-center"
-                          >
-                            📥 Download Certificate
-                          </a>
-                        </>
+                    {/* Rating & Feedback Box */}
+                    <div className="mt-6 pt-5 border-t border-emerald-200/80">
+                      {ratedCerts.has(cert.certificateNumber) ? (
+                        <div className="rounded-xl bg-emerald-100/80 p-3 text-center text-xs font-bold text-emerald-800">
+                          ⭐ Thank you! Your feedback has been recorded.
+                        </div>
                       ) : (
-                        <div className="text-xs font-semibold text-slate-500 italic">
-                          Official Certificate Verified
+                        <div className="space-y-3">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                              Rate your CPR Sanjeevani training experience:
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                  key={star}
+                                  type="button"
+                                  onClick={() => setRatingInput(star)}
+                                  onMouseEnter={() => setHoverRating(star)}
+                                  onMouseLeave={() => setHoverRating(0)}
+                                  className="text-xl sm:text-2xl transition hover:scale-110 focus:outline-none cursor-pointer"
+                                >
+                                  {star <= (hoverRating || ratingInput) ? "★" : "☆"}
+                                </button>
+                              ))}
+                              <span className="ml-2 text-xs font-bold text-slate-600">
+                                {hoverRating || ratingInput} / 5
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <input
+                              type="text"
+                              value={feedbackText}
+                              onChange={(e) => setFeedbackText(e.target.value)}
+                              placeholder="Optional feedback (e.g. Excellent hands-on session, well organized)..."
+                              className="flex-1 rounded-xl border border-emerald-200 bg-white px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none"
+                            />
+                            <button
+                              type="button"
+                              disabled={submittingRating}
+                              onClick={() => handleRatingSubmit(cert)}
+                              className="rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50 transition cursor-pointer"
+                            >
+                              {submittingRating ? "Submitting..." : "Submit Rating"}
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
                   </div>
-
-                  {/* Rating & Feedback Box */}
-                  <div className="mt-6 pt-5 border-t border-emerald-200/80">
-                    {ratedCerts.has(cert.certificateNumber) ? (
-                      <div className="rounded-xl bg-emerald-100/80 p-3 text-center text-xs font-bold text-emerald-800">
-                        ⭐ Thank you! Your feedback has been recorded.
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                            Rate your CPR Sanjeevani training experience:
-                          </span>
-                          <div className="flex items-center gap-1">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <button
-                                key={star}
-                                type="button"
-                                onClick={() => setRatingInput(star)}
-                                onMouseEnter={() => setHoverRating(star)}
-                                onMouseLeave={() => setHoverRating(0)}
-                                className="text-xl sm:text-2xl transition hover:scale-110 focus:outline-none cursor-pointer"
-                              >
-                                {star <= (hoverRating || ratingInput) ? "★" : "☆"}
-                              </button>
-                            ))}
-                            <span className="ml-2 text-xs font-bold text-slate-600">
-                              {hoverRating || ratingInput} / 5
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <input
-                            type="text"
-                            value={feedbackText}
-                            onChange={(e) => setFeedbackText(e.target.value)}
-                            placeholder="Optional feedback (e.g. Excellent hands-on session, well organized)..."
-                            className="flex-1 rounded-xl border border-emerald-200 bg-white px-3.5 py-2 text-xs text-slate-900 placeholder-slate-400 focus:border-emerald-500 focus:outline-none"
-                          />
-                          <button
-                            type="button"
-                            disabled={submittingRating}
-                            onClick={() => handleRatingSubmit(cert)}
-                            className="rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-800 disabled:opacity-50 transition cursor-pointer"
-                          >
-                            {submittingRating ? "Submitting..." : "Submit Rating"}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

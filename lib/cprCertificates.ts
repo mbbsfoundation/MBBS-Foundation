@@ -125,7 +125,6 @@ export async function getRetiredChampionIdsAsync(forceRefresh = false): Promise<
     try {
       const retiredRecords = await (prisma as any).adminCertificateRecord.findMany({
         where: {
-          category: "CPR_CHAMPION",
           status: "RETIRED",
         },
         select: {

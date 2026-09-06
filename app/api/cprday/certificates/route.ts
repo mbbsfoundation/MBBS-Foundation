@@ -8,6 +8,7 @@ import {
   getCertificateVenues,
   getCertificateParticipants,
   searchCertificateByHierarchy,
+  getRetiredChampionIdsAsync,
   CPRCertificatePortal,
   CPRCertificateRecord,
 } from "@/lib/cprCertificates";
@@ -151,6 +152,15 @@ function formatSanjeevaniRecord(rec: SanjeevaniCertificateRecord) {
  */
 function ensureCertificateRenderFields(cert: any) {
   if (!cert) return cert;
+  if (
+    cert.status === "WITHDRAWN" ||
+    cert.status === "RETIRED" ||
+    cert.status === "REVOKED" ||
+    cert.isWithdrawn ||
+    cert.isRetired
+  ) {
+    return cert;
+  }
   if (!cert.driveLink && !cert.svg) {
     const certNum = cert.certificateNumber || cert.certificateId || "";
     const pName = cert.participantName || cert.venueName || "";
@@ -182,6 +192,9 @@ function ensureCertificateRenderFields(cert: any) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Prime the latest retired champion overlay from PostgreSQL for 100% cross-instance safety
+    const retiredChampionIds = await getRetiredChampionIdsAsync(true);
+
     const { searchParams } = new URL(request.url);
     const action = searchParams.get("action")?.trim();
     const certId = searchParams.get("id")?.trim() || searchParams.get("certificateId")?.trim();
@@ -212,6 +225,9 @@ export async function GET(request: NextRequest) {
       if (prisma && (prisma as any).adminCertificateRecord) {
         try {
           const dbStates = await (prisma as any).adminCertificateRecord.findMany({
+            where: {
+              status: { not: "RETIRED" },
+            },
             select: { state: true },
             distinct: ["state"],
           });
@@ -246,6 +262,7 @@ export async function GET(request: NextRequest) {
           const dbCities = await (prisma as any).adminCertificateRecord.findMany({
             where: {
               state: { equals: state, mode: "insensitive" },
+              status: { not: "RETIRED" },
             },
             select: { city: true },
             distinct: ["city"],
@@ -283,6 +300,7 @@ export async function GET(request: NextRequest) {
             where: {
               state: { equals: state, mode: "insensitive" },
               city: { equals: city, mode: "insensitive" },
+              status: { not: "RETIRED" },
             },
             select: { venueName: true },
             distinct: ["venueName"],
@@ -323,11 +341,17 @@ export async function GET(request: NextRequest) {
               state: { equals: state, mode: "insensitive" },
               city: { equals: city, mode: "insensitive" },
               venueName: { equals: venue, mode: "insensitive" },
+              status: { not: "RETIRED" },
             },
-            select: { name: true },
+            select: { name: true, certificateId: true },
           });
           for (const p of dbParticipants) {
-            if (p.name && p.name.trim()) participants.push(p.name.trim());
+            if (p.name && p.name.trim()) {
+              const pCertId = (p.certificateId || "").trim().toUpperCase();
+              if (!pCertId || !retiredChampionIds.has(pCertId)) {
+                participants.push(p.name.trim());
+              }
+            }
           }
         } catch (e) {
           // safe db fallback
@@ -365,6 +389,7 @@ export async function GET(request: NextRequest) {
           const whereClause: any = {
             state: { equals: state, mode: "insensitive" },
             name: { equals: participant, mode: "insensitive" },
+            status: { not: "RETIRED" },
           };
           if (city) {
             whereClause.city = { equals: city, mode: "insensitive" };
@@ -424,8 +449,16 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      if (results.length > 0) {
-        const deduplicated = deduplicatePersonRecords(results).map(ensureCertificateRenderFields);
+      // Filter out any retired / withdrawn certificates from hierarchy results
+      const activeResults = results.filter(
+        (r) =>
+          !retiredChampionIds.has((r.certificateNumber || "").trim().toUpperCase()) &&
+          r.status !== "RETIRED" &&
+          r.status !== "WITHDRAWN"
+      );
+
+      if (activeResults.length > 0) {
+        const deduplicated = deduplicatePersonRecords(activeResults).map(ensureCertificateRenderFields);
         return NextResponse.json({ success: true, certificates: deduplicated });
       }
 
@@ -439,10 +472,11 @@ export async function GET(request: NextRequest) {
     if (certId) {
       const normalizedCertId = certId.toUpperCase();
 
-      // Step 0: Check if Certificate is Administratively Retired in PostgreSQL
+      // Step 0: Check if Certificate is Administratively Retired in PostgreSQL or active retired set
+      let retiredRec: any = null;
       if (prisma) {
         try {
-          const retiredRec = await prisma.adminCertificateRecord.findFirst({
+          retiredRec = await prisma.adminCertificateRecord.findFirst({
             where: {
               OR: [
                 { certificateId: { equals: normalizedCertId, mode: "insensitive" } },
@@ -451,31 +485,35 @@ export async function GET(request: NextRequest) {
               status: "RETIRED",
             },
           });
-
-          if (retiredRec) {
-            return NextResponse.json({
-              success: true,
-              isRetired: true,
-              status: "RETIRED",
-              message: "This certificate has been administratively withdrawn/retired by the course coordinator.",
-              certificate: {
-                certificateNumber: retiredRec.certificateId,
-                participantName: retiredRec.name,
-                category: retiredRec.category === "CPR_CHAMPION" ? "CPR Champion" : retiredRec.category,
-                courseTitle: "National IAP CPR Sanjeevani Champion Certificate",
-                venueName: retiredRec.venueName || retiredRec.name,
-                city: retiredRec.city || "",
-                state: retiredRec.state,
-                issueDate: retiredRec.certificateDate || "21 July 2026",
-                status: "RETIRED",
-                isRetired: true,
-                portalType: "champion",
-              },
-            });
-          }
         } catch (e) {
           // safe db fallback
         }
+      }
+
+      if (retiredRec || retiredChampionIds.has(normalizedCertId)) {
+        return NextResponse.json({
+          success: true,
+          isWithdrawn: true,
+          isRetired: true,
+          status: "WITHDRAWN",
+          title: "Certificate Withdrawn",
+          message: "This CPR Champion certificate has been withdrawn by the national administration and is no longer valid.",
+          error: "This CPR Champion certificate has been withdrawn by the national administration and is no longer valid.",
+          certificate: {
+            certificateNumber: retiredRec?.certificateId || normalizedCertId,
+            participantName: retiredRec?.name || "",
+            category: "CPR Champion",
+            courseTitle: "National IAP CPR Sanjeevani Champion Certificate",
+            venueName: retiredRec?.venueName || "",
+            city: retiredRec?.city || "",
+            state: retiredRec?.state || "",
+            issueDate: retiredRec?.certificateDate || "21 July 2026",
+            status: "WITHDRAWN",
+            isWithdrawn: true,
+            isRetired: true,
+            portalType: "champion",
+          },
+        });
       }
 
       // Step 1: Check CPR Day CSV records
@@ -755,8 +793,18 @@ export async function GET(request: NextRequest) {
         allFoundCerts.push(...sanjFormatted);
       }
 
-      if (allFoundCerts.length > 0) {
-        const deduplicated = deduplicatePersonRecords(allFoundCerts).map(ensureCertificateRenderFields);
+      const activeFoundCerts = allFoundCerts.filter((c) => {
+        const cNum = (c.certificateNumber || c.certificateId || "").trim().toUpperCase();
+        return (
+          !retiredChampionIds.has(cNum) &&
+          c.status !== "RETIRED" &&
+          c.status !== "WITHDRAWN" &&
+          c.status !== "REVOKED"
+        );
+      });
+
+      if (activeFoundCerts.length > 0) {
+        const deduplicated = deduplicatePersonRecords(activeFoundCerts).map(ensureCertificateRenderFields);
         return NextResponse.json({
           success: true,
           certificates: deduplicated,

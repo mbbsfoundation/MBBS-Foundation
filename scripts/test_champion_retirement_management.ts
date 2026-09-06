@@ -290,8 +290,62 @@ async function runTests() {
   }
   console.log(`✓ Historical CSV champion overlay retirement, active suppression, and restoration verified.`);
 
+  // Test 11: Public /api/cprday/certificates Route Regression Test (Genuine Case)
+  console.log("\n>>> Test 11: Public /api/cprday/certificates Route Regression Test (Genuine Case IAPCPR/CH/CG/0126)...");
+  const { GET: getCertificatesRoute } = await import("../app/api/cprday/certificates/route");
+  const { NextRequest } = await import("next/server");
+
+  // 11a: Location dropdown discovery (participants action)
+  const reqParticipants = new NextRequest("http://localhost:3000/api/cprday/certificates?action=participants&portal=champion&state=Chhattisgarh&city=Bilaspur&venue=SHREE%20PADMAKSHI%20GLOBAL%20SCHOOL,%20BILASPUR");
+  const resParticipants = await getCertificatesRoute(reqParticipants);
+  const dataParticipants = await resParticipants.json();
+  console.log("Participants in Shree Padmakshi Global School, Bilaspur:", dataParticipants.participants);
+  if (dataParticipants.participants.includes("ANURAG GOYAL")) {
+    throw new Error("FAIL: Retired champion ANURAG GOYAL found in public location participants list!");
+  }
+  console.log("✓ Retired champion ANURAG GOYAL correctly excluded from location hierarchy discovery.");
+
+  // 11b: Exact ID lookup
+  const reqExact = new NextRequest("http://localhost:3000/api/cprday/certificates?id=IAPCPR/CH/CG/0126");
+  const resExact = await getCertificatesRoute(reqExact);
+  const dataExact = await resExact.json();
+  console.log("Exact ID Lookup Result for IAPCPR/CH/CG/0126:", {
+    status: dataExact.status,
+    isWithdrawn: dataExact.isWithdrawn,
+    isRetired: dataExact.isRetired,
+    hasSvg: Boolean(dataExact.certificate?.svg),
+  });
+  if (dataExact.status !== "WITHDRAWN" || !dataExact.isWithdrawn || !dataExact.isRetired) {
+    throw new Error("FAIL: Retired certificate exact ID lookup did not return WITHDRAWN status!");
+  }
+  if (dataExact.certificate?.svg) {
+    throw new Error("FAIL: Retired certificate should NOT render SVG!");
+  }
+  console.log("✓ Exact ID lookup returns WITHDRAWN status with no SVG generated.");
+
+  // 11c: Hierarchy search
+  const reqHierarchy = new NextRequest("http://localhost:3000/api/cprday/certificates?action=search-hierarchy&portal=champion&state=Chhattisgarh&city=Bilaspur&venue=SHREE%20PADMAKSHI%20GLOBAL%20SCHOOL,%20BILASPUR&participant=ANURAG%20GOYAL");
+  const resHierarchy = await getCertificatesRoute(reqHierarchy);
+  const dataHierarchy = await resHierarchy.json();
+  if (dataHierarchy.success) {
+    throw new Error("FAIL: Hierarchy search returned retired champion as active!");
+  }
+  console.log("✓ Hierarchy search correctly rejected for retired champion.");
+
+  // 11d: Active Champion lookup verification
+  const activeChamp = champions.find((c) => c.certificateNumber !== "IAPCPR/CH/CG/0126" && c.state === "Chhattisgarh");
+  if (activeChamp) {
+    const reqActive = new NextRequest(`http://localhost:3000/api/cprday/certificates?id=${activeChamp.certificateNumber}`);
+    const resActive = await getCertificatesRoute(reqActive);
+    const dataActive = await resActive.json();
+    if (!dataActive.success || dataActive.status === "WITHDRAWN" || !dataActive.certificate) {
+      throw new Error(`FAIL: Active champion ${activeChamp.certificateNumber} lookup failed!`);
+    }
+    console.log(`✓ Active champion ${activeChamp.certificateNumber} (${activeChamp.participantName}) verified active and valid.`);
+  }
+
   // Test 10: Snapshot Immutability Check
-  console.log("\n>>> Test 10: Snapshot Integrity Verification...");
+  console.log("\n>>> Test 12: Snapshot Integrity Verification...");
   const finalSnapshotChecksum = getFileChecksum(snapshotPath);
   if (finalSnapshotChecksum !== initialSnapshotChecksum) {
     throw new Error("FAIL: Snapshot file checksum changed during testing!");
@@ -299,7 +353,7 @@ async function runTests() {
   console.log("✓ Snapshot file is 100% frozen and byte-for-byte identical.");
 
   console.log("\n================================================================================");
-  console.log("ALL 10 CHAMPION RETIREMENT / RESTORE TESTS PASSED WITH 100% SUCCESS!");
+  console.log("ALL CHAMPION RETIREMENT / RESTORE & PUBLIC API TESTS PASSED WITH 100% SUCCESS!");
   console.log("================================================================================\n");
 }
 
