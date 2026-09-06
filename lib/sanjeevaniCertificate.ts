@@ -4,15 +4,15 @@ import path from "path";
 export type CertificateCategory = "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" | "COURSE_COORDINATOR";
 
 export interface UnifiedCertData {
-  category?: CertificateCategory;
+  category?: CertificateCategory | string;
   participantName: string;
   date: string;
-  venue: string;
-  city: string;
-  state: string;
-  stateCode: string;
+  venue?: string | null;
+  city?: string | null;
+  state?: string | null;
+  stateCode?: string | null;
   certificateId: string;
-  courseCoordinator?: string;
+  courseCoordinator?: string | null;
 }
 
 export type SanjeevaniCertData = UnifiedCertData;
@@ -147,7 +147,7 @@ function escapeXml(unsafe: string): string {
  * Formats the venue string as "Venue, City, State".
  * Cleans up extra commas or repeated parts if present.
  */
-export function formatVenueString(venue: string, city: string, state: string): string {
+export function formatVenueString(venue?: string | null, city?: string | null, state?: string | null): string {
   const parts: string[] = [];
   const v = (venue || "").trim();
   const c = (city || "").trim();
@@ -186,7 +186,7 @@ function calculateVenueFontSize(venueText: string): number {
 /**
  * Renders the Facility / Venue name and Location with dynamic auto-scaling and clean 2-line/3-line layout.
  */
-function renderFacilityVenueText(venueStr: string, cityStr: string = "", stateStr: string = ""): string {
+function renderFacilityVenueText(venueStr?: string | null, cityStr?: string | null, stateStr?: string | null): string {
   const v = (venueStr || "").trim();
   const c = (cityStr || "").trim();
   const s = (stateStr || "").trim();
@@ -295,12 +295,90 @@ export function formatCertificateFilename(
 }
 
 /**
+ * Checks if a date string corresponds to National IAP CPR Day (21 July 2026).
+ */
+export function isCprDayDate(dateStr?: string): boolean {
+  if (!dateStr) return false;
+  const s = dateStr.trim().toLowerCase();
+  return (
+    s.includes("21 july 2026") ||
+    s.includes("21-07-2026") ||
+    s.includes("2026-07-21") ||
+    s.includes("21/07/2026") ||
+    s.includes("21.07.2026") ||
+    s.includes("21st july 2026")
+  );
+}
+
+/**
+ * Deterministically resolves the canonical CertificateCategory for SVG template selection.
+ * Precedence:
+ * 1. Authoritative Certificate ID prefix:
+ *    - IAPCPR/PA/ -> CPR_DAY (Lay Rescuer CPR Day.svg)
+ *    - IAPCPR/CH/ -> CPR_CHAMPION (CPR Champions.svg)
+ *    - IAPCPR/CC/ -> COURSE_COORDINATOR (Course Coordinator.svg)
+ *    - IAP-CPR-Day/Venue/ or includes VENUE -> CPR_FACILITY (CPR Facility Certificate.svg)
+ *    - IAPCPR/Sanjeevani/ -> SANJEEVANI (cpr sanjeevani certificate 2.svg)
+ * 2. Explicit category string
+ * 3. Date check: 21 July 2026 -> CPR_DAY, other dates -> SANJEEVANI
+ */
+export function resolveCanonicalCertificateCategory(data: UnifiedCertData): CertificateCategory {
+  const certId = (data.certificateId || "").trim().toUpperCase();
+  const rawCat = (data.category || "").toUpperCase();
+  const dateStr = (data.date || "").trim();
+
+  // 1. Authoritative Certificate ID prefix (Strict Prefix Match)
+  if (certId.startsWith("IAPCPR/PA/") || certId.includes("/PA/")) {
+    return "CPR_DAY";
+  }
+  if (certId.startsWith("IAPCPR/CH/")) {
+    return "CPR_CHAMPION";
+  }
+  if (certId.startsWith("IAPCPR/CC/")) {
+    return "COURSE_COORDINATOR";
+  }
+  if (certId.startsWith("IAP-CPR-DAY/VENUE/") || certId.includes("VENUE/") || certId.includes("VENUE-")) {
+    return "CPR_FACILITY";
+  }
+  if (certId.startsWith("IAPCPR/SANJEEVANI/")) {
+    return "SANJEEVANI";
+  }
+
+  // 2. Explicit category field
+  if (rawCat === "CPR_CHAMPION" || rawCat === "CHAMPION" || rawCat === "CPR CHAMPION") {
+    return "CPR_CHAMPION";
+  }
+  if (rawCat === "COURSE_COORDINATOR" || rawCat === "COORDINATOR" || rawCat === "COURSE COORDINATOR") {
+    return "COURSE_COORDINATOR";
+  }
+  if (
+    rawCat === "CPR_FACILITY" ||
+    rawCat === "FACILITY" ||
+    rawCat === "CPR FACILITY / VENUE" ||
+    rawCat.includes("VENUE") ||
+    rawCat.includes("FACILITY")
+  ) {
+    return "CPR_FACILITY";
+  }
+  if (rawCat === "CPR_DAY" || rawCat === "CPR LAY RESCUER" || rawCat.includes("LAY RESCUER")) {
+    return "CPR_DAY";
+  }
+
+  // 3. Date check: 21 July 2026 -> CPR_DAY, other dates -> SANJEEVANI
+  if (isCprDayDate(dateStr)) {
+    return "CPR_DAY";
+  }
+
+  return "SANJEEVANI";
+}
+
+/**
  * Generates the dynamic SVG string for CPR Day, Sanjeevani, CPR Champion, or CPR Facility certificates
  * by injecting dynamic placeholders into the appropriate master SVG template while preserving
  * all existing elements, fonts, logos, borders, and signatures.
  */
 export function generateUnifiedCertificateSvg(data: UnifiedCertData): string {
-  const category: CertificateCategory = data.category || "SANJEEVANI";
+  const category: CertificateCategory = resolveCanonicalCertificateCategory(data);
   const masterSvg = getMasterSvgTemplate(category);
 
   const name = data.participantName.trim();

@@ -160,11 +160,11 @@ function loadStoredAdminRecords(portal: CPRCertificatePortal): CPRCertificateRec
       const rawCat = (sc.category || "").toUpperCase();
 
       let recPortal: CPRCertificatePortal = "participant";
-      if (rawCat === "CPR_CHAMPION" || cId.includes("/CH/")) {
+      if (rawCat === "CPR_CHAMPION" || cId.startsWith("IAPCPR/CH/")) {
         recPortal = "champion";
-      } else if (rawCat === "COURSE_COORDINATOR" || cId.includes("/CC/")) {
+      } else if (rawCat === "COURSE_COORDINATOR" || rawCat === "COORDINATOR" || cId.startsWith("IAPCPR/CC/")) {
         recPortal = "coordinator";
-      } else if (rawCat === "CPR_FACILITY" || cId.includes("VENUE") || cId.includes("FACILITY")) {
+      } else if (rawCat === "CPR_FACILITY" || cId.startsWith("IAP-CPR-DAY/VENUE/") || cId.startsWith("IAPCPR/FACILITY/") || cId.startsWith("IAPCPR/VENUE/") || cId.includes("VENUE") || cId.includes("FACILITY")) {
         recPortal = "facility";
       } else {
         recPortal = "participant";

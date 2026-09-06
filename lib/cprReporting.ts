@@ -522,8 +522,8 @@ export function loadUnifiedLiveCPRDayData(forceRefresh = false): LiveCPRDayState
     const canonicalState = normalizeDisplayState(s.state || "");
     const stateCode = normalizeStateCode(s.stateCode || canonicalState);
 
-    const isCoord = (s.category as string) === "COORDINATOR" || s.certificateId.includes("/CC/");
-    const isChamp = s.category === "CPR_CHAMPION" || s.certificateId.includes("/CH/");
+    const isCoord = (s.category as string) === "COORDINATOR" || (s.category as string) === "COURSE_COORDINATOR" || (s.certificateId && s.certificateId.startsWith("IAPCPR/CC/"));
+    const isChamp = s.category === "CPR_CHAMPION" || (s.certificateId && s.certificateId.startsWith("IAPCPR/CH/"));
 
     const rec: UnifiedLiveCPRDayRecord = {
       sourceType: "STORAGE_JSON",

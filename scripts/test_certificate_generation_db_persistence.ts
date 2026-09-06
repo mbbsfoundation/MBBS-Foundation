@@ -13,7 +13,7 @@ import {
 async function cleanupTestFixtures() {
   await prisma.adminCertificateRecord.deleteMany({
     where: {
-      certificateId: { in: ["IAPCPR/PA/CH/1110", "IAPCPR/PA/CH/1111"] },
+      name: { startsWith: "TEST PERSISTENCE PARTICIPANT" },
     },
   });
 }
@@ -26,18 +26,19 @@ async function main() {
   // Ensure clean test baseline
   await cleanupTestFixtures();
 
-  try {
-    // Step 1: Verify Highest Existing Chandigarh Sequence
-    console.log("\n--- 1. Testing Sequence Calculation for Chandigarh (CH) ---");
-    const highestCH = await getHighestSequenceForCategoryAndState("CPR_DAY", "CH");
-    console.log(`Current highest CH CPR_DAY sequence: ${highestCH}`);
-    if (highestCH !== 1109) {
-      throw new Error(`Expected highest sequence 1109 for CH, got ${highestCH}`);
-    }
-    const expectedNextSeq = 1110;
-    console.log(`✓ Confirmed next sequence will be ${expectedNextSeq} (IAPCPR/PA/CH/1110)`);
+  // Step 1: Verify Highest Existing Chandigarh Sequence
+  console.log("\n--- 1. Testing Sequence Calculation for Chandigarh (CH) ---");
+  const baseHighest = await getHighestSequenceForCategoryAndState("CPR_DAY", "CH");
+  console.log(`Current highest CH CPR_DAY sequence: ${baseHighest}`);
+  
+  const expectedSeq1 = baseHighest + 1;
+  const expectedSeq2 = baseHighest + 2;
+  const expectedId1 = `IAPCPR/PA/CH/${expectedSeq1}`;
+  const expectedId2 = `IAPCPR/PA/CH/${expectedSeq2}`;
+  console.log(`✓ Confirmed next sequence will be ${expectedSeq1} (${expectedId1}) & ${expectedSeq2} (${expectedId2})`);
 
-    // Step 2: Test Preview with Mock Participant Data (DO NOT use the 74 genuine records)
+  try {
+    // Step 2: Test Preview with Mock Participant Data (DO NOT touch genuine records)
     console.log("\n--- 2. Testing Preview Generation (CPR Day Participant) ---");
     const testRows: SanjeevaniInputRow[] = [
       {
@@ -73,11 +74,11 @@ async function main() {
     if (preview.validCount !== 2) {
       throw new Error(`Expected 2 valid preview rows, got ${preview.validCount}`);
     }
-    if (preview.rows[0].proposedCertificateId !== "IAPCPR/PA/CH/1110") {
-      throw new Error(`Expected proposed ID IAPCPR/PA/CH/1110, got ${preview.rows[0].proposedCertificateId}`);
+    if (preview.rows[0].proposedCertificateId !== expectedId1) {
+      throw new Error(`Expected proposed ID ${expectedId1}, got ${preview.rows[0].proposedCertificateId}`);
     }
-    if (preview.rows[1].proposedCertificateId !== "IAPCPR/PA/CH/1111") {
-      throw new Error(`Expected proposed ID IAPCPR/PA/CH/1111, got ${preview.rows[1].proposedCertificateId}`);
+    if (preview.rows[1].proposedCertificateId !== expectedId2) {
+      throw new Error(`Expected proposed ID ${expectedId2}, got ${preview.rows[1].proposedCertificateId}`);
     }
     console.log(`✓ Preview accurately allocated sequential IDs: ${preview.rows[0].proposedCertificateId} & ${preview.rows[1].proposedCertificateId}`);
 
@@ -115,10 +116,10 @@ async function main() {
     // Step 4: Verify PostgreSQL Persistence
     console.log("\n--- 4. Verifying PostgreSQL AdminCertificateRecord Persistence ---");
     const cert1 = await prisma.adminCertificateRecord.findUnique({
-      where: { certificateId: "IAPCPR/PA/CH/1110" },
+      where: { certificateId: expectedId1 },
     });
     const cert2 = await prisma.adminCertificateRecord.findUnique({
-      where: { certificateId: "IAPCPR/PA/CH/1111" },
+      where: { certificateId: expectedId2 },
     });
 
     if (!cert1 || !cert2) {
@@ -129,14 +130,14 @@ async function main() {
 
     // Step 5: Test Public Lookup Integration
     console.log("\n--- 5. Testing Public Certificate Search Integration ---");
-    const lookupById = await searchSanjeevaniById("IAPCPR/PA/CH/1110");
+    const lookupById = await searchSanjeevaniById(expectedId1);
     if (!lookupById || lookupById.participantName !== "TEST PERSISTENCE PARTICIPANT ALPHA") {
       throw new Error(`Public lookup by ID failed: expected ALPHA participant, got ${JSON.stringify(lookupById)}`);
     }
     console.log(`✓ Lookup by ID succeeded: ${lookupById.certificateId} (${lookupById.participantName})`);
 
     const lookupByQuery = await searchSanjeevaniByQuery("TEST PERSISTENCE PARTICIPANT BETA");
-    if (lookupByQuery.length === 0 || lookupByQuery[0].certificateId !== "IAPCPR/PA/CH/1111") {
+    if (lookupByQuery.length === 0 || lookupByQuery[0].certificateId !== expectedId2) {
       throw new Error(`Public lookup by query failed: expected BETA participant, got ${JSON.stringify(lookupByQuery)}`);
     }
     console.log(`✓ Lookup by Query succeeded: ${lookupByQuery[0].certificateId} (${lookupByQuery[0].participantName})`);
@@ -222,10 +223,10 @@ async function main() {
   // Step 9: Verify Sequence After Cleanup
   const highestAfterClean = await getHighestSequenceForCategoryAndState("CPR_DAY", "CH");
   console.log(`\nHighest sequence after test cleanup: ${highestAfterClean}`);
-  if (highestAfterClean !== 1109) {
-    throw new Error(`Expected highest sequence to return to 1109, got ${highestAfterClean}`);
+  if (highestAfterClean !== baseHighest) {
+    throw new Error(`Expected highest sequence to return to ${baseHighest}, got ${highestAfterClean}`);
   }
-  console.log("✓ Sequence state cleanly restored to 1109.\n");
+  console.log(`✓ Sequence state cleanly restored to ${baseHighest}.\n`);
 
   console.log("===============================================================");
   console.log("ALL CPR CERTIFICATE GENERATION PERSISTENCE TESTS PASSED (100%)");

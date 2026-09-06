@@ -571,9 +571,10 @@ export function getAllSanjeevaniFromStorage(): SanjeevaniCertificateRecord[] {
         let cat: CertificateCategory = r.category;
         if (!cat) {
           const cId = (r.certificateId || "").toUpperCase();
-          if (cId.includes("/PA/")) cat = "CPR_DAY";
-          else if (cId.includes("/CH/")) cat = "CPR_CHAMPION";
-          else if (cId.includes("VENUE") || cId.includes("FACILITY")) cat = "CPR_FACILITY";
+          if (cId.startsWith("IAPCPR/PA/")) cat = "CPR_DAY";
+          else if (cId.startsWith("IAPCPR/CH/")) cat = "CPR_CHAMPION";
+          else if (cId.startsWith("IAPCPR/CC/")) cat = "COURSE_COORDINATOR" as any;
+          else if (cId.startsWith("IAP-CPR-DAY/VENUE/") || cId.includes("VENUE") || cId.includes("FACILITY")) cat = "CPR_FACILITY";
           else cat = "SANJEEVANI";
         }
         return {
@@ -643,10 +644,10 @@ export async function getHighestSequenceForCategoryAndState(
   const storageRecords = getAllSanjeevaniFromStorage();
   for (const rec of storageRecords) {
     if (normalizeStateCode(rec.stateCode) === normState) {
-      const isCprDayCert = rec.category === "CPR_DAY" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/PA/"));
-      const isChampionCert = rec.category === "CPR_CHAMPION" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/CH/"));
-      const isCoordinatorCert = (rec.category as string) === "COURSE_COORDINATOR" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/CC/"));
-      const isFacilityCert = rec.category === "CPR_FACILITY" || (rec.certificateId && rec.certificateId.toUpperCase().includes("VENUE"));
+      const isCprDayCert = rec.category === "CPR_DAY" || (rec.certificateId && rec.certificateId.toUpperCase().startsWith("IAPCPR/PA/"));
+      const isChampionCert = rec.category === "CPR_CHAMPION" || (rec.certificateId && rec.certificateId.toUpperCase().startsWith("IAPCPR/CH/"));
+      const isCoordinatorCert = (rec.category as string) === "COURSE_COORDINATOR" || (rec.certificateId && rec.certificateId.toUpperCase().startsWith("IAPCPR/CC/"));
+      const isFacilityCert = rec.category === "CPR_FACILITY" || (rec.certificateId && (rec.certificateId.toUpperCase().startsWith("IAP-CPR-DAY/VENUE/") || rec.certificateId.toUpperCase().includes("VENUE")));
       
       if (category === "CPR_DAY" && isCprDayCert) {
         if (rec.sequenceNumber && rec.sequenceNumber > highest) highest = rec.sequenceNumber;
@@ -1705,14 +1706,15 @@ export async function searchSanjeevaniById(certificateId: string): Promise<Sanje
       });
       if (dbRec) {
         let cat: CertificateCategory = "SANJEEVANI";
-        if (dbRec.category === "CPR_CHAMPION") cat = "CPR_CHAMPION";
-        else if (dbRec.category === "COURSE_COORDINATOR") cat = "COURSE_COORDINATOR";
-        else if (dbRec.category === "CPR_FACILITY") cat = "CPR_FACILITY";
-        else if (dbRec.certificateId.includes("/PA/")) cat = "CPR_DAY";
+        if (dbRec.category === "CPR_CHAMPION" || dbRec.certificateId.startsWith("IAPCPR/CH/")) cat = "CPR_CHAMPION";
+        else if (dbRec.category === "COURSE_COORDINATOR" || dbRec.certificateId.startsWith("IAPCPR/CC/")) cat = "COURSE_COORDINATOR";
+        else if (dbRec.category === "CPR_FACILITY" || dbRec.certificateId.startsWith("IAP-CPR-DAY/VENUE/")) cat = "CPR_FACILITY";
+        else if (dbRec.category === "CPR_DAY" || dbRec.certificateId.startsWith("IAPCPR/PA/") || isCprDayDate(dbRec.certificateDate)) cat = "CPR_DAY";
 
         let templateUsed = "cpr sanjeevani certificate 2.svg";
         if (cat === "CPR_DAY") templateUsed = "Lay Rescuer CPR Day.svg";
         else if (cat === "CPR_CHAMPION") templateUsed = "CPR Champions.svg";
+        else if (cat === "COURSE_COORDINATOR") templateUsed = "Course Coordinator.svg";
         else if (cat === "CPR_FACILITY") templateUsed = "CPR Facility Certificate.svg";
 
         return {
@@ -1793,14 +1795,15 @@ export async function searchSanjeevaniByQuery(query: string): Promise<Sanjeevani
         if (!seenIds.has(dbRec.certificateId.toUpperCase())) {
           seenIds.add(dbRec.certificateId.toUpperCase());
           let cat: CertificateCategory = "SANJEEVANI";
-          if (dbRec.category === "CPR_CHAMPION") cat = "CPR_CHAMPION";
-          else if (dbRec.category === "COURSE_COORDINATOR") cat = "COURSE_COORDINATOR";
-          else if (dbRec.category === "CPR_FACILITY") cat = "CPR_FACILITY";
-          else if (dbRec.certificateId.includes("/PA/")) cat = "CPR_DAY";
+          if (dbRec.category === "CPR_CHAMPION" || dbRec.certificateId.startsWith("IAPCPR/CH/")) cat = "CPR_CHAMPION";
+          else if (dbRec.category === "COURSE_COORDINATOR" || dbRec.certificateId.startsWith("IAPCPR/CC/")) cat = "COURSE_COORDINATOR";
+          else if (dbRec.category === "CPR_FACILITY" || dbRec.certificateId.startsWith("IAP-CPR-DAY/VENUE/")) cat = "CPR_FACILITY";
+          else if (dbRec.category === "CPR_DAY" || dbRec.certificateId.startsWith("IAPCPR/PA/") || isCprDayDate(dbRec.certificateDate)) cat = "CPR_DAY";
 
           let templateUsed = "cpr sanjeevani certificate 2.svg";
           if (cat === "CPR_DAY") templateUsed = "Lay Rescuer CPR Day.svg";
           else if (cat === "CPR_CHAMPION") templateUsed = "CPR Champions.svg";
+          else if (cat === "COURSE_COORDINATOR") templateUsed = "Course Coordinator.svg";
           else if (cat === "CPR_FACILITY") templateUsed = "CPR Facility Certificate.svg";
 
           combined.push({

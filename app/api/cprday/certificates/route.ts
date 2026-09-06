@@ -20,6 +20,7 @@ import {
 import {
   generateUnifiedCertificateSvg,
   formatCertificateFilename,
+  isCprDayDate,
 } from "@/lib/sanjeevaniCertificate";
 
 /**
@@ -63,9 +64,10 @@ function deduplicatePersonRecords<T extends {
  */
 function matchesPortal(r: SanjeevaniCertificateRecord, portal: CPRCertificatePortal | "facility", isAllPortals: boolean): boolean {
   if (isAllPortals) return true;
-  const isFacility = Boolean(r.category === "CPR_FACILITY" || (r.certificateId && r.certificateId.toUpperCase().includes("VENUE")));
-  const isChampion = Boolean(r.category === "CPR_CHAMPION" || (r.certificateId && r.certificateId.toUpperCase().includes("/CH/")));
-  const isCoordinator = Boolean((r as any).category === "COORDINATOR" || (r.certificateId && r.certificateId.toUpperCase().includes("/CC/")));
+  const cId = (r.certificateId || "").toUpperCase();
+  const isFacility = Boolean(r.category === "CPR_FACILITY" || cId.includes("VENUE") || cId.startsWith("IAP-CPR-DAY/VENUE/"));
+  const isChampion = Boolean(!isFacility && (r.category === "CPR_CHAMPION" || cId.startsWith("IAPCPR/CH/")));
+  const isCoordinator = Boolean(!isFacility && !isChampion && ((r as any).category === "COORDINATOR" || (r as any).category === "COURSE_COORDINATOR" || cId.startsWith("IAPCPR/CC/")));
 
   if (portal === "facility") {
     return isFacility;
@@ -84,13 +86,15 @@ function matchesPortal(r: SanjeevaniCertificateRecord, portal: CPRCertificatePor
  * Maps a Sanjeevani record into the standard API certificate object.
  */
 function formatSanjeevaniRecord(rec: SanjeevaniCertificateRecord) {
-  const isFacility = rec.category === "CPR_FACILITY" || (rec.certificateId && rec.certificateId.toUpperCase().includes("VENUE"));
-  const isChampion = !isFacility && (rec.category === "CPR_CHAMPION" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/CH/")));
-  const isCprDay = !isFacility && (rec.category === "CPR_DAY" || (rec.certificateId && rec.certificateId.toUpperCase().includes("/PA/")));
+  const cId = (rec.certificateId || "").toUpperCase();
+  const isFacility = rec.category === "CPR_FACILITY" || cId.includes("VENUE") || cId.startsWith("IAP-CPR-DAY/VENUE/");
+  const isChampion = !isFacility && (rec.category === "CPR_CHAMPION" || cId.startsWith("IAPCPR/CH/"));
+  const isCoordinator = !isFacility && !isChampion && ((rec.category as any) === "COURSE_COORDINATOR" || (rec.category as any) === "COORDINATOR" || cId.startsWith("IAPCPR/CC/"));
+  const isCprDay = !isFacility && !isChampion && !isCoordinator && (rec.category === "CPR_DAY" || cId.startsWith("IAPCPR/PA/") || isCprDayDate(rec.date));
 
   let categoryLabel = "CPR Sanjeevani Lay Rescuer";
   let courseTitle = "IAP CPR Sanjeevani Training Program";
-  let certCat: "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" = "SANJEEVANI";
+  let certCat: "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" | "COURSE_COORDINATOR" = "SANJEEVANI";
 
   if (isFacility) {
     categoryLabel = "CPR Facility / Venue";
@@ -98,8 +102,12 @@ function formatSanjeevaniRecord(rec: SanjeevaniCertificateRecord) {
     certCat = "CPR_FACILITY";
   } else if (isChampion) {
     categoryLabel = "CPR Champion";
-    courseTitle = "National IAP CPR Sanjeevani Training Program";
+    courseTitle = "National IAP CPR Sanjeevani Champion Certificate";
     certCat = "CPR_CHAMPION";
+  } else if (isCoordinator) {
+    categoryLabel = "Course Coordinator";
+    courseTitle = "National IAP CPR Sanjeevani Course Coordinator Certificate";
+    certCat = "COURSE_COORDINATOR";
   } else if (isCprDay) {
     categoryLabel = "CPR Lay Rescuer";
     courseTitle = "National IAP CPR Sanjeevani Training Program";
@@ -145,24 +153,15 @@ function ensureCertificateRenderFields(cert: any) {
   if (!cert) return cert;
   if (!cert.driveLink && !cert.svg) {
     const certNum = cert.certificateNumber || cert.certificateId || "";
-    const isFacility = cert.category === "CPR Facility / Venue" || certNum.toUpperCase().includes("VENUE");
-    const isChampion = !isFacility && (cert.category === "CPR Champion" || certNum.toUpperCase().includes("/CH/"));
-    const isCoordinator = !isFacility && !isChampion && (cert.category === "Course Coordinator" || certNum.toUpperCase().includes("/CC/"));
-    const isCprDay = !isFacility && !isChampion && !isCoordinator;
-
-    let certCat: "CPR_DAY" | "SANJEEVANI" | "CPR_CHAMPION" | "CPR_FACILITY" | "COURSE_COORDINATOR" = "SANJEEVANI";
-    if (isFacility) certCat = "CPR_FACILITY";
-    else if (isChampion) certCat = "CPR_CHAMPION";
-    else if (isCoordinator) certCat = "COURSE_COORDINATOR";
-    else if (isCprDay) certCat = "CPR_DAY";
+    const pName = cert.participantName || cert.venueName || "";
+    const vName = cert.venueName || cert.venue || (cert.category === "CPR Facility / Venue" ? pName : "");
+    const dateVal = cert.issueDate || cert.date || "21 July 2026";
 
     try {
-      const pName = cert.participantName || cert.venueName || "";
-      const vName = cert.venueName || cert.venue || (isFacility ? pName : "");
-      cert.svg = generateUnifiedCertificateSvg({
-        category: certCat,
+      const svg = generateUnifiedCertificateSvg({
+        category: cert.category,
         participantName: pName,
-        date: cert.issueDate || cert.date || "21 July 2026",
+        date: dateVal,
         venue: vName,
         city: cert.city || "",
         state: cert.state || "",
@@ -170,6 +169,7 @@ function ensureCertificateRenderFields(cert: any) {
         certificateId: certNum,
         courseCoordinator: cert.courseCoordinator,
       });
+      cert.svg = svg;
       cert.pdfFilename = formatCertificateFilename(certNum, pName, "pdf");
       cert.pngFilename = formatCertificateFilename(certNum, pName, "png");
       cert.svgFilename = formatCertificateFilename(certNum, pName, "svg");
@@ -471,17 +471,27 @@ export async function GET(request: NextRequest) {
           });
 
           if (adminRec) {
-            let catTitle = "CPR Aware Citizen";
+            const cId = (adminRec.certificateId || "").toUpperCase();
+            let catTitle = "CPR Lay Rescuer";
             let courseTitle = "National IAP CPR Sanjeevani Training Program";
-            if (adminRec.category === "CPR_CHAMPION") {
+            let portalType: CPRCertificatePortal = "participant";
+
+            if (adminRec.category === "CPR_CHAMPION" || cId.startsWith("IAPCPR/CH/")) {
               catTitle = "CPR Champion";
               courseTitle = "National IAP CPR Sanjeevani Champion Certificate";
-            } else if (adminRec.category === "COURSE_COORDINATOR") {
+              portalType = "champion";
+            } else if (adminRec.category === "COURSE_COORDINATOR" || cId.startsWith("IAPCPR/CC/")) {
               catTitle = "Course Coordinator";
               courseTitle = "National IAP CPR Sanjeevani Course Coordinator Certificate";
-            } else if (adminRec.category === "CPR_FACILITY") {
+              portalType = "coordinator";
+            } else if (adminRec.category === "CPR_FACILITY" || cId.includes("VENUE")) {
               catTitle = "CPR Facility / Venue";
               courseTitle = "National IAP CPR Sanjeevani Training Facility";
+              portalType = "facility";
+            } else if (!isCprDayDate(adminRec.certificateDate) && !cId.startsWith("IAPCPR/PA/")) {
+              catTitle = "CPR Sanjeevani Lay Rescuer";
+              courseTitle = "IAP CPR Sanjeevani Training Program";
+              portalType = "participant";
             }
 
             const rawCert = {
@@ -497,7 +507,7 @@ export async function GET(request: NextRequest) {
               mobileNumber: adminRec.mobileNumber || "",
               email: adminRec.email || "",
               courseCoordinator: adminRec.courseCoordinator || "",
-              portalType: adminRec.category.toLowerCase().replace("cpr_", ""),
+              portalType,
             };
 
             return NextResponse.json({
@@ -571,6 +581,7 @@ export async function GET(request: NextRequest) {
     // 2. Search by Mobile Number, Email, Venue Name, or Query
     if (query) {
       const allFoundCerts: any[] = [];
+      const cleanQ = query.toLowerCase();
 
       // Step 1: Check CPR Day CSV records
       if (portal !== "facility") {
@@ -593,7 +604,7 @@ export async function GET(request: NextRequest) {
             where: {
               OR: [
                 { name: { contains: query, mode: "insensitive" } },
-                { normalizedName: { contains: normalizedQuery } },
+                { normalizedName: { contains: cleanQ } },
                 { mobileNumber: { contains: query } },
                 { email: { equals: normalizedQuery, mode: "insensitive" } },
                 { venueName: { contains: query, mode: "insensitive" } },
@@ -607,17 +618,27 @@ export async function GET(request: NextRequest) {
 
           if (adminMatches.length > 0) {
             for (const adminRec of adminMatches) {
-              let catTitle = "CPR Aware Citizen";
+              const cId = (adminRec.certificateId || "").toUpperCase();
+              let catTitle = "CPR Lay Rescuer";
               let courseTitle = "National IAP CPR Sanjeevani Training Program";
-              if (adminRec.category === "CPR_CHAMPION") {
+              let portalType: CPRCertificatePortal = "participant";
+
+              if (adminRec.category === "CPR_CHAMPION" || cId.startsWith("IAPCPR/CH/")) {
                 catTitle = "CPR Champion";
                 courseTitle = "National IAP CPR Sanjeevani Champion Certificate";
-              } else if (adminRec.category === "COURSE_COORDINATOR") {
+                portalType = "champion";
+              } else if (adminRec.category === "COURSE_COORDINATOR" || cId.startsWith("IAPCPR/CC/")) {
                 catTitle = "Course Coordinator";
                 courseTitle = "National IAP CPR Sanjeevani Course Coordinator Certificate";
-              } else if (adminRec.category === "CPR_FACILITY") {
+                portalType = "coordinator";
+              } else if (adminRec.category === "CPR_FACILITY" || cId.includes("VENUE")) {
                 catTitle = "CPR Facility / Venue";
                 courseTitle = "National IAP CPR Sanjeevani Training Facility";
+                portalType = "facility";
+              } else if (!isCprDayDate(adminRec.certificateDate) && !cId.startsWith("IAPCPR/PA/")) {
+                catTitle = "CPR Sanjeevani Lay Rescuer";
+                courseTitle = "IAP CPR Sanjeevani Training Program";
+                portalType = "participant";
               }
 
               allFoundCerts.push({
@@ -633,7 +654,7 @@ export async function GET(request: NextRequest) {
                 mobileNumber: adminRec.mobileNumber || "",
                 email: adminRec.email || "",
                 courseCoordinator: adminRec.courseCoordinator || "",
-                portalType: adminRec.category.toLowerCase().replace("cpr_", ""),
+                portalType,
               });
             }
           }
