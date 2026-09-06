@@ -289,7 +289,9 @@ async function runStep6ValidationAndFreeze() {
   }
 }
 
-runStep6ValidationAndFreeze().catch((err) => {
-  console.error("Step 6 validation failed:", err);
-  process.exit(1);
-});
+runStep6ValidationAndFreeze()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("Step 6 validation failed:", err);
+    process.exit(1);
+  });

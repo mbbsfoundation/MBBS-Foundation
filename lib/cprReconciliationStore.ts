@@ -473,46 +473,174 @@ export interface VenueMetadataOverride {
 const METADATA_OVERRIDES_FILE_PATH = path.join(process.cwd(), "data", "cpr_venue_metadata_overrides.json");
 
 let memoryOverridesCache: Map<string, VenueMetadataOverride> | null = null;
+let lastOverridesFetchTimestamp = 0;
+const OVERRIDES_CACHE_TTL_MS = 15000;
 
-export function loadPersistedMetadataOverrides(): Map<string, VenueMetadataOverride> {
-  if (memoryOverridesCache) return memoryOverridesCache;
+export function invalidateVenueMetadataOverridesCache(): void {
+  memoryOverridesCache = null;
+  lastOverridesFetchTimestamp = 0;
+}
 
+export function primeVenueMetadataOverridesCache(map: Map<string, VenueMetadataOverride>): void {
+  memoryOverridesCache = new Map(map);
+  lastOverridesFetchTimestamp = Date.now();
+}
+
+/**
+ * Loads frozen historical metadata overrides from disk (Read-Only).
+ */
+export function loadFrozenHistoricalMetadataOverrides(): Map<string, VenueMetadataOverride> {
   const map = new Map<string, VenueMetadataOverride>();
   try {
     if (fs.existsSync(METADATA_OVERRIDES_FILE_PATH)) {
       const raw = fs.readFileSync(METADATA_OVERRIDES_FILE_PATH, "utf-8");
-      const list = JSON.parse(raw);
-      if (Array.isArray(list)) {
-        list.forEach((item: VenueMetadataOverride) => {
-          if (item.canonicalVenueId) map.set(item.canonicalVenueId, item);
-        });
+      if (raw.trim()) {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          list.forEach((item: VenueMetadataOverride) => {
+            if (item.canonicalVenueId) map.set(item.canonicalVenueId, item);
+          });
+        }
       }
     }
   } catch (err) {
-    console.warn("Could not read venue metadata overrides file, using in-memory store:", err);
+    console.warn("Could not read venue metadata overrides historical file:", err);
   }
+  return map;
+}
 
+/**
+ * Synchronous loader for metadata overrides (reads memory cache or frozen historical JSON).
+ */
+export function loadPersistedMetadataOverrides(): Map<string, VenueMetadataOverride> {
+  if (memoryOverridesCache) return memoryOverridesCache;
+  const map = loadFrozenHistoricalMetadataOverrides();
   memoryOverridesCache = map;
   return map;
 }
 
-export function persistMetadataOverridesToFile(map: Map<string, VenueMetadataOverride>): void {
-  try {
-    const list = Array.from(map.values());
-    const dir = path.dirname(METADATA_OVERRIDES_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(METADATA_OVERRIDES_FILE_PATH, JSON.stringify(list, null, 2), "utf-8");
-  } catch (err) {
-    console.warn("Could not write venue metadata overrides file:", err);
+/**
+ * Async loader for metadata overrides that queries PostgreSQL CPRVerificationSubmission for IMPLEMENTED records.
+ */
+export async function loadPersistedMetadataOverridesAsync(
+  forceRefresh = false
+): Promise<Map<string, VenueMetadataOverride>> {
+  const now = Date.now();
+  if (!forceRefresh && memoryOverridesCache && now - lastOverridesFetchTimestamp < OVERRIDES_CACHE_TTL_MS) {
+    return memoryOverridesCache;
   }
+
+  // 1. Start with frozen historical overrides
+  const map = loadFrozenHistoricalMetadataOverrides();
+
+  // 2. Query PostgreSQL for implemented verification submissions
+  try {
+    const { prisma } = await import("./prisma");
+    if (prisma && (prisma as any).cPRVerificationSubmission) {
+      const rows = await (prisma as any).cPRVerificationSubmission.findMany({
+        where: {
+          submissionStatus: "IMPLEMENTED",
+        },
+        orderBy: {
+          updatedAt: "asc",
+        },
+      });
+
+      for (const row of rows) {
+        let canonicalVenueId = row.canonicalVenueId || row.reportRowId || "";
+
+        // Fallback: match by venue name and state if canonicalVenueId not explicitly set
+        if (!canonicalVenueId && row.venue && row.state) {
+          const stateVenues = getCanonicalVenuesByState(row.state);
+          const vClean = row.venue.toLowerCase().trim();
+          const matched = stateVenues.find(
+            (v) =>
+              v.canonicalVenueName.toLowerCase().trim() === vClean ||
+              v.aliases.some((a) => a.toLowerCase().trim() === vClean)
+          );
+          if (matched) {
+            canonicalVenueId = matched.canonicalVenueId;
+          }
+        }
+
+        if (!canonicalVenueId) continue;
+
+        const proposed = (row.proposedChangesJson as any) || {};
+        const current = (row.currentDataJson as any) || {};
+
+        let verifiedTrainedAdjustment: number | undefined;
+        if (proposed.verifiedTrainedAdjustment !== undefined) {
+          verifiedTrainedAdjustment = Number(proposed.verifiedTrainedAdjustment);
+        } else if (proposed.participantsTrained !== undefined) {
+          const stateVenues = getCanonicalVenuesByState(row.state);
+          const cv = stateVenues.find((v) => v.canonicalVenueId === canonicalVenueId);
+          const baseTrained =
+            current.participantsTrained ??
+            current.baselineReportedTrained ??
+            cv?.baselineReportedTrained ??
+            0;
+          verifiedTrainedAdjustment = Number(proposed.participantsTrained) - baseTrained;
+        } else if (row.submissionType === "VERIFY_CORRECT") {
+          verifiedTrainedAdjustment = 0;
+        }
+
+        let verifiedCourseCountAdjustment: number | undefined;
+        if (proposed.verifiedCourseCountAdjustment !== undefined) {
+          verifiedCourseCountAdjustment = Number(proposed.verifiedCourseCountAdjustment);
+        } else if (proposed.coursesCount !== undefined && current.coursesCount !== undefined) {
+          verifiedCourseCountAdjustment = Number(proposed.coursesCount) - Number(current.coursesCount);
+        }
+
+        const existing = map.get(canonicalVenueId);
+
+        const merged: VenueMetadataOverride = {
+          canonicalVenueId,
+          state: row.state,
+          ...(existing || {}),
+          ...(proposed.venue ? { venueName: proposed.venue } : {}),
+          ...(proposed.city ? { city: proposed.city } : {}),
+          ...(proposed.coordinators ? { additionalCoordinators: proposed.coordinators } : {}),
+          ...(proposed.champions ? { additionalChampions: proposed.champions } : {}),
+          ...(verifiedTrainedAdjustment !== undefined ? { verifiedTrainedAdjustment } : {}),
+          ...(verifiedCourseCountAdjustment !== undefined ? { verifiedCourseCountAdjustment } : {}),
+          reviewedBy: row.adminReviewedBy || existing?.reviewedBy || "Administrator",
+          reviewedAt: row.adminReviewedAt ? new Date(row.adminReviewedAt).toISOString() : existing?.reviewedAt,
+          reviewNote: row.adminNote || existing?.reviewNote,
+          evidenceReference: row.evidenceNote || existing?.evidenceReference,
+          originatingSubmissionId: row.id,
+        };
+
+        map.set(canonicalVenueId, merged);
+      }
+    }
+  } catch (err) {
+    console.warn("Could not query CPRVerificationSubmission from PostgreSQL for overrides:", err);
+  }
+
+  memoryOverridesCache = map;
+  lastOverridesFetchTimestamp = now;
+  return map;
 }
 
+/**
+ * Returns current metadata overrides map (sync).
+ */
 export function getVenueMetadataOverridesMap(): Map<string, VenueMetadataOverride> {
   return loadPersistedMetadataOverrides();
 }
 
+/**
+ * Returns current metadata overrides map with PostgreSQL refresh (async).
+ */
+export async function getVenueMetadataOverridesMapAsync(
+  forceRefresh = false
+): Promise<Map<string, VenueMetadataOverride>> {
+  return loadPersistedMetadataOverridesAsync(forceRefresh);
+}
+
+/**
+ * Saves/updates in-memory metadata override (Zero Filesystem Write).
+ */
 export function saveVenueMetadataOverride(override: VenueMetadataOverride): VenueMetadataOverride {
   const map = loadPersistedMetadataOverrides();
   const existing = map.get(override.canonicalVenueId) || { canonicalVenueId: override.canonicalVenueId, state: override.state };
@@ -524,14 +652,17 @@ export function saveVenueMetadataOverride(override: VenueMetadataOverride): Venu
   };
 
   map.set(override.canonicalVenueId, updated);
-  persistMetadataOverridesToFile(map);
+  memoryOverridesCache = map;
   return updated;
 }
 
+/**
+ * Resets/deletes in-memory metadata override (Zero Filesystem Write).
+ */
 export function resetVenueMetadataOverride(canonicalVenueId: string): boolean {
   const map = loadPersistedMetadataOverrides();
   const deleted = map.delete(canonicalVenueId);
-  persistMetadataOverridesToFile(map);
+  memoryOverridesCache = map;
   return deleted;
 }
 

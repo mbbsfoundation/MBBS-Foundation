@@ -30,6 +30,8 @@ import {
 import {
   getFrozenVenueReviewSnapshot,
   getVenueMetadataOverridesMap,
+  getVenueMetadataOverridesMapAsync,
+  VenueMetadataOverride,
   ReconciliationDecisionType,
   CPRDAY_CENSUS_DRAFT_VERSION,
   StateVerificationStatus,
@@ -725,7 +727,8 @@ interface BaselineVenueGroup {
  */
 export function getCPRDayReconciliationReport(
   stateQuery: string,
-  preloadedLiveData?: LiveCPRDayStateIndex
+  preloadedLiveData?: LiveCPRDayStateIndex,
+  preloadedOverrides?: Map<string, VenueMetadataOverride>
 ): CPRDayStateReconciliationReport | null {
   const canonicalState = normalizeDisplayState(stateQuery);
   const lockedEntry = getLockedOfficialStateCensus(canonicalState);
@@ -952,7 +955,7 @@ export function getCPRDayReconciliationReport(
   let totalReconciledParticipantsTrained = 0;
   let totalMatchedParticipantsCertified = 0;
   let baselineMatchedVenuesCount = 0;
-  const metaOverrides = getVenueMetadataOverridesMap();
+  const metaOverrides = preloadedOverrides || getVenueMetadataOverridesMap();
 
   for (const b of stateVenues) {
     const vOverride = metaOverrides.get(b.canonicalVenueId);
@@ -1125,25 +1128,30 @@ export function getCPRDayReconciliationReport(
 }
 
 /**
- * Async version of getCPRDayReconciliationReport that queries PostgreSQL AdminCertificateRecord.
+ * Async version of getCPRDayReconciliationReport that queries PostgreSQL AdminCertificateRecord and CPRVerificationSubmission overrides.
  */
 export async function getCPRDayReconciliationReportAsync(
   stateQuery: string,
   forceRefresh = false
 ): Promise<CPRDayStateReconciliationReport | null> {
-  const liveData = await loadUnifiedLiveCPRDayDataAsync(forceRefresh);
-  return getCPRDayReconciliationReport(stateQuery, liveData);
+  const [liveData, metaOverrides] = await Promise.all([
+    loadUnifiedLiveCPRDayDataAsync(forceRefresh),
+    getVenueMetadataOverridesMapAsync(forceRefresh),
+  ]);
+  return getCPRDayReconciliationReport(stateQuery, liveData, metaOverrides);
 }
 
 export function getAllCPRDayReconciliationReports(
-  preloadedLiveData?: LiveCPRDayStateIndex
+  preloadedLiveData?: LiveCPRDayStateIndex,
+  preloadedOverrides?: Map<string, VenueMetadataOverride>
 ): CPRDayStateReconciliationReport[] {
   const liveData = preloadedLiveData || loadUnifiedLiveCPRDayData();
+  const metaOverrides = preloadedOverrides || getVenueMetadataOverridesMap();
   const states = getLockedCensusStateList();
   const reports: CPRDayStateReconciliationReport[] = [];
 
   for (const s of states) {
-    const rep = getCPRDayReconciliationReport(s.canonicalState, liveData);
+    const rep = getCPRDayReconciliationReport(s.canonicalState, liveData, metaOverrides);
     if (rep) reports.push(rep);
   }
 
@@ -1153,8 +1161,11 @@ export function getAllCPRDayReconciliationReports(
 export async function getAllCPRDayReconciliationReportsAsync(
   forceRefresh = false
 ): Promise<CPRDayStateReconciliationReport[]> {
-  const liveData = await loadUnifiedLiveCPRDayDataAsync(forceRefresh);
-  return getAllCPRDayReconciliationReports(liveData);
+  const [liveData, metaOverrides] = await Promise.all([
+    loadUnifiedLiveCPRDayDataAsync(forceRefresh),
+    getVenueMetadataOverridesMapAsync(forceRefresh),
+  ]);
+  return getAllCPRDayReconciliationReports(liveData, metaOverrides);
 }
 
 export interface StateNationalReconciliationRow {
@@ -1347,13 +1358,16 @@ export function getCPRDayNationalConsolidatedReport(
 }
 
 /**
- * Async version of getCPRDayNationalConsolidatedReport that queries PostgreSQL AdminCertificateRecord.
+ * Async version of getCPRDayNationalConsolidatedReport that queries PostgreSQL AdminCertificateRecord and CPRVerificationSubmission overrides.
  */
 export async function getCPRDayNationalConsolidatedReportAsync(
   forceRefresh = false
 ): Promise<CPRDayNationalReconciliationReport> {
-  const liveData = await loadUnifiedLiveCPRDayDataAsync(forceRefresh);
-  const stateReports = await getAllCPRDayReconciliationReportsAsync(forceRefresh);
+  const [liveData, metaOverrides] = await Promise.all([
+    loadUnifiedLiveCPRDayDataAsync(forceRefresh),
+    getVenueMetadataOverridesMapAsync(forceRefresh),
+  ]);
+  const stateReports = getAllCPRDayReconciliationReports(liveData, metaOverrides);
   return getCPRDayNationalConsolidatedReport(liveData, stateReports);
 }
 

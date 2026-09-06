@@ -162,7 +162,9 @@ async function runComprehensiveAudit() {
   }
 }
 
-runComprehensiveAudit().catch((err) => {
-  console.error("Comprehensive audit failed:", err);
-  process.exit(1);
-});
+runComprehensiveAudit()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("Comprehensive audit failed:", err);
+    process.exit(1);
+  });

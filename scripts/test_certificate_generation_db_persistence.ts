@@ -234,10 +234,10 @@ async function main() {
 }
 
 main()
+  .then(() => {
+    process.exit(0);
+  })
   .catch((err) => {
     console.error("Test failed with error:", err);
     process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
   });

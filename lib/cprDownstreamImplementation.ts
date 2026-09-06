@@ -190,7 +190,8 @@ export async function executeDownstreamImplementation(params: {
     };
   }
 
-  if (sub.submissionStatus !== "ACCEPTED") {
+  // Allow ACCEPTED or already IMPLEMENTED (for idempotent retry)
+  if (sub.submissionStatus !== "ACCEPTED" && sub.submissionStatus !== "IMPLEMENTED") {
     return {
       success: false,
       error: `Only ACCEPTED submissions can be implemented. Current status is ${sub.submissionStatus}.`,
@@ -199,8 +200,11 @@ export async function executeDownstreamImplementation(params: {
 
   const canonicalState = normalizeDisplayState(sub.state);
   const targetCanonicalId = params.targetCanonicalVenueId || sub.canonicalVenueId || sub.reportRowId || "";
+  const fullNote = `${implementationNote.trim()}${evidenceReference?.trim() ? ` [Evidence: ${evidenceReference.trim()}]` : ""}`;
 
   try {
+    const { prisma } = await import("./prisma");
+
     // 3. Downstream Execution Branches
     switch (actionType) {
       case "APPLY_METADATA_CORRECTION": {
@@ -208,16 +212,47 @@ export async function executeDownstreamImplementation(params: {
           return { success: false, error: "A target Canonical Venue ID is required to apply metadata correction." };
         }
 
+        const stateVenues = getCanonicalVenuesByState(canonicalState);
+        const canonVenue = stateVenues.find((v) => v.canonicalVenueId === targetCanonicalId);
+        if (!canonVenue) {
+          return { success: false, error: `Canonical venue ${targetCanonicalId} not found in ${canonicalState}.` };
+        }
+
+        const proposedVenue = params.proposedVenueName?.trim() || sub.proposedChangesJson?.venue?.trim() || canonVenue.canonicalVenueName;
+        const proposedCity = params.proposedCity?.trim() || sub.proposedChangesJson?.city?.trim() || canonVenue.city;
+
+        // Save in-memory override
         saveVenueMetadataOverride({
           canonicalVenueId: targetCanonicalId,
           state: canonicalState,
-          venueName: params.proposedVenueName?.trim() || sub.proposedChangesJson?.venue?.trim(),
-          city: params.proposedCity?.trim() || sub.proposedChangesJson?.city?.trim(),
+          venueName: proposedVenue,
+          city: proposedCity,
           reviewNote: implementationNote.trim(),
           reviewedBy: adminUser,
           evidenceReference: evidenceReference?.trim(),
           originatingSubmissionId: submissionId,
         });
+
+        // Persist to PostgreSQL CPRVerificationSubmission
+        if (prisma && (prisma as any).cPRVerificationSubmission) {
+          await (prisma as any).cPRVerificationSubmission.update({
+            where: { id: submissionId },
+            data: {
+              canonicalVenueId: targetCanonicalId,
+              reportRowId: targetCanonicalId,
+              submissionStatus: "IMPLEMENTED",
+              adminDecision: "IMPLEMENTED",
+              adminReviewedBy: adminUser,
+              adminReviewedAt: new Date(),
+              adminNote: fullNote,
+              proposedChangesJson: {
+                ...(sub.proposedChangesJson || {}),
+                venue: proposedVenue,
+                city: proposedCity,
+              },
+            },
+          });
+        }
         break;
       }
 
@@ -226,16 +261,39 @@ export async function executeDownstreamImplementation(params: {
           return { success: false, error: "A target Canonical Venue ID is required to update faculty attribution." };
         }
 
+        const proposedCoords = params.proposedCoordinators || sub.proposedChangesJson?.coordinators || [];
+        const proposedChamps = params.proposedChampions || sub.proposedChangesJson?.champions || [];
+
         saveVenueMetadataOverride({
           canonicalVenueId: targetCanonicalId,
           state: canonicalState,
-          additionalCoordinators: params.proposedCoordinators || sub.proposedChangesJson?.coordinators || [],
-          additionalChampions: params.proposedChampions || sub.proposedChangesJson?.champions || [],
+          additionalCoordinators: proposedCoords,
+          additionalChampions: proposedChamps,
           reviewNote: implementationNote.trim(),
           reviewedBy: adminUser,
           evidenceReference: evidenceReference?.trim(),
           originatingSubmissionId: submissionId,
         });
+
+        if (prisma && (prisma as any).cPRVerificationSubmission) {
+          await (prisma as any).cPRVerificationSubmission.update({
+            where: { id: submissionId },
+            data: {
+              canonicalVenueId: targetCanonicalId,
+              reportRowId: targetCanonicalId,
+              submissionStatus: "IMPLEMENTED",
+              adminDecision: "IMPLEMENTED",
+              adminReviewedBy: adminUser,
+              adminReviewedAt: new Date(),
+              adminNote: fullNote,
+              proposedChangesJson: {
+                ...(sub.proposedChangesJson || {}),
+                coordinators: proposedCoords,
+                champions: proposedChamps,
+              },
+            },
+          });
+        }
         break;
       }
 
@@ -244,7 +302,6 @@ export async function executeDownstreamImplementation(params: {
           return { success: false, error: "A canonical target venue is required for venue mapping." };
         }
 
-        // If target exists in reconciliation snapshot, update decision
         const snapshot = getFrozenVenueReviewSnapshot();
         const reviewItem = snapshot.find(
           (i) =>
@@ -259,6 +316,21 @@ export async function executeDownstreamImplementation(params: {
             finalCanonicalVenueId: targetCanonicalId,
             reviewedBy: adminUser,
             reviewNote: implementationNote.trim(),
+          });
+        }
+
+        if (prisma && (prisma as any).cPRVerificationSubmission) {
+          await (prisma as any).cPRVerificationSubmission.update({
+            where: { id: submissionId },
+            data: {
+              canonicalVenueId: targetCanonicalId,
+              reportRowId: targetCanonicalId,
+              submissionStatus: "IMPLEMENTED",
+              adminDecision: "IMPLEMENTED",
+              adminReviewedBy: adminUser,
+              adminReviewedAt: new Date(),
+              adminNote: fullNote,
+            },
           });
         }
         break;
@@ -291,6 +363,39 @@ export async function executeDownstreamImplementation(params: {
           evidenceReference: evidenceReference?.trim(),
           originatingSubmissionId: submissionId,
         });
+
+        if (prisma && (prisma as any).cPRVerificationSubmission) {
+          await (prisma as any).cPRVerificationSubmission.update({
+            where: { id: submissionId },
+            data: {
+              canonicalVenueId: targetCanonicalId,
+              reportRowId: targetCanonicalId,
+              submissionStatus: "IMPLEMENTED",
+              adminDecision: "IMPLEMENTED",
+              adminReviewedBy: adminUser,
+              adminReviewedAt: new Date(),
+              adminNote: fullNote,
+              currentDataJson: {
+                ...(sub.currentDataJson || {}),
+                venue: canonVenue.canonicalVenueName,
+                city: canonVenue.city,
+                state: canonicalState,
+                participantsTrained: canonVenue.baselineReportedTrained,
+                baselineReportedTrained: canonVenue.baselineReportedTrained,
+                coursesCount: canonVenue.baselineCourseCount,
+              },
+              proposedChangesJson: {
+                ...(sub.proposedChangesJson || {}),
+                venue: canonVenue.canonicalVenueName,
+                city: canonVenue.city,
+                participantsTrained: targetTrained,
+                verifiedFinalTrained: targetTrained,
+                verifiedTrainedAdjustment: trainedAdj,
+                baselineReportedTrained: canonVenue.baselineReportedTrained,
+              },
+            },
+          });
+        }
         break;
       }
 
@@ -301,7 +406,6 @@ export async function executeDownstreamImplementation(params: {
           ? params.proposedTrainedCount
           : sub.proposedChangesJson?.participantsTrained ?? 0;
 
-        // Generate review ID
         const suppReviewId = `SUPP-${submissionId.replace(/[^A-Za-z0-9]/g, "").slice(-6).toUpperCase()}`;
 
         saveVenueReconciliationDecision({
@@ -314,6 +418,21 @@ export async function executeDownstreamImplementation(params: {
           reviewedBy: adminUser,
           reviewNote: implementationNote.trim(),
         });
+
+        if (prisma && (prisma as any).cPRVerificationSubmission) {
+          await (prisma as any).cPRVerificationSubmission.update({
+            where: { id: submissionId },
+            data: {
+              canonicalVenueId: suppReviewId,
+              reportRowId: suppReviewId,
+              submissionStatus: "IMPLEMENTED",
+              adminDecision: "IMPLEMENTED",
+              adminReviewedBy: adminUser,
+              adminReviewedAt: new Date(),
+              adminNote: fullNote,
+            },
+          });
+        }
         break;
       }
 
@@ -331,9 +450,21 @@ export async function executeDownstreamImplementation(params: {
       };
     }
 
-    // 5. Update Submission Status to IMPLEMENTED
-    const fullNote = `${implementationNote.trim()}${evidenceReference?.trim() ? ` [Evidence: ${evidenceReference.trim()}]` : ""}`;
+    // Verify expected effect in report
+    if (actionType === "APPLY_COUNT_ADJUSTMENT" && targetCanonicalId) {
+      const vSummary = updatedReport.venues.find((v) => v.venueId === targetCanonicalId);
+      const targetTrained = params.proposedTrainedCount !== undefined
+        ? params.proposedTrainedCount
+        : sub.proposedChangesJson?.participantsTrained;
+      if (vSummary && targetTrained !== undefined && vSummary.participantsTrained < targetTrained) {
+        return {
+          success: false,
+          error: `Closed-loop report verification failed: target venue trained count is ${vSummary.participantsTrained}, expected ${targetTrained}.`,
+        };
+      }
+    }
 
+    // 5. Update submission status in memory store
     const updatedSub = await updateVerificationStatusAsync(submissionId, {
       status: "IMPLEMENTED",
       adminReviewedBy: adminUser,

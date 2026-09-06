@@ -127,22 +127,21 @@ export async function POST(request: NextRequest) {
       "NEEDS_CLARIFICATION",
       "ACCEPTED",
       "REJECTED",
-      "IMPLEMENTED",
     ];
 
-    if (!validStatuses.includes(status)) {
+    if (status === "IMPLEMENTED") {
       return NextResponse.json(
-        { success: false, error: `Invalid status: ${status}` },
+        {
+          success: false,
+          error: "To mark a submission as IMPLEMENTED, use the downstream implementation workflow (POST /api/cprsanjeevani/verify/implement) to guarantee persistent reconciliation and report verification.",
+        },
         { status: 400 }
       );
     }
 
-    if (status === "IMPLEMENTED" && (!adminNote || adminNote.trim().length === 0)) {
+    if (!validStatuses.includes(status)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "A mandatory implementation note is required when marking a submission as IMPLEMENTED to document what downstream action was completed.",
-        },
+        { success: false, error: `Invalid status: ${status}` },
         { status: 400 }
       );
     }

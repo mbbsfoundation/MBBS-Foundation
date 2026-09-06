@@ -246,7 +246,9 @@ async function runStep5CTests() {
   }
 }
 
-runStep5CTests().catch((err) => {
-  console.error("Test execution failed:", err);
-  process.exit(1);
-});
+runStep5CTests()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("Test execution failed:", err);
+    process.exit(1);
+  });
