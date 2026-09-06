@@ -691,7 +691,7 @@ export function loadUnifiedLiveCPRDayData(forceRefresh = false): LiveCPRDayState
  */
 export async function loadUnifiedLiveCPRDayDataAsync(forceRefresh = false): Promise<LiveCPRDayStateIndex> {
   const now = Date.now();
-  if (!forceRefresh && cachedLiveIndex && now - lastLiveIndexTimestamp < CACHE_TTL_MS) {
+  if (!forceRefresh && cachedLiveIndex && cachedDbCertificateRecords !== null && now - lastLiveIndexTimestamp < CACHE_TTL_MS) {
     return cachedLiveIndex;
   }
 

@@ -424,9 +424,12 @@ export {
 /**
  * Retrieves all distinct, sorted Coordinator names mapped to a specific State in Draft V1.
  */
-export function getDistinctCoordinatorsForState(canonicalState: string): string[] {
+export function getDistinctCoordinatorsForState(
+  canonicalState: string,
+  preloadedReport?: CPRDayStateReconciliationReport | null
+): string[] {
   const normState = normalizeDisplayState(canonicalState).toLowerCase();
-  const report = getCPRDayReconciliationReport(canonicalState);
+  const report = preloadedReport !== undefined ? preloadedReport : getCPRDayReconciliationReport(canonicalState);
   if (!report) return [];
 
   const coordinatorSet = new Set<string>();
