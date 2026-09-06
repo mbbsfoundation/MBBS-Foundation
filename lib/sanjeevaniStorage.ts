@@ -7,6 +7,7 @@ import {
   getHighestCPRCoordinatorSequence,
   getHighestCPRFacilitySequence,
   getAllCPRCertificates,
+  searchCertificateById,
 } from "@/lib/cprCertificates";
 
 export type CertificateCategory =
@@ -142,6 +143,15 @@ export function invalidateStorageCache() {
     const { invalidateLiveCPRIndexCache } = require("./cprReporting");
     if (typeof invalidateLiveCPRIndexCache === "function") {
       invalidateLiveCPRIndexCache();
+    }
+  } catch (e) {
+    // safe fallback
+  }
+  try {
+    // Invalidate retired champion cache dynamically
+    const { invalidateRetiredChampionCache } = require("./cprCertificates");
+    if (typeof invalidateRetiredChampionCache === "function") {
+      invalidateRetiredChampionCache();
     }
   } catch (e) {
     // safe fallback
@@ -1759,6 +1769,7 @@ export async function searchSanjeevaniById(certificateId: string): Promise<Sanje
 
 /**
  * Search certificates by query (O(N) in-memory filter + DB lookup).
+ * Excludes retired, void, and inactive certificates from query search results.
  */
 export async function searchSanjeevaniByQuery(query: string): Promise<SanjeevaniCertificateRecord[]> {
   const cleanQ = (query || "").trim().toLowerCase();
@@ -1768,15 +1779,16 @@ export async function searchSanjeevaniByQuery(query: string): Promise<Sanjeevani
   const memoryResults = storageRecords
     .filter(
       (r) =>
-        r.participantName.toLowerCase().includes(cleanQ) ||
-        (r.mobileNumber && r.mobileNumber.includes(cleanQ)) ||
-        (r.email && r.email.toLowerCase().includes(cleanQ)) ||
-        r.certificateId.toLowerCase().includes(cleanQ) ||
-        (r.venueCode && r.venueCode.toLowerCase().includes(cleanQ)) ||
-        r.venue.toLowerCase().includes(cleanQ) ||
-        r.city.toLowerCase().includes(cleanQ) ||
-        r.state.toLowerCase().includes(cleanQ) ||
-        (r.courseCoordinator && r.courseCoordinator.toLowerCase().includes(cleanQ))
+        (r.status || "VALID").toUpperCase() === "VALID" &&
+        (r.participantName.toLowerCase().includes(cleanQ) ||
+          (r.mobileNumber && r.mobileNumber.includes(cleanQ)) ||
+          (r.email && r.email.toLowerCase().includes(cleanQ)) ||
+          r.certificateId.toLowerCase().includes(cleanQ) ||
+          (r.venueCode && r.venueCode.toLowerCase().includes(cleanQ)) ||
+          r.venue.toLowerCase().includes(cleanQ) ||
+          r.city.toLowerCase().includes(cleanQ) ||
+          r.state.toLowerCase().includes(cleanQ) ||
+          (r.courseCoordinator && r.courseCoordinator.toLowerCase().includes(cleanQ)))
     );
 
   const seenIds = new Set(memoryResults.map((r) => r.certificateId.toUpperCase()));
@@ -1786,6 +1798,7 @@ export async function searchSanjeevaniByQuery(query: string): Promise<Sanjeevani
     try {
       const dbRecords = await (prisma as any).adminCertificateRecord.findMany({
         where: {
+          status: "VALID",
           OR: [
             { name: { contains: query, mode: "insensitive" } },
             { normalizedName: { contains: cleanQ } },
@@ -1845,4 +1858,197 @@ export async function searchSanjeevaniByQuery(query: string): Promise<Sanjeevani
   }
 
   return combined.slice(0, 50);
+}
+
+export interface ChampionRetirementOptions {
+  certificateId: string;
+  reason: string;
+  retiredBy?: string;
+  coordinatorReference?: string;
+}
+
+/**
+ * Administratively retires a CPR Champion certificate (overlaying PostgreSQL AdminCertificateRecord).
+ * Preserves historical CSV/DB data immutably while marking certificate status as RETIRED.
+ */
+export async function retireChampionCertificateAsync(options: ChampionRetirementOptions): Promise<{
+  success: boolean;
+  message?: string;
+  alreadyRetired?: boolean;
+  error?: string;
+  record?: any;
+}> {
+  const normId = (options.certificateId || "").trim().toUpperCase();
+  if (!normId) {
+    return { success: false, error: "Certificate ID is required." };
+  }
+  if (!options.reason || !options.reason.trim()) {
+    return { success: false, error: "Retirement reason is mandatory." };
+  }
+
+  const notesPayload = JSON.stringify({
+    action: "RETIRE",
+    reason: options.reason.trim(),
+    retiredAt: new Date().toISOString(),
+    retiredBy: options.retiredBy || "ADMIN",
+    coordinatorReference: options.coordinatorReference?.trim() || undefined,
+  });
+
+  if (!prisma || !(prisma as any).adminCertificateRecord) {
+    return { success: false, error: "Database service unavailable." };
+  }
+
+  try {
+    // 1. Check if AdminCertificateRecord already exists in PostgreSQL
+    const existingDb = await (prisma as any).adminCertificateRecord.findFirst({
+      where: {
+        certificateId: { equals: normId, mode: "insensitive" },
+      },
+    });
+
+    if (existingDb) {
+      if (existingDb.status === "RETIRED") {
+        return {
+          success: true,
+          message: `Champion certificate ${normId} is already retired.`,
+          alreadyRetired: true,
+          record: existingDb,
+        };
+      }
+
+      // Update existing DB record to RETIRED
+      const updated = await (prisma as any).adminCertificateRecord.update({
+        where: { id: existingDb.id },
+        data: {
+          status: "RETIRED",
+          source: "COORDINATOR_FEEDBACK",
+          notes: notesPayload,
+        },
+      });
+
+      invalidateStorageCache();
+      return {
+        success: true,
+        message: `Champion certificate ${normId} successfully retired.`,
+        record: updated,
+      };
+    }
+
+    // 2. If not in DB, search CSV champion masters
+    const csvMatch = searchCertificateById(normId, "champion");
+    if (!csvMatch) {
+      return {
+        success: false,
+        error: `Champion certificate "${normId}" could not be found in historical CSV masters or database.`,
+      };
+    }
+
+    // Create retirement overlay record in PostgreSQL AdminCertificateRecord
+    const created = await (prisma as any).adminCertificateRecord.create({
+      data: {
+        certificateId: csvMatch.certificateNumber.trim(),
+        category: "CPR_CHAMPION",
+        status: "RETIRED",
+        source: "COORDINATOR_FEEDBACK",
+        name: csvMatch.participantName.trim(),
+        normalizedName: normalizeParticipantName(csvMatch.participantName),
+        certificateDate: csvMatch.issueDate || "21 July 2026",
+        venueName: csvMatch.venueName || "",
+        city: csvMatch.city || "",
+        state: csvMatch.state || "",
+        stateCode: normalizeStateCode(csvMatch.zone || csvMatch.state || ""),
+        mobileNumber: csvMatch.mobileNumber || undefined,
+        email: csvMatch.email || undefined,
+        courseCoordinator: csvMatch.courseCoordinator || undefined,
+        notes: notesPayload,
+      },
+    });
+
+    invalidateStorageCache();
+    return {
+      success: true,
+      message: `Historical champion certificate ${normId} successfully retired via overlay.`,
+      record: created,
+    };
+  } catch (err: any) {
+    console.error("Error retiring champion certificate:", err);
+    return { success: false, error: err.message || "Failed to retire champion certificate." };
+  }
+}
+
+export interface ChampionRestoreOptions {
+  certificateId: string;
+  reason?: string;
+  restoredBy?: string;
+}
+
+/**
+ * Restores a previously retired CPR Champion certificate back to active (VALID) status.
+ */
+export async function restoreChampionCertificateAsync(options: ChampionRestoreOptions): Promise<{
+  success: boolean;
+  message?: string;
+  alreadyValid?: boolean;
+  error?: string;
+  record?: any;
+}> {
+  const normId = (options.certificateId || "").trim().toUpperCase();
+  if (!normId) {
+    return { success: false, error: "Certificate ID is required." };
+  }
+
+  if (!prisma || !(prisma as any).adminCertificateRecord) {
+    return { success: false, error: "Database service unavailable." };
+  }
+
+  try {
+    const existingDb = await (prisma as any).adminCertificateRecord.findFirst({
+      where: {
+        certificateId: { equals: normId, mode: "insensitive" },
+      },
+    });
+
+    if (!existingDb) {
+      return {
+        success: true,
+        message: `Certificate ${normId} is not retired (no retirement overlay found).`,
+        alreadyValid: true,
+      };
+    }
+
+    if (existingDb.status === "VALID") {
+      return {
+        success: true,
+        message: `Champion certificate ${normId} is already active/valid.`,
+        alreadyValid: true,
+        record: existingDb,
+      };
+    }
+
+    const notesPayload = JSON.stringify({
+      action: "RESTORE",
+      reason: options.reason?.trim() || "Restored by administrator",
+      restoredAt: new Date().toISOString(),
+      restoredBy: options.restoredBy || "ADMIN",
+      previousNotes: existingDb.notes,
+    });
+
+    const updated = await (prisma as any).adminCertificateRecord.update({
+      where: { id: existingDb.id },
+      data: {
+        status: "VALID",
+        notes: notesPayload,
+      },
+    });
+
+    invalidateStorageCache();
+    return {
+      success: true,
+      message: `Champion certificate ${normId} restored to active status successfully.`,
+      record: updated,
+    };
+  } catch (err: any) {
+    console.error("Error restoring champion certificate:", err);
+    return { success: false, error: err.message || "Failed to restore champion certificate." };
+  }
 }

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { prisma } from "./prisma";
 import { generateUnifiedCertificateSvg, formatCertificateFilename } from "./sanjeevaniCertificate";
 
 export type CPRCertificatePortal = "participant" | "champion" | "coordinator" | "facility";
@@ -101,6 +102,67 @@ let championMaxSeqIndexed = false;
 let coordinatorMaxSeqIndexed = false;
 let lastCsvMtime = 0;
 
+// In-Memory Cache for Administratively Retired Champion Certificate IDs
+let cachedRetiredChampionIds: Set<string> | null = null;
+let lastRetiredChampionFetch = 0;
+const RETIRED_CHAMPIONS_TTL_MS = 15000;
+
+export function invalidateRetiredChampionCache(): void {
+  cachedRetiredChampionIds = null;
+  lastRetiredChampionFetch = 0;
+  certificateCache.champion = undefined;
+  championMaxSeqIndexed = false;
+}
+
+export async function getRetiredChampionIdsAsync(forceRefresh = false): Promise<Set<string>> {
+  const now = Date.now();
+  if (!forceRefresh && cachedRetiredChampionIds !== null && now - lastRetiredChampionFetch < RETIRED_CHAMPIONS_TTL_MS) {
+    return cachedRetiredChampionIds;
+  }
+
+  const retiredSet = new Set<string>();
+  if (prisma && (prisma as any).adminCertificateRecord) {
+    try {
+      const retiredRecords = await (prisma as any).adminCertificateRecord.findMany({
+        where: {
+          category: "CPR_CHAMPION",
+          status: "RETIRED",
+        },
+        select: {
+          certificateId: true,
+        },
+      });
+      for (const r of retiredRecords) {
+        if (r.certificateId) {
+          retiredSet.add(r.certificateId.trim().toUpperCase());
+        }
+      }
+    } catch (e) {
+      // safe fallback
+    }
+  }
+
+  cachedRetiredChampionIds = retiredSet;
+  lastRetiredChampionFetch = now;
+  certificateCache.champion = undefined;
+  return retiredSet;
+}
+
+export function getRetiredChampionIdsSync(): Set<string> {
+  return cachedRetiredChampionIds || new Set<string>();
+}
+
+export function primeRetiredChampionCache(retiredIds: string[] | Set<string>): void {
+  if (retiredIds instanceof Set) {
+    cachedRetiredChampionIds = new Set(Array.from(retiredIds).map((s) => s.trim().toUpperCase()));
+  } else if (Array.isArray(retiredIds)) {
+    cachedRetiredChampionIds = new Set(retiredIds.map((s) => s.trim().toUpperCase()));
+  }
+  lastRetiredChampionFetch = Date.now();
+  certificateCache.champion = undefined;
+  championMaxSeqIndexed = false;
+}
+
 const CERTS_DIRS = [
   path.join(process.cwd(), "cprsanjeevani"),
   path.join(process.cwd(), "cprcertificates"),
@@ -150,9 +212,9 @@ function loadStoredAdminRecords(portal: CPRCertificatePortal): CPRCertificateRec
       const sc = jsonList[i];
       if (!sc || !sc.certificateId) continue;
 
-      // Status check: skip VOID, INACTIVE, CANCELLED
+      // Status check: skip VOID, INACTIVE, CANCELLED, RETIRED
       const status = (sc.status || "VALID").toUpperCase();
-      if (status === "VOID" || status === "INACTIVE" || status === "CANCELLED") {
+      if (status === "VOID" || status === "INACTIVE" || status === "CANCELLED" || status === "RETIRED") {
         continue;
       }
 
@@ -838,14 +900,28 @@ export function getAllCPRCertificates(portal: CPRCertificatePortal = "participan
     }
   }
 
-  certificateCache[portal] = records;
+  // Filter out retired champions if any are in cache
+  const retiredChampionIds = getRetiredChampionIdsSync();
+  const filteredRecords =
+    portal === "champion" && retiredChampionIds.size > 0
+      ? records.filter((r) => !retiredChampionIds.has(r.certificateNumber.trim().toUpperCase()))
+      : records;
+
+  certificateCache[portal] = filteredRecords;
   if (portal === "participant") {
-    indexCprDayParticipantSequences(records);
+    indexCprDayParticipantSequences(filteredRecords);
   } else if (portal === "champion") {
-    indexChampionSequences(records);
+    indexChampionSequences(filteredRecords);
   }
 
-  return records;
+  return filteredRecords;
+}
+
+export async function getAllCPRCertificatesAsync(portal: CPRCertificatePortal = "participant"): Promise<CPRCertificateRecord[]> {
+  if (portal === "champion") {
+    await getRetiredChampionIdsAsync();
+  }
+  return getAllCPRCertificates(portal);
 }
 
 function normalizeStateMatch(state: string): string {

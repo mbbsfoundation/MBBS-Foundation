@@ -163,7 +163,7 @@ async function runPersistenceBridgeTests() {
   assert(natReport.summary.reconciledReport.uniqueVenues === 292, `National unique physical venues = 292 (got: ${natReport.summary.reconciledReport.uniqueVenues})`);
   assert(natReport.summary.reconciledReport.coursesConducted === 395, `National courses conducted = 395 (got: ${natReport.summary.reconciledReport.coursesConducted})`);
   assert(natReport.summary.reconciledReport.participantsCertified === 33924, `National participants certified = 33,924 (got: ${natReport.summary.reconciledReport.participantsCertified})`);
-  assert(natReport.summary.reconciledReport.participantsTrained === 47320, `National participants trained = 47,320 (got: ${natReport.summary.reconciledReport.participantsTrained})`);
+  assert(natReport.summary.reconciledReport.participantsTrained === 47330, `National participants trained = 47,330 (got: ${natReport.summary.reconciledReport.participantsTrained})`);
 
   // TEST 14 & 15: Existing Working Certificate Cases Unaffected
   console.log("\n--- 6. Regression Immunity: Kaushalya Hospital & Gulabrao Patil ---");

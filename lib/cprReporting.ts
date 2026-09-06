@@ -6,7 +6,7 @@ import {
   deduplicatePersonNames,
   CPRCensusRecord,
 } from "./cprCensus";
-import { getAllCPRCertificates, CPRCertificateRecord } from "./cprCertificates";
+import { getAllCPRCertificates, CPRCertificateRecord, getRetiredChampionIdsSync } from "./cprCertificates";
 import {
   getAllSanjeevaniFromStorage,
   parseAndNormalizeCourseDate,
@@ -400,11 +400,7 @@ export async function fetchAdminCertificateRecordsAsync(forceRefresh = false): P
 
   if (prisma && (prisma as any).adminCertificateRecord) {
     try {
-      const dbRecords = await (prisma as any).adminCertificateRecord.findMany({
-        where: {
-          status: "VALID",
-        },
-      });
+      const dbRecords = await (prisma as any).adminCertificateRecord.findMany();
       cachedDbCertificateRecords = dbRecords;
       lastDbFetchTimestamp = now;
       return dbRecords;
@@ -423,6 +419,21 @@ export function buildUnifiedLiveCPRDayIndex(dbRecords: any[] = []): LiveCPRDaySt
   const participantsByState = new Map<string, UnifiedLiveCPRDayRecord[]>();
   const coordinatorsByState = new Map<string, UnifiedLiveCPRDayRecord[]>();
   const championsByState = new Map<string, UnifiedLiveCPRDayRecord[]>();
+
+  // Index retired champion certificate IDs from memory and DB records
+  const retiredChampionIds = new Set<string>();
+  for (const id of getRetiredChampionIdsSync()) {
+    retiredChampionIds.add(id.trim().toUpperCase());
+  }
+  for (const d of dbRecords) {
+    if (
+      d.certificateId &&
+      (d.category === "CPR_CHAMPION" || d.certificateId.startsWith("IAPCPR/CH/")) &&
+      (d.status === "RETIRED" || d.status === "REVOKED" || d.status === "VOID")
+    ) {
+      retiredChampionIds.add(d.certificateId.trim().toUpperCase());
+    }
+  }
 
   const pushRecord = (
     map: Map<string, UnifiedLiveCPRDayRecord[]>,
@@ -516,6 +527,8 @@ export function buildUnifiedLiveCPRDayIndex(dbRecords: any[] = []): LiveCPRDaySt
 
   for (const ch of csvChampions) {
     if (!ch.certificateNumber) continue;
+    const normChId = ch.certificateNumber.trim().toUpperCase();
+    if (retiredChampionIds.has(normChId)) continue;
     if (seenChampionIds.has(ch.certificateNumber)) continue;
 
     const dateValid = isStrictCPRDay(ch.issueDate);
@@ -557,6 +570,11 @@ export function buildUnifiedLiveCPRDayIndex(dbRecords: any[] = []): LiveCPRDaySt
       continue;
     }
 
+    const isChamp = s.category === "CPR_CHAMPION" || (s.certificateId && s.certificateId.startsWith("IAPCPR/CH/"));
+    if (isChamp && retiredChampionIds.has(s.certificateId.trim().toUpperCase())) {
+      continue;
+    }
+
     const dateValid = isStrictCPRDay(s.date);
     const catIsCPRDay = s.category === "CPR_DAY";
     if (!dateValid && !catIsCPRDay) continue;
@@ -565,7 +583,6 @@ export function buildUnifiedLiveCPRDayIndex(dbRecords: any[] = []): LiveCPRDaySt
     const stateCode = normalizeStateCode(s.stateCode || canonicalState);
 
     const isCoord = (s.category as string) === "COORDINATOR" || (s.category as string) === "COURSE_COORDINATOR" || (s.certificateId && s.certificateId.startsWith("IAPCPR/CC/"));
-    const isChamp = s.category === "CPR_CHAMPION" || (s.certificateId && s.certificateId.startsWith("IAPCPR/CH/"));
 
     const rec: UnifiedLiveCPRDayRecord = {
       sourceType: "STORAGE_JSON",
@@ -600,6 +617,7 @@ export function buildUnifiedLiveCPRDayIndex(dbRecords: any[] = []): LiveCPRDaySt
     for (const d of dbRecords) {
       if (!d.certificateId) continue;
       if (d.status && d.status !== "VALID") continue;
+      if (retiredChampionIds.has(d.certificateId.trim().toUpperCase())) continue;
 
       // Duplicate suppression: preserve historical source precedence
       if (seenParticipantIds.has(d.certificateId) || seenCoordinatorIds.has(d.certificateId) || seenChampionIds.has(d.certificateId)) {
@@ -1035,12 +1053,13 @@ export function getCPRDayReconciliationReport(
   // Combine venue summaries: baseline + supplementary + review
   const allStateVenues = [...venueSummaries, ...supplementaryVenues, ...reviewVenueSummaries];
 
-  const stateAllCoordinators = deduplicatePersonNames(
-    allStateVenues.flatMap((v) => v.allCoordinators)
-  );
-  const stateAllChampions = deduplicatePersonNames(
-    allStateVenues.flatMap((v) => v.allChampions)
-  );
+  const stateBaselineCoords = deduplicatePersonNames(stateVenues.flatMap((v: any) => v.coordinators));
+  const stateLiveCoords = deduplicatePersonNames(liveCoordinators.map((c: any) => c.name));
+  const stateAllCoordinators = deduplicatePersonNames([...stateBaselineCoords, ...stateLiveCoords]);
+
+  const stateBaselineChamps = deduplicatePersonNames(stateVenues.flatMap((v: any) => v.champions));
+  const stateLiveChamps = deduplicatePersonNames(liveChampions.map((c: any) => c.name));
+  const stateAllChampions = deduplicatePersonNames([...stateBaselineChamps, ...stateLiveChamps]);
 
   const centres: CentreReconciliationItem[] = allStateVenues.map((v) => ({
     canonicalVenueId: v.venueId,

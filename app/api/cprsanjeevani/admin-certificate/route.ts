@@ -6,15 +6,18 @@ import {
   normalizeParticipantName,
   normalizeStateCode,
   saveSingleIndividualCertificate,
+  retireChampionCertificateAsync,
+  restoreChampionCertificateAsync,
 } from "@/lib/sanjeevaniStorage";
 import {
   generateUnifiedCertificateSvg,
   formatCertificateFilename,
 } from "@/lib/sanjeevaniCertificate";
-import { searchCertificateById } from "@/lib/cprCertificates";
+import { searchCertificateById, getAllCPRCertificates } from "@/lib/cprCertificates";
 
 /**
  * GET handler:
+ * - action=search_champion: searches across CSV and DB champion records with status overlay
  * - Proposes next certificate ID for category & state
  * - Lists recent admin-added certificate records
  */
@@ -28,6 +31,113 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
+    const action = searchParams.get("action")?.trim();
+
+    // 1. Search Champion records (Active & Retired) for Admin Management
+    if (action === "search_champion") {
+      const q = (searchParams.get("q") || searchParams.get("query") || "").trim().toLowerCase();
+      if (!q) {
+        return NextResponse.json({ success: true, champions: [] });
+      }
+
+      // Load all CSV champion records
+      const rawCsvChampions = getAllCPRCertificates("champion");
+
+      // Load DB records for champions
+      let dbRecords: any[] = [];
+      if (prisma && (prisma as any).adminCertificateRecord) {
+        try {
+          dbRecords = await (prisma as any).adminCertificateRecord.findMany({
+            where: {
+              OR: [
+                { category: "CPR_CHAMPION" },
+                { certificateId: { startsWith: "IAPCPR/CH/" } },
+              ],
+            },
+          });
+        } catch (e) {
+          // safe fallback
+        }
+      }
+
+      const dbMap = new Map<string, any>();
+      for (const d of dbRecords) {
+        if (d.certificateId) {
+          dbMap.set(d.certificateId.trim().toUpperCase(), d);
+        }
+      }
+
+      const championList: any[] = [];
+      const seenIds = new Set<string>();
+
+      // Process CSV champions with DB status overlay
+      for (const c of rawCsvChampions) {
+        const certId = (c.certificateNumber || "").trim();
+        if (!certId) continue;
+        const certKey = certId.toUpperCase();
+        if (seenIds.has(certKey)) continue;
+        seenIds.add(certKey);
+
+        const dbOverlay = dbMap.get(certKey);
+        const status = dbOverlay ? dbOverlay.status : (c.status || "VALID");
+        const notes = dbOverlay ? dbOverlay.notes : undefined;
+        const source = dbOverlay ? dbOverlay.source : "CSV_MASTER";
+
+        championList.push({
+          certificateId: certId,
+          participantName: c.participantName,
+          venueName: c.venueName,
+          city: c.city,
+          state: c.state,
+          stateCode: c.zone || "",
+          issueDate: c.issueDate,
+          courseCoordinator: c.courseCoordinator,
+          status: status || "VALID",
+          isRetired: (status || "").toUpperCase() === "RETIRED",
+          source,
+          notes,
+        });
+      }
+
+      // Process pure DB champions not present in CSV
+      for (const d of dbRecords) {
+        const certId = (d.certificateId || "").trim();
+        if (!certId) continue;
+        const certKey = certId.toUpperCase();
+        if (seenIds.has(certKey)) continue;
+        seenIds.add(certKey);
+
+        championList.push({
+          certificateId: certId,
+          participantName: d.name,
+          venueName: d.venueName,
+          city: d.city,
+          state: d.state,
+          stateCode: d.stateCode,
+          issueDate: d.certificateDate,
+          courseCoordinator: d.courseCoordinator,
+          status: d.status || "VALID",
+          isRetired: (d.status || "").toUpperCase() === "RETIRED",
+          source: d.source || "MANUAL_ADMIN",
+          notes: d.notes,
+        });
+      }
+
+      // Filter by query q
+      const results = championList
+        .filter((ch) => {
+          const matchId = ch.certificateId.toLowerCase().includes(q);
+          const matchName = (ch.participantName || "").toLowerCase().includes(q);
+          const matchCity = (ch.city || "").toLowerCase().includes(q);
+          const matchState = (ch.state || "").toLowerCase().includes(q);
+          const matchVenue = (ch.venueName || "").toLowerCase().includes(q);
+          return matchId || matchName || matchCity || matchState || matchVenue;
+        })
+        .slice(0, 25);
+
+      return NextResponse.json({ success: true, champions: results });
+    }
+
     const category = (searchParams.get("category") || "").toUpperCase() as
       | "PARTICIPANT"
       | "CPR_CHAMPION"
@@ -72,9 +182,9 @@ export async function GET(request: NextRequest) {
 
 /**
  * POST handler:
- * - Creates a single AdminCertificateRecord in PostgreSQL & JSON storage
- * - Issues strictly unique, non-colliding certificate ID
- * - Renders dynamic SVG on demand
+ * - action=RETIRE: administratively retires a CPR Champion certificate
+ * - action=RESTORE: restores a retired CPR Champion certificate
+ * - Default: creates a single AdminCertificateRecord in PostgreSQL & JSON storage
  */
 export async function POST(request: NextRequest) {
   try {
@@ -86,6 +196,84 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
+    const action = (body.action || "").toUpperCase().trim();
+
+    // Handle Certificate Retirement
+    if (action === "RETIRE") {
+      const certId = (body.certificateId || "").trim();
+      const reason = (body.reason || "").trim();
+      const coordinatorReference = (body.coordinatorReference || "").trim();
+      const retiredBy = (body.retiredBy || "ADMIN").trim();
+
+      if (!certId) {
+        return NextResponse.json(
+          { success: false, error: "Certificate ID is required for retirement." },
+          { status: 400 }
+        );
+      }
+      if (!reason) {
+        return NextResponse.json(
+          { success: false, error: "Mandatory reason is required to retire a certificate." },
+          { status: 400 }
+        );
+      }
+
+      const result = await retireChampionCertificateAsync({
+        certificateId: certId,
+        reason,
+        coordinatorReference: coordinatorReference || undefined,
+        retiredBy,
+      });
+
+      if (!result.success) {
+        return NextResponse.json(
+          { success: false, error: result.error || "Failed to retire certificate." },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: result.message,
+        alreadyRetired: result.alreadyRetired,
+        record: result.record,
+      });
+    }
+
+    // Handle Certificate Restoration
+    if (action === "RESTORE") {
+      const certId = (body.certificateId || "").trim();
+      const reason = (body.reason || "").trim();
+      const restoredBy = (body.restoredBy || "ADMIN").trim();
+
+      if (!certId) {
+        return NextResponse.json(
+          { success: false, error: "Certificate ID is required for restoration." },
+          { status: 400 }
+        );
+      }
+
+      const result = await restoreChampionCertificateAsync({
+        certificateId: certId,
+        reason: reason || undefined,
+        restoredBy,
+      });
+
+      if (!result.success) {
+        return NextResponse.json(
+          { success: false, error: result.error || "Failed to restore certificate." },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: result.message,
+        alreadyValid: result.alreadyValid,
+        record: result.record,
+      });
+    }
+
     const rawCategory = (body.category || "PARTICIPANT").toUpperCase();
     let category: "PARTICIPANT" | "CPR_CHAMPION" | "COURSE_COORDINATOR" | "CPR_FACILITY" =
       "PARTICIPANT";

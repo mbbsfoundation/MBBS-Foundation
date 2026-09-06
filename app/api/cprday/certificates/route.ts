@@ -439,6 +439,45 @@ export async function GET(request: NextRequest) {
     if (certId) {
       const normalizedCertId = certId.toUpperCase();
 
+      // Step 0: Check if Certificate is Administratively Retired in PostgreSQL
+      if (prisma) {
+        try {
+          const retiredRec = await prisma.adminCertificateRecord.findFirst({
+            where: {
+              OR: [
+                { certificateId: { equals: normalizedCertId, mode: "insensitive" } },
+                { id: { equals: certId } },
+              ],
+              status: "RETIRED",
+            },
+          });
+
+          if (retiredRec) {
+            return NextResponse.json({
+              success: true,
+              isRetired: true,
+              status: "RETIRED",
+              message: "This certificate has been administratively withdrawn/retired by the course coordinator.",
+              certificate: {
+                certificateNumber: retiredRec.certificateId,
+                participantName: retiredRec.name,
+                category: retiredRec.category === "CPR_CHAMPION" ? "CPR Champion" : retiredRec.category,
+                courseTitle: "National IAP CPR Sanjeevani Champion Certificate",
+                venueName: retiredRec.venueName || retiredRec.name,
+                city: retiredRec.city || "",
+                state: retiredRec.state,
+                issueDate: retiredRec.certificateDate || "21 July 2026",
+                status: "RETIRED",
+                isRetired: true,
+                portalType: "champion",
+              },
+            });
+          }
+        } catch (e) {
+          // safe db fallback
+        }
+      }
+
       // Step 1: Check CPR Day CSV records
       let csvMatch: CPRCertificateRecord | null = null;
       csvMatch = searchCertificateById(certId, portal);
@@ -602,6 +641,7 @@ export async function GET(request: NextRequest) {
         try {
           const adminMatches = await prisma.adminCertificateRecord.findMany({
             where: {
+              status: "VALID",
               OR: [
                 { name: { contains: query, mode: "insensitive" } },
                 { normalizedName: { contains: cleanQ } },

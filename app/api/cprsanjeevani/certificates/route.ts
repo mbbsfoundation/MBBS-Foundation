@@ -22,6 +22,26 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      if (record.status === "RETIRED") {
+        if (action === "svg") {
+          return NextResponse.json(
+            { success: false, error: "This certificate has been administratively withdrawn/retired." },
+            { status: 410 }
+          );
+        }
+        return NextResponse.json({
+          success: true,
+          isRetired: true,
+          status: "RETIRED",
+          message: "This certificate has been administratively withdrawn/retired by the course coordinator.",
+          certificate: {
+            ...record,
+            status: "RETIRED",
+            isRetired: true,
+          },
+        });
+      }
+
       const svg = generateUnifiedCertificateSvg({
         category: record.category,
         participantName: record.participantName,

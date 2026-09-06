@@ -125,6 +125,19 @@ export default function SanjeevaniAdminPortalPage() {
   const [individualSuccessResult, setIndividualSuccessResult] = useState<CertificateItem | null>(null);
   const [individualError, setIndividualError] = useState<string | null>(null);
 
+  // Champion Certificate Management (Retire / Restore) States
+  const [individualSubMode, setIndividualSubMode] = useState<"issue" | "retire_champion">("issue");
+  const [champSearchQuery, setChampSearchQuery] = useState<string>("");
+  const [champSearching, setChampSearching] = useState<boolean>(false);
+  const [champSearchResults, setChampSearchResults] = useState<any[]>([]);
+  const [champSelected, setChampSelected] = useState<any | null>(null);
+  const [retireReason, setRetireReason] = useState<string>("");
+  const [retireCoordRef, setRetireCoordRef] = useState<string>("");
+  const [retireActionLoading, setRetireActionLoading] = useState<boolean>(false);
+  const [retireSuccessMessage, setRetireSuccessMessage] = useState<string | null>(null);
+  const [retireErrorMessage, setRetireErrorMessage] = useState<string | null>(null);
+  const [showRetireConfirm, setShowRetireConfirm] = useState<boolean>(false);
+
   // Batch generation states
   const [file, setFile] = useState<File | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -341,6 +354,135 @@ export default function SanjeevaniAdminPortalPage() {
     setIndCoordinator("");
     setIndCustomCertId("");
     setIndNotes("");
+  };
+
+  const handleSearchChampion = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!champSearchQuery.trim()) return;
+
+    setChampSearching(true);
+    setRetireSuccessMessage(null);
+    setRetireErrorMessage(null);
+    try {
+      const res = await fetch(
+        `/api/cprsanjeevani/admin-certificate?action=search_champion&q=${encodeURIComponent(
+          champSearchQuery.trim()
+        )}`
+      );
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setChampSearchResults(data.champions || []);
+        if (champSelected) {
+          const updated = (data.champions || []).find(
+            (c: any) => c.certificateId === champSelected.certificateId
+          );
+          if (updated) setChampSelected(updated);
+        }
+      } else {
+        setRetireErrorMessage(data.error || "Failed to search champion records.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setRetireErrorMessage("Network error while searching champion records.");
+    } finally {
+      setChampSearching(false);
+    }
+  };
+
+  const handleRetireChampion = async () => {
+    if (!champSelected) return;
+    if (!retireReason.trim()) {
+      setRetireErrorMessage("Please enter a mandatory reason for retiring this certificate.");
+      return;
+    }
+
+    setRetireActionLoading(true);
+    setRetireErrorMessage(null);
+    setRetireSuccessMessage(null);
+
+    try {
+      const res = await fetch("/api/cprsanjeevani/admin-certificate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "RETIRE",
+          certificateId: champSelected.certificateId,
+          reason: retireReason.trim(),
+          coordinatorReference: retireCoordRef.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setRetireSuccessMessage(
+          `Champion certificate ${champSelected.certificateId} has been administratively retired.`
+        );
+        setShowRetireConfirm(false);
+        setRetireReason("");
+        setRetireCoordRef("");
+        setChampSelected((prev: any) => ({
+          ...prev,
+          status: "RETIRED",
+          isRetired: true,
+        }));
+        handleSearchChampion();
+      } else {
+        setRetireErrorMessage(data.error || "Failed to retire certificate.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setRetireErrorMessage("Network error while retiring certificate.");
+    } finally {
+      setRetireActionLoading(false);
+    }
+  };
+
+  const handleRestoreChampion = async (cert?: any) => {
+    const target = cert || champSelected;
+    if (!target) return;
+
+    const confirmed = confirm(
+      `Are you sure you want to restore CPR Champion certificate "${target.certificateId}" for ${target.participantName}? It will become active and searchable again.`
+    );
+    if (!confirmed) return;
+
+    setRetireActionLoading(true);
+    setRetireErrorMessage(null);
+    setRetireSuccessMessage(null);
+
+    try {
+      const res = await fetch("/api/cprsanjeevani/admin-certificate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "RESTORE",
+          certificateId: target.certificateId,
+          reason: "Restored by administrator",
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setRetireSuccessMessage(
+          `Champion certificate ${target.certificateId} has been restored to active status.`
+        );
+        if (champSelected && champSelected.certificateId === target.certificateId) {
+          setChampSelected((prev: any) => ({
+            ...prev,
+            status: "VALID",
+            isRetired: false,
+          }));
+        }
+        handleSearchChampion();
+      } else {
+        setRetireErrorMessage(data.error || "Failed to restore certificate.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setRetireErrorMessage("Network error while restoring certificate.");
+    } finally {
+      setRetireActionLoading(false);
+    }
   };
 
   const handleDownloadSample = () => {
@@ -1226,347 +1368,686 @@ export default function SanjeevaniAdminPortalPage() {
           </main>
         </>
       ) : adminMode === "individual" ? (
-        /* INDIVIDUAL CERTIFICATE ADDITION VIEW */
+        /* INDIVIDUAL CERTIFICATE & CHAMPION MANAGEMENT VIEW */
         <main className="mx-auto max-w-4xl px-6 mt-6 space-y-8 animate-in fade-in duration-300">
-          {/* Individual Category Selector */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-1.5 rounded-2xl bg-slate-200 border border-slate-300 shadow-inner">
-            <button
-              type="button"
-              onClick={() => {
-                setIndividualCategory("PARTICIPANT");
-                setIndividualSuccessResult(null);
-              }}
-              className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                individualCategory === "PARTICIPANT"
-                  ? "bg-teal-800 text-white shadow-md scale-[1.01]"
-                  : "text-slate-700 hover:text-teal-900 hover:bg-white/50"
-              }`}
-            >
-              🎓 Participant
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setIndividualCategory("CHAMPION");
-                setIndividualSuccessResult(null);
-              }}
-              className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                individualCategory === "CHAMPION"
-                  ? "bg-amber-600 text-white shadow-md scale-[1.01]"
-                  : "text-slate-700 hover:text-amber-900 hover:bg-white/50"
-              }`}
-            >
-              🏆 CPR Champion
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setIndividualCategory("COORDINATOR");
-                setIndividualSuccessResult(null);
-              }}
-              className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                individualCategory === "COORDINATOR"
-                  ? "bg-emerald-700 text-white shadow-md scale-[1.01]"
-                  : "text-slate-700 hover:text-emerald-900 hover:bg-white/50"
-              }`}
-            >
-              🎗️ Coordinator
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setIndividualCategory("FACILITY");
-                setIndividualSuccessResult(null);
-              }}
-              className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
-                individualCategory === "FACILITY"
-                  ? "bg-indigo-700 text-white shadow-md scale-[1.01]"
-                  : "text-slate-700 hover:text-indigo-900 hover:bg-white/50"
-              }`}
-            >
-              🏥 Facility / Venue
-            </button>
+          {/* Sub-Mode Navigation */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIndividualSubMode("issue")}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer flex items-center gap-1.5 ${
+                  individualSubMode === "issue"
+                    ? "bg-teal-900 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                <span>➕</span> Issue Individual Certificate
+              </button>
+              <button
+                type="button"
+                onClick={() => setIndividualSubMode("retire_champion")}
+                className={`px-4 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition cursor-pointer flex items-center gap-1.5 ${
+                  individualSubMode === "retire_champion"
+                    ? "bg-rose-900 text-white shadow-sm"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                }`}
+              >
+                <span>🛡️</span> Manage &amp; Retire Champion Certificate
+              </button>
+            </div>
           </div>
 
-          {/* Success Banner if created */}
-          {individualSuccessResult && (
-            <div className="rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-900 p-6 sm:p-8 text-white shadow-xl animate-in zoom-in-95 duration-200">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <span className="rounded-full bg-emerald-400/20 border border-emerald-300/40 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-200">
-                    ✓ Certificate Issued Successfully
-                  </span>
-                  <h3 className="mt-3 text-2xl sm:text-3xl font-black text-white">
-                    {individualSuccessResult.participantName}
-                  </h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-teal-100">
-                    <span className="font-mono font-bold bg-white/20 px-2.5 py-0.5 rounded text-white">
-                      {individualSuccessResult.certificateId}
-                    </span>
-                    <span>• {individualSuccessResult.city}, {individualSuccessResult.state}</span>
-                    <span>• Date: {individualSuccessResult.date}</span>
+          {individualSubMode === "retire_champion" ? (
+            /* CHAMPION RETIREMENT / MANAGEMENT SECTION */
+            <div className="space-y-6">
+              {/* Banner Notifications */}
+              {retireSuccessMessage && (
+                <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-xs sm:text-sm font-bold text-emerald-900 flex items-center justify-between gap-3 shadow-sm animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2">
+                    <span>✓</span>
+                    <span>{retireSuccessMessage}</span>
                   </div>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-emerald-700/50 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setInspectItem(individualSuccessResult)}
-                  className="rounded-xl bg-teal-400 px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-950 shadow hover:bg-teal-300 transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  👁️ Preview Certificate
-                </button>
-                <button
-                  type="button"
-                  onClick={() => downloadCertificatePdf(individualSuccessResult)}
-                  className="rounded-xl bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow hover:bg-slate-100 transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  📥 Download PDF
-                </button>
-                <button
-                  type="button"
-                  onClick={() => downloadCertificatePng(individualSuccessResult)}
-                  className="rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-white/20 transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  🖼️ Download PNG
-                </button>
-                <button
-                  type="button"
-                  onClick={resetIndividualForm}
-                  className="rounded-xl border border-emerald-400/40 bg-emerald-900/60 px-5 py-2.5 text-xs sm:text-sm font-bold text-emerald-100 hover:bg-emerald-800 transition ml-auto cursor-pointer"
-                >
-                  ➕ Add Another Record
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Form Card */}
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
-            <div className="border-b border-slate-100 pb-4">
-              <h2 className="text-xl font-bold text-slate-900">
-                {individualCategory === "FACILITY"
-                  ? "Add Participating Venue / Facility Certificate"
-                  : individualCategory === "COORDINATOR"
-                  ? "Add Course Coordinator Certificate"
-                  : individualCategory === "CHAMPION"
-                  ? "Add CPR Champion Certificate"
-                  : "Add Participant Certificate"}
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Enter details to issue an official certificate record with automatic unique numbering.
-              </p>
-            </div>
-
-            {individualError && (
-              <div className="mt-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-bold text-rose-800 flex items-center gap-2">
-                <span>⚠️</span> {individualError}
-              </div>
-            )}
-
-            <form onSubmit={handleIndividualSubmit} className="mt-6 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {/* Full Name */}
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    {individualCategory === "FACILITY" ? "Venue / Facility Name *" : "Candidate Full Name *"}
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder={
-                      individualCategory === "FACILITY"
-                        ? "e.g. AIIMS Auditorium, Patna"
-                        : "e.g. Dr. Rajesh Sharma"
-                    }
-                    value={indName}
-                    onChange={(e) => setIndName(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                  />
-                </div>
-
-                {/* State Dropdown */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    State *
-                  </label>
-                  <select
-                    required
-                    value={indState}
-                    onChange={(e) => handleIndividualStateChange(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none bg-white cursor-pointer"
+                  <button
+                    type="button"
+                    onClick={() => setRetireSuccessMessage(null)}
+                    className="text-emerald-700 hover:text-emerald-900 text-xs underline cursor-pointer"
                   >
-                    <option value="">Select State...</option>
-                    {INDIAN_STATES_AND_CODES.map((s) => (
-                      <option key={s.code} value={s.name}>
-                        {s.name} ({s.code})
-                      </option>
-                    ))}
-                  </select>
+                    Dismiss
+                  </button>
+                </div>
+              )}
+
+              {retireErrorMessage && (
+                <div className="rounded-xl border border-rose-300 bg-rose-50 p-4 text-xs sm:text-sm font-bold text-rose-900 flex items-center justify-between gap-3 shadow-sm animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{retireErrorMessage}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRetireErrorMessage(null)}
+                    className="text-rose-700 hover:text-rose-900 text-xs underline cursor-pointer"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+
+              {/* Search Champion Section */}
+              <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm space-y-6">
+                <div>
+                  <span className="rounded-full bg-rose-100 text-rose-800 font-bold px-3 py-1 text-xs uppercase tracking-wider">
+                    Coordinator Feedback Audit
+                  </span>
+                  <h2 className="text-xl font-bold text-slate-900 mt-2">
+                    Manage &amp; Retire CPR Champion Certificate
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Search any CPR Champion certificate (historical CSV master or admin-issued) by Certificate ID, Name, or City to safely retire or restore it.
+                  </p>
                 </div>
 
-                {/* City */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    City / District *
-                  </label>
+                <form onSubmit={handleSearchChampion} className="flex gap-3">
                   <input
                     type="text"
-                    required
-                    placeholder="e.g. Mumbai, Kolkata, Patna"
-                    value={indCity}
-                    onChange={(e) => setIndCity(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                    placeholder="Enter Certificate ID (e.g. IAPCPR/CH/MH/0101) or Champion Name / City..."
+                    value={champSearchQuery}
+                    onChange={(e) => setChampSearchQuery(e.target.value)}
+                    className="flex-1 rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-rose-600 focus:ring-1 focus:ring-rose-600 focus:outline-none"
                   />
-                </div>
+                  <button
+                    type="submit"
+                    disabled={champSearching || !champSearchQuery.trim()}
+                    className="rounded-xl bg-rose-800 px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow hover:bg-rose-900 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  >
+                    {champSearching ? (
+                      <>
+                        <span className="animate-spin">⏳</span> Searching...
+                      </>
+                    ) : (
+                      <>
+                        <span>🔍</span> Search Champion
+                      </>
+                    )}
+                  </button>
+                </form>
 
-                {/* Venue Name (if participant/champion/coordinator) */}
-                {individualCategory !== "FACILITY" && (
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Training Venue Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. City Hospital Auditorium / Medical College Hall"
-                      value={indVenue}
-                      onChange={(e) => setIndVenue(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                    />
+                {/* Search Results */}
+                {champSearchResults.length > 0 && (
+                  <div className="space-y-4 pt-4 border-t border-slate-100">
+                    <div className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                      Search Results ({champSearchResults.length})
+                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                      {champSearchResults.map((c) => (
+                        <div
+                          key={c.certificateId}
+                          className={`rounded-xl border p-4 transition ${
+                            c.isRetired
+                              ? "border-rose-200 bg-rose-50/50"
+                              : "border-slate-200 bg-slate-50/50 hover:bg-slate-50"
+                          }`}
+                        >
+                          <div className="flex flex-wrap items-start justify-between gap-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-sm font-black text-slate-900">
+                                  {c.certificateId}
+                                </span>
+                                <span
+                                  className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                                    c.isRetired
+                                      ? "bg-rose-200 text-rose-900 border border-rose-300"
+                                      : "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                  }`}
+                                >
+                                  {c.isRetired ? "✕ RETIRED / REVOKED" : "✓ VALID / ACTIVE"}
+                                </span>
+                              </div>
+                              <h4 className="text-base font-bold text-slate-900 mt-1">
+                                {c.participantName}
+                              </h4>
+                              <div className="text-xs text-slate-600 mt-0.5 flex flex-wrap gap-x-3">
+                                <span>📍 {c.city}, {c.state}</span>
+                                {c.venueName && <span>🏢 {c.venueName}</span>}
+                                {c.courseCoordinator && <span>🎗️ Coord: {c.courseCoordinator}</span>}
+                                <span>📅 Date: {c.issueDate || "21 July 2026"}</span>
+                              </div>
+                              {c.isRetired && c.notes && (
+                                <div className="mt-2 text-xs bg-rose-100/70 border border-rose-200 rounded-lg p-2 text-rose-900">
+                                  <span className="font-bold">Retirement Notes: </span>
+                                  {(() => {
+                                    try {
+                                      const parsed = JSON.parse(c.notes);
+                                      return `${parsed.reason || ""}${parsed.coordinatorReference ? ` (Ref: ${parsed.coordinatorReference})` : ""}${parsed.retiredAt ? ` • Retired on ${new Date(parsed.retiredAt).toLocaleDateString()}` : ""}`;
+                                    } catch {
+                                      return c.notes;
+                                    }
+                                  })()}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              {c.isRetired ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleRestoreChampion(c)}
+                                  disabled={retireActionLoading}
+                                  className="rounded-lg bg-emerald-700 px-4 py-2 text-xs font-bold text-white shadow hover:bg-emerald-800 transition disabled:opacity-50 cursor-pointer"
+                                >
+                                  Restore Certificate
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setChampSelected(c);
+                                    setShowRetireConfirm(true);
+                                    setRetireReason("");
+                                    setRetireCoordRef("");
+                                    setRetireErrorMessage(null);
+                                  }}
+                                  className="rounded-lg border border-rose-400 bg-white px-4 py-2 text-xs font-bold text-rose-700 hover:bg-rose-50 transition cursor-pointer"
+                                >
+                                  Retire / Revoke
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
-                {/* Issue Date */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Course / Issue Date
-                  </label>
-                  <input
-                    type="text"
-                    value={indDate}
-                    onChange={(e) => setIndDate(e.target.value)}
-                    placeholder="21 July 2026"
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                  />
-                </div>
-
-                {/* Course Coordinator Name */}
-                {(individualCategory === "PARTICIPANT" || individualCategory === "FACILITY") && (
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Course Coordinator Name (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Dr. Punit Goenka"
-                      value={indCoordinator}
-                      onChange={(e) => setIndCoordinator(e.target.value)}
-                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                    />
+                {champSearchResults.length === 0 && champSearchQuery.trim() && !champSearching && (
+                  <div className="text-center py-8 text-xs text-slate-500">
+                    No CPR Champion certificates found matching &quot;{champSearchQuery}&quot;. Please verify the Certificate ID or spelling.
                   </div>
                 )}
+              </section>
 
-                {/* Mobile Number */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Mobile Number (Optional)
-                  </label>
-                  <input
-                    type="tel"
-                    placeholder="10-digit mobile number"
-                    value={indMobile}
-                    onChange={(e) => setIndMobile(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                  />
-                </div>
-
-                {/* Email Address */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Email Address (Optional)
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="name@example.com"
-                    value={indEmail}
-                    onChange={(e) => setIndEmail(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                  />
-                </div>
-
-                {/* Optional Custom Certificate ID Override */}
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center justify-between">
-                    <span>Custom Certificate ID / Venue Code (Optional Override)</span>
-                    <span className="text-[11px] text-slate-400 font-normal">Leave blank for automatic allocation</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder={
-                      proposedCertId ? `Leave blank to use auto-allocated ID: ${proposedCertId}` : "Auto-allocated upon state selection"
-                    }
-                    value={indCustomCertId}
-                    onChange={(e) => setIndCustomCertId(e.target.value)}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              {/* Dynamic Allocated Sequence Badge */}
-              <div className="rounded-xl border border-teal-200 bg-teal-50/80 p-4 flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xl">⚡</span>
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-teal-800">
-                      Proposed Certificate ID (Auto-Calculated)
+              {/* Retirement Confirmation Modal */}
+              {showRetireConfirm && champSelected && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                  <div className="w-full max-w-lg rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-rose-200 space-y-5 animate-in zoom-in-95 duration-150">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="rounded-full bg-rose-100 p-2.5 text-xl text-rose-700">
+                          ⚠️
+                        </span>
+                        <div>
+                          <h3 className="text-lg font-bold text-slate-900">
+                            Confirm Certificate Retirement
+                          </h3>
+                          <p className="text-xs text-slate-500">
+                            This action will mark the certificate as administratively withdrawn.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowRetireConfirm(false)}
+                        className="text-slate-400 hover:text-slate-600 text-lg cursor-pointer"
+                      >
+                        ✕
+                      </button>
                     </div>
-                    <div className="font-mono text-base sm:text-lg font-black text-teal-950">
-                      {loadingProposed ? (
-                        <span className="text-sm font-normal text-teal-600 animate-pulse">Calculating next sequence...</span>
-                      ) : proposedCertId ? (
-                        proposedCertId
-                      ) : (
-                        <span className="text-xs font-normal text-slate-500">Select state above to calculate ID</span>
-                      )}
+
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs space-y-1">
+                      <div>
+                        <span className="font-bold text-slate-700">Candidate: </span>
+                        <span className="font-bold text-slate-900">{champSelected.participantName}</span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-700">Certificate ID: </span>
+                        <span className="font-mono font-bold text-slate-900">{champSelected.certificateId}</span>
+                      </div>
+                      <div>
+                        <span className="font-bold text-slate-700">Location: </span>
+                        <span className="text-slate-800">{champSelected.city}, {champSelected.state}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                          Mandatory Reason for Retirement *
+                        </label>
+                        <select
+                          value={retireReason}
+                          onChange={(e) => setRetireReason(e.target.value)}
+                          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-rose-600 focus:ring-1 focus:ring-rose-600 focus:outline-none bg-white mb-2 cursor-pointer"
+                        >
+                          <option value="">Select a common reason...</option>
+                          <option value="Course Coordinator feedback: Person did not attend / contribute">
+                            Course Coordinator feedback: Person did not attend / contribute
+                          </option>
+                          <option value="Issued in error / duplicate certificate">
+                            Issued in error / duplicate certificate
+                          </option>
+                          <option value="Administrative revocation per audit review">
+                            Administrative revocation per audit review
+                          </option>
+                          <option value="Custom">Custom / Other Reason</option>
+                        </select>
+                        {retireReason === "Custom" && (
+                          <input
+                            type="text"
+                            placeholder="Enter specific custom reason..."
+                            onChange={(e) => setRetireReason(e.target.value)}
+                            className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-rose-600 focus:ring-1 focus:ring-rose-600 focus:outline-none"
+                          />
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                          Coordinator Reference / Audit Note (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Email from Course Coordinator dated 25 Aug 2026"
+                          value={retireCoordRef}
+                          onChange={(e) => setRetireCoordRef(e.target.value)}
+                          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs sm:text-sm text-slate-900 focus:border-rose-600 focus:ring-1 focus:ring-rose-600 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-[11px] text-amber-900">
+                      ℹ️ <span className="font-bold">Audit Guarantee:</span> The historical certificate data remains preserved in the database for compliance. It will immediately be excluded from active reporting counts and public searches.
+                    </div>
+
+                    <div className="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
+                      <button
+                        type="button"
+                        onClick={() => setShowRetireConfirm(false)}
+                        disabled={retireActionLoading}
+                        className="rounded-xl border border-slate-300 px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRetireChampion}
+                        disabled={retireActionLoading || !retireReason.trim() || retireReason === "Custom"}
+                        className="rounded-xl bg-rose-700 px-5 py-2.5 text-xs font-bold text-white shadow hover:bg-rose-800 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                      >
+                        {retireActionLoading ? (
+                          <>
+                            <span className="animate-spin">⏳</span> Retiring...
+                          </>
+                        ) : (
+                          <>
+                            <span>🛡️</span> Confirm Retirement
+                          </>
+                        )}
+                      </button>
                     </div>
                   </div>
                 </div>
-                <span className="text-[11px] font-semibold text-teal-700 bg-teal-100/80 px-2.5 py-1 rounded-md">
-                  Strictly Unique • Non-Colliding
-                </span>
-              </div>
-
-              {/* Submit Button */}
-              <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-end gap-3">
+              )}
+            </div>
+          ) : (
+            /* INDIVIDUAL CERTIFICATE ADDITION FORM */
+            <>
+              {/* Individual Category Selector */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-1.5 rounded-2xl bg-slate-200 border border-slate-300 shadow-inner">
                 <button
                   type="button"
-                  onClick={resetIndividualForm}
-                  className="rounded-xl border border-slate-300 px-5 py-3 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                  onClick={() => {
+                    setIndividualCategory("PARTICIPANT");
+                    setIndividualSuccessResult(null);
+                  }}
+                  className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    individualCategory === "PARTICIPANT"
+                      ? "bg-teal-800 text-white shadow-md scale-[1.01]"
+                      : "text-slate-700 hover:text-teal-900 hover:bg-white/50"
+                  }`}
                 >
-                  Reset Form
+                  🎓 Participant
                 </button>
+
                 <button
-                  type="submit"
-                  disabled={submittingIndividual || !indName || !indState}
-                  className="rounded-xl bg-gradient-to-r from-teal-700 via-teal-800 to-indigo-900 px-8 py-3 text-xs sm:text-base font-black text-white shadow-lg hover:from-teal-800 hover:to-indigo-950 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  type="button"
+                  onClick={() => {
+                    setIndividualCategory("CHAMPION");
+                    setIndividualSuccessResult(null);
+                  }}
+                  className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    individualCategory === "CHAMPION"
+                      ? "bg-amber-600 text-white shadow-md scale-[1.01]"
+                      : "text-slate-700 hover:text-amber-900 hover:bg-white/50"
+                  }`}
                 >
-                  {submittingIndividual ? (
-                    <>
-                      <span className="animate-spin">⏳</span> Issuing Certificate...
-                    </>
-                  ) : (
-                    <>
-                      <span>➕</span> Issue &amp; Generate Certificate
-                    </>
-                  )}
+                  🏆 CPR Champion
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIndividualCategory("COORDINATOR");
+                    setIndividualSuccessResult(null);
+                  }}
+                  className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    individualCategory === "COORDINATOR"
+                      ? "bg-emerald-700 text-white shadow-md scale-[1.01]"
+                      : "text-slate-700 hover:text-emerald-900 hover:bg-white/50"
+                  }`}
+                >
+                  🎗️ Coordinator
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIndividualCategory("FACILITY");
+                    setIndividualSuccessResult(null);
+                  }}
+                  className={`rounded-xl py-3 px-3 text-xs sm:text-sm font-black transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    individualCategory === "FACILITY"
+                      ? "bg-indigo-700 text-white shadow-md scale-[1.01]"
+                      : "text-slate-700 hover:text-indigo-900 hover:bg-white/50"
+                  }`}
+                >
+                  🏥 Facility / Venue
                 </button>
               </div>
-            </form>
-          </section>
+
+              {/* Success Banner if created */}
+              {individualSuccessResult && (
+                <div className="rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-900 p-6 sm:p-8 text-white shadow-xl animate-in zoom-in-95 duration-200">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <span className="rounded-full bg-emerald-400/20 border border-emerald-300/40 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-200">
+                        ✓ Certificate Issued Successfully
+                      </span>
+                      <h3 className="mt-3 text-2xl sm:text-3xl font-black text-white">
+                        {individualSuccessResult.participantName}
+                      </h3>
+                      <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-teal-100">
+                        <span className="font-mono font-bold bg-white/20 px-2.5 py-0.5 rounded text-white">
+                          {individualSuccessResult.certificateId}
+                        </span>
+                        <span>• {individualSuccessResult.city}, {individualSuccessResult.state}</span>
+                        <span>• Date: {individualSuccessResult.date}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t border-emerald-700/50 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setInspectItem(individualSuccessResult)}
+                      className="rounded-xl bg-teal-400 px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-950 shadow hover:bg-teal-300 transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      👁️ Preview Certificate
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadCertificatePdf(individualSuccessResult)}
+                      className="rounded-xl bg-white px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 shadow hover:bg-slate-100 transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      📥 Download PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => downloadCertificatePng(individualSuccessResult)}
+                      className="rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-white/20 transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      🖼️ Download PNG
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetIndividualForm}
+                      className="rounded-xl border border-emerald-400/40 bg-emerald-900/60 px-5 py-2.5 text-xs sm:text-sm font-bold text-emerald-100 hover:bg-emerald-800 transition ml-auto cursor-pointer"
+                    >
+                      ➕ Add Another Record
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Form Card */}
+              <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+                <div className="border-b border-slate-100 pb-4">
+                  <h2 className="text-xl font-bold text-slate-900">
+                    {individualCategory === "FACILITY"
+                      ? "Add Participating Venue / Facility Certificate"
+                      : individualCategory === "COORDINATOR"
+                      ? "Add Course Coordinator Certificate"
+                      : individualCategory === "CHAMPION"
+                      ? "Add CPR Champion Certificate"
+                      : "Add Participant Certificate"}
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Enter details to issue an official certificate record with automatic unique numbering.
+                  </p>
+                </div>
+
+                {individualError && (
+                  <div className="mt-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-bold text-rose-800 flex items-center gap-2">
+                    <span>⚠️</span> {individualError}
+                  </div>
+                )}
+
+                <form onSubmit={handleIndividualSubmit} className="mt-6 space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    {/* Full Name */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        {individualCategory === "FACILITY" ? "Venue / Facility Name *" : "Candidate Full Name *"}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder={
+                          individualCategory === "FACILITY"
+                            ? "e.g. AIIMS Auditorium, Patna"
+                            : "e.g. Dr. Rajesh Sharma"
+                        }
+                        value={indName}
+                        onChange={(e) => setIndName(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* State Dropdown */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        State *
+                      </label>
+                      <select
+                        required
+                        value={indState}
+                        onChange={(e) => handleIndividualStateChange(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none bg-white cursor-pointer"
+                      >
+                        <option value="">Select State...</option>
+                        {INDIAN_STATES_AND_CODES.map((s) => (
+                          <option key={s.code} value={s.name}>
+                            {s.name} ({s.code})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* City */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        City / District *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Mumbai, Kolkata, Patna"
+                        value={indCity}
+                        onChange={(e) => setIndCity(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Venue Name (if participant/champion/coordinator) */}
+                    {individualCategory !== "FACILITY" && (
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                          Training Venue Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. City Hospital Auditorium / Medical College Hall"
+                          value={indVenue}
+                          onChange={(e) => setIndVenue(e.target.value)}
+                          className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                        />
+                      </div>
+                    )}
+
+                    {/* Issue Date */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Course / Issue Date
+                      </label>
+                      <input
+                        type="text"
+                        value={indDate}
+                        onChange={(e) => setIndDate(e.target.value)}
+                        placeholder="21 July 2026"
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Course Coordinator Name */}
+                    {(individualCategory === "PARTICIPANT" || individualCategory === "FACILITY") && (
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                          Course Coordinator Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Dr. A. K. Sharma"
+                          value={indCoordinator}
+                          onChange={(e) => setIndCoordinator(e.target.value)}
+                          className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                        />
+                      </div>
+                    )}
+
+                    {/* Mobile Number */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Mobile Number
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="e.g. 9876543210"
+                        value={indMobile}
+                        onChange={(e) => setIndMobile(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Email ID */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="e.g. candidate@example.com"
+                        value={indEmail}
+                        onChange={(e) => setIndEmail(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Custom Notes */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Internal Administrative Notes (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Verified by State Coordinator on 22 July 2026"
+                        value={indNotes}
+                        onChange={(e) => setIndNotes(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                      />
+                    </div>
+
+                    {/* Custom Certificate ID Override */}
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Custom Certificate ID Override (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={
+                          proposedCertId ? `Leave blank to use auto-allocated ID: ${proposedCertId}` : "Auto-allocated upon state selection"
+                        }
+                        value={indCustomCertId}
+                        onChange={(e) => setIndCustomCertId(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-mono text-slate-900 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Dynamic Allocated Sequence Badge */}
+                  <div className="rounded-xl border border-teal-200 bg-teal-50/80 p-4 flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">⚡</span>
+                      <div>
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-teal-800">
+                          Proposed Certificate ID (Auto-Calculated)
+                        </div>
+                        <div className="font-mono text-base sm:text-lg font-black text-teal-950">
+                          {loadingProposed ? (
+                            <span className="text-sm font-normal text-teal-600 animate-pulse">Calculating next sequence...</span>
+                          ) : proposedCertId ? (
+                            proposedCertId
+                          ) : (
+                            <span className="text-xs font-normal text-slate-500">Select state above to calculate ID</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-semibold text-teal-700 bg-teal-100/80 px-2.5 py-1 rounded-md">
+                      Strictly Unique • Non-Colliding
+                    </span>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={resetIndividualForm}
+                      className="rounded-xl border border-slate-300 px-5 py-3 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                    >
+                      Reset Form
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submittingIndividual || !indName || !indState}
+                      className="rounded-xl bg-gradient-to-r from-teal-700 via-teal-800 to-indigo-900 px-8 py-3 text-xs sm:text-base font-black text-white shadow-lg hover:from-teal-800 hover:to-indigo-950 transition disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                    >
+                      {submittingIndividual ? (
+                        <>
+                          <span className="animate-spin">⏳</span> Issuing Certificate...
+                        </>
+                      ) : (
+                        <>
+                          <span>➕</span> Issue &amp; Generate Certificate
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </section>
+            </>
+          )}
         </main>
       ) : (
         /* STATE REPORTS VIEW */
