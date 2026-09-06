@@ -529,10 +529,17 @@ export default function Round2Planner() {
             <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
             <span>MCC Round-1 Evidence Available</span>
           </div>
-          <div className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-900">
-            <span className="h-2 w-2 rounded-full bg-amber-500"></span>
-            <span>Official Round-2 Vacancy: Awaiting Release</span>
+          <div className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-900">
+            <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+            <span>Official MCC Round-2 Vacancy Data Available</span>
           </div>
+          <Link
+            href="/neet-to-mbbs/counselling/round-2"
+            className="inline-flex items-center gap-1 rounded-xl border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-900 hover:bg-blue-100 transition"
+          >
+            <span>View Round 2 Decision Centre</span>
+            <span>→</span>
+          </Link>
         </div>
       </div>
 

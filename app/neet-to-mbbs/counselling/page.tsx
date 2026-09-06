@@ -362,6 +362,32 @@ export default async function NeetCounsellingGuidePage() {
             Understand the counselling process, explore medical colleges by state, and use available 2026 Round-1 evidence to plan your options.
           </p>
 
+          {/* Active Round 2 Announcement Banner */}
+          <div className="mt-4 rounded-2xl border-2 border-blue-300/90 bg-gradient-to-r from-blue-50/90 via-indigo-50/50 to-white p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
+                  Active Now
+                </span>
+                <span className="text-xs font-bold text-blue-950">
+                  MCC Round 2 is underway
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 max-w-xl">
+                See current Round 2 information, understand vacancy types, and choose the right decision tool.
+              </p>
+            </div>
+
+            <Link
+              href="/neet-to-mbbs/counselling/round-2"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-blue-900 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-blue-800 transition shrink-0"
+            >
+              <span>Open Round 2 Decision Centre</span>
+              <span>→</span>
+            </Link>
+          </div>
+
           {/* Regulatory Disclaimer Notice */}
           <div className="mt-4 rounded-xl bg-amber-50/80 border border-amber-200/90 p-3 sm:p-3.5 flex items-start gap-2.5 text-xs text-amber-950 shadow-2xs">
             <span className="text-base shrink-0 mt-0.5" aria-hidden="true">

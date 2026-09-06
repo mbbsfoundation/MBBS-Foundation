@@ -85,8 +85,8 @@ async function runTests() {
     "Hero includes clear 'MCC Round-1 Evidence Available' status indicator"
   );
   assert(
-    plannerContent.includes("Official Round-2 Vacancy: Awaiting Release"),
-    "Hero includes clear 'Official Round-2 Vacancy: Awaiting Release' status indicator"
+    plannerContent.includes("Official MCC Round-2 Vacancy Data Available"),
+    "Hero includes clear 'Official MCC Round-2 Vacancy Data Available' status indicator"
   );
   assert(
     !plannerContent.includes("State seats mapped — rank data awaited"),
