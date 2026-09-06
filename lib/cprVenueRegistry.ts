@@ -57,6 +57,7 @@ export function normalizeVenueKey(rawVenue: string, city?: string): string {
   v = v.replace(/\b(centre|center)\b/g, "centre");
   v = v.replace(/\b(univ|university)\b/g, "university");
   v = v.replace(/\b(dept|department)\b/g, "dept");
+  v = v.replace(/\b(cloudenine)\b/g, "cloudnine");
 
   if (city && typeof city === "string" && city.trim().length > 2) {
     const cNorm = city.toLowerCase().trim().replace(/[^a-z0-9]/g, " ").trim();

@@ -7,8 +7,9 @@ import {
   getAllCPRDayStateReports,
 } from "@/lib/cprCensus";
 import {
-  getCPRDayReconciliationReport,
-  getAllCPRDayReconciliationReports,
+  getCPRDayReconciliationReportAsync,
+  getAllCPRDayReconciliationReportsAsync,
+  getCPRDayNationalConsolidatedReportAsync,
 } from "@/lib/cprReporting";
 
 /**
@@ -42,10 +43,9 @@ export async function GET(request: NextRequest) {
         stateQuery.toLowerCase() === "india"
       ) {
         const { getCPRDayNationalConsolidatedStateReport } = await import("@/lib/cprCensus");
-        const { getCPRDayNationalConsolidatedReport } = await import("@/lib/cprReporting");
 
         const nationalStateReport = getCPRDayNationalConsolidatedStateReport();
-        const nationalReconciliationReport = getCPRDayNationalConsolidatedReport();
+        const nationalReconciliationReport = await getCPRDayNationalConsolidatedReportAsync();
 
         return NextResponse.json({
           success: true,
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       }
 
       const stateReport = getCPRDayStateReport(stateQuery);
-      const reconciliationReport = getCPRDayReconciliationReport(stateQuery);
+      const reconciliationReport = await getCPRDayReconciliationReportAsync(stateQuery);
 
       if (!stateReport && !reconciliationReport) {
         return NextResponse.json(
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
 
     if (allQuery) {
       if (reconciliationQuery) {
-        const allReconciliations = getAllCPRDayReconciliationReports();
+        const allReconciliations = await getAllCPRDayReconciliationReportsAsync();
         return NextResponse.json({
           success: true,
           reconciliations: allReconciliations,

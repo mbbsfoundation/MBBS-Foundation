@@ -12,7 +12,7 @@ import {
 } from "@/lib/cprVerificationStore";
 import { getLockedCensusStateList } from "@/lib/cprStateCensus";
 import { normalizeStateCode } from "@/lib/sanjeevaniStorage";
-import { getCPRDayReconciliationReport } from "@/lib/cprReporting";
+import { getCPRDayReconciliationReportAsync } from "@/lib/cprReporting";
 
 /**
  * Public Coordinator Verification API
@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
     const coordinators = getNormalizedCoordinatorsForDisplay(rawCoordinators);
 
     // Load full official State Draft Report
-    const report = getCPRDayReconciliationReport(canonicalState);
+    const report = await getCPRDayReconciliationReportAsync(canonicalState);
 
     // Load existing verification submissions for this state
     const stateSubmissions = await loadAllVerificationsAsync({ state: canonicalState });

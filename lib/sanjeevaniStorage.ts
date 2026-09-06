@@ -137,6 +137,15 @@ let cachedStorageBatches: SanjeevaniBatchRecord[] | null = null;
 export function invalidateStorageCache() {
   cachedStorageCerts = null;
   cachedStorageBatches = null;
+  try {
+    // Invalidate CPR reporting index cache dynamically to prevent stale live counts
+    const { invalidateLiveCPRIndexCache } = require("./cprReporting");
+    if (typeof invalidateLiveCPRIndexCache === "function") {
+      invalidateLiveCPRIndexCache();
+    }
+  } catch (e) {
+    // safe fallback
+  }
 }
 
 function ensureStorageFiles() {

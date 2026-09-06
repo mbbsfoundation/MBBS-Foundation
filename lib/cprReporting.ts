@@ -1,3 +1,4 @@
+import { prisma } from "./prisma";
 import {
   loadCPRCensusData,
   normalizeDisplayState,
@@ -253,10 +254,12 @@ export function scoreVenueMatch(
 ): VenueMatchScore {
   let lNorm = normalizeVenueKey(liveVenueRaw)
     .replace(/makhalabad/g, "makhmalabad")
-    .replace(/caterpiller/g, "caterpillar");
+    .replace(/caterpiller/g, "caterpillar")
+    .replace(/cloudenine/g, "cloudnine");
   let bNorm = normalizeVenueKey(baselineVenueRaw)
     .replace(/makhalabad/g, "makhmalabad")
-    .replace(/caterpiller/g, "caterpillar");
+    .replace(/caterpiller/g, "caterpillar")
+    .replace(/cloudenine/g, "cloudnine");
 
   const lCity = normalizeCityName(liveCityRaw);
   const bCity = normalizeCityName(baselineCityRaw);
@@ -369,15 +372,52 @@ let cachedLiveIndex: LiveCPRDayStateIndex | null = null;
 let lastLiveIndexTimestamp = 0;
 const CACHE_TTL_MS = 15000;
 
-/**
- * Loads and indexes all live verified CPR Day 2026 records strictly scoped to 2026-07-21.
- */
-export function loadUnifiedLiveCPRDayData(forceRefresh = false): LiveCPRDayStateIndex {
+let cachedDbCertificateRecords: any[] | null = null;
+let lastDbFetchTimestamp = 0;
+const DB_CACHE_TTL_MS = 15000;
+
+export function invalidateLiveCPRIndexCache(): void {
+  cachedLiveIndex = null;
+  lastLiveIndexTimestamp = 0;
+  cachedDbCertificateRecords = null;
+  lastDbFetchTimestamp = 0;
+}
+
+export function primeCPRReportingDbCache(records: any[]): void {
+  cachedDbCertificateRecords = records;
+  lastDbFetchTimestamp = Date.now();
+  cachedLiveIndex = null;
+  lastLiveIndexTimestamp = 0;
+}
+
+export async function fetchAdminCertificateRecordsAsync(forceRefresh = false): Promise<any[]> {
   const now = Date.now();
-  if (!forceRefresh && cachedLiveIndex && now - lastLiveIndexTimestamp < CACHE_TTL_MS) {
-    return cachedLiveIndex;
+  if (!forceRefresh && cachedDbCertificateRecords !== null && now - lastDbFetchTimestamp < DB_CACHE_TTL_MS) {
+    return cachedDbCertificateRecords;
   }
 
+  if (prisma && (prisma as any).adminCertificateRecord) {
+    try {
+      const dbRecords = await (prisma as any).adminCertificateRecord.findMany({
+        where: {
+          status: "VALID",
+        },
+      });
+      cachedDbCertificateRecords = dbRecords;
+      lastDbFetchTimestamp = now;
+      return dbRecords;
+    } catch (e) {
+      console.warn("Could not query AdminCertificateRecord from PostgreSQL:", e);
+      return cachedDbCertificateRecords || [];
+    }
+  }
+  return cachedDbCertificateRecords || [];
+}
+
+/**
+ * Builds unified Live CPR Day 2026 index across CSVs, Storage JSON, and PostgreSQL AdminCertificateRecord.
+ */
+export function buildUnifiedLiveCPRDayIndex(dbRecords: any[] = []): LiveCPRDayStateIndex {
   const participantsByState = new Map<string, UnifiedLiveCPRDayRecord[]>();
   const coordinatorsByState = new Map<string, UnifiedLiveCPRDayRecord[]>();
   const championsByState = new Map<string, UnifiedLiveCPRDayRecord[]>();
@@ -537,7 +577,7 @@ export function loadUnifiedLiveCPRDayData(forceRefresh = false): LiveCPRDayState
       stateCode,
       city: s.city || "",
       venue: s.venue || "",
-      normalizedVenue: normalizeVenueKey(s.venue || ""),
+      normalizedVenue: normalizeVenueKey(s.venue || "", s.city || ""),
       courseDate: "2026-07-21",
     };
 
@@ -553,11 +593,110 @@ export function loadUnifiedLiveCPRDayData(forceRefresh = false): LiveCPRDayState
     }
   }
 
-  cachedLiveIndex = {
+  // 5. Database-Generated Certificates (PostgreSQL AdminCertificateRecord)
+  if (Array.isArray(dbRecords)) {
+    for (const d of dbRecords) {
+      if (!d.certificateId) continue;
+      if (d.status && d.status !== "VALID") continue;
+
+      // Duplicate suppression: preserve historical source precedence
+      if (seenParticipantIds.has(d.certificateId) || seenCoordinatorIds.has(d.certificateId) || seenChampionIds.has(d.certificateId)) {
+        continue;
+      }
+
+      // Exclude Facilities from Participant/Faculty counts
+      if (
+        d.category === "CPR_FACILITY" ||
+        (d.certificateId && (d.certificateId.includes("/Venue/") || d.certificateId.startsWith("IAP-CPR-DAY/VENUE/")))
+      ) {
+        continue;
+      }
+
+      const dateValid = isStrictCPRDay(d.certificateDate);
+      const isPaId = d.certificateId.startsWith("IAPCPR/PA/");
+      const isCcId = d.certificateId.startsWith("IAPCPR/CC/");
+      const isChId = d.certificateId.startsWith("IAPCPR/CH/");
+
+      // Strictly CPR Day 2026 scope
+      const isCprDayScope = dateValid || isPaId || isCcId || isChId;
+      if (!isCprDayScope) continue;
+
+      const canonicalState = normalizeDisplayState(d.state || "");
+      const stateCode = normalizeStateCode(d.stateCode || canonicalState);
+
+      const isCoord = (d.category as string) === "COURSE_COORDINATOR" || (d.category as string) === "COORDINATOR" || isCcId;
+      const isChamp = d.category === "CPR_CHAMPION" || isChId;
+      const isParticipant = d.category === "PARTICIPANT" || (!isCoord && !isChamp);
+
+      // Verify category matches ID type if specified
+      if (isCoord && !isCcId && !dateValid) continue;
+      if (isChamp && !isChId && !dateValid) continue;
+      if (isParticipant && !isPaId && !dateValid) continue;
+
+      const rec: UnifiedLiveCPRDayRecord = {
+        sourceType: "PRISMA_DB",
+        category: isCoord ? "coordinator" : isChamp ? "champion" : "participant",
+        certificateId: d.certificateId,
+        name: d.name || "",
+        mobile: d.mobileNumber || "",
+        email: d.email || "",
+        state: d.state || canonicalState,
+        canonicalState,
+        stateCode,
+        city: d.city || "",
+        venue: d.venueName || "",
+        normalizedVenue: normalizeVenueKey(d.venueName || "", d.city || ""),
+        courseDate: "2026-07-21",
+      };
+
+      if (rec.category === "coordinator") {
+        seenCoordinatorIds.add(d.certificateId);
+        pushRecord(coordinatorsByState, canonicalState, rec);
+      } else if (rec.category === "champion") {
+        seenChampionIds.add(d.certificateId);
+        pushRecord(championsByState, canonicalState, rec);
+      } else {
+        seenParticipantIds.add(d.certificateId);
+        pushRecord(participantsByState, canonicalState, rec);
+      }
+    }
+  }
+
+  return {
     participantsByState,
     coordinatorsByState,
     championsByState,
   };
+}
+
+/**
+ * Loads and indexes all live verified CPR Day 2026 records strictly scoped to 2026-07-21 (Synchronous).
+ * Uses in-memory cached DB records if available.
+ */
+export function loadUnifiedLiveCPRDayData(forceRefresh = false): LiveCPRDayStateIndex {
+  const now = Date.now();
+  if (!forceRefresh && cachedLiveIndex && now - lastLiveIndexTimestamp < CACHE_TTL_MS) {
+    return cachedLiveIndex;
+  }
+
+  cachedLiveIndex = buildUnifiedLiveCPRDayIndex(cachedDbCertificateRecords || []);
+  lastLiveIndexTimestamp = now;
+
+  return cachedLiveIndex;
+}
+
+/**
+ * Loads and indexes all live verified CPR Day 2026 records strictly scoped to 2026-07-21 (Async).
+ * Queries PostgreSQL AdminCertificateRecord directly and refreshes the cache.
+ */
+export async function loadUnifiedLiveCPRDayDataAsync(forceRefresh = false): Promise<LiveCPRDayStateIndex> {
+  const now = Date.now();
+  if (!forceRefresh && cachedLiveIndex && now - lastLiveIndexTimestamp < CACHE_TTL_MS) {
+    return cachedLiveIndex;
+  }
+
+  const dbRecords = await fetchAdminCertificateRecordsAsync(forceRefresh);
+  cachedLiveIndex = buildUnifiedLiveCPRDayIndex(dbRecords);
   lastLiveIndexTimestamp = now;
 
   return cachedLiveIndex;
@@ -585,7 +724,8 @@ interface BaselineVenueGroup {
  * Generates the authoritative dual-metric CPR Day State Reconciliation Report.
  */
 export function getCPRDayReconciliationReport(
-  stateQuery: string
+  stateQuery: string,
+  preloadedLiveData?: LiveCPRDayStateIndex
 ): CPRDayStateReconciliationReport | null {
   const canonicalState = normalizeDisplayState(stateQuery);
   const lockedEntry = getLockedOfficialStateCensus(canonicalState);
@@ -604,7 +744,7 @@ export function getCPRDayReconciliationReport(
   const stateVenues = getCanonicalVenuesByState(canonicalState);
 
   // 2. Load Unified Live CPR Day Data for this State
-  const liveData = loadUnifiedLiveCPRDayData();
+  const liveData = preloadedLiveData || loadUnifiedLiveCPRDayData();
   const liveParticipants = liveData.participantsByState.get(canonicalState) || [];
   const liveCoordinators = liveData.coordinatorsByState.get(canonicalState) || [];
   const liveChampions = liveData.championsByState.get(canonicalState) || [];
@@ -984,16 +1124,37 @@ export function getCPRDayReconciliationReport(
   };
 }
 
-export function getAllCPRDayReconciliationReports(): CPRDayStateReconciliationReport[] {
+/**
+ * Async version of getCPRDayReconciliationReport that queries PostgreSQL AdminCertificateRecord.
+ */
+export async function getCPRDayReconciliationReportAsync(
+  stateQuery: string,
+  forceRefresh = false
+): Promise<CPRDayStateReconciliationReport | null> {
+  const liveData = await loadUnifiedLiveCPRDayDataAsync(forceRefresh);
+  return getCPRDayReconciliationReport(stateQuery, liveData);
+}
+
+export function getAllCPRDayReconciliationReports(
+  preloadedLiveData?: LiveCPRDayStateIndex
+): CPRDayStateReconciliationReport[] {
+  const liveData = preloadedLiveData || loadUnifiedLiveCPRDayData();
   const states = getLockedCensusStateList();
   const reports: CPRDayStateReconciliationReport[] = [];
 
   for (const s of states) {
-    const rep = getCPRDayReconciliationReport(s.canonicalState);
+    const rep = getCPRDayReconciliationReport(s.canonicalState, liveData);
     if (rep) reports.push(rep);
   }
 
   return reports;
+}
+
+export async function getAllCPRDayReconciliationReportsAsync(
+  forceRefresh = false
+): Promise<CPRDayStateReconciliationReport[]> {
+  const liveData = await loadUnifiedLiveCPRDayDataAsync(forceRefresh);
+  return getAllCPRDayReconciliationReports(liveData);
 }
 
 export interface StateNationalReconciliationRow {
@@ -1036,13 +1197,14 @@ export interface CPRDayNationalReconciliationReport {
 /**
  * Returns the National Consolidated Reconciliation Report spanning all 28 States/UTs.
  */
-export function getCPRDayNationalConsolidatedReport(): CPRDayNationalReconciliationReport {
-
-
+export function getCPRDayNationalConsolidatedReport(
+  preloadedLiveData?: LiveCPRDayStateIndex,
+  preloadedStateReports?: CPRDayStateReconciliationReport[]
+): CPRDayNationalReconciliationReport {
   const registry = getFrozenBaselineVenueRegistry();
   const snapshot = getFrozenVenueReviewSnapshot();
-  const liveData = loadUnifiedLiveCPRDayData();
-  const stateReports = getAllCPRDayReconciliationReports();
+  const liveData = preloadedLiveData || loadUnifiedLiveCPRDayData();
+  const stateReports = preloadedStateReports || getAllCPRDayReconciliationReports(liveData);
 
   const stateSummaries: StateNationalReconciliationRow[] = stateReports.map((r, idx) => {
     const reviewCount = r.summary.reconciliation.reviewVenues;
@@ -1183,3 +1345,15 @@ export function getCPRDayNationalConsolidatedReport(): CPRDayNationalReconciliat
     reconciliationDate: new Date().toISOString(),
   };
 }
+
+/**
+ * Async version of getCPRDayNationalConsolidatedReport that queries PostgreSQL AdminCertificateRecord.
+ */
+export async function getCPRDayNationalConsolidatedReportAsync(
+  forceRefresh = false
+): Promise<CPRDayNationalReconciliationReport> {
+  const liveData = await loadUnifiedLiveCPRDayDataAsync(forceRefresh);
+  const stateReports = await getAllCPRDayReconciliationReportsAsync(forceRefresh);
+  return getCPRDayNationalConsolidatedReport(liveData, stateReports);
+}
+
