@@ -415,12 +415,105 @@ export default function AdminCPRVerificationsPage() {
   const handleApplyStatusUpdate = async (targetStatus: VerificationSubmissionStatus) => {
     if (!activeSubmission) return;
 
-    // Strict validation for IMPLEMENTED
-    if (targetStatus === "IMPLEMENTED" && !adminNoteInput.trim()) {
-      setActionMessage({
-        type: "error",
-        text: "A mandatory implementation note is required when marking a submission as IMPLEMENTED. Please describe what downstream action was actually completed.",
-      });
+    // Strict validation for IMPLEMENTED -> route to downstream implementation endpoint
+    if (targetStatus === "IMPLEMENTED") {
+      if (activeSubmission.submissionStatus !== "ACCEPTED" && activeSubmission.submissionStatus !== "IMPLEMENTED") {
+        setActionMessage({
+          type: "error",
+          text: "Only ACCEPTED submissions can be marked as IMPLEMENTED downstream. Please accept the submission first.",
+        });
+        return;
+      }
+
+      if (!adminNoteInput.trim() && !activeSubmission.adminNote) {
+        setActionMessage({
+          type: "error",
+          text: "A mandatory implementation note is required when marking a submission as IMPLEMENTED. Please describe what downstream action was actually completed.",
+        });
+        return;
+      }
+
+      setActionLoading(true);
+      setActionMessage(null);
+
+      try {
+        const sub = activeSubmission;
+        let actionType: DownstreamActionType = "APPLY_METADATA_CORRECTION";
+        if (sub.submissionType === "MISSING_COURSE") {
+          actionType = "CONFIRM_SUPPLEMENTARY_COURSE";
+        } else if (
+          sub.proposedChangesJson?.participantsTrained !== undefined &&
+          sub.proposedChangesJson?.participantsTrained !== null
+        ) {
+          actionType = "APPLY_COUNT_ADJUSTMENT";
+        } else if (
+          (sub.proposedChangesJson?.coordinators && sub.proposedChangesJson.coordinators.length > 0) ||
+          (sub.proposedChangesJson?.champions && sub.proposedChangesJson.champions.length > 0)
+        ) {
+          actionType = "UPDATE_FACULTY_ATTRIBUTION";
+        } else if (sub.canonicalVenueId && sub.reportRowId && sub.canonicalVenueId !== sub.reportRowId) {
+          actionType = "APPLY_VENUE_MAPPING";
+        } else {
+          actionType = "APPLY_METADATA_CORRECTION";
+        }
+
+        const note =
+          adminNoteInput.trim() ||
+          sub.adminNote ||
+          sub.correctionNote ||
+          "Downstream correction verified and marked implemented by Administrator";
+
+        const res = await fetch("/api/cprsanjeevani/verify/implement", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            submissionId: sub.id,
+            actionType,
+            implementationNote: note,
+            evidenceReference: sub.evidenceNote || undefined,
+            targetCanonicalVenueId: sub.canonicalVenueId || sub.reportRowId || undefined,
+            proposedVenueName: sub.proposedChangesJson?.venue || sub.venue || undefined,
+            proposedCity: sub.proposedChangesJson?.city || sub.city || undefined,
+            proposedTrainedCount:
+              sub.proposedChangesJson?.participantsTrained !== undefined
+                ? Number(sub.proposedChangesJson.participantsTrained)
+                : undefined,
+            proposedCoursesCount:
+              sub.proposedChangesJson?.coursesCount !== undefined
+                ? Number(sub.proposedChangesJson.coursesCount)
+                : undefined,
+            proposedCoordinators: sub.proposedChangesJson?.coordinators || undefined,
+            proposedChampions: sub.proposedChangesJson?.champions || undefined,
+            proposedCourseDate: sub.proposedChangesJson?.courseDate || undefined,
+            adminUser: "Administrator",
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setActionMessage({
+            type: "success",
+            text: data.message || "Correction successfully implemented downstream and verified in State Report.",
+          });
+          if (data.submission) {
+            setActiveSubmission(data.submission);
+          }
+          setConfirmDialog(null);
+          fetchSubmissions();
+        } else {
+          setActionMessage({
+            type: "error",
+            text: data.error || "Failed to execute downstream implementation.",
+          });
+        }
+      } catch {
+        setActionMessage({
+          type: "error",
+          text: "Network error occurred during downstream implementation.",
+        });
+      } finally {
+        setActionLoading(false);
+      }
       return;
     }
 

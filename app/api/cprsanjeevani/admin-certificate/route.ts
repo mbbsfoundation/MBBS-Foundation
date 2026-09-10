@@ -14,6 +14,7 @@ import {
   formatCertificateFilename,
 } from "@/lib/sanjeevaniCertificate";
 import { searchCertificateById, getAllCPRCertificates } from "@/lib/cprCertificates";
+import { resolveCPRVenue } from "@/lib/cprVenueResolution";
 
 /**
  * GET handler:
@@ -312,6 +313,31 @@ export async function POST(request: NextRequest) {
         { success: false, error: "Valid 2-letter State Code is required." },
         { status: 400 }
       );
+    }
+
+    // Duplicate Venue Prevention for CPR_FACILITY
+    if (category === "CPR_FACILITY") {
+      const resolution = resolveCPRVenue({
+        state,
+        city,
+        venueName: venueName || name,
+        venueId: customCertificateId,
+      });
+      if (resolution.isExistingVenue) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Venue already exists: "${resolution.canonicalVenueName}" (${resolution.resolvedVenueId}). Duplicate individual venue creation is blocked.`,
+            existingVenue: {
+              venueId: resolution.resolvedVenueId,
+              venueName: resolution.canonicalVenueName,
+              city: resolution.city,
+              state: resolution.canonicalState,
+            },
+          },
+          { status: 409 }
+        );
+      }
     }
 
     // Determine Certificate ID

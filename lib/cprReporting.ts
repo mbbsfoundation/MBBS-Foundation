@@ -31,12 +31,16 @@ import {
   getFrozenVenueReviewSnapshot,
   getVenueMetadataOverridesMap,
   getVenueMetadataOverridesMapAsync,
+  loadImplementedSupplementaryCourses,
+  loadImplementedSupplementaryCoursesAsync,
   VenueMetadataOverride,
+  ImplementedSupplementaryCourse,
   ReconciliationDecisionType,
   CPRDAY_CENSUS_DRAFT_VERSION,
   StateVerificationStatus,
   StateVerificationRecord,
 } from "./cprReconciliationStore";
+import { resolveCPRVenue } from "./cprVenueResolution";
 
 export {
   normalizeCityName,
@@ -179,10 +183,12 @@ export interface CentreReconciliationItem {
   baselineParticipants: number;
   verifiedAttendanceCount?: number;
   liveRecords: number; // participantsCertified
+  participantsCertified?: number;
   classification: VenueClassification;
   classificationReason: string;
   confirmedIncrement: number;
   projectedTotal: number; // participantsTrained
+  participantsTrained?: number;
   baselineCoordinators: string[];
   additionalLiveCoordinators: string[];
   allCoordinators: string[];
@@ -746,7 +752,8 @@ interface BaselineVenueGroup {
 export function getCPRDayReconciliationReport(
   stateQuery: string,
   preloadedLiveData?: LiveCPRDayStateIndex,
-  preloadedOverrides?: Map<string, VenueMetadataOverride>
+  preloadedOverrides?: Map<string, VenueMetadataOverride>,
+  preloadedSupplementary?: ImplementedSupplementaryCourse[]
 ): CPRDayStateReconciliationReport | null {
   const canonicalState = normalizeDisplayState(stateQuery);
   const lockedEntry = getLockedOfficialStateCensus(canonicalState);
@@ -754,8 +761,6 @@ export function getCPRDayReconciliationReport(
 
   const stateCode = normalizeStateCode(canonicalState);
   const zone = lockedEntry.zone;
-
-
 
   // 1. Load All Baseline Census Rows & Canonical Physical Venues for this State
   const allCensusData = loadCPRCensusData();
@@ -815,11 +820,14 @@ export function getCPRDayReconciliationReport(
     if (group && ch.name) group.champions.add(normalizeDisplayName(ch.name));
   }
 
-  // 3. Candidate Mapping & Auto-Match against Canonical Baseline Venues
+  // 3. Candidate Mapping & Auto-Match against Canonical Baseline & Supplementary Venues
   const canonCerts = new Map<string, Set<string>>();
   const canonAdditionalCoords = new Map<string, Set<string>>();
   const canonAdditionalChamps = new Map<string, Set<string>>();
   const canonSampleCertIds = new Map<string, string[]>();
+
+  const suppCerts = new Map<string, Set<string>>();
+  const suppSampleCertIds = new Map<string, string[]>();
 
   stateVenues.forEach((v: any) => {
     canonCerts.set(v.canonicalVenueId, new Set<string>());
@@ -829,29 +837,56 @@ export function getCPRDayReconciliationReport(
   });
 
   for (const [, g] of liveVenueGroups.entries()) {
-    const autoCandidates: { canon: any; score: any }[] = [];
-    for (const b of stateVenues) {
-      const matchScore = scoreVenueMatch(g.rawVenue, g.rawCity, b.canonicalVenueName, b.city);
-      if (matchScore.score >= 0.70) {
-        autoCandidates.push({ canon: b, score: matchScore });
-      }
-    }
-    autoCandidates.sort((a, b) => b.score.score - a.score.score);
-    const aTop = autoCandidates[0];
-    const aRunnerUp = autoCandidates[1];
-    const aDominant = !aRunnerUp || aTop.score.score - aRunnerUp.score.score >= 0.15;
+    const resolution = resolveCPRVenue({
+      state: canonicalState,
+      city: g.rawCity,
+      venueName: g.rawVenue,
+    });
 
-    if (aTop && aDominant && aTop.score.score >= 0.75) {
-      const set = canonCerts.get(aTop.canon.canonicalVenueId)!;
-      g.records.forEach((r) => set.add(r.certificateId));
-      const coords = canonAdditionalCoords.get(aTop.canon.canonicalVenueId)!;
-      g.coordinators.forEach((name) => coords.add(name));
-      const champs = canonAdditionalChamps.get(aTop.canon.canonicalVenueId)!;
-      g.champions.forEach((name) => champs.add(name));
-      const samples = canonSampleCertIds.get(aTop.canon.canonicalVenueId)!;
+    if (
+      resolution.status === "EXACT_SUPPLEMENTARY" ||
+      (resolution.isExistingVenue && resolution.resolvedVenueId?.startsWith("SUPP-"))
+    ) {
+      const suppId = resolution.resolvedVenueId!;
+      let set = suppCerts.get(suppId);
+      if (!set) {
+        set = new Set<string>();
+        suppCerts.set(suppId, set);
+      }
+      g.records.forEach((r) => set!.add(r.certificateId));
+      let samples = suppSampleCertIds.get(suppId);
+      if (!samples) {
+        samples = [];
+        suppSampleCertIds.set(suppId, samples);
+      }
       g.sampleCertIds.forEach((id) => {
-        if (samples.length < 10) samples.push(id);
+        if (samples!.length < 10 && !samples!.includes(id)) samples!.push(id);
       });
+    } else {
+      const autoCandidates: { canon: any; score: any }[] = [];
+      for (const b of stateVenues) {
+        const matchScore = scoreVenueMatch(g.rawVenue, g.rawCity, b.canonicalVenueName, b.city);
+        if (matchScore.score >= 0.70) {
+          autoCandidates.push({ canon: b, score: matchScore });
+        }
+      }
+      autoCandidates.sort((a, b) => b.score.score - a.score.score);
+      const aTop = autoCandidates[0];
+      const aRunnerUp = autoCandidates[1];
+      const aDominant = !aRunnerUp || aTop.score.score - aRunnerUp.score.score >= 0.15;
+
+      if (aTop && aDominant && aTop.score.score >= 0.75) {
+        const set = canonCerts.get(aTop.canon.canonicalVenueId)!;
+        g.records.forEach((r) => set.add(r.certificateId));
+        const coords = canonAdditionalCoords.get(aTop.canon.canonicalVenueId)!;
+        g.coordinators.forEach((name) => coords.add(name));
+        const champs = canonAdditionalChamps.get(aTop.canon.canonicalVenueId)!;
+        g.champions.forEach((name) => champs.add(name));
+        const samples = canonSampleCertIds.get(aTop.canon.canonicalVenueId)!;
+        g.sampleCertIds.forEach((id) => {
+          if (samples.length < 10) samples.push(id);
+        });
+      }
     }
   }
 
@@ -864,6 +899,7 @@ export function getCPRDayReconciliationReport(
   const supplementaryVenues: CPRDayVenueSummary[] = [];
   const reviewQueue: VenueMatchingReviewItem[] = [];
   const reviewVenueSummaries: CPRDayVenueSummary[] = [];
+  const seenSuppVenueKeys = new Set<string>();
 
   let supplementaryTrainedSum = 0;
   let supplementaryCertifiedSum = 0;
@@ -887,10 +923,11 @@ export function getCPRDayReconciliationReport(
       const suppTrained = item.supplementaryTrainedCount !== undefined ? item.supplementaryTrainedCount : item.certifiedCount;
       supplementaryTrainedSum += suppTrained;
       supplementaryCertifiedSum += item.certifiedCount;
+      seenSuppVenueKeys.add(item.reviewId);
 
       const suppVenue: CPRDayVenueSummary = {
         venueId: item.reviewId,
-        serialNumber: `SUPP-${item.reviewId}`,
+        serialNumber: item.reviewId.startsWith("SUPP-") ? item.reviewId : `SUPP-${item.reviewId}`,
         state: canonicalState,
         canonicalState,
         stateCode,
@@ -968,9 +1005,57 @@ export function getCPRDayReconciliationReport(
     }
   }
 
+  // 4B. Ingest Implemented Supplementary Course Submissions (New Physical Venues)
+  const supplementarySubmissions = (preloadedSupplementary || loadImplementedSupplementaryCourses()).filter(
+    (s) => s.canonicalState.toLowerCase() === canonicalState.toLowerCase() && !s.isExistingCanonicalVenue
+  );
+
+  for (const s of supplementarySubmissions) {
+    const suppKey = s.reviewId || s.id;
+    if (!seenSuppVenueKeys.has(suppKey) && !seenSuppVenueKeys.has(s.id) && !seenSuppVenueKeys.has(s.submissionId)) {
+      seenSuppVenueKeys.add(suppKey);
+      seenSuppVenueKeys.add(s.id);
+      seenSuppVenueKeys.add(s.submissionId);
+      supplementaryTrainedSum += s.participantsTrained;
+
+      const matchedCertSet = suppCerts.get(suppKey) || suppCerts.get(s.reviewId) || suppCerts.get(s.id) || new Set<string>();
+      const certCount = matchedCertSet.size;
+      const sampleIds = suppSampleCertIds.get(suppKey) || Array.from(matchedCertSet).slice(0, 10);
+
+      const suppVenue: CPRDayVenueSummary = {
+        venueId: suppKey,
+        serialNumber: suppKey.startsWith("SUPP-") ? suppKey : `SUPP-${suppKey}`,
+        state: canonicalState,
+        canonicalState,
+        stateCode,
+        city: s.city,
+        venue: s.venue,
+        normalizedVenue: normalizeVenueKey(s.venue, s.city),
+        baselineCourseCount: 0,
+        supplementaryCourseCount: s.coursesCount,
+        totalCourseCount: s.coursesCount,
+        baselineReportedTrained: 0,
+        participantsCertified: certCount,
+        supplementaryTrained: s.participantsTrained,
+        participantsTrained: s.participantsTrained,
+        isApprovedSupplementaryNewCourse: true,
+        classification: "APPROVED_SUPPLEMENTARY" as any,
+        classificationReason: s.reviewNote || "Confirmed supplementary new course/venue",
+        baselineCoordinators: [],
+        additionalLiveCoordinators: s.coordinators,
+        allCoordinators: s.coordinators,
+        baselineChampions: [],
+        additionalLiveChampions: s.champions,
+        allChampions: s.champions,
+        baselineRows: [],
+        sampleCertificateIds: sampleIds,
+      };
+      supplementaryVenues.push(suppVenue);
+    }
+  }
+
   // 5. Assemble Canonical Baseline Venue Summaries
   const venueSummaries: CPRDayVenueSummary[] = [];
-  let totalReconciledParticipantsTrained = 0;
   let totalMatchedParticipantsCertified = 0;
   let baselineMatchedVenuesCount = 0;
   const metaOverrides = preloadedOverrides || getVenueMetadataOverridesMap();
@@ -1007,7 +1092,6 @@ export function getCPRDayReconciliationReport(
     const participantsCertified = certs.size;
     const participantsTrained = Math.max(effectiveBaselineTrained, participantsCertified);
 
-    totalReconciledParticipantsTrained += participantsTrained;
     totalMatchedParticipantsCertified += participantsCertified;
     if (participantsCertified > 0) baselineMatchedVenuesCount += 1;
 
@@ -1053,13 +1137,13 @@ export function getCPRDayReconciliationReport(
   // Combine venue summaries: baseline + supplementary + review
   const allStateVenues = [...venueSummaries, ...supplementaryVenues, ...reviewVenueSummaries];
 
-  const stateBaselineCoords = deduplicatePersonNames(stateVenues.flatMap((v: any) => v.coordinators));
-  const stateLiveCoords = deduplicatePersonNames(liveCoordinators.map((c: any) => c.name));
-  const stateAllCoordinators = deduplicatePersonNames([...stateBaselineCoords, ...stateLiveCoords]);
+  const allVenueCoords = allStateVenues.flatMap((v) => v.allCoordinators);
+  const stateLiveCoords = liveCoordinators.map((c: any) => c.name);
+  const stateAllCoordinators = deduplicatePersonNames([...allVenueCoords, ...stateLiveCoords]);
 
-  const stateBaselineChamps = deduplicatePersonNames(stateVenues.flatMap((v: any) => v.champions));
-  const stateLiveChamps = deduplicatePersonNames(liveChampions.map((c: any) => c.name));
-  const stateAllChampions = deduplicatePersonNames([...stateBaselineChamps, ...stateLiveChamps]);
+  const allVenueChamps = allStateVenues.flatMap((v) => v.allChampions);
+  const stateLiveChamps = liveChampions.map((c: any) => c.name);
+  const stateAllChampions = deduplicatePersonNames([...allVenueChamps, ...stateLiveChamps]);
 
   const centres: CentreReconciliationItem[] = allStateVenues.map((v) => ({
     canonicalVenueId: v.venueId,
@@ -1074,10 +1158,12 @@ export function getCPRDayReconciliationReport(
     baselineParticipants: v.baselineReportedTrained,
     verifiedAttendanceCount: v.verifiedAttendanceCount,
     liveRecords: v.participantsCertified,
+    participantsCertified: v.participantsCertified,
     classification: v.classification,
     classificationReason: v.classificationReason,
     confirmedIncrement: Math.max(0, v.participantsTrained - v.baselineReportedTrained),
     projectedTotal: v.participantsTrained,
+    participantsTrained: v.participantsTrained,
     baselineCoordinators: v.baselineCoordinators,
     additionalLiveCoordinators: v.additionalLiveCoordinators,
     allCoordinators: v.allCoordinators,
@@ -1087,15 +1173,20 @@ export function getCPRDayReconciliationReport(
     sampleCertificateIds: v.sampleCertificateIds,
   }));
 
-  const existingPositiveIncrement = Math.max(
+  const totalCoursesConducted =
+    venueSummaries.reduce((sum, v) => sum + v.totalCourseCount, 0) +
+    supplementaryVenues.reduce((sum, v) => sum + v.totalCourseCount, 0);
+
+  const totalPhysicalVenues = venueSummaries.length + supplementaryVenues.length;
+
+  const totalReconciledParticipantsTrained =
+    venueSummaries.reduce((sum, v) => sum + v.participantsTrained, 0) +
+    supplementaryVenues.reduce((sum, v) => sum + v.participantsTrained, 0);
+
+  const totalConfirmedIncrement = Math.max(
     0,
     totalReconciledParticipantsTrained - lockedEntry.participantsTrained
   );
-  const totalReconciledWithSupp = totalReconciledParticipantsTrained + supplementaryTrainedSum;
-  const totalConfirmedIncrement = existingPositiveIncrement + supplementaryTrainedSum;
-
-  const totalCoursesConducted = lockedEntry.centres + supplementaryVenues.length;
-  const totalPhysicalVenues = stateVenues.length + supplementaryVenues.length;
 
   const summary: StateReconciliationSummary = {
     baseline: {
@@ -1125,7 +1216,7 @@ export function getCPRDayReconciliationReport(
     reconciledReport: {
       uniqueVenues: totalPhysicalVenues,
       coursesConducted: totalCoursesConducted,
-      participantsTrained: totalReconciledWithSupp,
+      participantsTrained: totalReconciledParticipantsTrained,
       participantsCertified: liveParticipants.length,
       coordinatorsCount: stateAllCoordinators.length,
       championsCount: stateAllChampions.length,
@@ -1153,24 +1244,27 @@ export async function getCPRDayReconciliationReportAsync(
   stateQuery: string,
   forceRefresh = false
 ): Promise<CPRDayStateReconciliationReport | null> {
-  const [liveData, metaOverrides] = await Promise.all([
+  const [liveData, metaOverrides, suppCourses] = await Promise.all([
     loadUnifiedLiveCPRDayDataAsync(forceRefresh),
     getVenueMetadataOverridesMapAsync(forceRefresh),
+    loadImplementedSupplementaryCoursesAsync(forceRefresh),
   ]);
-  return getCPRDayReconciliationReport(stateQuery, liveData, metaOverrides);
+  return getCPRDayReconciliationReport(stateQuery, liveData, metaOverrides, suppCourses);
 }
 
 export function getAllCPRDayReconciliationReports(
   preloadedLiveData?: LiveCPRDayStateIndex,
-  preloadedOverrides?: Map<string, VenueMetadataOverride>
+  preloadedOverrides?: Map<string, VenueMetadataOverride>,
+  preloadedSupplementary?: ImplementedSupplementaryCourse[]
 ): CPRDayStateReconciliationReport[] {
   const liveData = preloadedLiveData || loadUnifiedLiveCPRDayData();
   const metaOverrides = preloadedOverrides || getVenueMetadataOverridesMap();
+  const suppCourses = preloadedSupplementary || loadImplementedSupplementaryCourses();
   const states = getLockedCensusStateList();
   const reports: CPRDayStateReconciliationReport[] = [];
 
   for (const s of states) {
-    const rep = getCPRDayReconciliationReport(s.canonicalState, liveData, metaOverrides);
+    const rep = getCPRDayReconciliationReport(s.canonicalState, liveData, metaOverrides, suppCourses);
     if (rep) reports.push(rep);
   }
 
@@ -1180,11 +1274,12 @@ export function getAllCPRDayReconciliationReports(
 export async function getAllCPRDayReconciliationReportsAsync(
   forceRefresh = false
 ): Promise<CPRDayStateReconciliationReport[]> {
-  const [liveData, metaOverrides] = await Promise.all([
+  const [liveData, metaOverrides, suppCourses] = await Promise.all([
     loadUnifiedLiveCPRDayDataAsync(forceRefresh),
     getVenueMetadataOverridesMapAsync(forceRefresh),
+    loadImplementedSupplementaryCoursesAsync(forceRefresh),
   ]);
-  return getAllCPRDayReconciliationReports(liveData, metaOverrides);
+  return getAllCPRDayReconciliationReports(liveData, metaOverrides, suppCourses);
 }
 
 export interface StateNationalReconciliationRow {
@@ -1382,11 +1477,13 @@ export function getCPRDayNationalConsolidatedReport(
 export async function getCPRDayNationalConsolidatedReportAsync(
   forceRefresh = false
 ): Promise<CPRDayNationalReconciliationReport> {
-  const [liveData, metaOverrides] = await Promise.all([
+  const [liveData, metaOverrides, suppCourses] = await Promise.all([
     loadUnifiedLiveCPRDayDataAsync(forceRefresh),
     getVenueMetadataOverridesMapAsync(forceRefresh),
+    loadImplementedSupplementaryCoursesAsync(forceRefresh),
   ]);
-  const stateReports = getAllCPRDayReconciliationReports(liveData, metaOverrides);
+  const stateReports = getAllCPRDayReconciliationReports(liveData, metaOverrides, suppCourses);
   return getCPRDayNationalConsolidatedReport(liveData, stateReports);
 }
+
 

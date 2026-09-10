@@ -10,6 +10,7 @@ import {
   searchCertificateById,
   invalidateRetiredChampionCache,
 } from "@/lib/cprCertificates";
+import { resolveCPRVenue } from "@/lib/cprVenueResolution";
 
 export type CertificateCategory =
   | "CPR_DAY"
@@ -1587,6 +1588,21 @@ export async function saveGeneratedBatch(
     const venueVal = row.venue || row.name;
     const participantNameVal = category === "CPR_FACILITY" ? venueVal : row.name.trim();
 
+    // Central Venue Resolution for Batch Ingestion
+    const venueResolution = resolveCPRVenue({
+      state: row.state,
+      city: row.city,
+      venueName: venueVal,
+      venueId: row.venueCode,
+    });
+
+    const finalVenueName = venueResolution.isExistingVenue
+      ? venueResolution.canonicalVenueName
+      : venueVal.trim();
+    const finalVenueCode = venueResolution.resolvedVenueId || row.venueCode?.trim() || (category === "CPR_FACILITY" ? certId : undefined);
+    const finalCity = venueResolution.city || row.city.trim();
+    const finalState = venueResolution.canonicalState || row.state.trim();
+
     const record: SanjeevaniCertificateRecord = {
       id: `CERT-${now.getTime()}-${Math.floor(1000 + Math.random() * 9000)}-${seq}`,
       certificateId: certId,
@@ -1597,10 +1613,10 @@ export async function saveGeneratedBatch(
       participantName: participantNameVal,
       normalizedName: normalizeParticipantName(participantNameVal),
       date: normalizedDate.displayDate || row.date.trim() || "21 July 2026",
-      venue: venueVal.trim(),
-      venueCode: row.venueCode?.trim() || certId,
-      city: row.city.trim(),
-      state: row.state.trim(),
+      venue: finalVenueName,
+      venueCode: finalVenueCode || certId,
+      city: finalCity,
+      state: finalState,
       mobileNumber: row.mobileNumber?.trim() || undefined,
       email: row.email?.trim() || undefined,
       courseCoordinator: row.courseCoordinator?.trim() || undefined,

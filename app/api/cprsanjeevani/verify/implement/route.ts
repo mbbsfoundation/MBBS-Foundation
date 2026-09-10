@@ -107,28 +107,55 @@ export async function POST(req: NextRequest) {
       adminUser,
     } = body;
 
-    if (!submissionId || !actionType) {
+    if (!submissionId) {
       return NextResponse.json(
-        { success: false, error: "submissionId and actionType are required." },
+        { success: false, error: "submissionId is required." },
         { status: 400 }
       );
     }
 
-    if (!implementationNote || !implementationNote.trim()) {
+    const allSubmissions = await loadAllVerificationsAsync();
+    const targetSub = allSubmissions.find((s) => s.id === submissionId);
+
+    if (!targetSub) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "A mandatory implementation note describing the action taken is required.",
-        },
-        { status: 400 }
+        { success: false, error: `Submission ${submissionId} not found.` },
+        { status: 404 }
       );
     }
+
+    let resolvedActionType = actionType;
+    if (!resolvedActionType) {
+      if (targetSub.submissionType === "MISSING_COURSE") {
+        resolvedActionType = "CONFIRM_SUPPLEMENTARY_COURSE";
+      } else if (
+        targetSub.proposedChangesJson?.participantsTrained !== undefined &&
+        targetSub.proposedChangesJson?.participantsTrained !== null
+      ) {
+        resolvedActionType = "APPLY_COUNT_ADJUSTMENT";
+      } else if (
+        (targetSub.proposedChangesJson?.coordinators && targetSub.proposedChangesJson.coordinators.length > 0) ||
+        (targetSub.proposedChangesJson?.champions && targetSub.proposedChangesJson.champions.length > 0)
+      ) {
+        resolvedActionType = "UPDATE_FACULTY_ATTRIBUTION";
+      } else if (targetSub.canonicalVenueId && targetSub.reportRowId && targetSub.canonicalVenueId !== targetSub.reportRowId) {
+        resolvedActionType = "APPLY_VENUE_MAPPING";
+      } else {
+        resolvedActionType = "APPLY_METADATA_CORRECTION";
+      }
+    }
+
+    const resolvedNote =
+      (implementationNote && implementationNote.trim()) ||
+      targetSub.adminNote?.trim() ||
+      targetSub.correctionNote?.trim() ||
+      "Downstream correction verified and marked implemented by Administrator.";
 
     const result = await executeDownstreamImplementation({
       submissionId,
-      actionType: actionType as DownstreamActionType,
+      actionType: resolvedActionType as DownstreamActionType,
       adminUser: adminUser || "Administrator",
-      implementationNote,
+      implementationNote: resolvedNote,
       evidenceReference,
       targetCanonicalVenueId,
       proposedVenueName,

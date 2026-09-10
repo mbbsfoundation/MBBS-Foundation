@@ -7,6 +7,7 @@ import type {
   VerificationSubmissionType,
   SubmitterIdentityStatus,
 } from "@/lib/cprVerificationStore";
+import type { DownstreamActionType } from "@/lib/cprDownstreamImplementation";
 
 interface CPRVerificationInboxProps {
   initialStateFilter?: string;
@@ -124,6 +125,97 @@ export default function CPRVerificationInbox({
     } catch (err: any) {
       console.error(err);
       setActionMessage("Network error updating status.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleMarkImplemented = async () => {
+    if (!activeItem) return;
+
+    if (activeItem.submissionStatus !== "ACCEPTED" && activeItem.submissionStatus !== "IMPLEMENTED") {
+      setActionMessage(
+        "Error: Only ACCEPTED submissions can be marked as IMPLEMENTED downstream. Please click '✓ ACCEPT' first."
+      );
+      return;
+    }
+
+    setIsUpdating(true);
+    setActionMessage(null);
+
+    try {
+      let actionType: DownstreamActionType = "APPLY_METADATA_CORRECTION";
+      if (activeItem.submissionType === "MISSING_COURSE") {
+        actionType = "CONFIRM_SUPPLEMENTARY_COURSE";
+      } else if (
+        activeItem.proposedChangesJson?.participantsTrained !== undefined &&
+        activeItem.proposedChangesJson.participantsTrained !== null
+      ) {
+        actionType = "APPLY_COUNT_ADJUSTMENT";
+      } else if (
+        (activeItem.proposedChangesJson?.coordinators && activeItem.proposedChangesJson.coordinators.length > 0) ||
+        (activeItem.proposedChangesJson?.champions && activeItem.proposedChangesJson.champions.length > 0)
+      ) {
+        actionType = "UPDATE_FACULTY_ATTRIBUTION";
+      } else if (
+        activeItem.canonicalVenueId &&
+        activeItem.reportRowId &&
+        activeItem.canonicalVenueId !== activeItem.reportRowId
+      ) {
+        actionType = "APPLY_VENUE_MAPPING";
+      } else {
+        actionType = "APPLY_METADATA_CORRECTION";
+      }
+
+      const note =
+        adminNoteInput.trim() ||
+        activeItem.adminNote ||
+        activeItem.correctionNote ||
+        "Downstream correction verified and marked implemented by Administrator";
+
+      const payload = {
+        submissionId: activeItem.id,
+        actionType,
+        implementationNote: note,
+        evidenceReference: activeItem.evidenceNote || undefined,
+        targetCanonicalVenueId: activeItem.canonicalVenueId || activeItem.reportRowId || undefined,
+        proposedVenueName: activeItem.proposedChangesJson?.venue || activeItem.venue || undefined,
+        proposedCity: activeItem.proposedChangesJson?.city || activeItem.city || undefined,
+        proposedTrainedCount:
+          activeItem.proposedChangesJson?.participantsTrained !== undefined
+            ? Number(activeItem.proposedChangesJson.participantsTrained)
+            : undefined,
+        proposedCoursesCount:
+          activeItem.proposedChangesJson?.coursesCount !== undefined
+            ? Number(activeItem.proposedChangesJson.coursesCount)
+            : undefined,
+        proposedCoordinators: activeItem.proposedChangesJson?.coordinators || undefined,
+        proposedChampions: activeItem.proposedChangesJson?.champions || undefined,
+        proposedCourseDate: activeItem.proposedChangesJson?.courseDate || undefined,
+        adminUser: "Administrator",
+      };
+
+      const res = await fetch("/api/cprsanjeevani/verify/implement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setActionMessage(
+          data.message || "Correction successfully implemented downstream and verified in State Report."
+        );
+        if (data.submission) {
+          setActiveItem(data.submission);
+        }
+        fetchSubmissions();
+      } else {
+        setActionMessage(`Error: ${data.error || "Failed to execute downstream implementation."}`);
+      }
+    } catch (err: any) {
+      console.error("Downstream implementation failed:", err);
+      setActionMessage("Error: Network failure while executing downstream implementation.");
     } finally {
       setIsUpdating(false);
     }
@@ -681,6 +773,41 @@ export default function CPRVerificationInbox({
                 </div>
               )}
 
+              {/* Admin Decision / Implementation Audit Trail */}
+              {(activeItem.adminReviewedBy || activeItem.adminReviewedAt || activeItem.adminNote || activeItem.submissionStatus === "IMPLEMENTED") && (
+                <div className="bg-slate-100/90 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">
+                      🛡️ Administrative Audit Trail
+                    </span>
+                    <span className="text-[11px] font-bold text-slate-600">
+                      Decision: <strong>{activeItem.adminDecision || activeItem.submissionStatus}</strong>
+                    </span>
+                  </div>
+                  <div className="text-slate-600 flex flex-wrap items-center gap-2 text-[11px]">
+                    <span>Reviewed By: <strong>{activeItem.adminReviewedBy || "Administrator"}</strong></span>
+                    {activeItem.adminReviewedAt && (
+                      <>
+                        <span>•</span>
+                        <span>Date: {new Date(activeItem.adminReviewedAt).toLocaleString("en-IN")}</span>
+                      </>
+                    )}
+                  </div>
+                  {activeItem.adminNote && (
+                    <div className="p-2.5 rounded-lg bg-white border border-slate-200 font-mono text-[11px] text-slate-800">
+                      <span className="block text-slate-400 text-[10px] font-bold uppercase mb-0.5">Admin Note:</span>
+                      {activeItem.adminNote}
+                    </div>
+                  )}
+                  {activeItem.submissionStatus === "IMPLEMENTED" && (
+                    <div className="p-2 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 font-semibold text-[11px] flex items-center gap-1.5">
+                      <span>✓</span>
+                      <span>Correction implemented persistently in downstream reconciliation overlay &amp; verified in State Report.</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Admin Note Input */}
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
@@ -711,38 +838,60 @@ export default function CPRVerificationInbox({
               {/* Admin Action Buttons */}
               <div className="pt-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
                 <div className="text-[11px] text-slate-400">
-                  ⚠️ Note: Accept records the decision. It does NOT automatically mutate frozen census totals.
+                  ⚠️ Note: Accept records the decision. Mark Implemented applies downstream reconciliation persistently.
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => handleUpdateStatus("ACCEPTED")}
-                    disabled={isUpdating}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                    disabled={isUpdating || activeItem.submissionStatus === "ACCEPTED" || activeItem.submissionStatus === "IMPLEMENTED"}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:hover:bg-emerald-600 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
                   >
                     ✓ ACCEPT
                   </button>
                   <button
                     onClick={() => handleUpdateStatus("NEEDS_CLARIFICATION")}
-                    disabled={isUpdating}
-                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                    disabled={isUpdating || activeItem.submissionStatus === "IMPLEMENTED"}
+                    className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:hover:bg-blue-600 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
                   >
                     ❓ NEEDS CLARIFICATION
                   </button>
                   <button
                     onClick={() => handleUpdateStatus("REJECTED")}
-                    disabled={isUpdating}
-                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
+                    disabled={isUpdating || activeItem.submissionStatus === "IMPLEMENTED"}
+                    className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:hover:bg-rose-600 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
                   >
                     ✕ REJECT
                   </button>
-                  <button
-                    onClick={() => handleUpdateStatus("IMPLEMENTED")}
-                    disabled={isUpdating}
-                    className="px-4 py-2 rounded-xl bg-teal-800 hover:bg-teal-900 text-white font-bold text-xs shadow-sm transition-all cursor-pointer"
-                  >
-                    ★ MARK IMPLEMENTED
-                  </button>
+                  {activeItem.submissionStatus === "IMPLEMENTED" ? (
+                    <button
+                      onClick={handleMarkImplemented}
+                      disabled={isUpdating}
+                      className="px-4 py-2 rounded-xl bg-teal-900 hover:bg-teal-950 text-white font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                      title="Re-apply or re-verify downstream implementation"
+                    >
+                      <span>✓</span>
+                      <span>IMPLEMENTED (RE-VERIFY)</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleMarkImplemented}
+                      disabled={isUpdating || activeItem.submissionStatus !== "ACCEPTED"}
+                      className={`px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5 ${
+                        activeItem.submissionStatus === "ACCEPTED"
+                          ? "bg-purple-700 hover:bg-purple-800 text-white"
+                          : "bg-slate-300 text-slate-500 cursor-not-allowed"
+                      }`}
+                      title={
+                        activeItem.submissionStatus === "ACCEPTED"
+                          ? "Apply accepted correction downstream into state reports"
+                          : "Accept submission first before implementing"
+                      }
+                    >
+                      <span>★</span>
+                      <span>MARK IMPLEMENTED</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

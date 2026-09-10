@@ -4,6 +4,7 @@ import { getFrozenBaselineVenueRegistry, getCanonicalVenuesByState, CanonicalPhy
 import { loadUnifiedLiveCPRDayData, normalizeCityName, scoreVenueMatch } from "./cprReporting";
 import { getLockedCensusStateList, getLockedOfficialStateCensus } from "./cprStateCensus";
 import { normalizeDisplayState } from "./cprCensus";
+import { normalizeStateCode } from "./sanjeevaniStorage";
 
 export const CPRDAY_CENSUS_DRAFT_VERSION = "CPRDAY_CENSUS_DRAFT_V1";
 
@@ -470,15 +471,41 @@ export interface VenueMetadataOverride {
   originatingSubmissionId?: string;
 }
 
+export interface ImplementedSupplementaryCourse {
+  id: string;
+  submissionId: string;
+  reviewId: string;
+  state: string;
+  canonicalState: string;
+  stateCode: string;
+  venue: string;
+  city: string;
+  courseDate?: string;
+  coursesCount: number;
+  participantsTrained: number;
+  coordinators: string[];
+  champions: string[];
+  reviewedBy?: string;
+  reviewedAt?: string;
+  reviewNote?: string;
+  evidenceReference?: string;
+  isExistingCanonicalVenue: boolean;
+  targetCanonicalVenueId?: string;
+}
+
 const METADATA_OVERRIDES_FILE_PATH = path.join(process.cwd(), "data", "cpr_venue_metadata_overrides.json");
 
 let memoryOverridesCache: Map<string, VenueMetadataOverride> | null = null;
+let memorySupplementaryCoursesCache: ImplementedSupplementaryCourse[] | null = null;
 let lastOverridesFetchTimestamp = 0;
+let lastSupplementaryFetchTimestamp = 0;
 const OVERRIDES_CACHE_TTL_MS = 15000;
 
 export function invalidateVenueMetadataOverridesCache(): void {
   memoryOverridesCache = null;
+  memorySupplementaryCoursesCache = null;
   lastOverridesFetchTimestamp = 0;
+  lastSupplementaryFetchTimestamp = 0;
 }
 
 export function primeVenueMetadataOverridesCache(map: Map<string, VenueMetadataOverride>): void {
@@ -520,7 +547,97 @@ export function loadPersistedMetadataOverrides(): Map<string, VenueMetadataOverr
 }
 
 /**
- * Async loader for metadata overrides that queries PostgreSQL CPRVerificationSubmission for IMPLEMENTED records.
+ * Synchronous loader for implemented supplementary courses.
+ */
+export function loadImplementedSupplementaryCourses(): ImplementedSupplementaryCourse[] {
+  if (memorySupplementaryCoursesCache) return memorySupplementaryCoursesCache;
+
+  const result: ImplementedSupplementaryCourse[] = [];
+  const seenIds = new Set<string>();
+
+  // 1. Check in-memory/disk coordinator verifications store
+  try {
+    const { loadAllVerifications } = require("./cprVerificationStore");
+    const verifs = loadAllVerifications();
+    const implementedSubs = verifs.filter(
+      (v: any) => v.submissionStatus === "IMPLEMENTED" && v.submissionType === "MISSING_COURSE"
+    );
+
+    for (const sub of implementedSubs) {
+      const canonicalState = normalizeDisplayState(sub.state);
+      const stateVenues = getCanonicalVenuesByState(canonicalState);
+      const targetCanonicalId = sub.canonicalVenueId || sub.reportRowId || "";
+      const isExisting = targetCanonicalId ? stateVenues.some((v) => v.canonicalVenueId === targetCanonicalId) : false;
+
+      if (!isExisting) {
+        const proposed = sub.proposedChangesJson || {};
+        const suppId = sub.canonicalVenueId || sub.reportRowId || `SUPP-${sub.id.replace(/[^A-Za-z0-9]/g, "").slice(-6).toUpperCase()}`;
+        if (!seenIds.has(suppId) && !seenIds.has(sub.id)) {
+          seenIds.add(suppId);
+          seenIds.add(sub.id);
+          result.push({
+            id: sub.id,
+            submissionId: sub.id,
+            reviewId: suppId,
+            state: sub.state,
+            canonicalState,
+            stateCode: sub.stateCode || normalizeStateCode(sub.state),
+            venue: proposed.venue || sub.venue || "Supplementary Course",
+            city: proposed.city || sub.city || "",
+            courseDate: proposed.courseDate,
+            coursesCount: proposed.coursesCount ? Number(proposed.coursesCount) : 1,
+            participantsTrained: proposed.participantsTrained !== undefined ? Number(proposed.participantsTrained) : 0,
+            coordinators: (proposed.coordinators && proposed.coordinators.length > 0)
+              ? proposed.coordinators
+              : (sub.mappedCoordinatorName ? [sub.mappedCoordinatorName] : (sub.submittedByName ? [sub.submittedByName] : [])),
+            champions: proposed.champions || [],
+            reviewedBy: sub.adminReviewedBy || "Administrator",
+            reviewedAt: sub.adminReviewedAt,
+            reviewNote: sub.adminNote || sub.correctionNote,
+            evidenceReference: sub.evidenceNote,
+            isExistingCanonicalVenue: false,
+          });
+        }
+      }
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  // 2. Include decisions from decisions store that are SUPPLEMENTARY_NEW_VENUE
+  const decisionsMap = loadPersistedDecisions();
+  for (const [reviewId, dec] of decisionsMap.entries()) {
+    if (dec.finalDecision === "SUPPLEMENTARY_NEW_VENUE" && dec.status !== "PENDING") {
+      if (!seenIds.has(reviewId)) {
+        seenIds.add(reviewId);
+        result.push({
+          id: reviewId,
+          submissionId: reviewId,
+          reviewId,
+          state: dec.finalState || "",
+          canonicalState: normalizeDisplayState(dec.finalState || ""),
+          stateCode: normalizeStateCode(dec.finalState || ""),
+          venue: dec.finalVenueName || "Supplementary Course",
+          city: dec.finalCity || "",
+          coursesCount: 1,
+          participantsTrained: dec.supplementaryTrainedCount || 0,
+          coordinators: [],
+          champions: [],
+          reviewedBy: dec.reviewedBy || "Admin",
+          reviewedAt: dec.reviewedAt,
+          reviewNote: dec.reviewNote,
+          isExistingCanonicalVenue: false,
+        });
+      }
+    }
+  }
+
+  memorySupplementaryCoursesCache = result;
+  return result;
+}
+
+/**
+ * Async loader for metadata overrides and supplementary courses from PostgreSQL.
  */
 export async function loadPersistedMetadataOverridesAsync(
   forceRefresh = false
@@ -532,6 +649,8 @@ export async function loadPersistedMetadataOverridesAsync(
 
   // 1. Start with frozen historical overrides
   const map = loadFrozenHistoricalMetadataOverrides();
+  const suppList: ImplementedSupplementaryCourse[] = [];
+  const seenSuppIds = new Set<string>();
 
   // 2. Query PostgreSQL for implemented verification submissions
   try {
@@ -547,33 +666,69 @@ export async function loadPersistedMetadataOverridesAsync(
       });
 
       for (const row of rows) {
+        const canonicalState = normalizeDisplayState(row.state);
+        const stateVenues = getCanonicalVenuesByState(canonicalState);
         let canonicalVenueId = row.canonicalVenueId || row.reportRowId || "";
 
-        // Fallback: match by venue name and state if canonicalVenueId not explicitly set
-        if (!canonicalVenueId && row.venue && row.state) {
-          const stateVenues = getCanonicalVenuesByState(row.state);
+        // Check if mapped to an existing canonical baseline venue
+        let matchedCanonVenue = stateVenues.find((v) => v.canonicalVenueId === canonicalVenueId);
+
+        // Fallback: match by venue name and state if canonicalVenueId not explicitly set or not matching
+        if (!matchedCanonVenue && row.venue && row.state) {
           const vClean = row.venue.toLowerCase().trim();
-          const matched = stateVenues.find(
+          const found = stateVenues.find(
             (v) =>
               v.canonicalVenueName.toLowerCase().trim() === vClean ||
               v.aliases.some((a) => a.toLowerCase().trim() === vClean)
           );
-          if (matched) {
-            canonicalVenueId = matched.canonicalVenueId;
+          if (found) {
+            matchedCanonVenue = found;
+            canonicalVenueId = found.canonicalVenueId;
           }
         }
 
-        if (!canonicalVenueId) continue;
-
         const proposed = (row.proposedChangesJson as any) || {};
         const current = (row.currentDataJson as any) || {};
+
+        if (row.submissionType === "MISSING_COURSE" && !matchedCanonVenue) {
+          // Genuinely NEW supplementary venue / course
+          const suppId = canonicalVenueId || `SUPP-${row.id.replace(/[^A-Za-z0-9]/g, "").slice(-6).toUpperCase()}`;
+          if (!seenSuppIds.has(suppId) && !seenSuppIds.has(row.id)) {
+            seenSuppIds.add(suppId);
+            seenSuppIds.add(row.id);
+            suppList.push({
+              id: row.id,
+              submissionId: row.id,
+              reviewId: suppId,
+              state: row.state,
+              canonicalState,
+              stateCode: row.stateCode || normalizeStateCode(row.state),
+              venue: proposed.venue || row.venue || "Supplementary Course",
+              city: proposed.city || row.city || "",
+              courseDate: proposed.courseDate,
+              coursesCount: proposed.coursesCount ? Number(proposed.coursesCount) : 1,
+              participantsTrained: proposed.participantsTrained !== undefined ? Number(proposed.participantsTrained) : 0,
+              coordinators: (proposed.coordinators && proposed.coordinators.length > 0)
+                ? proposed.coordinators
+                : (row.mappedCoordinatorName ? [row.mappedCoordinatorName] : (row.submittedByName ? [row.submittedByName] : [])),
+              champions: proposed.champions || [],
+              reviewedBy: row.adminReviewedBy || "Administrator",
+              reviewedAt: row.adminReviewedAt ? new Date(row.adminReviewedAt).toISOString() : undefined,
+              reviewNote: row.adminNote || row.correctionNote,
+              evidenceReference: row.evidenceNote,
+              isExistingCanonicalVenue: false,
+            });
+          }
+          continue;
+        }
+
+        if (!canonicalVenueId) continue;
 
         let verifiedTrainedAdjustment: number | undefined;
         if (proposed.verifiedTrainedAdjustment !== undefined) {
           verifiedTrainedAdjustment = Number(proposed.verifiedTrainedAdjustment);
         } else if (proposed.participantsTrained !== undefined) {
-          const stateVenues = getCanonicalVenuesByState(row.state);
-          const cv = stateVenues.find((v) => v.canonicalVenueId === canonicalVenueId);
+          const cv = matchedCanonVenue || stateVenues.find((v) => v.canonicalVenueId === canonicalVenueId);
           const baseTrained =
             current.participantsTrained ??
             current.baselineReportedTrained ??
@@ -589,6 +744,9 @@ export async function loadPersistedMetadataOverridesAsync(
           verifiedCourseCountAdjustment = Number(proposed.verifiedCourseCountAdjustment);
         } else if (proposed.coursesCount !== undefined && current.coursesCount !== undefined) {
           verifiedCourseCountAdjustment = Number(proposed.coursesCount) - Number(current.coursesCount);
+        } else if (row.submissionType === "MISSING_COURSE" && matchedCanonVenue) {
+          // Additional course session at existing canonical venue
+          verifiedCourseCountAdjustment = proposed.coursesCount !== undefined ? Number(proposed.coursesCount) : 1;
         }
 
         const existing = map.get(canonicalVenueId);
@@ -617,9 +775,53 @@ export async function loadPersistedMetadataOverridesAsync(
     console.warn("Could not query CPRVerificationSubmission from PostgreSQL for overrides:", err);
   }
 
+  // 3. Include any decisions from decisions store that are SUPPLEMENTARY_NEW_VENUE and not in PostgreSQL
+  const decisionsMap = loadPersistedDecisions();
+  for (const [reviewId, dec] of decisionsMap.entries()) {
+    if (dec.finalDecision === "SUPPLEMENTARY_NEW_VENUE" && dec.status !== "PENDING") {
+      if (!seenSuppIds.has(reviewId)) {
+        seenSuppIds.add(reviewId);
+        suppList.push({
+          id: reviewId,
+          submissionId: reviewId,
+          reviewId,
+          state: dec.finalState || "",
+          canonicalState: normalizeDisplayState(dec.finalState || ""),
+          stateCode: normalizeStateCode(dec.finalState || ""),
+          venue: dec.finalVenueName || "Supplementary Course",
+          city: dec.finalCity || "",
+          coursesCount: 1,
+          participantsTrained: dec.supplementaryTrainedCount || 0,
+          coordinators: [],
+          champions: [],
+          reviewedBy: dec.reviewedBy || "Admin",
+          reviewedAt: dec.reviewedAt,
+          reviewNote: dec.reviewNote,
+          isExistingCanonicalVenue: false,
+        });
+      }
+    }
+  }
+
   memoryOverridesCache = map;
+  memorySupplementaryCoursesCache = suppList;
   lastOverridesFetchTimestamp = now;
+  lastSupplementaryFetchTimestamp = now;
   return map;
+}
+
+/**
+ * Async loader for implemented supplementary courses.
+ */
+export async function loadImplementedSupplementaryCoursesAsync(
+  forceRefresh = false
+): Promise<ImplementedSupplementaryCourse[]> {
+  const now = Date.now();
+  if (!forceRefresh && memorySupplementaryCoursesCache && now - lastSupplementaryFetchTimestamp < OVERRIDES_CACHE_TTL_MS) {
+    return memorySupplementaryCoursesCache;
+  }
+  await loadPersistedMetadataOverridesAsync(forceRefresh);
+  return memorySupplementaryCoursesCache || [];
 }
 
 /**
@@ -665,4 +867,5 @@ export function resetVenueMetadataOverride(canonicalVenueId: string): boolean {
   memoryOverridesCache = map;
   return deleted;
 }
+
 

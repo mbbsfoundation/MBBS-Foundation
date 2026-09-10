@@ -23,6 +23,7 @@ import {
   formatCertificateFilename,
   isCprDayDate,
 } from "@/lib/sanjeevaniCertificate";
+import { resolveCPRVenue } from "@/lib/cprVenueResolution";
 
 /**
  * Deduplicates certificates for the same person/venue (same name, mobile number, venue, city, and state).
@@ -294,19 +295,35 @@ export async function GET(request: NextRequest) {
           ]
         : getCertificateVenues(state, city, portal);
 
-      if (prisma && (prisma as any).adminCertificateRecord && state && city) {
+      if (prisma && (prisma as any).adminCertificateRecord && state) {
         try {
+          let catFilter: any = undefined;
+          if (portal === "participant") catFilter = "PARTICIPANT";
+          else if (portal === "champion") catFilter = "CPR_CHAMPION";
+          else if (portal === "coordinator") catFilter = "COURSE_COORDINATOR";
+          else if (portal === "facility") catFilter = "CPR_FACILITY";
+
+          const whereClause: any = {
+            state: { equals: state, mode: "insensitive" },
+            status: { not: "RETIRED" },
+          };
+          if (city) {
+            whereClause.city = { equals: city, mode: "insensitive" };
+          }
+          if (catFilter) {
+            whereClause.category = catFilter;
+          }
+
           const dbVenues = await (prisma as any).adminCertificateRecord.findMany({
-            where: {
-              state: { equals: state, mode: "insensitive" },
-              city: { equals: city, mode: "insensitive" },
-              status: { not: "RETIRED" },
-            },
-            select: { venueName: true },
+            where: whereClause,
+            select: { venueName: true, city: true, state: true },
             distinct: ["venueName"],
           });
           for (const v of dbVenues) {
-            if (v.venueName && v.venueName.trim()) venues.push(v.venueName.trim());
+            if (v.venueName && v.venueName.trim()) {
+              const res = resolveCPRVenue({ state: v.state || state, city: v.city || city, venueName: v.venueName });
+              venues.push(res.isExistingVenue ? res.canonicalVenueName : v.venueName.trim());
+            }
           }
         } catch (e) {
           // safe db fallback
@@ -323,29 +340,64 @@ export async function GET(request: NextRequest) {
     if (action === "participants") {
       const state = (searchParams.get("state") || "").trim().toLowerCase();
       const city = (searchParams.get("city") || "").trim().toLowerCase();
-      const venue = (searchParams.get("venue") || "").trim().toLowerCase();
+      const venue = (searchParams.get("venue") || "").trim();
+
+      if (portal === "facility") {
+        return NextResponse.json({
+          success: true,
+          participants: [],
+        });
+      }
+
       const participants = isAllPortals
         ? [
             ...getCertificateParticipants(state, city, venue, "participant"),
             ...getCertificateParticipants(state, city, venue, "coordinator"),
             ...getCertificateParticipants(state, city, venue, "champion"),
           ]
-        : portal === "facility"
-        ? []
         : getCertificateParticipants(state, city, venue, portal);
 
-      if (prisma && (prisma as any).adminCertificateRecord && state && city && venue) {
+      if (prisma && (prisma as any).adminCertificateRecord && state && venue) {
         try {
+          let catFilter: any = "PARTICIPANT";
+          if (portal === "champion") catFilter = "CPR_CHAMPION";
+          else if (portal === "coordinator") catFilter = "COURSE_COORDINATOR";
+          else if (isAllPortals) catFilter = undefined;
+
+          // Resolve venue to match across variants
+          const resolved = resolveCPRVenue({ state, city, venueName: venue });
+          const venueConditions: any[] = [
+            { venueName: { equals: venue, mode: "insensitive" } },
+          ];
+          if (resolved.isExistingVenue) {
+            venueConditions.push({ venueName: { equals: resolved.canonicalVenueName, mode: "insensitive" } });
+            if (resolved.resolvedVenueId) {
+              venueConditions.push({ venueCode: { equals: resolved.resolvedVenueId, mode: "insensitive" } });
+            }
+          }
+          if (venue.toLowerCase().includes("ambedkar")) {
+            venueConditions.push({ venueName: { contains: "ambedkar", mode: "insensitive" } });
+          }
+
+          const whereClause: any = {
+            state: { equals: state, mode: "insensitive" },
+            OR: venueConditions,
+            status: { not: "RETIRED" },
+          };
+          if (catFilter) {
+            whereClause.category = catFilter;
+          }
+
           const dbParticipants = await (prisma as any).adminCertificateRecord.findMany({
-            where: {
-              state: { equals: state, mode: "insensitive" },
-              city: { equals: city, mode: "insensitive" },
-              venueName: { equals: venue, mode: "insensitive" },
-              status: { not: "RETIRED" },
-            },
-            select: { name: true, certificateId: true },
+            where: whereClause,
+            select: { name: true, certificateId: true, category: true },
           });
+
           for (const p of dbParticipants) {
+            // Strict Category Isolation: if portal is participant, never include venue titles or coordinators
+            if (portal === "participant" && p.category !== "PARTICIPANT") {
+              continue;
+            }
             if (p.name && p.name.trim()) {
               const pCertId = (p.certificateId || "").trim().toUpperCase();
               if (!pCertId || !retiredChampionIds.has(pCertId)) {
@@ -368,7 +420,7 @@ export async function GET(request: NextRequest) {
     if (action === "search-hierarchy") {
       const state = (searchParams.get("state") || "").trim().toLowerCase();
       const city = (searchParams.get("city") || "").trim().toLowerCase();
-      const venue = (searchParams.get("venue") || "").trim().toLowerCase();
+      const venue = (searchParams.get("venue") || "").trim();
       const participant = (searchParams.get("participant") || searchParams.get("name") || "").trim().toLowerCase();
 
       const results: CPRCertificateRecord[] = [];
@@ -384,18 +436,41 @@ export async function GET(request: NextRequest) {
         results.push(...portalResults);
       }
 
-      if (prisma && (prisma as any).adminCertificateRecord && state && participant) {
+      if (prisma && (prisma as any).adminCertificateRecord && state && (participant || portal === "facility")) {
         try {
+          let catFilter: any = undefined;
+          if (portal === "participant") catFilter = "PARTICIPANT";
+          else if (portal === "champion") catFilter = "CPR_CHAMPION";
+          else if (portal === "coordinator") catFilter = "COURSE_COORDINATOR";
+          else if (portal === "facility") catFilter = "CPR_FACILITY";
+
+          const resolved = venue ? resolveCPRVenue({ state, city, venueName: venue }) : null;
+          const venueConditions: any[] = [];
+          if (venue) {
+            venueConditions.push({ venueName: { equals: venue, mode: "insensitive" } });
+            if (resolved && resolved.isExistingVenue) {
+              venueConditions.push({ venueName: { equals: resolved.canonicalVenueName, mode: "insensitive" } });
+              if (resolved.resolvedVenueId) {
+                venueConditions.push({ venueCode: { equals: resolved.resolvedVenueId, mode: "insensitive" } });
+              }
+            }
+            if (venue.toLowerCase().includes("ambedkar")) {
+              venueConditions.push({ venueName: { contains: "ambedkar", mode: "insensitive" } });
+            }
+          }
+
           const whereClause: any = {
             state: { equals: state, mode: "insensitive" },
-            name: { equals: participant, mode: "insensitive" },
             status: { not: "RETIRED" },
           };
-          if (city) {
-            whereClause.city = { equals: city, mode: "insensitive" };
+          if (participant) {
+            whereClause.name = { equals: participant, mode: "insensitive" };
           }
-          if (venue) {
-            whereClause.venueName = { equals: venue, mode: "insensitive" };
+          if (venueConditions.length > 0) {
+            whereClause.OR = venueConditions;
+          }
+          if (catFilter) {
+            whereClause.category = catFilter;
           }
 
           const dbMatches = await (prisma as any).adminCertificateRecord.findMany({
@@ -421,6 +496,11 @@ export async function GET(request: NextRequest) {
               portalType = "facility";
             }
 
+            // Portal Category Isolation: strictly discard if portal doesn't match
+            if (!isAllPortals && portalType !== portal) {
+              continue;
+            }
+
             results.push({
               srNo: "",
               certificateNumber: dbRec.certificateId,
@@ -432,7 +512,7 @@ export async function GET(request: NextRequest) {
               city: dbRec.city || "",
               courseCoordinator: dbRec.courseCoordinator || "",
               courseCoordinatorEmail: "",
-              venueName: dbRec.venueName || dbRec.name,
+              venueName: resolved?.isExistingVenue ? resolved.canonicalVenueName : (dbRec.venueName || dbRec.name),
               driveLink: "",
               driveFileId: "",
               downloadUrl: "",
@@ -572,6 +652,7 @@ export async function GET(request: NextRequest) {
             }
 
             const rawCert = {
+              certificateId: adminRec.certificateId,
               certificateNumber: adminRec.certificateId,
               participantName: adminRec.name,
               courseTitle,

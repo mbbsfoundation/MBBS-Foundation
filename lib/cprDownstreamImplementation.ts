@@ -13,11 +13,13 @@ import {
   resetVenueMetadataOverride,
   saveVenueReconciliationDecision,
   getFrozenVenueReviewSnapshot,
+  invalidateVenueMetadataOverridesCache,
   VenueMetadataOverride,
 } from "./cprReconciliationStore";
 import {
   getCanonicalVenuesByState,
   getFrozenBaselineVenueRegistry,
+  normalizeVenueKey,
 } from "./cprVenueRegistry";
 import { getLockedOfficialStateCensus } from "./cprStateCensus";
 import { normalizeDisplayState } from "./cprCensus";
@@ -199,7 +201,22 @@ export async function executeDownstreamImplementation(params: {
   }
 
   const canonicalState = normalizeDisplayState(sub.state);
-  const targetCanonicalId = params.targetCanonicalVenueId || sub.canonicalVenueId || sub.reportRowId || "";
+  const stateVenues = getCanonicalVenuesByState(canonicalState);
+  let targetCanonicalId = params.targetCanonicalVenueId || sub.canonicalVenueId || sub.reportRowId || "";
+
+  if (!targetCanonicalId && sub.venue) {
+    const normSubVenue = normalizeVenueKey(sub.venue, sub.city);
+    const match = stateVenues.find(
+      (v) =>
+        normalizeVenueKey(v.canonicalVenueName, v.city) === normSubVenue ||
+        v.aliases.some((a) => normalizeVenueKey(a, v.city) === normSubVenue) ||
+        v.canonicalVenueName.toLowerCase() === sub.venue!.toLowerCase()
+    );
+    if (match) {
+      targetCanonicalId = match.canonicalVenueId;
+    }
+  }
+
   const fullNote = `${implementationNote.trim()}${evidenceReference?.trim() ? ` [Evidence: ${evidenceReference.trim()}]` : ""}`;
 
   try {
@@ -208,38 +225,30 @@ export async function executeDownstreamImplementation(params: {
     // 3. Downstream Execution Branches
     switch (actionType) {
       case "APPLY_METADATA_CORRECTION": {
-        if (!targetCanonicalId) {
-          return { success: false, error: "A target Canonical Venue ID is required to apply metadata correction." };
+        const canonVenue = targetCanonicalId ? stateVenues.find((v) => v.canonicalVenueId === targetCanonicalId) : undefined;
+        const proposedVenue = params.proposedVenueName?.trim() || sub.proposedChangesJson?.venue?.trim() || canonVenue?.canonicalVenueName || sub.venue || "";
+        const proposedCity = params.proposedCity?.trim() || sub.proposedChangesJson?.city?.trim() || canonVenue?.city || sub.city || "";
+
+        if (targetCanonicalId) {
+          // Save in-memory override
+          saveVenueMetadataOverride({
+            canonicalVenueId: targetCanonicalId,
+            state: canonicalState,
+            venueName: proposedVenue || undefined,
+            city: proposedCity || undefined,
+            reviewNote: implementationNote.trim(),
+            reviewedBy: adminUser,
+            evidenceReference: evidenceReference?.trim(),
+            originatingSubmissionId: submissionId,
+          });
         }
-
-        const stateVenues = getCanonicalVenuesByState(canonicalState);
-        const canonVenue = stateVenues.find((v) => v.canonicalVenueId === targetCanonicalId);
-        if (!canonVenue) {
-          return { success: false, error: `Canonical venue ${targetCanonicalId} not found in ${canonicalState}.` };
-        }
-
-        const proposedVenue = params.proposedVenueName?.trim() || sub.proposedChangesJson?.venue?.trim() || canonVenue.canonicalVenueName;
-        const proposedCity = params.proposedCity?.trim() || sub.proposedChangesJson?.city?.trim() || canonVenue.city;
-
-        // Save in-memory override
-        saveVenueMetadataOverride({
-          canonicalVenueId: targetCanonicalId,
-          state: canonicalState,
-          venueName: proposedVenue,
-          city: proposedCity,
-          reviewNote: implementationNote.trim(),
-          reviewedBy: adminUser,
-          evidenceReference: evidenceReference?.trim(),
-          originatingSubmissionId: submissionId,
-        });
 
         // Persist to PostgreSQL CPRVerificationSubmission
         if (prisma && (prisma as any).cPRVerificationSubmission) {
           await (prisma as any).cPRVerificationSubmission.update({
             where: { id: submissionId },
             data: {
-              canonicalVenueId: targetCanonicalId,
-              reportRowId: targetCanonicalId,
+              ...(targetCanonicalId ? { canonicalVenueId: targetCanonicalId, reportRowId: targetCanonicalId } : {}),
               submissionStatus: "IMPLEMENTED",
               adminDecision: "IMPLEMENTED",
               adminReviewedBy: adminUser,
@@ -247,8 +256,8 @@ export async function executeDownstreamImplementation(params: {
               adminNote: fullNote,
               proposedChangesJson: {
                 ...(sub.proposedChangesJson || {}),
-                venue: proposedVenue,
-                city: proposedCity,
+                ...(proposedVenue ? { venue: proposedVenue } : {}),
+                ...(proposedCity ? { city: proposedCity } : {}),
               },
             },
           });
