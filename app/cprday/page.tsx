@@ -85,7 +85,7 @@ export default function CPRDayPage() {
             awareness, demonstration and supervised hands-on training.
           </p>
 
-          <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto items-stretch">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto items-stretch">
             <a
               href="#certificate-access"
               className="flex items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-5 py-4 text-center font-bold text-white shadow-lg transition hover:from-sky-700 hover:to-purple-700 text-sm sm:text-base leading-snug"
@@ -98,6 +98,13 @@ export default function CPRDayPage() {
               className="flex items-center justify-center rounded-xl border-2 border-sky-300 bg-white px-5 py-4 text-center font-bold text-sky-900 shadow-sm transition hover:bg-sky-50 text-sm sm:text-base leading-snug"
             >
               🎓 CPR eSANJEEVANI Online Module
+            </a>
+
+            <a
+              href="#jk-video"
+              className="flex items-center justify-center rounded-xl bg-red-600 px-5 py-4 text-center font-bold text-white shadow-lg transition hover:bg-red-700 text-sm sm:text-base leading-snug gap-2"
+            >
+              <span>▶</span> CPR Day in Jammu and Kashmir
             </a>
 
             <a
@@ -117,6 +124,52 @@ export default function CPRDayPage() {
 
       {/* CPR eSANJEEVANI Online Module */}
       <CPReSanjeevaniSection />
+
+      {/* Field Video Coverage — CPR Day in Jammu and Kashmir */}
+      <section id="jk-video" className="scroll-mt-24 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-6 py-16 text-white border-y border-indigo-900/50 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-64 bg-red-600/10 blur-[100px] pointer-events-none rounded-full" />
+        
+        <div className="mx-auto max-w-4xl text-center relative z-10">
+          <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-rose-400 bg-rose-950/80 border border-rose-500/30 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full shadow-inner">
+            <span className="inline-block w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+            Field Action &amp; Media Coverage
+          </p>
+
+          <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl md:text-5xl text-white">
+            CPR Day in Jammu and Kashmir
+          </h2>
+
+          <p className="mx-auto mt-3 max-w-2xl text-base sm:text-lg text-slate-300 leading-relaxed">
+            Watch the inspiring on-ground CPR training and community awareness sessions conducted across Jammu &amp; Kashmir under the National IAP CPR Sanjeevani initiative.
+          </p>
+
+          <div className="mt-8 rounded-2xl overflow-hidden border border-indigo-500/30 bg-slate-950 shadow-2xl shadow-indigo-950/50">
+            <div className="relative w-full aspect-video">
+              <iframe
+                src="https://www.youtube.com/embed/vyjUhEK8RxA"
+                title="CPR Day in Jammu and Kashmir"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                className="w-full h-full border-0"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="https://www.youtube.com/watch?v=vyjUhEK8RxA"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-6 py-3 font-bold text-white shadow-lg shadow-red-900/40 transition hover:scale-[1.02]"
+            >
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              Watch Directly on YouTube
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* Recommended Reading Excerpt — Revive (CPR) Section of MBBS Foundation */}
       <ReviveSectionPreview />
@@ -141,6 +194,12 @@ export default function CPRDayPage() {
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <DownloadCard
+              title="CPR Day in Jammu and Kashmir"
+              description="Official video coverage of National CPR Day training across Jammu & Kashmir."
+              href="https://www.youtube.com/watch?v=vyjUhEK8RxA"
+              type="YouTube Video"
+            />
             <DownloadCard
               title="Public Poster — English"
               description="Official English public-awareness poster."
