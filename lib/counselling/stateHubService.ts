@@ -122,50 +122,61 @@ export function getAllStateHubSlugs(): string[] {
  * Retrieves concise summary metrics for all 34 States/UTs for the master Counselling Hub directory.
  */
 export const getAllStateHubSummaries = cache(async (): Promise<StateDirectoryItem[]> => {
-  const colleges = await prisma.college.findMany({
-    where: { isActive: true },
-    select: {
-      id: true,
-      state: true,
-      isINI: true,
-      capacities: { where: { academicYear: 2026 }, select: { approvedSeats: true }, take: 1 },
-      analyticsSnapshots: { select: { seatsOffered: true } },
-    },
-  });
+  try {
+    const colleges = await prisma.college.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        state: true,
+        isINI: true,
+        capacities: { where: { academicYear: 2026 }, select: { approvedSeats: true }, take: 1 },
+        analyticsSnapshots: { select: { seatsOffered: true } },
+      },
+    });
 
-  const stateMap = new Map<string, { totalColleges: number; totalSeats: number; collegesWithMccEvidence: number }>();
+    const stateMap = new Map<string, { totalColleges: number; totalSeats: number; collegesWithMccEvidence: number }>();
 
-  for (const slug of Object.keys(CANONICAL_STATES)) {
-    stateMap.set(slug, { totalColleges: 0, totalSeats: 0, collegesWithMccEvidence: 0 });
-  }
-
-  for (const c of colleges) {
-    const slug = getStateSlug(c.state);
-    if (!stateMap.has(slug)) continue;
-
-    const entry = stateMap.get(slug)!;
-    entry.totalColleges++;
-
-    const nmcCap = c.capacities[0]?.approvedSeats ?? 0;
-    const snapshotSeats = c.analyticsSnapshots.reduce((acc, s) => acc + s.seatsOffered, 0);
-    const approvedSeats = nmcCap > 0 ? nmcCap : (c.isINI && snapshotSeats > 0 ? snapshotSeats : 0);
-    entry.totalSeats += approvedSeats;
-
-    if (c.analyticsSnapshots.length > 0) {
-      entry.collegesWithMccEvidence++;
+    for (const slug of Object.keys(CANONICAL_STATES)) {
+      stateMap.set(slug, { totalColleges: 0, totalSeats: 0, collegesWithMccEvidence: 0 });
     }
-  }
 
-  return Object.entries(CANONICAL_STATES).map(([slug, name]) => {
-    const metrics = stateMap.get(slug) || { totalColleges: 0, totalSeats: 0, collegesWithMccEvidence: 0 };
-    return {
+    for (const c of colleges) {
+      const slug = getStateSlug(c.state);
+      if (!stateMap.has(slug)) continue;
+
+      const entry = stateMap.get(slug)!;
+      entry.totalColleges++;
+
+      const nmcCap = c.capacities[0]?.approvedSeats ?? 0;
+      const snapshotSeats = c.analyticsSnapshots.reduce((acc, s) => acc + s.seatsOffered, 0);
+      const approvedSeats = nmcCap > 0 ? nmcCap : (c.isINI && snapshotSeats > 0 ? snapshotSeats : 0);
+      entry.totalSeats += approvedSeats;
+
+      if (c.analyticsSnapshots.length > 0) {
+        entry.collegesWithMccEvidence++;
+      }
+    }
+
+    return Object.entries(CANONICAL_STATES).map(([slug, name]) => {
+      const metrics = stateMap.get(slug) || { totalColleges: 0, totalSeats: 0, collegesWithMccEvidence: 0 };
+      return {
+        stateSlug: slug,
+        stateName: name,
+        totalColleges: metrics.totalColleges,
+        totalSeats: metrics.totalSeats,
+        collegesWithMccEvidence: metrics.collegesWithMccEvidence,
+      };
+    }).sort((a, b) => b.totalColleges - a.totalColleges);
+  } catch (err) {
+    console.warn("Unable to fetch state hub summaries from DB, returning fallback directory:", err);
+    return Object.entries(CANONICAL_STATES).map(([slug, name]) => ({
       stateSlug: slug,
       stateName: name,
-      totalColleges: metrics.totalColleges,
-      totalSeats: metrics.totalSeats,
-      collegesWithMccEvidence: metrics.collegesWithMccEvidence,
-    };
-  }).sort((a, b) => b.totalColleges - a.totalColleges);
+      totalColleges: 0,
+      totalSeats: 0,
+      collegesWithMccEvidence: 0,
+    }));
+  }
 });
 
 /**
@@ -175,28 +186,29 @@ export const getStateHubData = cache(async (stateSlug: string): Promise<StateHub
   const canonicalName = CANONICAL_STATES[stateSlug];
   if (!canonicalName) return null;
 
-  // Single batched query for all colleges belonging to this state
-  const allColleges = await prisma.college.findMany({
-    where: { isActive: true },
-    include: {
-      capacities: { where: { academicYear: 2026 }, take: 1 },
-      analyticsSnapshots: true,
-    },
-  });
+  try {
+    // Single batched query for all colleges belonging to this state
+    const allColleges = await prisma.college.findMany({
+      where: { isActive: true },
+      include: {
+        capacities: { where: { academicYear: 2026 }, take: 1 },
+        analyticsSnapshots: true,
+      },
+    });
 
-  const stateColleges = allColleges.filter((c) => getStateSlug(c.state) === stateSlug);
-  if (stateColleges.length === 0) return null;
+    const stateColleges = allColleges.filter((c) => getStateSlug(c.state) === stateSlug);
+    if (stateColleges.length === 0) return null;
 
-  let totalSeats = 0;
-  let govtColleges = 0;
-  let govtSeats = 0;
-  let privateColleges = 0;
-  let privateSeats = 0;
-  let deemedColleges = 0;
-  let deemedSeats = 0;
-  let centralIniColleges = 0;
-  let centralIniSeats = 0;
-  let collegesWithMccEvidence = 0;
+    let totalSeats = 0;
+    let govtColleges = 0;
+    let govtSeats = 0;
+    let privateColleges = 0;
+    let privateSeats = 0;
+    let deemedColleges = 0;
+    let deemedSeats = 0;
+    let centralIniColleges = 0;
+    let centralIniSeats = 0;
+    let collegesWithMccEvidence = 0;
 
   const formattedColleges: StateCollegeDirectoryItem[] = stateColleges.map((c) => {
     const cleanName = getCleanCollegeDisplayName(c.collegeName, c.shortName);
@@ -296,4 +308,8 @@ export const getStateHubData = cache(async (stateSlug: string): Promise<StateHub
     },
     colleges: formattedColleges,
   };
+  } catch (err) {
+    console.warn(`Unable to fetch state hub data for ${stateSlug}:`, err);
+    return null;
+  }
 });

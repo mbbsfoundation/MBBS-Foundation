@@ -6,6 +6,8 @@ import ShareSection from "@/components/neet-to-mbbs/ShareSection";
 import VerificationNotice from "@/components/neet-to-mbbs/VerificationNotice";
 import { getAllStateHubSummaries } from "@/lib/counselling/stateHubService";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "NEET Counselling 2026: Process, Choice Filling, AIQ vs State Quota & Allotment Rules",
   description:
