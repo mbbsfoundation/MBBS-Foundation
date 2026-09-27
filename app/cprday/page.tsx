@@ -85,7 +85,7 @@ export default function CPRDayPage() {
             awareness, demonstration and supervised hands-on training.
           </p>
 
-          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto items-stretch">
+          <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto items-stretch">
             <a
               href="#certificate-access"
               className="flex items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-5 py-4 text-center font-bold text-white shadow-lg transition hover:from-sky-700 hover:to-purple-700 text-sm sm:text-base leading-snug"
@@ -105,6 +105,15 @@ export default function CPRDayPage() {
               className="flex items-center justify-center rounded-xl bg-red-600 px-5 py-4 text-center font-bold text-white shadow-lg transition hover:bg-red-700 text-sm sm:text-base leading-snug gap-2"
             >
               <span>▶</span> CPR Day in Jammu and Kashmir
+            </a>
+
+            <a
+              href="https://youtu.be/o4ft83kWiLM"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center rounded-xl bg-red-600 px-5 py-4 text-center font-bold text-white shadow-lg transition hover:bg-red-700 text-sm sm:text-base leading-snug gap-2"
+            >
+              <span>▶</span> Conducting a Course
             </a>
 
             <a
@@ -194,6 +203,12 @@ export default function CPRDayPage() {
           </div>
 
           <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <DownloadCard
+              title="Conducting a Course"
+              description="Official video guide on conducting an IAP CPR training course."
+              href="https://youtu.be/o4ft83kWiLM"
+              type="YouTube Video"
+            />
             <DownloadCard
               title="CPR Day in Jammu and Kashmir"
               description="Official video coverage of National CPR Day training across Jammu & Kashmir."
