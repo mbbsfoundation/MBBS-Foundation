@@ -690,9 +690,33 @@ export async function loadPersistedMetadataOverridesAsync(
         const proposed = (row.proposedChangesJson as any) || {};
         const current = (row.currentDataJson as any) || {};
 
-        if (row.submissionType === "MISSING_COURSE" && !matchedCanonVenue) {
-          // Genuinely NEW supplementary venue / course
-          const suppId = canonicalVenueId || `SUPP-${row.id.replace(/[^A-Za-z0-9]/g, "").slice(-6).toUpperCase()}`;
+        if (row.submissionType === "MISSING_COURSE" && canonicalVenueId && matchedCanonVenue && proposed.verifiedTrainedAdjustment !== undefined) {
+          // Explicit baseline venue count adjustment (e.g. Fortis Mulund baseline 328 adjusted to 600 = +272)
+          const verifiedTrainedAdjustment = Number(proposed.verifiedTrainedAdjustment);
+          const verifiedCourseCountAdjustment = proposed.verifiedCourseCountAdjustment !== undefined ? Number(proposed.verifiedCourseCountAdjustment) : 0;
+          const existing = map.get(canonicalVenueId);
+          map.set(canonicalVenueId, {
+            canonicalVenueId,
+            state: row.state,
+            ...(existing || {}),
+            ...(proposed.venue ? { venueName: proposed.venue } : {}),
+            ...(proposed.city ? { city: proposed.city } : {}),
+            ...(proposed.coordinators ? { additionalCoordinators: proposed.coordinators } : {}),
+            ...(proposed.champions ? { additionalChampions: proposed.champions } : {}),
+            verifiedTrainedAdjustment,
+            verifiedCourseCountAdjustment,
+            reviewedBy: row.adminReviewedBy || existing?.reviewedBy || "Administrator",
+            reviewedAt: row.adminReviewedAt ? new Date(row.adminReviewedAt).toISOString() : existing?.reviewedAt,
+            reviewNote: row.adminNote || existing?.reviewNote,
+            evidenceReference: row.evidenceNote || existing?.evidenceReference,
+            originatingSubmissionId: row.id,
+          });
+          continue;
+        }
+
+        if (row.submissionType === "MISSING_COURSE") {
+          // Genuinely an additional missing course / supplementary session
+          const suppId = `SUPP-${row.id.replace(/[^A-Za-z0-9]/g, "").slice(-6).toUpperCase()}`;
           if (!seenSuppIds.has(suppId) && !seenSuppIds.has(row.id)) {
             seenSuppIds.add(suppId);
             seenSuppIds.add(row.id);
