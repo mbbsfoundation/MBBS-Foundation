@@ -135,6 +135,8 @@ model User {
   rolesApproved         UserRole[]         @relation("UserRoleApprover")
   courseTeamMemberships CourseTeamMember[] @relation("CourseTeamUser")
   courseTeamInvitations CourseTeamMember[] @relation("CourseTeamInviter")
+  learningProfile       MBBSLearningProfile?
+  learnerCertificates   MBBSLearnerCertificate[]
 
   @@index([fullName])
   @@index([isActive])
@@ -639,6 +641,7 @@ model College {
   allotmentRecords   AllotmentRecord[]
   vacancyRecords     VacancyRecord[]
   analyticsSnapshots AnalyticsSnapshot[]
+  learningProfiles   MBBSLearningProfile[]
 
   @@index([state])
   @@index([managementType])
@@ -928,5 +931,97 @@ model CPRVerificationSubmission {
   @@index([submissionStatus])
   @@index([createdAt])
 }
+
+// ============================================================================
+// MBBS FOUNDATION ONLINE LEARNING PROGRAMME (PHASE 3A)
+// ============================================================================
+
+enum MBBSLearnerCategory {
+  MBBS_STUDENT
+  INTERN
+  POSTGRADUATE_RESIDENT
+  DOCTOR
+  MEDICAL_FACULTY
+  RESOURCE_PERSON
+  OTHER_HEALTHCARE_PROFESSIONAL
+}
+
+model MBBSLearningProfile {
+  id                    String              @id @default(cuid())
+  userId                String              @unique
+  fullName              String
+  email                 String              // Formatted display email (case preserved)
+  normalizedEmail       String              @unique // Canonical unique identity (case-insensitive)
+  mobileNumber          String
+  learnerCategory       MBBSLearnerCategory
+
+  collegeId             String?
+  institutionName       String              // Captured name (either College.collegeName or unlisted institution)
+
+  city                  String
+  state                 String
+  district              String
+  pinCode               String
+
+  mbbsYear              String?             // e.g. "1st Year", "2nd Year", "3rd Year (Part 1)", "Final Year", "Intern"
+  departmentDesignation String?             // Department or clinical designation
+
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  college               College?            @relation(fields: [collegeId], references: [id], onDelete: SetNull)
+
+  @@index([collegeId])
+  @@index([state, district])
+  @@index([learnerCategory])
+}
+
+model MBBSLearnerVerificationToken {
+  id               String    @id @default(cuid())
+  tokenHash        String    @unique
+  normalizedEmail  String
+  displayEmail     String?
+  expiresAt        DateTime
+  consumedAt       DateTime?
+  ticketHash       String?   @unique
+  ticketExpiresAt  DateTime?
+  ticketConsumedAt DateTime?
+  ipHash           String?
+  createdAt        DateTime  @default(now())
+
+  @@index([normalizedEmail, expiresAt])
+  @@index([normalizedEmail, consumedAt])
+  @@index([normalizedEmail, ticketExpiresAt], map: "MBBSLearnerVerificationToken_email_ticketExpiresAt_idx")
+  @@index([createdAt])
+}
+
+// ============================================================================
+// MBBS FOUNDATION ONLINE LEARNING PROGRAMME — CERTIFICATES (PHASE 7B)
+// ============================================================================
+
+model MBBSLearnerCertificate {
+  id               String   @id @default(cuid())
+  certificateId    String   @unique // Format: MBBSF-REV-YYYY-XXXXXXXX
+  userId           String
+  moduleCode       String   @default("REVIVE")
+  moduleTitle      String   @default("REVIVE — Cardiopulmonary Resuscitation (CPR) and Relief of Choking")
+  learnerName      String   // Immutable snapshot of learner's registered full name at issuance
+  medicalCollege   String   // Immutable snapshot of learner's medical college at issuance
+  score            Int      // Assessment score (e.g. 18 / 20)
+  percentage       Int      // Assessment percentage (e.g. 90%)
+  passingThreshold Int      @default(70)
+  issuedAt         DateTime @default(now())
+  metadata         Json?
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, moduleCode], name: "userId_moduleCode_unique") // Strict Idempotency: 1 certificate per learner per module
+  @@index([certificateId])
+  @@index([userId])
+  @@index([moduleCode])
+  @@index([issuedAt])
+}
+
 
 

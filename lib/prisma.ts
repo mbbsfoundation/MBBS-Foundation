@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@/lib/generated/prisma/client";
+import { PrismaClient } from "./generated/prisma/client";
 
 const databaseUrl =
   process.env.DATABASE_URL ||
@@ -22,7 +22,11 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient(): PrismaClient {
   // If cached global client exists and has the latest models, reuse it
-  if (globalForPrisma.prisma && (globalForPrisma.prisma as any).college) {
+  if (
+    globalForPrisma.prisma &&
+    (globalForPrisma.prisma as any).college &&
+    (globalForPrisma.prisma as any).mBBSLearnerCertificate
+  ) {
     return globalForPrisma.prisma;
   }
   const client = new PrismaClient({ adapter });

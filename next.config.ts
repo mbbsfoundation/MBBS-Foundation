@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   outputFileTracingIncludes: {
-    "/api/**/*": ["./cprcertificates/**/*", "./cprsanjeevani/**/*", "./data/**/*"],
+    "/api/**/*": ["./cprcertificates/**/*", "./cprsanjeevani/**/*", "./data/**/*", "./content/**/*"],
   },
   async headers() {
     return [
