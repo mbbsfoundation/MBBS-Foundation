@@ -38,8 +38,8 @@ export const PROGRAMME_METADATA = {
   organization: "Ayurvigyan Health Academy India Foundation",
   passingThresholdPct: 70,
   totalAssessedModules: 14,
-  provisionalQuestionsPerAttempt: "10–15",
-  permittedAttempts: 3,
+  questionsPerAttempt: 20,
+  permittedAttempts: "Unlimited",
   pilotModuleSlug: "revive",
   learningPathway: [
     {

@@ -17,7 +17,7 @@ interface LearnerProfile {
 
 interface ReviveAssessmentInterfaceProps {
   learner: LearnerProfile | null;
-  onNavigateToCertificate?: () => void;
+  onNavigateToCertificate?: (cert?: any) => void;
   onNavigateToVideos?: () => void;
 }
 
@@ -187,7 +187,7 @@ export default function ReviveAssessmentInterface({
               Enrolled Learners Only
             </h2>
             <p className="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-              The 20-question REVIVE scenario assessment is available to registered learners. Please sign in or complete your free registration to take the assessment.
+              The 20-question REVIVE scenario assessment is available to registered learners. Please sign in or register to take the assessment.
             </p>
           </div>
 
@@ -196,7 +196,7 @@ export default function ReviveAssessmentInterface({
               href="/mbbs-foundation/learn/register?redirect=/mbbs-foundation/learn/modules/revive?section=assessment"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold px-6 py-3 text-sm shadow-xs transition"
             >
-              <span>Sign In / Register Free</span>
+              <span>Sign In / Register</span>
               <span>&rarr;</span>
             </Link>
             {onNavigateToVideos && (
@@ -404,7 +404,7 @@ export default function ReviveAssessmentInterface({
             {isPassed && onNavigateToCertificate && (
               <button
                 type="button"
-                onClick={onNavigateToCertificate}
+                onClick={() => onNavigateToCertificate(issuedCertInfo)}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold px-5 py-2.5 text-xs sm:text-sm shadow-xs transition"
               >
                 <span>View 4. Certificate</span>

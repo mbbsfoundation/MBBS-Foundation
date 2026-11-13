@@ -471,7 +471,7 @@ export default function RevivePdfSlideViewer({
           } flex items-center justify-center text-xl sm:text-2xl transition disabled:opacity-0 disabled:pointer-events-none backdrop-blur-xs z-10 shadow-lg`}
           title={
             isGuestPreview && currentSlide >= numPages
-              ? "Advance to Slide 21 (Free Registration)"
+              ? "Advance to Slide 21 (Sign In Required)"
               : "Next Slide (or Right Arrow)"
           }
         >
@@ -538,7 +538,7 @@ export default function RevivePdfSlideViewer({
               type="button"
               onClick={goToNextSlide}
               className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl text-sm sm:text-base font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition border border-amber-400 shadow-xs"
-              title="Continue to Slide 21 (Free Registration)"
+              title="Continue to Slide 21 (Sign In Required)"
             >
               <span className="hidden sm:inline">Continue to Slide 21</span>
               <span className="sm:hidden">Slide 21</span>
