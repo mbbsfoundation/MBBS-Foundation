@@ -9,6 +9,7 @@ import {
 } from "@/lib/mbbs-foundation/reviveModuleData";
 import RevivePdfSlideViewer from "./RevivePdfSlideViewer";
 import ReviveAssessmentInterface from "./ReviveAssessmentInterface";
+import ShareReviveControl from "./ShareReviveControl";
 import { formatConciseMedicalCollegeName } from "@/lib/mbbs-foundation/collegeFormat";
 import { QrCode } from "@/lib/mbbs-foundation/qr";
 
@@ -247,11 +248,12 @@ export default function ReviveModuleInterface() {
               <span className="font-bold text-slate-900">Module 7: REVIVE</span>
             </nav>
 
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mt-1">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mt-1">
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-950 tracking-tight">
                 REVIVE
               </h1>
-              <p className="text-sm sm:text-base text-slate-600 font-medium">
+              <ShareReviveControl />
+              <p className="w-full sm:w-auto text-sm sm:text-base text-slate-600 font-medium">
                 Resuscitation Principles &amp; Emergency CPR
               </p>
             </div>

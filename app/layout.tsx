@@ -7,7 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 export const metadata = {
   metadataBase: new URL("https://mbbsfoundation.com"),
   title: {
-    default: "MBBS Foundation | First Year Guide for Medical Students & NEET UG 2026",
+    default: "MBBS Foundation | First Year Guide for Medical Students",
     template: "%s | MBBS Foundation",
   },
   description:
@@ -42,9 +42,9 @@ export const metadata = {
     canonical: "https://mbbsfoundation.com",
   },
   openGraph: {
-    title: "MBBS Foundation: Essential Guide for Medical Students & NEET UG 2026",
+    title: "MBBS Foundation: Essential Guide for Medical Students",
     description:
-      "A complete guide for NEET-selected candidates and MBBS students covering counselling, college selection, CPR, first aid, medical ethics, and medical school survival.",
+      "A complete guide for MBBS students covering counselling, college selection, CPR, first aid, medical ethics, and medical school survival.",
     url: "https://mbbsfoundation.com",
     siteName: "MBBS Foundation",
     locale: "en_IN",
@@ -60,9 +60,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "MBBS Foundation: First Year Guide for Medical Students & NEET 2026",
+    title: "MBBS Foundation: First Year Guide for Medical Students",
     description:
-      "A practical guide for first-year MBBS students and NEET aspirants covering counselling, college choices, CPR, first aid, ethics, and clinical learning.",
+      "A practical guide for first-year MBBS students covering counselling, college choices, CPR, first aid, ethics, and clinical learning.",
     images: ["https://mbbsfoundation.com/book.png"],
   },
   robots: {
