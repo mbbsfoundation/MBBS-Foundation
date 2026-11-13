@@ -15,6 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "🎓 NEET to MBBS", href: "/neet-to-mbbs", special: "neet" },
   { label: "About", href: "/about" },
   { label: "Book", href: "/book" },
+  { label: "Online Learning", href: "/mbbs-foundation/learn" },
   { label: "Consultation", href: "/mbbs-foundation/consultation" },
   { label: "CPR Day", href: "/cprday" },
   { label: "Resources", href: "/resources" },
@@ -29,6 +30,7 @@ export default function SiteHeader() {
   const isNavActive = (item: NavItem) => {
     if (!pathname) return false;
     if (item.href === "/neet-to-mbbs") return pathname.startsWith("/neet-to-mbbs");
+    if (item.href === "/mbbs-foundation/learn") return pathname.startsWith("/mbbs-foundation/learn");
     if (item.href === "/mbbs-foundation/consultation") return pathname.startsWith("/mbbs-foundation/consultation");
     if (item.href === "/blog") return pathname.startsWith("/blog");
     if (item.href === "/cprday") return pathname === "/cprday" || pathname.startsWith("/cprday");
@@ -37,20 +39,22 @@ export default function SiteHeader() {
 
   return (
     <div className="relative z-50 print:hidden">
-      {/* Top Announcement Banner for NEET Counselling & New MBBS Season */}
-      <div className="bg-gradient-to-r from-red-700 via-rose-700 to-purple-800 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-sm">
+      {/* Top Announcement Banner for Online Learning & Book Offer */}
+      <div className="bg-gradient-to-r from-red-700 via-rose-700 to-purple-800 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-xs">
         <div className="mx-auto max-w-7xl flex items-center justify-center gap-2 flex-wrap">
-          <span>🎓 <strong>Heading to Medical College?</strong> Get <em>MBBS Foundation: Your First Book of Medicine</em></span>
-          <span className="hidden sm:inline">•</span>
-          <span className="bg-white/10 px-2 py-0.5 rounded border border-white/20 text-xs">
-            Use code <code className="font-mono font-bold text-amber-300">FOUNDERCIRCLE</code> for 20% OFF on Notion Press!
+          <span>
+            🩺 <strong>MBBS Foundation Online Learning Programme</strong> &mdash; Begin with REVIVE, our first available module.
           </span>
           <Link
-            href="/neet-to-mbbs"
-            className="underline underline-offset-2 font-bold hover:text-amber-300 transition ml-1 inline-flex items-center gap-1"
+            href="/mbbs-foundation/learn"
+            className="underline underline-offset-2 font-bold hover:text-amber-300 transition inline-flex items-center gap-1"
           >
-            NEET to MBBS Guide →
+            Explore Modules &rarr;
           </Link>
+          <span className="hidden md:inline text-white/50">&bull;</span>
+          <span className="hidden sm:inline bg-white/10 px-2 py-0.5 rounded border border-white/20 text-xs">
+            Book Offer: code <code className="font-mono font-bold text-amber-300">FOUNDERCIRCLE</code> for 20% OFF
+          </span>
         </div>
       </div>
 

@@ -1,644 +1,715 @@
+import React from "react";
+import { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "MBBS Foundation | Online Learning Programme & Medical Education Guide",
+  description:
+    "A structured online learning programme and foundational guide based on 'MBBS Foundation: Your First Book of Medicine', aligned with the NMC competency-based medical education framework for MBBS students and healthcare professionals across India.",
+};
+
 export default function Home() {
+  const reviews = [
+    {
+      role: "Student",
+      text: "This is the book I wish I had on my first day of MBBS. It doesn't just teach medicine—it prepares you for the journey.",
+      name: "Sanjil Maheshwari",
+      detail: "3rd-year MBBS student",
+    },
+    {
+      role: "Student",
+      text: "A rare blend of practical guidance and emotional grounding. It helped me understand not just what to study, but how to survive and grow in MBBS.",
+      name: "Sowmya",
+      detail: "1st Year MBBS Student",
+    },
+    {
+      role: "Mentor",
+      text: "This book fills a critical gap in early medical education by addressing the transition from student to doctor with clarity, empathy, and structure.",
+      name: "Dr Ashish Jaiman",
+      detail: "Director Professor, Orthopaedics, Safdarjung Hospital & VMMC, New Delhi",
+    },
+    {
+      role: "Mentor",
+      text: "An insightful and well-structured resource that goes beyond textbooks to shape clinical thinking, professional values, and resilience in young doctors.",
+      name: "Dr Manish Pathak",
+      detail: "Professor & Head, Pediatric Surgery, AIIMS Jodhpur",
+    },
+    {
+      role: "Mentor",
+      text: "Must read for every medico.",
+      name: "Dr Omprakash",
+      detail: "MD Physiology",
+    },
+    {
+      role: "Parent",
+      text: "Best book for the dedicated doctors.",
+      name: "Chandresh Goyal",
+      detail: "Lecturer and mentor for school children and college students, Karauli",
+    },
+    {
+      role: "Other",
+      text: "Very informative and knowledgeable book for all batches of MBBS, particularly first-year students.",
+      name: "Md Salam",
+      detail: "Staff in Dean office, AIIMS Patna",
+    },
+    {
+      role: "Mentor",
+      text: "It provides basic concepts in a clear, concise, and easy-to-understand manner, which helps build a strong foundation.",
+      name: "Dr Mahendra Singh Punia",
+      detail: "Senior Urologist & Renal Transplant Surgeon, Suvira Hospital Jaipur",
+    },
+    {
+      role: "Mentor",
+      text: "Excellent book to read for new medical students starting their medical journey. Based on author's vast clinical experience.",
+      name: "Dr Sunil Kumar Garg",
+      detail: "Senior Consultant ENT and Skull Base Surgeon, Apex Hospital Malviya Nagar, Jaipur",
+    },
+    {
+      role: "Mentor",
+      text: "New innovative idea, will be very helpful to budding doctors.",
+      name: "Dr Mani Kant Srivastava",
+      detail: "Senior Pediatrician, Patna",
+    },
+    {
+      role: "Mentor",
+      text: "All good topics covered.",
+      name: "Dr Shivra Batra",
+      detail: "Microbiologist Jaipur",
+    },
+    {
+      role: "Mentor",
+      text: "A very comprehensive book covering all aspects; a must-have for MBBS students starting their medical career.",
+      name: "Dr Abhilash Agrawal",
+      detail: "Senior Pediatrician, Vardan Clinic, Surajkund, Faridabad",
+    },
+    {
+      role: "Mentor",
+      text: "Simple, practical, and informative — a great book for beginners in medicine.",
+      name: "Dr Janarthanan Alwarsamy",
+      detail: "MD Pediatrics, Chennai",
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-white text-slate-900">
+    <main className="min-h-screen bg-white text-slate-900 font-sans">
+      {/* =================================================================== */}
+      {/* 1. PRIMARY HOMEPAGE HERO — ONLINE LEARNING PROGRAMME                */}
+      {/* =================================================================== */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-red-50/20 to-white border-b border-slate-200/80 pt-8 sm:pt-12 pb-12 sm:pb-14">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            {/* Eyebrow */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-red-100/80 border border-red-200 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-red-900 mb-3.5 sm:mb-4">
+              <span>🩺</span>
+              <span>MBBS FOUNDATION &bull; ONLINE LEARNING PROGRAMME</span>
+            </div>
 
-      {/* HEADER */}
-            {/* HERO */}
-            {/* ================= CPR SANJEEVANI ================= */}
+            {/* Heading */}
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-950 leading-[1.14]">
+              Learn Beyond the Textbook.{" "}
+              <span className="text-red-700">Become the Doctor Within.</span>
+            </h1>
 
-<section className="border-y border-sky-200 bg-gradient-to-r from-sky-50 via-blue-50 to-cyan-50 py-10">
-  <div className="mx-auto max-w-6xl px-6">
+            {/* Refined Short Description */}
+            <p className="mt-4 sm:mt-5 text-base sm:text-lg lg:text-xl text-slate-700 leading-relaxed max-w-2xl font-normal">
+              A structured, self-paced learning programme based on &lsquo;MBBS Foundation: Your First Book of Medicine&rsquo;, aligned with the National Medical Commission&apos;s competency-based medical education framework. Explore clinical knowledge, essential skills, professionalism and the human side of medicine.
+            </p>
 
-    <div className="max-w-3xl">
+            {/* Three Highlights */}
+            <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
+              <div className="rounded-2xl border border-slate-200 bg-white/95 p-3.5 sm:p-4 shadow-2xs">
+                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block">Curriculum</span>
+                <span className="text-sm font-black text-slate-900 mt-0.5 block">14 Learning Modules</span>
+              </div>
+              <div className="rounded-2xl border border-teal-200 bg-teal-50/80 p-3.5 sm:p-4 shadow-2xs">
+                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-teal-800 block">First Module</span>
+                <span className="text-sm font-black text-teal-950 mt-0.5 block">REVIVE &bull; Available Now</span>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white/95 p-3.5 sm:p-4 shadow-2xs">
+                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block">Credentials</span>
+                <span className="text-sm font-black text-slate-900 mt-0.5 block">Verifiable Module Certificates</span>
+              </div>
+            </div>
 
-      <p className="text-sm font-bold uppercase tracking-[0.25em] text-red-700">
-        🇮🇳 National Public Health Initiative
-      </p>
+            {/* Clearly Differentiated CTAs */}
+            <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <Link
+                href="/mbbs-foundation/learn"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 hover:bg-red-700 text-white font-bold px-7 py-3.5 sm:py-4 text-sm sm:text-base shadow-md hover:shadow-lg transition cursor-pointer"
+              >
+                <span>Explore Online Learning</span>
+                <span>&rarr;</span>
+              </Link>
+              <Link
+                href="/mbbs-foundation/learn/modules/revive"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-teal-700 bg-teal-50/70 hover:bg-teal-100 text-teal-900 font-bold px-6 py-3 sm:py-3.5 text-sm sm:text-base transition cursor-pointer"
+              >
+                <span>Start REVIVE Module</span>
+                <span>&rarr;</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <h2 className="mt-3 text-3xl font-extrabold text-slate-900 md:text-4xl">
-        CPR Sanjeevani
-      </h2>
+      {/* =================================================================== */}
+      {/* 2. CPR SANJEEVANI (Compact Visually Distinct Banner)                */}
+      {/* =================================================================== */}
+      <section className="border-b border-sky-200 bg-gradient-to-r from-sky-50 via-blue-50 to-cyan-50 py-6 sm:py-7">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div className="max-w-2xl space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-sky-200/80 text-sky-900 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider">
+                  National Public Health Initiative
+                </span>
+                <span className="text-xs text-slate-500 font-medium">
+                  Indian Academy of Pediatrics
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-black text-slate-900">
+                CPR Sanjeevani
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                A nationwide initiative by the Indian Academy of Pediatrics to empower citizens and health providers with lifesaving CPR skills across India.
+              </p>
+            </div>
 
-      <p className="mt-4 text-lg leading-8 text-slate-700">
-        A nationwide initiative by the Indian Academy of Pediatrics to empower citizens with lifesaving CPR skills. Learn CPR, find training venues, and access individual completion certificates through the official CPR portal.
-      </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+              <Link
+                href="/cprday"
+                className="rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 px-5 py-2.5 font-bold text-white text-xs sm:text-sm shadow-2xs transition text-center"
+              >
+                ❤️ CPR Sanjeevani Portal &rarr;
+              </Link>
+              <a
+                href="https://www.facebook.com/share/g/1DF14f2Npr/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl border border-blue-300 bg-white hover:bg-blue-50 px-4 py-2.5 font-semibold text-blue-800 text-xs sm:text-sm transition text-center"
+              >
+                Join Facebook Group &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
 
-      <div className="mt-6 flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
-
-        <a
-          href="/cprday"
-          className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-purple-600 px-6 sm:px-7 py-3.5 font-bold text-white shadow-lg transition hover:from-sky-700 hover:to-purple-700 flex items-center justify-center gap-2 text-center"
-        >
-          ❤️ CPR Sanjeevani Portal →
-        </a>
-
-        <a
-          href="https://www.facebook.com/share/g/1DF14f2Npr/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full sm:w-auto rounded-xl border border-blue-600 bg-blue-50 px-6 py-3.5 font-semibold text-blue-700 transition hover:bg-blue-100 flex items-center justify-center gap-2 text-center"
-        >
-          Join CPR Sanjeevani Facebook Group →
-        </a>
-
-      </div>
-
-    </div>
-
-  </div>
-</section>
-
-{/* ================= END CPR SANJEEVANI ================= */}
-      <section className="mx-auto max-w-6xl px-6 py-20 md:grid md:grid-cols-2 md:gap-12">
-
+      {/* =================================================================== */}
+      {/* 3. BOOK INTRODUCTION                                               */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:grid md:grid-cols-2 md:gap-12 items-center">
         <div>
-          <h1 className="text-4xl font-bold md:text-5xl">
+          <span className="text-xs font-black uppercase tracking-[0.2em] text-red-700 block mb-2">
+            The Foundational Handbook
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-950">
             Build the doctor within
-          </h1>
-          <p className="mt-4 text-xl font-medium text-red-700">
-  A complete guide for MBBS students in India
-</p>
-
-          <p className="mt-6 text-lg text-slate-600">
-            MBBS Foundation is more than a book. It is a practical and evidence-based guide for first-year MBBS students. It helps you transition from school to medical college while building essential skills in 
-            CPR, first aid, communication, ethics, and real-world clinical thinking. Designed for Indian medical students, young doctors and other healthcare providers, it goes beyond textbooks to prepare you for the reality of becoming a doctor. 
-            As you step into medical college from school, this book invites you to pause and learn at this threshold. It is a crossing-over: into responsibility, into compassion and into the lifelong identity of being a doctor. 
-            It aligns with the competency-based curriculum, yet it offers far more than a list can capture. 
-Step mindfully, and what lies beyond will shape not only your studies, but your life.
-Forever!
-
+          </h2>
+          <p className="mt-2 text-base sm:text-lg font-semibold text-red-700">
+            A complete guide for MBBS students in India
           </p>
 
-          <div className="mt-8 flex gap-4">
-            <a href="/book" className="rounded-xl bg-black px-6 py-3 text-white">
+          <p className="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+            <em>MBBS Foundation: Your First Book of Medicine</em> is a practical, evidence-based guide designed to help medical students navigate the crucial transition from school to medical college. Aligned with the competency-based curriculum, it builds essential foundations in CPR, first aid, clinical communication, ethics (AETCOM), and real-world professional readiness.
+          </p>
+
+          <p className="mt-3 text-xs sm:text-sm text-slate-500 font-semibold tracking-wide uppercase">
+            Science &bull; Skill &bull; Service
+          </p>
+
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <Link
+              href="/book"
+              className="rounded-xl bg-slate-950 hover:bg-slate-800 px-6 py-3 text-xs sm:text-sm font-bold text-white shadow-2xs transition"
+            >
               Explore Book
+            </Link>
+            <Link
+              href="/mbbs-foundation/learn"
+              className="rounded-xl border border-red-300 bg-red-50/60 hover:bg-red-100 text-red-900 px-5 py-3 text-xs sm:text-sm font-bold transition"
+            >
+              Explore Online Learning &rarr;
+            </Link>
+            <Link
+              href="/about"
+              className="rounded-xl border border-slate-300 hover:bg-slate-50 px-4 py-3 text-xs sm:text-sm font-medium text-slate-700 transition"
+            >
+              About Author
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex justify-center mt-8 md:mt-0">
+          <div className="w-56 sm:w-72 md:w-[340px] rounded-2xl overflow-hidden shadow-xl ring-1 ring-slate-200 bg-white">
+            <img
+              src="/book.png"
+              alt="MBBS Foundation Book: Your First Book of Medicine"
+              className="w-full h-full object-cover transition duration-300 hover:scale-105"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 4. THREE CURRICULUM PILLARS                                         */}
+      {/* =================================================================== */}
+      <section className="bg-slate-50/70 border-y border-slate-200/80 py-12 sm:py-14">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-red-700 block mb-1">
+              Holistic Framework
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-950">
+              Three Pillars of Foundational Medicine
+            </h2>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              {
+                title: "Foundations of Understanding Medicine",
+                desc: "Understanding the science, systems, and clinical structure of medicine, while developing professional identity, ethics, and academic resilience.",
+                tag: "Science",
+              },
+              {
+                title: "Foundations of Living Medicine",
+                desc: "Training hands and mind in CPR, emergency response, and first aid—turning theoretical knowledge into life-saving action when seconds matter.",
+                tag: "Skill",
+              },
+              {
+                title: "The Hidden Curriculum",
+                desc: "Navigating the unwritten expectations, clinical etiquette, patient empathy, and communication skills required to thrive as a physician.",
+                tag: "Service",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs transition hover:shadow-md hover:-translate-y-0.5"
+              >
+                <span className="inline-block rounded-full bg-slate-100 text-slate-700 px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider mb-2.5">
+                  {item.tag}
+                </span>
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">{item.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Compact Stats */}
+          <div className="mt-10 pt-8 border-t border-slate-200/80 grid gap-5 grid-cols-1 sm:grid-cols-3 text-center">
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-black text-red-700">100+ Chapters</h3>
+              <p className="mt-1 text-xs sm:text-sm text-slate-600">Covering complete MBBS foundation</p>
+            </div>
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-black text-red-700">Student-First</h3>
+              <p className="mt-1 text-xs sm:text-sm text-slate-600">Designed specifically for Indian MBBS education</p>
+            </div>
+            <div>
+              <h3 className="text-2xl sm:text-3xl font-black text-red-700">Skills + Mindset</h3>
+              <p className="mt-1 text-xs sm:text-sm text-slate-600">Beyond textbooks: CPR, ethics, communication</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 5. FEATURED BOOK SECTION                                            */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center border border-slate-200/90 rounded-3xl p-6 sm:p-10 shadow-2xs bg-white">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-red-700 font-bold">
+              Featured Handbook
+            </p>
+
+            <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-950">
+              MBBS Foundation: Your First Book of Medicine
+            </h2>
+
+            <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+              A comprehensive handbook for first-year MBBS students covering curriculum transition, medical ethics, CPR, first aid, communication, and the hidden curriculum of medical practice.
+            </p>
+
+            {/* Clearly Separated Online Learning Link */}
+            <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+              <span className="text-xs font-bold text-slate-700 block mb-1">
+                Prefer structured digital modules?
+              </span>
+              <Link
+                href="/mbbs-foundation/learn"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-red-700 hover:text-red-800 transition"
+              >
+                <span>Explore Online Learning Programme</span>
+                <span>&rarr;</span>
+              </Link>
+            </div>
+
+            {/* Purchase Options */}
+            <div className="mt-5 pt-4 border-t border-slate-100">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-2.5">
+                Order Hardcover / Paperback
+              </span>
+              <div className="flex flex-wrap gap-2.5">
+                <a
+                  href="https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-xl bg-red-700 hover:bg-red-800 px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-2xs transition"
+                >
+                  Buy on Amazon
+                </a>
+                <a
+                  href="https://notionpress.com/author/1356076"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-xl border border-slate-300 hover:bg-slate-50 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-800 transition"
+                >
+                  Buy on Notion Press
+                </a>
+                <a
+                  href="https://www.flipkart.com/mbbs-foundation/p/itm36fc9614bbf64?pid=9798903921355&affid=editornoti&affid=editornoti"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-xl border border-slate-300 hover:bg-slate-50 px-4 py-2 text-xs sm:text-sm font-semibold text-slate-800 transition"
+                >
+                  Buy on Flipkart
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-center">
+            <img
+              src="/book.png"
+              alt="MBBS Foundation Handbook"
+              className="w-52 sm:w-60 rounded-2xl shadow-lg ring-1 ring-slate-200"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 6. LEARN & EXPLORE                                                  */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-10 text-center">
+        <div className="max-w-2xl mx-auto rounded-3xl border border-slate-200 bg-slate-50/70 p-6 sm:p-8 space-y-3.5">
+          <p className="text-xs uppercase tracking-widest text-slate-500 font-bold">
+            Learn &amp; Explore
+          </p>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+            Start Your Journey into Medicine
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+            Access structured interactive learning modules or read reflective articles on medical training and clinical skills.
+          </p>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5">
+            <Link
+              href="/mbbs-foundation/learn"
+              className="rounded-xl bg-slate-900 hover:bg-slate-800 px-5 py-2.5 text-xs sm:text-sm font-bold text-white transition shadow-2xs"
+            >
+              Online Learning Modules &rarr;
+            </Link>
+            <Link
+              href="/blog"
+              className="rounded-xl border border-slate-300 hover:bg-white px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 transition"
+            >
+              Visit Blog &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 7. WHAT'S COMING NEXT                                               */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+        <div className="max-w-3xl mb-8">
+          <p className="text-xs uppercase tracking-[0.2em] text-red-700 font-bold">
+            What&apos;s Coming Next
+          </p>
+          <h2 className="mt-2 text-2xl sm:text-3xl font-black text-slate-950">
+            A Complete Medical Learning Ecosystem
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+            MBBS Foundation is evolving beyond the book into an integrated academic platform offering practical modules, clinical skills, and educational guidance for medical students.
+          </p>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-3">
+          {/* Active Card: Online Learning Programme / REVIVE */}
+          <div className="rounded-2xl border-2 border-teal-600 bg-teal-50/50 p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-800">
+                  Online Learning Programme
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 text-teal-900 px-2.5 py-0.5 text-[11px] font-black uppercase">
+                  ● REVIVE Available Now
+                </span>
+              </div>
+              <h3 className="font-black text-base sm:text-lg text-slate-900 mt-1">
+                REVIVE — CPR &amp; Choking Relief
+              </h3>
+              <p className="mt-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                Begin with REVIVE — a structured module covering CPR and relief of choking, with presentations, instructional videos, an online assessment and a verifiable completion certificate.
+              </p>
+            </div>
+            <div className="mt-5 pt-3.5 border-t border-teal-200">
+              <Link
+                href="/mbbs-foundation/learn/modules/revive"
+                className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-teal-800 hover:bg-teal-900 px-4 py-2.5 text-xs sm:text-sm font-bold text-white transition shadow-2xs"
+              >
+                <span>Explore REVIVE</span>
+                <span>&rarr;</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Upcoming Card: First Aid & Skills */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Clinical Skills
+                </span>
+                <span className="inline-block rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5 text-[11px] font-bold uppercase">
+                  Coming Soon
+                </span>
+              </div>
+              <h3 className="font-bold text-base sm:text-lg text-slate-900 mt-1">First Aid &amp; Skills</h3>
+              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Essential life-saving emergency skills, patient triage, and practical clinical procedures designed for first-year medicos.
+              </p>
+            </div>
+            <div className="mt-5 pt-3.5 border-t border-slate-100 text-xs text-slate-400 font-medium">
+              Curriculum in active preparation
+            </div>
+          </div>
+
+          {/* Upcoming Card: Mentorship & Guidance */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Transition Support
+                </span>
+                <span className="inline-block rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5 text-[11px] font-bold uppercase">
+                  Coming Soon
+                </span>
+              </div>
+              <h3 className="font-bold text-base sm:text-lg text-slate-900 mt-1">Mentorship &amp; Guidance</h3>
+              <p className="mt-2 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                Structured mentorship and academic guidance from senior clinical faculty to help students thrive in medical college.
+              </p>
+            </div>
+            <div className="mt-5 pt-3.5 border-t border-slate-100 text-xs text-slate-400 font-medium">
+              Curriculum in active preparation
+            </div>
+          </div>
+        </div>
+
+        {/* Community IAP Citizen CPR Certificate Link Preserved */}
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+          <div>
+            <strong>Looking for the community awareness citizen certificate?</strong> Access the older IAP CPR Aware Citizen form for public awareness training.
+          </div>
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeu6FIbHPzutVTxC-yhQ0hc09yniIgWRTuIYPYDkZMWx_aptA/viewform"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 font-semibold text-slate-800 hover:bg-slate-100 transition"
+          >
+            IAP Citizen Form &rarr;
+          </a>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 8. TESTIMONIALS / VOICES FROM STUDENTS & MENTORS                   */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-14 border-t border-slate-200/80">
+        <div className="text-center max-w-2xl mx-auto mb-8">
+          <p className="text-xs uppercase tracking-[0.2em] text-red-700 font-bold">
+            Reader Reflections
+          </p>
+          <h2 className="text-2xl sm:text-3xl font-black text-slate-950 mt-1">
+            Voices from Students &amp; Mentors
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm text-slate-600">
+            Authentic reflections from medical students, faculty, and clinical mentors
+          </p>
+        </div>
+
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-2xs">
+          <div className="review-track flex w-max gap-4 sm:gap-5">
+            {reviews.map((review, index) => (
+              <div
+                key={index}
+                className="w-[280px] sm:w-[320px] shrink-0 rounded-2xl border border-slate-100 bg-slate-50/80 p-4 sm:p-6 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-red-700">
+                      {review.role}
+                    </span>
+                    <span className="text-amber-500 text-xs">★★★★★</span>
+                  </div>
+                  <p className="mt-3 text-xs sm:text-sm italic text-slate-700 leading-relaxed">
+                    &ldquo;{review.text}&rdquo;
+                  </p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-200/60">
+                  <p className="text-xs font-bold text-slate-900">&mdash; {review.name}</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{review.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 text-center">
+          <a
+            href="https://forms.gle/SQhXxBX9oMDLg5a36"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl bg-red-700 hover:bg-red-800 px-5 py-2.5 text-xs sm:text-sm font-bold text-white shadow-2xs transition"
+          >
+            <span>Submit Your Review</span>
+            <span>&rarr;</span>
+          </a>
+          <p className="mt-2 text-[11px] text-slate-400">Takes less than 1 minute</p>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 9. NATIONAL CONSULTATION & STUDENT VOICE                           */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-7 sm:py-9">
+        <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-6 sm:p-9 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="max-w-2xl space-y-1.5">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-red-400">
+              National Initiative
+            </span>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white">
+              National Consultation &amp; Student Voice
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Medical education works best when the voices of both teachers and students are heard. Join the National Professional Consultation or Student Voice initiative and help us understand how students can begin MBBS better prepared.
+            </p>
+          </div>
+          <div className="shrink-0 w-full md:w-auto">
+            <Link
+              href="/mbbs-foundation/consultation"
+              className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-xs transition"
+            >
+              <span>Join the Consultation</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 10. NEET SECTION (Compact Guidance Section)                         */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-7 sm:py-9">
+        <div className="rounded-3xl border border-slate-200 bg-slate-50/80 p-5 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="max-w-2xl space-y-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              Medical School Transition
+            </span>
+            <h3 className="text-lg sm:text-xl font-black text-slate-900">
+              Preparing for Medical College?
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              The transition from NEET preparation to medical education is a profound shift in mindset and responsibility. Explore our practical guides covering counselling, college selection, academic expectations, and transition readiness.
+            </p>
+          </div>
+          <div className="shrink-0 w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <Link
+              href="/neet-to-mbbs"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 px-5 py-2.5 text-xs sm:text-sm font-bold text-white transition shadow-2xs"
+            >
+              <span>Explore NEET-to-MBBS Guide</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================================== */}
+      {/* 11. START YOUR JOURNEY (Primary LMS Action)                         */}
+      {/* =================================================================== */}
+      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-3 pb-14 sm:pb-16">
+        <div className="rounded-3xl bg-slate-950 p-6 sm:p-10 text-white">
+          <p className="text-xs uppercase tracking-[0.2em] text-red-400 font-bold">
+            Start Your Journey
+          </p>
+
+          <h2 className="mt-2 text-2xl sm:text-3xl font-black">
+            Your first step into medicine begins here.
+          </h2>
+
+          <p className="mt-2.5 max-w-2xl text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Whether you are a new MBBS student, a doctor, a parent, or an aspiring healthcare professional, MBBS Foundation is designed to guide, equip, and inspire your path in medicine.
+          </p>
+
+          <div className="mt-7 flex flex-wrap items-center gap-2.5 sm:gap-3.5">
+            <Link
+              href="/mbbs-foundation/learn"
+              className="rounded-xl bg-white hover:bg-slate-100 px-5 py-3 text-xs sm:text-sm font-bold text-slate-950 transition shadow-xs"
+            >
+              Explore Online Learning &rarr;
+            </Link>
+
+            <Link
+              href="/book"
+              className="rounded-xl border border-slate-600 hover:bg-white/10 px-5 py-3 text-xs sm:text-sm font-semibold text-white transition"
+            >
+              Explore the Book
+            </Link>
+
+            <a
+              href="https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-slate-700 hover:bg-white/5 px-4 py-3 text-xs sm:text-sm text-slate-300 transition"
+            >
+              Buy on Amazon
             </a>
-            <a href="/about" className="rounded-xl border px-6 py-3">
-              Learn More
+            <a
+              href="https://notionpress.com/in/read/mbbs-foundation"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-slate-700 hover:bg-white/5 px-4 py-3 text-xs sm:text-sm text-slate-300 transition"
+            >
+              Buy on Notion Press
+            </a>
+            <a
+              href="https://www.flipkart.com/mbbs-foundation/p/itm36fc9614bbf64?pid=9798903921355&affid=editornoti&affid=editornoti"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-slate-700 hover:bg-white/5 px-4 py-3 text-xs sm:text-sm text-slate-300 transition"
+            >
+              Buy on Flipkart
             </a>
           </div>
         </div>
 
-        <div className="flex justify-center mt-10 md:mt-0">
-  <div className="w-80 md:w-[420px] rounded-2xl overflow-hidden shadow-2xl ring-1 ring-slate-200 bg-white">
-    <img
-      src="/book.png"
-      alt="MBBS Foundation Book"
-      className="w-full h-full object-cover transition duration-300 hover:scale-105"
-    />
-  </div>
-</div>
-
-
+        {/* Floating WhatsApp chat widget */}
+        <a
+          href="https://wa.me/918340793824"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 rounded-full bg-green-500 hover:bg-green-600 px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white shadow-2xl transition flex items-center gap-2"
+          aria-label="Chat on WhatsApp"
+        >
+          <span>💬</span>
+          <span>Chat on WhatsApp</span>
+        </a>
       </section>
-      
-      <section className="w-full bg-gradient-to-r from-blue-50 to-slate-50 py-16 mt-16">
-  <div className="mx-auto max-w-6xl px-6 text-center">
-
-    <p className="text-lg md:text-xl font-semibold text-blue-700 uppercase tracking-[0.3em]">
-      NEET 2026 Special
-    </p>
-
-    <h2 className="mt-4 text-3xl md:text-4xl font-bold text-slate-900">
-      Just appeared for NEET?
-    </h2>
-
-    <p className="mt-4 text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-      The journey doesn’t end here—it begins. MBBS Foundation helps you take your first confident step into medical college with clarity, skills, and real-world understanding.
-    </p>
-
-    <p className="mt-4 text-base font-medium text-red-700">
-      🎓 Founder’s Circle Access available for early learners
-    </p>
-    <p className="mt-3 text-sm text-slate-500">
-  Trusted by early MBBS learners across India
-</p>
-
-    {/* Premium Choice Cards (Clickable) */}
-<div className="mt-8 grid gap-4 md:grid-cols-2 max-w-3xl mx-auto">
-
-  {/* STUDENT */}
-  <a
-    href="/neet-to-mbbs"
-    className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
-  >
-    <p className="font-semibold text-lg text-slate-900 group-hover:text-blue-700">
-      I am a NEET student
-    </p>
-    <p className="text-sm text-slate-500 mt-1">
-      Start MBBS with clarity and confidence
-    </p>
-  </a>
-
-  {/* PARENT */}
-  <a
-    href="/neet-to-mbbs"
-    className="group rounded-xl border p-5 bg-white transition hover:shadow-xl hover:-translate-y-1"
-  >
-    <p className="font-semibold text-lg text-slate-900 group-hover:text-blue-700">
-      I am a parent / mentor
-    </p>
-    <p className="text-sm text-slate-500 mt-1">
-      Guide your child’s medical journey
-    </p>
-  </a>
-
-</div>
-
-{/* CTA */}
-<div className="mt-10">
-  <a
-    href="/neet-to-mbbs"
-    className="inline-block rounded-xl bg-black px-8 py-4 text-lg text-white transition hover:bg-slate-800 hover:scale-105"
-  >
-    Start Your MBBS Journey →
-  </a>
-</div>
-
-  </div>
-</section>
-
-      {/* FEATURES */}
-      <section className="mx-auto max-w-6xl px-6 py-16 grid gap-6 md:grid-cols-3">
-  {[
-    {
-      title: "Foundations of Understanding Medicine",
-      desc: "Understanding the science, systems, and structure of medicine, while developing professional identity and ethical foundation.",
-    },
-    {
-      title: "Foundations of Living Medicine",
-      desc: "Trains your hands and heart in CPR and first aid—so you can turn knowledge into action and take the first life-saving steps when every second matters.",
-    },
-    {
-      title: "Hidden Curriculum",
-      desc: "Transition from school to MBBS - The unwritten lessons and soft skills needed to survive and thrive in medicine—shaping real doctors beyond textbooks.",
-    },
-  ].map((item, i) => (
-    <div
-      key={i}
-      className="rounded-2xl border p-6 shadow-sm transition hover:shadow-lg hover:-translate-y-1"
-    >
-      <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-      <p className="text-gray-600 leading-relaxed">{item.desc}</p>
-    </div>
-  ))}
-</section>
-
-    <section className="mx-auto max-w-6xl px-6 py-16">
-
-  <div className="grid md:grid-cols-2 gap-10 items-center border rounded-2xl p-8 shadow-sm">
-
-    <div>
-      <p className="text-sm uppercase tracking-[0.2em] text-red-700 font-semibold">
-        Featured Book
-      </p>
-
-      <h2 className="mt-3 text-3xl font-semibold">
-        MBBS Foundation: Your First Book of Medicine
-      </h2>
-
-      <p className="mt-4 text-slate-600">
-        A modern guide for MBBS students covering transition, ethics, CPR,
-        first aid, communication, and the hidden curriculum of medicine.
-      </p>
-
-      <div className="mt-6 flex flex-wrap gap-4">
-        <a
-          href="https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-xl bg-red-700 px-6 py-3 text-white"
-        >
-          Buy on Amazon
-        </a>
-
-        <a
-          href="https://notionpress.com/author/1356076"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-xl border px-6 py-3"
-        >
-          Buy on Notion Press
-        </a>
-        <a
-          href="https://www.flipkart.com/mbbs-foundation/p/itm36fc9614bbf64?pid=9798903921355&affid=editornoti&affid=editornoti"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-xl border px-6 py-3"
-        >
-          Buy on Flipkart
-        </a>
-      </div>
-
-      <p className="mt-3 text-sm text-slate-500">
-        Direct purchase from MBBS Foundation coming soon.
-      </p>
-    </div>
-
-    <div className="flex justify-center">
-      <img src="/book.png" className="w-72 rounded-xl shadow-lg" />
-    </div>
-
-  </div>
-
-</section>
-<section className="mx-auto max-w-6xl px-6 py-16">
-  <div className="grid gap-8 md:grid-cols-3 text-center">
-
-    <div>
-      <h3 className="text-3xl font-semibold text-red-700">100+</h3>
-      <p className="mt-2 text-slate-600">Chapters covering complete MBBS foundation</p>
-    </div>
-
-    <div>
-      <h3 className="text-3xl font-semibold text-red-700">Student-first</h3>
-      <p className="mt-2 text-slate-600">Designed specifically for Indian MBBS journey</p>
-    </div>
-
-    <div>
-      <h3 className="text-3xl font-semibold text-red-700">Skills + Mindset</h3>
-      <p className="mt-2 text-slate-600">Beyond textbooks: CPR, communication, survival</p>
-    </div>
-
-  </div>
-</section>
-<section className="mx-auto max-w-6xl px-6 py-16">
-
-  <div className="max-w-3xl">
-    <p className="text-sm uppercase tracking-[0.2em] text-red-700 font-semibold">
-      Why MBBS Foundation
-    </p>
-
-    <h2 className="mt-3 text-3xl font-semibold">
-      Medicine is more than knowledge. It is a way of life.
-    </h2>
-
-    <p className="mt-6 text-lg text-slate-600 leading-8">
-      Medical education has traditionally focused on knowledge and clinical skills.
-      But the journey from school to medical college is much deeper.
-      It is a transformation — intellectual, emotional, and professional.
-    </p>
-
-    <p className="mt-4 text-slate-600 leading-8">
-      MBBS Foundation is designed to bridge this gap. It helps students not only
-      learn medicine, but understand it, live it, and grow within it.
-    </p>
-  </div>
-
-  <div className="mt-12 grid gap-6 md:grid-cols-3">
-
-    <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <h3 className="font-semibold text-xl">Science</h3>
-      <p className="mt-2 text-slate-600">
-        Strong academic foundation aligned with modern medical curriculum.
-      </p>
-    </div>
-
-    <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <h3 className="font-semibold text-xl">Skill</h3>
-      <p className="mt-2 text-slate-600">
-        CPR, first aid, communication, and real-world clinical readiness.
-      </p>
-    </div>
-
-    <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <h3 className="font-semibold text-xl">Service</h3>
-      <p className="mt-2 text-slate-600">
-        Compassion, empathy, and the deeper purpose of being a doctor.
-      </p>
-    </div>
-
-  </div>
-  <div className="mt-16 text-center">
-  <p className="text-sm uppercase text-slate-500">
-    Learn & Explore
-  </p>
-
-  <h2 className="text-2xl font-semibold mt-2">
-    Start your journey into medicine
-  </h2>
-
-  <a
-    href="/blog"
-    className="mt-4 inline-block rounded-xl border px-6 py-3 hover:bg-slate-50"
-  >
-    Visit Blog →
-  </a>
-</div>
-
-</section>
-<section className="mx-auto max-w-6xl px-6 py-16">
-  <h2 className="text-center text-3xl font-semibold">
-    Voices from Students & Mentors
-  </h2>
-
-  <p className="mt-4 text-center text-slate-600">
-    Reflections from readers, students, parents, and mentors
-  </p>
-
-  {(() => {
-    const reviews = [
-      {
-        role: "Student",
-        text: "This is the book I wish I had on my first day of MBBS. It doesn’t just teach medicine—it prepares you for the journey.",
-        name: "Sanjil Maheshwari",
-        detail: "3rd-year MBBS student",
-      },
-      {
-        role: "Student",
-        text: "A rare blend of practical guidance and emotional grounding. It helped me understand not just what to study, but how to survive and grow in MBBS.",
-        name: "Sowmya",
-        detail: "1st Year MBBS Student",
-      },
-      {
-        role: "Mentor",
-        text: "This book fills a critical gap in early medical education by addressing the transition from student to doctor with clarity, empathy, and structure.",
-        name: "Dr Ashish Jaiman",
-        detail:
-          "Director Professor, Orthopaedics, Safdarjung Hospital & VMMC, New Delhi",
-      },
-      {
-        role: "Mentor",
-        text: "An insightful and well-structured resource that goes beyond textbooks to shape clinical thinking, professional values, and resilience in young doctors.",
-        name: "Dr Manish Pathak",
-        detail: "Professor & Head, Pediatric Surgery, AIIMS Jodhpur",
-      },
-      {
-        role: "Mentor",
-        text: "Must read for every medico.",
-        name: "Dr Omprakash",
-        detail: "MD Physiology",
-      },
-      {
-        role: "Parent",
-        text: "Best book for the dedicated doctors.",
-        name: "Chandresh Goyal",
-        detail:
-          "Lecturer and mentor for school children and college students, Karauli",
-      },
-      {
-        role: "Other",
-        text: "Very informative and knowledgeable book for all batches of MBBS, particularly first-year students.",
-        name: "Md Salam",
-        detail: "Staff in Dean office, AIIMS Patna",
-      },
-      {
-        role: "Mentor",
-        text: "It provides basic concepts in a clear, concise, and easy-to-understand manner, which helps build a strong foundation.",
-        name: "Dr Mahendra Singh Punia",
-        detail:
-          "Senior Urologist & Renal Transplant Surgeon, Suvira Hospital Jaipur",
-      },
-      {
-        role: "Mentor",
-        text: "Excellent book to read for new medical students starting their medical journey. Based on author's vast clinical experience.",
-        name: "Dr Sunil Kumar Garg",
-        detail:
-          "Senior Consultant ENT and Skull Base Surgeon, Apex Hospital Malviya Nagar, Jaipur",
-      },
-      {
-        role: "Mentor",
-        text: "New innovative idea, will be very helpful to budding doctors.",
-        name: "Dr Mani Kant Srivastava",
-        detail: "Senior Pediatrician, Patna",
-      },
-      {
-        role: "Mentor",
-        text: "All good topics covered.",
-        name: "Dr Shivra Batra",
-        detail: "Microbiologist Jaipur",
-      },
-      {
-        role: "Mentor",
-        text: "A very comprehensive book covering all aspects; a must-have for MBBS students starting their medical career.",
-        name: "Dr Abhilash Agrawal",
-        detail: "Senior Pediatrician, Vardan Clinic, Surajkund, Faridabad",
-      },
-      {
-        role: "Mentor",
-        text: "Simple, practical, and informative — a great book for beginners in medicine.",
-        name: "Dr janarthanan Alwarsamy",
-        detail: "MD pediatrics, Chennai",
-      },
-    ];
-
-    return (
-      <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="review-track flex w-max gap-6">
-          {[...reviews, ...reviews].map((review, index) => (
-            <div
-              key={index}
-              className="w-[320px] shrink-0 rounded-2xl border border-slate-100 bg-slate-50 p-6"
-            >
-              <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
-                {review.role}
-              </p>
-
-              <p className="mt-3 text-yellow-500">★★★★★</p>
-
-              <p className="mt-3 italic text-slate-700">
-                “{review.text}”
-              </p>
-
-              <p className="mt-4 font-semibold text-slate-900">
-                — {review.name}
-              </p>
-
-              <p className="mt-1 text-sm text-slate-500">
-                {review.detail}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  })()}
-
-  <div className="mt-12 text-center">
-    <p className="text-sm uppercase tracking-[0.2em] text-red-700 font-semibold">
-      Share Your Experience
-    </p>
-
-    <h3 className="mt-3 text-2xl font-semibold">
-      Have you read MBBS Foundation: Your First Book of Medicine?
-    </h3>
-
-    <p className="mt-3 text-slate-600">
-      Your feedback helps guide future medical students.
-    </p>
-
-    <div className="mt-6">
-      <a
-        href="https://forms.gle/SQhXxBX9oMDLg5a36"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-xl bg-red-700 px-8 py-3 text-white text-lg transition hover:bg-red-800"
-      >
-        Submit Your Review
-      </a>
-    </div>
-
-    <p className="mt-4 text-sm text-slate-500">
-      Takes less than 1 minute
-    </p>
-  </div>
-</section>
-<section className="mx-auto max-w-6xl px-6 py-16">
-
-  <div className="max-w-3xl">
-    <p className="text-sm uppercase tracking-[0.2em] text-red-700 font-semibold">
-      What’s Coming Next
-    </p>
-
-    <h2 className="mt-3 text-3xl font-semibold">
-      A complete medical learning ecosystem
-    </h2>
-
-    <p className="mt-6 text-lg text-slate-600 leading-8">
-      MBBS Foundation is evolving into a platform that goes beyond books — 
-      bringing practical training, real-world skills, and mentorship to 
-      medical students and young doctors.
-    </p>
-  </div>
-
-  <div className="mt-12 grid gap-6 md:grid-cols-3">
-
-    <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <div className="border border-red-200 rounded-xl p-6 bg-red-50 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-
-  <h3 className="font-semibold text-xl text-red-700">
-    CPR Training
-  </h3>
-
-  <p className="mt-2 text-slate-700">
-    Structured online IAP CPR awareness and training module
-  </p>
-
-  <p className="mt-3 text-sm font-medium text-green-600">
-    ● Available
-  </p>
-
-  <a
-    href="https://docs.google.com/forms/d/e/1FAIpQLSeu6FIbHPzutVTxC-yhQ0hc09yniIgWRTuIYPYDkZMWx_aptA/viewform"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="mt-4 inline-block rounded-xl bg-black px-5 py-2 text-white transition hover:bg-slate-800"
-  >
-    Complete the module and recieve your IAP CPR Aware Citizen Certificate Now
-  </a>
-
-</div>
-    </div>
-
-    <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <h3 className="font-semibold text-xl">First Aid & Skills</h3>
-      <p className="mt-2 text-slate-600">
-        Essential life-saving skills and practical medical training modules.
-      </p>
-      <p className="mt-3 text-sm text-slate-500">Coming Soon</p>
-    </div>
-
-    <div className="border rounded-xl p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <h3 className="font-semibold text-xl">Mentorship & Guidance</h3>
-      <p className="mt-2 text-slate-600">
-        Guidance from experienced doctors to help students navigate their journey.
-      </p>
-      <p className="mt-3 text-sm text-slate-500">Coming Soon</p>
-    </div>
-
-  </div>
-
-</section>
-
-{/* ================= HELP SHAPE MBBS FOUNDATION (NATIONAL CONSULTATION) ================= */}
-<section className="mx-auto max-w-6xl px-6 py-10">
-  <div className="rounded-3xl border border-slate-200/90 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-8 sm:p-10 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-    <div className="max-w-2xl space-y-2">
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-red-400">
-        HELP SHAPE MBBS FOUNDATION
-      </p>
-      <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-        National Consultation &amp; Student Voice
-      </h3>
-      <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
-        Medical education works best when the voices of both teachers and students are heard. Join the National Professional Consultation or Student Voice initiative and help us understand how students can begin MBBS better prepared.
-      </p>
-    </div>
-    <div className="shrink-0 w-full md:w-auto">
-      <a
-        href="/mbbs-foundation/consultation"
-        className="w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-6 py-3.5 text-sm font-black text-white shadow-md transition"
-      >
-        <span>JOIN THE CONSULTATION</span>
-        <span>→</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<section className="mx-auto max-w-6xl px-6 pb-20 pt-10">
-
-  <div className="rounded-3xl bg-slate-950 p-10 text-white md:p-14">
-
-    <p className="text-sm uppercase tracking-[0.2em] text-red-400 font-semibold">
-      Start Your Journey
-    </p>
-
-    <h2 className="mt-3 text-3xl font-semibold md:text-4xl">
-      Your first step into medicine begins here.
-    </h2>
-
-    <p className="mt-5 max-w-2xl text-slate-300 leading-8">
-      Whether you are a new MBBS student, a parent, or an aspiring doctor,
-      MBBS Foundation is designed to guide, support, and inspire your journey.
-    </p>
-
-    <div className="mt-8 flex flex-wrap gap-4">
-
-      <a
-        href="/book"
-        className="rounded-xl bg-white px-6 py-3 text-slate-950 font-medium"
-      >
-        Explore the Book
-      </a>
-
-      <a
-        href="https://www.amazon.in/dp/B0GTZFSP17?&tag=notionpcom-21"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-xl border border-slate-500 px-6 py-3"
-      >
-        Buy on Amazon
-      </a>
-      <a
-        href="https://notionpress.com/in/read/mbbs-foundation"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-xl border border-slate-500 px-6 py-3"
-      >
-        Buy on Notion Press
-      </a>
-      <a
-        href="https://www.flipkart.com/mbbs-foundation/p/itm36fc9614bbf64?pid=9798903921355&affid=editornoti&affid=editornoti"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="rounded-xl border border-slate-500 px-6 py-3"
-      >
-        Buy on Flipkart
-      </a>
-      <a
-  href="https://wa.me/918340793824"
-  target="_blank"
-  className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 rounded-full bg-green-500 px-4 sm:px-5 py-2.5 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-2xl transition hover:bg-green-600"
->
-  Chat on WhatsApp
-</a>
-
-    </div>
-
-  </div>
-
-</section>
-</main>
+    </main>
   );
 }

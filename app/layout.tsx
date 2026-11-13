@@ -171,6 +171,7 @@ export default function RootLayout({
                   Explore
                 </p>
                 <div className="mt-3 space-y-2 text-sm text-slate-600">
+                  <p><a href="/mbbs-foundation/learn">Online Learning</a></p>
                   <p><a href="/about">About</a></p>
                   <p><a href="/book">Book</a></p>
                   <p><a href="/resources">Resources</a></p>
