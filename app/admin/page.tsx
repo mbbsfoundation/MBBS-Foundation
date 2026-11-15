@@ -11,6 +11,13 @@ export default function MasterAdminHomePage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [systemHealth, setSystemHealth] = useState<any | null>(null);
   const [loadingHealth, setLoadingHealth] = useState<boolean>(false);
+  const [learningMetrics, setLearningMetrics] = useState<{
+    totalRegistered: number;
+    totalVerified: number;
+    totalColleges: number;
+    totalCertificates: number;
+  } | null>(null);
+  const [loadingMetrics, setLoadingMetrics] = useState<boolean>(false);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -48,6 +55,24 @@ export default function MasterAdminHomePage() {
         }
       }
       fetchHealth();
+
+      async function fetchLearningMetrics() {
+        try {
+          setLoadingMetrics(true);
+          const res = await fetch("/api/admin/mbbs-foundation/learn?summaryOnly=true");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.summary) {
+              setLearningMetrics(data.summary);
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch learning metrics:", e);
+        } finally {
+          setLoadingMetrics(false);
+        }
+      }
+      fetchLearningMetrics();
     }
   }, [isAuthenticated]);
 
@@ -192,7 +217,13 @@ export default function MasterAdminHomePage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
+            <Link
+              href="/admin/mbbs-foundation/learn"
+              className="rounded-xl bg-amber-600 hover:bg-amber-500 px-4 py-2.5 text-xs sm:text-sm font-bold text-slate-950 transition shadow-sm"
+            >
+              Online Learning Console →
+            </Link>
             <Link
               href="/admin/mbbs-foundation/consultation"
               className="rounded-xl bg-red-700 hover:bg-red-800 px-4 py-2.5 text-xs sm:text-sm font-bold text-white transition shadow-sm"
@@ -326,7 +357,115 @@ export default function MasterAdminHomePage() {
             </div>
           </section>
 
-          {/* Card 3: DATA & EXPORTS */}
+          {/* Card 3: ONLINE LEARNING PROGRAMME */}
+          <section className="rounded-2xl bg-white p-6 sm:p-7 border border-slate-200 shadow-xs space-y-5 hover:border-amber-400/80 transition flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xl font-bold">
+                    🎓
+                  </span>
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900 tracking-tight">
+                      Online Learning Programme
+                    </h2>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
+                      Learner Registrations &amp; Certifications
+                    </span>
+                  </div>
+                </div>
+                <span className="rounded-md bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 text-[10px] font-bold">
+                  REVIVE Active
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Registered learner directory across medical institutions, email verification status, and module certification records.
+              </p>
+
+              {/* Dynamically Calculated Metrics */}
+              <div className="grid grid-cols-2 gap-2 pt-1 text-xs">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Learners
+                    </span>
+                    <span className="font-black text-slate-900 text-sm">
+                      {loadingMetrics ? (
+                        <span className="inline-block h-3.5 w-6 bg-slate-200 rounded animate-pulse" />
+                      ) : (
+                        learningMetrics?.totalRegistered ?? "—"
+                      )}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 block">Total registered</span>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Verified
+                    </span>
+                    <span className="font-black text-emerald-700 text-sm">
+                      {loadingMetrics ? (
+                        <span className="inline-block h-3.5 w-6 bg-slate-200 rounded animate-pulse" />
+                      ) : (
+                        learningMetrics?.totalVerified ?? "—"
+                      )}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 block">Email-verified</span>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Colleges
+                    </span>
+                    <span className="font-black text-slate-900 text-sm">
+                      {loadingMetrics ? (
+                        <span className="inline-block h-3.5 w-6 bg-slate-200 rounded animate-pulse" />
+                      ) : (
+                        learningMetrics?.totalColleges ?? "—"
+                      )}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 block">Represented</span>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 space-y-0.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                      Certificates
+                    </span>
+                    <span className="font-black text-red-700 text-sm">
+                      {loadingMetrics ? (
+                        <span className="inline-block h-3.5 w-6 bg-slate-200 rounded animate-pulse" />
+                      ) : (
+                        learningMetrics?.totalCertificates ?? "—"
+                      )}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 block">REVIVE issued</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 pt-3 border-t border-slate-100">
+              <Link
+                href="/admin/mbbs-foundation/learn"
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-amber-50/80 border border-slate-200 hover:border-amber-300 text-xs font-bold text-slate-800 hover:text-amber-950 transition group"
+              >
+                <div className="flex items-center gap-2">
+                  <span>🎓</span>
+                  <span>Learner Directory &amp; Console</span>
+                </div>
+                <span className="text-slate-400 group-hover:text-amber-700 transition">→</span>
+              </Link>
+            </div>
+          </section>
+
+          {/* Card 4: DATA & EXPORTS */}
           <section id="exports" className="rounded-2xl bg-white p-6 sm:p-7 border border-slate-200 shadow-xs space-y-5 hover:border-slate-400 transition flex flex-col justify-between scroll-mt-20">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -355,6 +494,18 @@ export default function MasterAdminHomePage() {
 
             <div className="space-y-2.5 pt-3 border-t border-slate-100">
               <a
+                href="/api/admin/mbbs-foundation/learn/export"
+                download
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-300 text-xs font-bold text-slate-800 hover:text-emerald-950 transition group"
+              >
+                <div className="flex items-center gap-2">
+                  <span>🎓</span>
+                  <span>Online Learning Learners CSV</span>
+                </div>
+                <span className="text-emerald-700 text-xs font-bold">Download ↓</span>
+              </a>
+
+              <a
                 href="/api/admin/mbbs-foundation/consultation/export"
                 download
                 className="w-full flex items-center justify-between p-3 rounded-xl bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-300 text-xs font-bold text-slate-800 hover:text-emerald-950 transition group"
@@ -380,7 +531,7 @@ export default function MasterAdminHomePage() {
             </div>
           </section>
 
-          {/* Card 4: SYSTEM STATUS & TOOLS */}
+          {/* Card 5: SYSTEM STATUS & TOOLS */}
           <section className="rounded-2xl bg-white p-6 sm:p-7 border border-slate-200 shadow-xs space-y-5 hover:border-slate-400 transition flex flex-col justify-between">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -413,6 +564,10 @@ export default function MasterAdminHomePage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>MBBS Consultation Engine:</span>
+                  <span className="font-bold text-emerald-700">Online</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Online Learning Engine:</span>
                   <span className="font-bold text-emerald-700">Online</span>
                 </div>
               </div>

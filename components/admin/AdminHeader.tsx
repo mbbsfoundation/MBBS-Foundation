@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 interface AdminHeaderProps {
-  currentSection?: "home" | "cpr" | "mbbs" | "data" | "system";
+  currentSection?: "home" | "cpr" | "mbbs" | "learn" | "data" | "system";
   onLogout?: () => void;
 }
 
@@ -35,7 +35,8 @@ export default function AdminHeader({ currentSection, onLogout }: AdminHeaderPro
   // Determine active states
   const isHome = currentSection === "home" || pathname === "/admin";
   const isCpr = currentSection === "cpr" || pathname?.startsWith("/cprsanjeevani") || pathname?.startsWith("/admin/cpr");
-  const isMbbs = currentSection === "mbbs" || pathname?.startsWith("/admin/mbbs-foundation");
+  const isMbbs = currentSection === "mbbs" || (Boolean(pathname?.startsWith("/admin/mbbs-foundation")) && !pathname?.startsWith("/admin/mbbs-foundation/learn"));
+  const isLearn = currentSection === "learn" || Boolean(pathname?.startsWith("/admin/mbbs-foundation/learn"));
   const isData = currentSection === "data";
 
   return (
@@ -106,10 +107,23 @@ export default function AdminHeader({ currentSection, onLogout }: AdminHeaderPro
               }`}
             >
               <span>🩺</span>
-              <span>MBBS Foundation</span>
+              <span>Consultation</span>
             </Link>
 
-            {/* 4. Data & Exports */}
+            {/* 4. Online Learning */}
+            <Link
+              href="/admin/mbbs-foundation/learn"
+              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 border ${
+                isLearn
+                  ? "bg-amber-950 text-amber-200 border-amber-800 shadow-xs"
+                  : "text-slate-300 hover:text-white hover:bg-slate-900 border-transparent"
+              }`}
+            >
+              <span>🎓</span>
+              <span>Online Learning</span>
+            </Link>
+
+            {/* 5. Data & Exports */}
             <Link
               href="/admin#exports"
               className={`rounded-xl px-3 py-1.5 text-xs font-bold transition flex items-center gap-1.5 border ${
@@ -212,6 +226,16 @@ export default function AdminHeader({ currentSection, onLogout }: AdminHeaderPro
               }`}
             >
               🩺 MBBS Foundation Consultation
+            </Link>
+
+            <Link
+              href="/admin/mbbs-foundation/learn"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block rounded-xl px-3 py-2 font-bold transition ${
+                isLearn ? "bg-amber-950 text-amber-200" : "text-slate-300 hover:bg-slate-900"
+              }`}
+            >
+              🎓 Online Learning Programme (Learners &amp; Certs)
             </Link>
 
             <Link
