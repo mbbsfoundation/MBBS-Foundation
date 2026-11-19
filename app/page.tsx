@@ -1,6 +1,8 @@
 import React from "react";
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
+import HomePhotoMarquee from "@/components/HomePhotoMarquee";
 
 export const metadata: Metadata = {
   title: "MBBS Foundation | Online Learning Programme & Medical Education Guide",
@@ -96,61 +98,87 @@ export default function Home() {
       {/* 1. PRIMARY HOMEPAGE HERO — ONLINE LEARNING PROGRAMME                */}
       {/* =================================================================== */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-red-50/20 to-white border-b border-slate-200/80 pt-8 sm:pt-12 pb-12 sm:pb-14">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 rounded-full bg-red-100/80 border border-red-200 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-red-900 mb-3.5 sm:mb-4">
-              <span>🩺</span>
-              <span>MBBS FOUNDATION &bull; ONLINE LEARNING PROGRAMME</span>
+        <div className="mx-auto max-w-7xl xl:max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-y-6 lg:gap-x-10 lg:gap-y-0 items-center">
+            {/* Left Column Part 1: Eyebrow, Heading, Intro Description */}
+            <div className="lg:col-span-6 lg:row-start-1">
+              {/* Eyebrow */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-red-100/80 border border-red-200 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-red-900 mb-3.5 sm:mb-4">
+                <span>🩺</span>
+                <span>MBBS FOUNDATION &bull; ONLINE LEARNING PROGRAMME</span>
+              </div>
+
+              {/* Heading */}
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-950 leading-[1.14]">
+                Learn Beyond the Textbook.{" "}
+                <span className="text-red-700">Become the Doctor Within.</span>
+              </h1>
+
+              {/* Refined Short Description */}
+              <p className="mt-4 sm:mt-5 text-base sm:text-lg lg:text-xl text-slate-700 leading-relaxed max-w-2xl font-normal">
+                A structured, self-paced learning programme based on &lsquo;MBBS Foundation: Your First Book of Medicine&rsquo;, aligned with the National Medical Commission&apos;s competency-based medical education framework. Explore clinical knowledge, essential skills, professionalism and the human side of medicine.
+              </p>
             </div>
 
-            {/* Heading */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-950 leading-[1.14]">
-              Learn Beyond the Textbook.{" "}
-              <span className="text-red-700">Become the Doctor Within.</span>
-            </h1>
-
-            {/* Refined Short Description */}
-            <p className="mt-4 sm:mt-5 text-base sm:text-lg lg:text-xl text-slate-700 leading-relaxed max-w-2xl font-normal">
-              A structured, self-paced learning programme based on &lsquo;MBBS Foundation: Your First Book of Medicine&rsquo;, aligned with the National Medical Commission&apos;s competency-based medical education framework. Explore clinical knowledge, essential skills, professionalism and the human side of medicine.
-            </p>
-
-            {/* Three Highlights */}
-            <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
-              <div className="rounded-2xl border border-slate-200 bg-white/95 p-3.5 sm:p-4 shadow-2xs">
-                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block">Curriculum</span>
-                <span className="text-sm font-black text-slate-900 mt-0.5 block">14 Learning Modules</span>
-              </div>
-              <div className="rounded-2xl border border-teal-200 bg-teal-50/80 p-3.5 sm:p-4 shadow-2xs">
-                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-teal-800 block">First Module</span>
-                <span className="text-sm font-black text-teal-950 mt-0.5 block">REVIVE &bull; Available Now</span>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white/95 p-3.5 sm:p-4 shadow-2xs">
-                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block">Credentials</span>
-                <span className="text-sm font-black text-slate-900 mt-0.5 block">Verifiable Module Certificates</span>
+            {/* Right Column: NMC Office Photograph (1.5x Dimension Enlargement) */}
+            <div className="lg:col-span-6 lg:row-start-1 lg:row-span-2 self-center my-2 sm:my-3 lg:my-0">
+              <div className="relative mx-auto w-full max-w-xl lg:max-w-none overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-2xs">
+                <Image
+                  src="/home-gallery/NMC%20Office.jpeg"
+                  alt="Medical education and curriculum discussion at the Office of the National Medical Commission"
+                  width={1448}
+                  height={933}
+                  className="w-full h-auto object-cover"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, (max-width: 1440px) 50vw, 720px"
+                  priority
+                />
               </div>
             </div>
 
-            {/* Clearly Differentiated CTAs */}
-            <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-              <Link
-                href="/mbbs-foundation/learn"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 hover:bg-red-700 text-white font-bold px-7 py-3.5 sm:py-4 text-sm sm:text-base shadow-md hover:shadow-lg transition cursor-pointer"
-              >
-                <span>Explore Online Learning</span>
-                <span>&rarr;</span>
-              </Link>
-              <Link
-                href="/mbbs-foundation/learn/modules/revive"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-teal-700 bg-teal-50/70 hover:bg-teal-100 text-teal-900 font-bold px-6 py-3 sm:py-3.5 text-sm sm:text-base transition cursor-pointer"
-              >
-                <span>Start REVIVE Module</span>
-                <span>&rarr;</span>
-              </Link>
+            {/* Left Column Part 2: Highlights and Action Buttons */}
+            <div className="lg:col-span-6 lg:row-start-2">
+              {/* Three Highlights */}
+              <div className="mt-2 sm:mt-3 lg:mt-7 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-2xl">
+                <div className="rounded-2xl border border-slate-200 bg-white/95 p-3.5 sm:p-4 shadow-2xs">
+                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block">Curriculum</span>
+                  <span className="text-sm font-black text-slate-900 mt-0.5 block">14 Learning Modules</span>
+                </div>
+                <div className="rounded-2xl border border-teal-200 bg-teal-50/80 p-3.5 sm:p-4 shadow-2xs">
+                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-teal-800 block">First Module</span>
+                  <span className="text-sm font-black text-teal-950 mt-0.5 block">REVIVE &bull; Available Now</span>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white/95 p-3.5 sm:p-4 shadow-2xs">
+                  <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block">Credentials</span>
+                  <span className="text-sm font-black text-slate-900 mt-0.5 block">Verifiable Module Certificates</span>
+                </div>
+              </div>
+
+              {/* Clearly Differentiated CTAs */}
+              <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                <Link
+                  href="/mbbs-foundation/learn"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-950 hover:bg-red-700 text-white font-bold px-7 py-3.5 sm:py-4 text-sm sm:text-base shadow-md hover:shadow-lg transition cursor-pointer"
+                >
+                  <span>Explore Online Learning</span>
+                  <span>&rarr;</span>
+                </Link>
+                <Link
+                  href="/mbbs-foundation/learn/modules/revive"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-teal-700 bg-teal-50/70 hover:bg-teal-100 text-teal-900 font-bold px-6 py-3 sm:py-3.5 text-sm sm:text-base transition cursor-pointer"
+                >
+                  <span>Start REVIVE Module</span>
+                  <span>&rarr;</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       </section>
+
+      {/* =================================================================== */}
+      {/* 1B. MBBS FOUNDATION IN ACTION — CONTINUOUS PHOTO GALLERY           */}
+      {/* =================================================================== */}
+      <HomePhotoMarquee />
 
       {/* =================================================================== */}
       {/* 2. CPR SANJEEVANI (Compact Visually Distinct Banner)                */}

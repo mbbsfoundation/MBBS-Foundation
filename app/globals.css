@@ -60,6 +60,36 @@ select,
   animation-play-state: paused;
 }
 
+/* Homepage Photo Marquee (Continuous Loop) */
+@keyframes photo-marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.photo-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: photo-marquee-scroll 55s linear infinite;
+  will-change: transform;
+}
+
+.photo-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-marquee-track {
+    animation: none !important;
+    overflow-x: auto;
+    width: 100%;
+    scrollbar-width: thin;
+  }
+}
+
 /* Certificate Preview Dimensions & Responsive Fit */
 .certificate-preview-container {
   width: 100%;
